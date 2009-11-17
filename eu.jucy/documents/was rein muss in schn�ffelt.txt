@@ -1,0 +1,26 @@
+UNwichtiges
+- http://en.wikipedia.org/wiki/OS-tan   OS Tans zum OS anzeigen
+-Feed "support"
+-Rss Feed support
+-Antwort auf Suchanfragen im Main
+- AIML .. --> Artificial Intelligence markup language --http://www.alicebot.org zum spass..
+
+Wichtiges
+-Fakesharer heuristik
+ -Zeichenverteilung
+ -Dateiverteilung
+ - % bereits bekannte Dateien im Share
+-Lua_Support
+-MySql support
+-ADLSearch mit Lua gekoppelt .. �hnlich Tower script jedoch f�r beliebige anzahl Dateien
+
+
+Am Wichtigsten
+-Downloads zum Laufen bekommen..
+
+Changelog--
+
+0.02 UserIP2, ZLineSupport, still only Client-Hub protocoll
+0.01 The Client Can Connect 
+     Store Myinfos, Oplists, Userlists, Receive PMs, Receive MMS
+ 

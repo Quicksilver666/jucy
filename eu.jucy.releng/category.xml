@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/eu.jucy.feature.countries_1.1.0.jar" id="eu.jucy.feature.countries" version="1.1.0">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.smileys_1.1.0.jar" id="eu.jucy.feature.smileys" version="1.1.0">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.adlsearch_1.1.1.jar" id="eu.jucy.feature.adlsearch" version="1.1.1">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.notepad_1.1.1.jar" id="eu.jucy.feature.notepad" version="1.1.1">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.searchspy_1.1.1.jar" id="eu.jucy.feature.searchspy" version="1.1.1">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.searchspy_1.1.0.jar" id="eu.jucy.feature.searchspy" version="1.1.0">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.smileys_1.1.1.jar" id="eu.jucy.feature.smileys" version="1.1.1">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.adlsearch_1.1.0.jar" id="eu.jucy.feature.adlsearch" version="1.1.0">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.notepad_1.1.0.jar" id="eu.jucy.feature.notepad" version="1.1.0">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.adlsearch_1.1.2.jar" id="eu.jucy.feature.adlsearch" version="1.1.2">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.countries_1.1.1.jar" id="eu.jucy.feature.countries" version="1.1.1">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.notepad_1.1.2.jar" id="eu.jucy.feature.notepad" version="1.1.2">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.searchspy_1.1.2.jar" id="eu.jucy.feature.searchspy" version="1.1.2">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.smileys_1.1.2.jar" id="eu.jucy.feature.smileys" version="1.1.2">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.adlsearch_1.1.3.jar" id="eu.jucy.feature.adlsearch" version="1.1.3">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.countries_1.1.2.jar" id="eu.jucy.feature.countries" version="1.1.2">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.notepad_1.1.3.jar" id="eu.jucy.feature.notepad" version="1.1.3">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.searchspy_1.1.3.jar" id="eu.jucy.feature.searchspy" version="1.1.3">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.smileys_1.1.3.jar" id="eu.jucy.feature.smileys" version="1.1.3">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.countries_1.1.3.jar" id="eu.jucy.feature.countries" version="1.1.3">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.smileys_1.1.4.jar" id="eu.jucy.feature.smileys" version="1.1.4">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <category-def name="eu.jucy.enhancements" label="Enhancements">
+      <description>
+         Extensiosn to jucy that provide extra functionality!
+      </description>
+   </category-def>
+</site>

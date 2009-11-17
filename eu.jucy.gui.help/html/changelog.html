@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>Changelog</title>
+</head>
+
+<body>
+<div align="justify">
+<h1>Changelog</h1>
+<h2>Versions</h2> 
+<h3>V:0.80<!-- current --></h3>
+- Added setting to change time notification Popup is shown. <br>
+- Added URL handling for adc://, nmdc:// and dchub:// links in chat.<br>
+- Reworked URI handling for Magnet links (Magnets parsed and shown, also one can now embed images in Chat of magnets like it was possible with http before). <br>
+- Now Timestamps for chat can be changed (under Appearance) i.e. [HH:mm:ss] for showing seconds. <br>
+- The Full Text search for documents now also includes pdf files.<br>
+- Added option to reroute PMs to mainchat -> less PMwindows (Only if you open them).<br>
+<p>
+<h3>V:0.79<!-- svn749 --></h3>
+- Some changes to gui. (Progress moved bottom -> top, Transfers view can be closed at the bottom). <br>
+- Added a Downloads View. Where all Downloads can be observed and viewed per file.<br>
+- Fixed adding hub in FavHubs not working on Linux. (again one of those 0.77 bugs *sigh)<br>
+- Removed some irregular occuring error on actions on doubleclicks. <br>
+- Fixed bug in own IP detection. <br>
+- Traffic Limiter can now be adjusted from clicking on Transfer Speed Labels in StatusBar.<br>
+- Fixed some transparency issues with drawn stuff (flags, smileys,...)<br>
+- Notification Popup (Toaster) looks now better (Swing -> SWT) <br>
+- Added some key bindings for usual OS specific commands (close active window, mark all text,...)<br>
+- Fixed: Advanced settings not saved if FavHub was just created.<br>
+- Added Full Text search for documents (txt,nfo). Indexing of pdf files currently disabled due to some unresolved problems in parsing.<br>
+<p>
+<h3>V:0.78<!-- svn714 --></h3>
+- Fixed some Bugs introduced due to refactoring in 0.77. i.e. error with DH keypair generation<br>
+- Added Magnet handling from within the chat. Jucy won't register with the OS to accept links from the browser.<br>
+- Added some more settings for Colours used in jucy.(Files, Links)<br>
+- Polished the right-click menus (some icons added,some are more dynamic now, Hub menu is now on the tab of the hub)<br>
+- Added some progress bar in DownloadQueue where on can see the progress of each file. <br>
+<p>
+- Rev-1: Fixed ugly Bug preventing passive user to connect to others! -> no new version for this quick fix.. only available via update. 
+<p>
+<h3>V:0.77<!-- svn621 --></h3>
+- Fixed preferred Encryption Protocol to be TLS and not SSL. Also RC4 and MD5 are no longer supported. <br>
+- Fixed Bug: Another deadlock in encrypted connections. Though much less probable than the one that lead to 0.76 release.<br>
+- CTRL + Arrow_UP  / CTRL + Arrow_DOWN  can now be used to navigate through line history.<br>
+- Fixed Bug: Adding/Removing Hublists not worked for several versions. <br>
+- LED on the Bottom will now also show status of TLS port, also UPnP will try to create portmappings for TLS if needed. <br>
+- Fixed one more ugly deadlock that could appear when sending a PM or MC message.<br>
+- Fixed $ForceMove not being accepted if sent before $Hello. And placed setting for not automatically following redirect.<br>
+- Implemented an upload queue. Users that waited longest will now be preferred when requesting a slot.  <br>
+- Added an Export all Button to Logviewer.<br>
+- Implemented Bloom filter for ADC.<br>
+- Fixed Bug bad display of search results for multiple results with same hash. <br>
+- Fav User Windows has changed. Now Favourite Users and Users with slots are separated. <br> 
+- Colouring of nicks in chat is now also applicable to nicks in the userlist.<br>
+<p>
+<h3>V:0.76<!-- svn577 --></h3> 
+(This is a quick fix for some ugly bugs in 0.75)<br>
+- Fixed Bug: Bind to given IP/NetworkInterface failed if ADCS is in use.<br>
+- Fixed very probable deadlock that occurred on encrypted connections.<br>
+- Added NMDCS (protocol extension that allows encrypted connections to NMDC hubs and clients)<br>
+<p>
+<h3>V:0.75<!-- svn573 --></h3> 
+- Added support for SOCKS5 proxys. <br>
+- Compression Ratio column in Transfers view.<br>
+- Fixed Bug: Operator Status (and more) not being accepted in ADC hubs.<br>
+- Fixed creation of self signed certs for TLS on MacOSX and Linux.<br>
+- Better pop-up menu in PM window. (right-click on username works like in hub window) <br>
+- Fixed incorrect colours used in transfers view and logging window. <br>
+- MAC OS X: Moving from Carbon to Cocoa as window manager. <br> 
+- Fixed Bug: Appearance -> Use Alternative Tabs  crashing on start. <br> 
+- Behaviour: While typing opening new PM windows is deferred so when you press enter not some part of a PM goes to a different user.<br>
+- Added possibility to choose the network interface used by jucy.<br>
+- Added upload limiter. (Next DC++ version will have one therefore jucy can have it too) <br>
+- Added finer Granularity to priority system in DownloadQueue.<br>
+- Update to more modern update System. <br>
+<p>
+<h3>V:0.74<!-- svn509 --></h3> 
+- ADCS connections to clients work. <br>
+- Usercommands in ADC should now work. <br>
+- Added possibility to ask before shutdown.(Preferences -> Appearance)<br>
+- Added possibility to limit hash speed and change filelist refresh interval. <br>
+- Changed indexing method from Suffixarray to an Inverted index -> less memory usage! (about 5 MiB less per 10k shared files)<br>
+- Own filelist is no longer written to disc. <br>
+- Fixed some minor Bugs. <br>
+<p> 
+<h3>V:0.73<!-- svn457--></h3>
+- ADCS connection to hubs are now possible. <br>
+- Hashing is now about 30% faster.<br>
+- Test implementation of UserCommands for ADC. <br>
+- Added more toaster options. And separated sound from toaster so sound can be played without toaster.<br>
+- New "Chat Only" functionality to disable sharing in certain hubs.<br>
+- New %[Directory] and %[filePath] variables for UserCommands.<br>
+- Smiley Plugin: New ToolBar item added to choose smileys by picture.<br>
+- Added possibility to use multi-line tabs. Though these are ugly and therefore made optional. <br>  
+- Search now is a tree widget allowing results with multiple users to be seen each for itself. <br> 
+<p>
+<h3>V:0.72<!-- svn428 --></h3>
+- Setting Maximum simultaneous downloads finally works. Should be the last setting that was put into gui though never implemented.<br>
+- Now users get an automatic slot for files smaller than 64KiB like it is common in the rest of DC. <br>  
+- Extended the Help system a bit. Now Help for creating User Commands is provided.<br>
+- Searching in search results with Strg-F now enabled...
+- Added a toaster box that can pop up when a new PM arrives somewhere in the background. Inclusive an annoying sound. <br>
+- Added dialog to manage installed plug-ins. (uninstalling,disabling/enabling)<br>
+- Added Referrer in Client-Client connections so attacked parties can find source of DDoS. <br>
+- Handling of "is kicking because:" messages now more like in DC++. <br>
+<p>
+<h3>V:0.71<!-- svn346--></h3>
+- Fixed Problems with LockToKey mechanism not working sometimes. <br>
+- Changed image URLs on single click images will now be embedded in text instead of showing as pop-up.<br>
+- Fixed Bug: Download of large files ( > 5.4 GiB) resulted in an Error. Result: Large files not being downloadable. <br> 
+- Added Drag and Drop support in DownloadQueue. Makes moving around files a bit easier. <br>
+- Fixed one Bug throwing NullpointerExceptions (ConnectionProtocol.setState(ConnectionProtocol.java:273)) <br>
+- Fixed ADL Search not allowing to change an entry. Also made changes so non active items are distinguishable from active ones. <br>
+- Fixed Bug that resulted in endless re-hashing of files if the case in the name was changed. Happened only on case insensitive file systems. <br> 
+- Fixed Bug a memory leak, each FileList refresh leaked 1-2 MiB of memory. <br>
+- Added possibility to filter unwanted files from the share (good for filtering unfinished torrent files if you torrent client supports different endings.)<br>
+<p>
+<h3>V:0.70<!-- svn343--></h3>
+- New icons for jucy. Thanks goes to Fox for the design! <br>
+- PM windows load Text of last chat on opening. (If logging was enabled) <br>
+- MacOSX: Correction of behaviour with Preferences and Exit in application menu. <br>
+- Log messages no longer go to text files but are now stored in the database. Log directory is obsolete.<br>
+- Search now uses native search widget, if that is available on your OS. <br>
+- Automatic search for alternatives implemented. <br>
+- Fixed Bug: Error Dialog shown when Image URL clicked did not contain an image. Now the URL is opened in the browser if showing within jucy fails.<br>
+- Pugin Search Spy: Bad colours on Windows for Search Spy Icon in View Menu fixed.<br>
+- Now its possible to give nicks in chat a different colour/font for own nick, operator nicks, and favourite users' nicks.<br>
+- New plugin available: "Country" allows you to show flags to users in mainchat (if jucy knows the IP of the other) though be aware the database needed for this is about 20 MiB in size so this plugin is large and uses 30 MiB of RAM. <br>
+- Possibility to disable contributions of the plugins. (Text Modifications like Smileys or table columns and table column decorations like Country plugin has them. Found under Preferences -> Appearance) <br>
+- Messages received over UDP will now also make use of overridden charset in the hub. <br>
+- Smiley Plugin: Now much more smileys available by default. Thanks to arj! <br> 
+- Fixed Bug: Priorities in DownloadQueue were not persisted. <br>
+- Fixed Bug: Positively resolved DNS addresses were cached too long. Which may have made it impossible to reconnect to a hub after an IP change <br>
+- Fixed Bug: Reconnects/automatic reconnecting to hub sometimes not working.<p>
+<p>
+<h3>V:0.64<!-- svn331--></h3>
+- Added possibility to change colours and font for all Editors <br>
+- Search Editor improvements (Search only OP-hubs and only user with free slots were not implemented, order of hubs is now the same as in FavHubs)<br>
+- A Plugin that shows graphical smileys is now available<br>
+- Hovering over transfers shows now additional info. (Full path to file, Stats on stuff left in Queue for user) <br>
+- Image URLs get now some glasses icon after them. Clicking on that icon will show the image within jucy. <br>
+- Correction to FavHubs .. they were only stored permanently if the FavHubs window was closed. <br>
+- Fixed image loading bug primarily happening on Mac, sometimes on Linux and next to never on Windows. <br>
+- Its now possible to override the default charset on a per hub basis. This can be used in Russian (or other non windows-1252) NMDC based hubs that often use a different codepage than its common in DC.<br> 
+<p>
+<h3>V:0.63<!-- svn328 --></h3>
+- In the preferences can now be set what should be shown in statusbar.<br>
+- Automatic check for updates. (Disable it on Misc Preferencepage if you don't want that) <br>
+- jucy is now backported to java5 so you no longer need java6 to run it -> now possible to run it on Mac<br>
+- Fixed Bug in Personal Information preferencepage. Description could not be set also spaces were not allowed. <br>  
+<p><!-- ADC improvements. Partial FileList downloads should now work. <br>-->
+
+<h3>V:0.62<!-- svn323 --></h3>
+- Multiple search results of the same file are now shown as one. <br> 
+- Files are now coloured in Search and FileLists. (red = in Queue , blue = in share, dark blue = multiple users(search)). <br>
+- Added function for importing favorites.xml from DC++ and DC++ based clients. Hubs, UserCommands and Directories are imported. <br>
+- Fixed Downloads not updating name of downloaded stuff (correct name not shown in Finished Downloads and Transfers view). <br>
+- Some little ADC improvements. (Ignoring of malformed commands, GET is less buggy) but still ADC is not in proper shape. <br>
+<p>
+
+<h3>V:0.61<!-- svn313 --></h3>
+- ADC Version 1.0 implemented seems to work though needs some more testing. It should work, but primary purpose for now is testing.<br>
+- Downloadlimiter implemented (Was in settings present but never implemented) (There is no Uploadlimiter)<br>
+- Fixed Bug introduced with 0.60: Hubnames in Search not shown on Windows OS older than Vista<!-- https://bugs.eclipse.org/bugs/show_bug.cgi?id=241743 --><br> 
+- Fixed Bug: When TTH was on search but Searchtype was not tth but any or video no result was generated <br>
+- Added some widgets to the Statusline. Showing some Info like Progress on long running jobs, open hubs, speed and total transferred data <br>
+- UPnP is now implemented to help forwarding ports when a NAT is present.<br>
+- Restarting UC on update should now work better as the database is now properly closed on shutdown.<br>
+- Fixed Problem with Keyboard input in FavHubs (on Nick, Description and Email Navigating with arrows and deleting was impossible)<br>
+- Client-Client Connections are no longer directly disconnected after a transfer finishes. Now DC++ segmented downloads work at normal speed from UC. <br> 
+<p>
+
+<h3>V:0.60<!-- svn311 --></h3>
+- Added "Finished Uploads" showing files recently uploaded <br>
+- Added "Finished Downloads" showing files recently downloaded <br> 
+- Added an Upload Queue showing users that recently requested files <br> 
+- Hashing now uses all cores of the CPU  (80%+ Speedup on my dual core)<br>
+- Fixed some issue with connections staying open if other client not behaved as expected <br>
+- Now a context menu is available when clicking on a Nick in Mainchat <br>
+- Corrected behaviour on reconnecting to a hub <br>
+- User Commands are now available over preferences <br>
+- Corrected IP detection using to often web even if not needed.  <br>
+- Fixed Bug: Download of folders in Search not working. <br>
+- Fixed Bug: On closing UC lots of RejectedExecutionExceptions were thrown (ce n'est pas chic)<p>
+
+<h3>V:0.55<!-- svn298 --></h3>
+- Fixed a crash that occurred when the website used for IP detection is down <p>
+
+<h3>V:0.54<!-- svn296 --></h3>
+- Added Help functionality (work in progress) <br>
+- Finally Searches with SearchType Folder are also answered  <br> 
+- Corrected behaviour of FavUser editor to listen for changes in FavUsers
+- fixed search only accepting matching results case sensitive (shameful bug) <br>
+- fixed search new search no longer considering Folder names <br>
+- fixed bug that held connections open if the other client did not send ADCGet when its his turn for upload..<p>
+
+
+<h3>V:0.53<!-- svn288 --></h3>
+- Some more Bugfixes thanks to hAliGalLiE's and arj's input <br>
+- New Algorithm for the search is used.  
+On tested FileList (about 10k files) this uses 100MiB less RAM <br>
+- More Nationalisation done <br>
+- Possibility to not minimise to tray <br>
+- Fixed Reconnect button to work as expected <p>
+
+<h3>V:0.52</h3>
+- Update functionality implemented.<br>
+- ADL search is available as update.<br>
+- Fixed a Bug that had the result of being unable to download the last Block of a file <p>
+
+<h3>V:0.51</h3>
+- Logging for Feed, PM and MainChat <br>
+- Possibility to choose colours for down and uploads <br>
+- Font now changeable for Editors<br>
+- Fixed Bug with extra slots not working properly  (thx hAliGalLiE) <p>
+
+<h3>V:0.50</h3> 
+- Tons of Bugfixes thanks to hAliGalLiE for testing <p>
+
+		
+</div>
+<SCRIPT LANGUAGE="JavaScript"> 
+<!-- Begin 
+function LaunchX(page) { 
+OpenWin = this.open(page, "Open IBM", "toolbar=no,menubar=no,location=no,scrollbars=no,resizable=yes,width=550,height=250"); 
+} 
+// End --> 
+</SCRIPT> 
+</body>
+</html>

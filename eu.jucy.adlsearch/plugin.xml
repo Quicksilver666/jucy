@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="eu.jucy.files.filelist.processor">
+      <processor
+            class="eu.jucy.adlsearch.ADLFileListProcessor"
+            id="eu.jucy.ui.adlsearch">
+      </processor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="eu.jucy.adlsearch.ui.ADLPreferencePage"
+            id="eu.jucy.adlsearch"
+            name="%ADLSearch">
+      </page>
+   </extension>
+   <extension
+         point="eu.jucy.helpers.splashExtension">
+      <splashExtension
+            icon="icons/ADLIcon.64.png"
+            id="eu.jucy.adlsearch">
+      </splashExtension>
+   </extension>
+
+</plugin>

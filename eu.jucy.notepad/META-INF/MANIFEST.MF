@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %Bundle-Name
+Bundle-SymbolicName: eu.jucy.notepad;singleton:=true
+Bundle-Version: 1.1.2
+Require-Bundle: eu.jucy.gui,
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
+ eu.jucy.helpers
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Localization: notepad

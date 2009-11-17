@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Geoip Maxmind Plug-in
+Bundle-SymbolicName: eu.jucy.geoipmaxmind;singleton:=true
+Bundle-Version: 1.1.1
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: eu.jucy.helpers,
+ eu.jucy.logging,
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ eu.jucy.gui
+Export-Package: com.maxmind.geoip,
+ geoip

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="eu.jucy.IHashEngine" name="HashEngine" schema="schema/eu.jucy.IHashEngine.exsd"/>
+   <extension-point id="eu.jucy.IDatabase" name="Database" schema="schema/eu.jucy.IDatabase.exsd"/>
+   <extension-point id="eu.jucy.files.filelist.processor" name="Filelist processor" schema="schema/eu.jucy.files.filelist.processor.exsd"/>
+   <extension-point id="eu.jucy.OpPlugin" name="Operator Plugin" schema="schema/eu.jucy.OpPlugin.exsd"/>
+   <extension-point id="eu.jucy.HubProtocol" name="jucy Protocol" schema="schema/eu.jucy.Protocol.exsd"/>
+
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="uc.PI"/>
+   </extension>
+
+  
+
+</plugin>

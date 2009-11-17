@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>Portable jucy</title>
+</head>
+
+<body>
+<div align="justify">
+<h1>Portable jucy</h1>
+
+Some people like to carry around their programs with an USB stick. So they can use them everywhere.
+With jucy this not as easy as jucy stores all data in the user folder by default and not with the program.
+But this this can be changed in the jucy.ini file.
+This file has some basic parameters that change jucy's behaviour.
+<p><p>
+It should contain something like: <br>
+-data
+@user.home/UC
+-vmargs
+-Xmx256m
+<p><p>
+
+"-data @user.home/UC"  stands for using the UC subdirectory of the user's home directory. To make jucy use the program 
+folder for storing userdata one can just delete the whole data parameter. Or for example if multiple users should use 
+the same settings "@user.home/UC"  can be replaced with a path that all users can access. i.e. a shared Folder like 
+"C:\Users\Public\UC" or "/some/place/.UC".  <p><p> 
+
+
+<h3>Memory Settings</h3>
+As a side note when we are at looking at the .ini-file: <br>
+All after -vmargs  is arguments for the java virtual machine. There is currently only "-Xmx256m" which tells Java to 
+allow jucy to use up to 256 MiB of Ram. Better don't change this. Fewer might result in errors, more would just be lost Ram. 
+
+
+
+</div>
+
+</body>
+</html>

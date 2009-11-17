@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ADL Search
+Bundle-SymbolicName: eu.jucy.adlsearch;singleton:=true
+Bundle-Version: 1.1.2
+Bundle-Localization: adl
+Require-Bundle: eu.jucy.helpers,
+ eu.jucy,
+ eu.jucy.language,
+ eu.jucy.gui,
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
+ eu.jucy.logging
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: eu.jucy.adlsearch,
+ eu.jucy.adlsearch.ui

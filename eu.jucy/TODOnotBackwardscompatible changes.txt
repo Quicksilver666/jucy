@@ -1,0 +1,8 @@
+
+
+2. merge creation of log table to other tables.. (also setProperties() called from smewhere else)
+
+--4. Hubs should be stored in a single variable not like it is done currently...
+
+--5. SharedDirs is the same  should be stored in single variable .. use ComplexListEditor for manipulation
+6. Change the paths where data is stored from UC to jucy .. also use more appropriate paths.. i.e. // ${userHome}\Application Data\${vendorId}\${applicationId} on MacOsX

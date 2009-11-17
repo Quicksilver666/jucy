@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Lucene Plug-in
+Bundle-SymbolicName: lib.org.apache.lucene
+Bundle-Version: 2.9.0
+Bundle-ClassPath: lucene-core-2.9.0.jar
+Export-Package: org.apache.lucene,
+ org.apache.lucene.analysis,
+ org.apache.lucene.analysis.standard,
+ org.apache.lucene.analysis.tokenattributes,
+ org.apache.lucene.document,
+ org.apache.lucene.index,
+ org.apache.lucene.messages,
+ org.apache.lucene.queryParser,
+ org.apache.lucene.search,
+ org.apache.lucene.search.function,
+ org.apache.lucene.search.payloads,
+ org.apache.lucene.search.spans,
+ org.apache.lucene.store,
+ org.apache.lucene.util,
+ org.apache.lucene.util.cache
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

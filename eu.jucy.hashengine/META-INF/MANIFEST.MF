@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Standard Hashengine
+Bundle-SymbolicName: eu.jucy.hashengine;singleton:=true
+Bundle-Version: 1.1.2
+Require-Bundle: eu.jucy,
+ eu.jucy.logging,
+ eu.jucy.helpers,
+ org.eclipse.core.runtime,
+ fr.cryptohash
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

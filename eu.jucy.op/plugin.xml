@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="eu.jucy.OpPlugin">
+      <opplugin
+            class="eu.jucy.op.OperatorPlugin"
+            id="eu.jucy.op.basic"
+            name="UC Basic Op plugin">
+      </opplugin>
+   </extension>
+   <extension
+         point="eu.jucy.files.filelist.processor">
+      <processor
+            class="eu.jucy.op.OpADLProcessor"
+            id="eu.jucy.op.processor1">
+      </processor>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="eu.jucy.op.PI">
+      </initializer>
+   </extension>
+   <extension
+         point="eu.jucy.gui.favhub.FavHubAdvanced">
+      <impl
+            class="eu.jucy.op.ui.OpFavHubSettings"
+            id="eu.jucy.op.settings"
+            tab_name="OP Settings">
+      </impl>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="eu.jucy.op.mainPage"
+            class="eu.jucy.op.ui.OpADLPreferencePage"
+            id="eu.jucy.op.adl"
+            name="Op ADL Search">
+      </page>
+      <page
+            category="eu.jucy.op.mainPage"
+            class="eu.jucy.op.ui.CounterPreferencePage"
+            id="eu.jucy.op.counter"
+            name="Counters">
+      </page>
+      <page
+            category="eu.jucy.op.mainPage"
+            class="eu.jucy.op.ui.StaticReplacementsPreferencePage"
+            id="eu.jucy.op.staticReplacements"
+            name="Static Replacements">
+      </page>
+      <page
+            class="eu.jucy.op.ui.GeneralOpPreferencePage"
+            id="eu.jucy.op.mainPage"
+            name="Operator Plugin">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="tocopadl.xml">
+      </toc>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="htmlhelp/contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="eu.jucy.helpers.tablevieweradministrator">
+      <table
+            id="hubWindowUserTable">
+         <table_column_decorator
+               class="eu.jucy.op.ui.CheckedUsersColumnDecorator"
+               columnToDecorate="eu.jucy.gui.UserColumns$Nick"
+               id="eu.jucy.op.NickCheckedUserCol"
+               name="Nick Column - Op Plugin Checked Users Colouring">
+         </table_column_decorator>
+      </table>
+   </extension>
+
+</plugin>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="eu.jucy.IHashEngine">
+      <impl
+            Name="Standard HashEngine"
+            class="eu.jucy.hashengine.HashEngine"
+            id="eu.jucy.hashengine"/>
+   </extension>
+
+</plugin>

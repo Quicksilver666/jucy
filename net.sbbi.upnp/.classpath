@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="libs/commons-jxpath-1.1.jar" sourcepath="net.sbbi.upnpsrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="libs/mx4j-impl.jar" sourcepath="net.sbbi.upnpsrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="libs/mx4j-jmx.jar" sourcepath="net.sbbi.upnpsrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="libs/mx4j-remote.jar" sourcepath="net.sbbi.upnpsrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="libs/mx4j-tools.jar" sourcepath="net.sbbi.upnpsrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="libs/sbbi-jmx-1.0.jar" sourcepath="net.sbbi.upnpsrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="libs/sbbi-upnplib-1.0.4.jar" sourcepath="net.sbbi.upnpsrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="libs/commons-logging.jar" sourcepath="net.sbbi.upnpsrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="libs/commons-logging-api.jar" sourcepath="net.sbbi.upnpsrc.zip"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

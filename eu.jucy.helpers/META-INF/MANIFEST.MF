@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Helpers Plug-in
+Bundle-SymbolicName: eu.jucy.helpers;singleton:=true
+Bundle-Version: 1.1.3
+Bundle-Localization: helpers
+Export-Package: helpers,
+ jtoaster,
+ missing16api,
+ uihelpers
+Require-Bundle: org.eclipse.ui,
+ eu.jucy.logging,
+ org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

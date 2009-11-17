@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>Portable jucy</title>
+</head>
+
+<body>
+<div align="justify">
+<h1>User Commands</h1>
+
+Sometimes its useful specially for operators to add extra commands to your right-click menu.
+i.e. having a command prepared that kicks some user for sharing pornography. Or bans a user for not sharing anything.
+
+<p>
+To do this go to  <br> File -> Preferences -> User Commands -> New <br>
+You will be presented with a dialog that allows you to add items to your popup menus. <p>
+
+Type: Allows you to choose if it is a command. Or choose Seperator if you want just a Seperator in the menu to seperate different kinds of commands.<p>
+Context: Here you can choose in which popup menus the Items should appear. <br>
+<PRE>
+- Hub Menu			Appears if you click on the text in the hub.
+- User Menu			The Menu on clicking on the userlist right 
+				to the text.
+- Search Menu			Appears clicking on search results in 
+				the search window.
+- FileList Menu			The Menu appearing on clicking a file 
+				in the FileList 
+</PRE> <p><p>
+Parameter <br>
+
+Name: The Name under which the Command should appear. With \ submenus can be created.
+i.e. Kicks\Porn   for Porn entry in a submenu called "Kicks" <p>
+
+Command: A command that will be sent to the hub on click.
+i.e.:<p>
+$To: %[userNI] From: %[myNI] $<%[myNI]> Hello %[userNI]!|
+<p> will send a PM to the selected user saying Hello followed by the nick of the user.<p>
+A lot of %[user/myXY]- jokers like %[userNI] or %[myNI] can be used to be replaced with context information. <br>
+The "user" prefix is there for reference to the selected user, "my" prefix is used for self reference. 
+These can be used from everywhere except the Hub Menu:
+<PRE>
+NI 			-	the Nick
+I4			-	IP address
+SS			-	The number of bytes Shared
+SSshort			-	The number of bytes shared in better readable form.
+VE			-	The client Version. (First part of the "Tag" 
+				in the Userlist)
+SL			-	The amount of Slots
+EM			-	The Email address.
+DE			-	Description
+HN/HR/HO		-	Hubs normal/regged/op  reference to the number of
+				hubs a user has. 
+</PRE>
+Additional for the FileList Menu and the Search Menu some more jokers can be used to reference a selected file. <br>
+<PRE>
+%[fileFN]		-	the filename
+%[Directory]		-	the full path of the parent directory
+%[filePath]		-	the full path of the file
+%[fileSI]		-	file size
+%[fileSIshort]		-	file size in readable format
+%[fileTR]		-	TTH Root hash of the file
+%[type]			-	either "File"  or "Directory" 
+</PRE>
+Always available is:
+<PRE>
+%[line:text]		-	i.e. %[line:What is the reason for the Kick?] will 
+						open up a pop-up asking for input.
+</PRE>
+
+An example for usage with a hubsoft could be (here an example that works with Ynhub):<p>
+<%[myNI]> !tbanick %[userNI] 120 %[line:Why?]|<%[myNI]> !tban %[userNI] 120 %[line:Why?]| 
+<p>
+
+Hub: can be used to restrict the command to be only shown in certain hubs. Empty for all hubs,
+ "op" for all hubs where you are Operator or an address to specify a hub.<p>
+
+Send once for each user: If this is marked the command will be sent multiple times once for each 
+item selected in the Userlist/Search/Filelist. <p>
+
+</div>
+</body>
+</html>

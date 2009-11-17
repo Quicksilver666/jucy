@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="jucy Help" topic="html/toc.html">
+  <topic label="Changelog" href="html/changelog.html" />
+   <topic label="Getting Started">
+      <anchor id="gettingstarted"/>
+   </topic>
+      <topic label="Community" href="html/community/maintopic.html">
+      <anchor id="community"/>
+   </topic>
+   <topic label="Advanced" >
+      <anchor id="advanced"/>
+   </topic>
+   <topic label="Preferences" >
+      <anchor id="preferences"/>
+   </topic>
+   <topic label="Plugins">
+      <anchor id="plugins"/>
+   </topic>
+   
+   <topic label="Tasks">
+      <anchor id="tasks"/>
+   </topic>
+</toc>

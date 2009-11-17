@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Preferences" link_to="toc.xml#preferences" > 
+    <topic label="Advanced"  href="html/preferences/advanced.html" />
+	<!--<topic label="User Commands"  href="html/advanced/usercommands.html" />
+	<topic label="Getting jucy Portable"  href="html/advanced/portable.html" />-->
+</toc>

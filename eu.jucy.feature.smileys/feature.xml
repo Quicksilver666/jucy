@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="eu.jucy.feature.smileys"
+      label="Smileys Feature"
+      version="1.1.4"
+      provider-name="Quicksilver"
+      plugin="eu.jucy.ui.smileys">
+
+   <description>
+      Smiley feature replaces text smileys with little icons.
+   </description>
+
+   <copyright>
+      (c) Quicksilver 2008,2009. All rights reserved.
+Visit &lt;a href=&quot;http://jucy.eu&quot;&gt;http://jucy.eu&lt;/a&gt;
+   </copyright>
+
+   <license url="http://creativecommons.org/licenses/by-nd/3.0/deed.en">
+      jucy is licenced under http://creativecommons.org/licenses/by-nd/3.0/deed.en
+Creative Commons Attribution-No Derivative Works 3.0.
+   </license>
+
+   <url>
+      <update label="jucy UpdateSite" url="http://jucy.eu/p2update/"/>
+   </url>
+
+   <requires>
+      <import feature="eu.jucy.feature.baseclient" version="1.0.12"/>
+      <import plugin="eu.jucy.gui" version="1.0.9" match="greaterOrEqual"/>
+      <import plugin="eu.jucy" version="1.0.10" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.swt" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="eu.jucy.helpers" version="1.0.7" match="greaterOrEqual"/>
+   </requires>
+
+   <plugin
+         id="eu.jucy.ui.smileys"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>Check Configuration</title>
+</head>
+
+<body>
+<div align="justify">
+<h1>Downloading Files</h1>
+
+Now when you are in a hub just right click on a user and 
+choose <b>Get FileList</b>. 
+If you can see the FileList getting downloaded on the bottom 
+in the Transfers view, then everything is ok. <p>
+You can now either download files by choosing them from a 
+downloaded FileList or by using the search. 
+
+
+<h2>Troubleshooting</h2>
+
+
+If download or search is not working you should first rule out
+that the hub you are in allows you downloading/searching. 
+Some hubs block these for new users and require them to register.
+If this is the case the hub will usually send you a message that
+you need to register.
+
+
+<h4>Download</h4>
+
+If the FileList is not downloaded usual reason is that you 
+are behind a router/NAT. If that is the case you will need 
+to forward a port to your PC. Forward TCP and UDP protocol on
+the ports that are set under <br>
+<b> File -&gt; Preferences -&gt; Connection Settings </b> <br>
+TCP is needed for file transfers, while UDP is used to receive 
+search results.
+
+
+
+<h4>Search</h4>
+If search is not working but download does most probable reason
+is that you did not forward the UDP port. So re-check your router's 
+configuration. Though there is also the possibility that your firewall
+blocks incoming UDP traffic. This was often a problem with old WinXP 
+build in firewall. <p>
+
+<h4>Fail-safe</h4>
+If nothing helps and you can't get UC to download and search.
+Then go to <br>
+<b> File -&gt; Preferences -&gt; Connection Settings </b> <br>
+and check  <b>Use passive mode</b>. When this is checked 
+downloading and searching should work. Though the negative
+side is that you will get less search results. Also you can 
+now only download from peers that are not in passive mode. <p>
+
+</div>
+
+</body>
+</html>

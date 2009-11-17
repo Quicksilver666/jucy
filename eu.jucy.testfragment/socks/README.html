@@ -1,0 +1,77 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Generator" content="Microsoft Word 97">
+   <meta name="GENERATOR" content="Mozilla/4.7 [en]C-CCK-MCD   (Win95; I) [Netscape]">
+   <meta name="Author" content="Kirill Kouzoubov">
+   <meta name="Description" content="Readme file for java socks server, contains instructions on how to set up and run socks proxy.">
+   <title>Readme File for JAVA SOCKS Server</title>
+</head>
+<body>
+
+<h2>
+New Features and Changes</h2>
+
+<ul>
+<li>
+Support for chaining proxies have been added. Now you can run this proxy
+behind the firewall. It is now possible to connect through multiple proxies.
+That is this proxy server can use another proxy to connect to another to
+connect to another ... so on and only then to the required host.</li>
+
+<li>
+Some bugs have been fixed.</li>
+
+<li>
+This server now works with ICQ correctly.</li>
+</ul>
+
+<h2>
+How to run server</h2>
+First go to the <tt>bin</tt> directory, and make changes to configuration
+file <tt>socks.properties,</tt> there are plenty comments there to give
+you some idea of what does what. Most important is to set <b><tt>range</tt></b>
+and <b><tt>users</tt></b> attributes. Range controls what hosts are allowed
+to use this proxy. And <b><tt>users</tt></b> attribute controls who is
+allowed to connect from those host. Not setting <b><tt>users</tt></b> implies
+that authentication will be done solely on the basis of the origin of the
+connection. If however <b><tt>users</tt></b> attribute is set, authentication
+will be based on the user name information which will be collected from
+the Identd daemon, so proxy users will require to run Identd daemons on
+their machines, in order to be granted permission to use proxy. Other attributes
+control proxy behaviour like timeouts and have reasonable default values.
+<br>It is possible to allow user A,B and C to connect from machine M1 and
+users D and E to connect from machines M2 and M3, in order to achieve this
+you will have to define two configuration files, first would contain all
+initialisation data like port to listen on, timeouts to use and so on plus
+it will contain lines
+<br>&nbsp;
+<blockquote><tt><font size=+0>range = M1</font></tt>
+<br><tt><font size=+0>users = A;B;C</font></tt></blockquote>
+<font size=+0>Second file would contain just two lines + any comments</font>
+<blockquote><tt><font size=+0>range = M2;M3</font></tt>
+<br><tt><font size=+0>users = D;E</font></tt></blockquote>
+You will then specify these files on the command line for SOCKS server.
+<p>Once configuration is complete you should edit batch file to make it
+suitable for your machine, examples for UNIX and Windows machines are provided.
+If you are on UNIX do not forget to do <b><tt>chmod</tt></b> on the SOCKS
+file.
+<h2>
+SocksEcho</h2>
+SocksEcho is another application which uses <tt>socks</tt> package. It
+is GUI echo client, which is SOCKS aware, you can make and accept connections
+through the proxy using this client. You can also send datagrams through
+SOCKS5 proxy. See <tt>SocksEcho.bat</tt> or <tt>SocksEcho</tt> on how to
+run it.
+<br>&nbsp;
+<h2>
+Requirements</h2>
+In order to run these application you will need Java Virtual Machine which
+supports Java 1.1 or higher. I have tested it with jdk1.1.6 and jdk1.2.2
+under Windows95 and on jdk1.1.5 under Solaris. Server application might
+be able to run even under java 1.0, but I haven't tested this.
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

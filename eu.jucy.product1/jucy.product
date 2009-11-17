@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="jucy" id="eu.jucy.product1.product" application="eu.jucy.gui.application" version="0.79.1" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="/eu.jucy.product1/icons/sidebar.png"/>
+      <text>
+         %aboutText
+      </text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgsLin>-data @user.home/.UC</programArgsLin>
+      <programArgsMac>-data @user.home/.UC</programArgsMac>
+      <programArgsSol>-data @user.home/.UC</programArgsSol>
+      <programArgsWin>-data @user.home/UC</programArgsWin>
+      <vmArgs>-Xmx256m</vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="/eu.jucy.product1/icons/icon_16.gif" i32="/eu.jucy.product1/icons/icon_32.gif" i48="/eu.jucy.product1/icons/icon_48.gif" i64="/eu.jucy.product1/icons/icon_64.gif" i128="/eu.jucy.product1/icons/icon_128.gif"/>
+
+   <splash
+      location="eu.jucy.product1"
+      handlerType="extensible" />
+   <launcher name="jucy">
+      <linux icon="/eu.jucy.product1/icons/icon.xpm"/>
+      <macosx icon="/eu.jucy.product1/icons/icon.icns"/>
+      <solaris/>
+      <win useIco="true">
+         <ico path="/eu.jucy.product1/icons/icon.ico"/>
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <license>
+        <url>http://creativecommons.org/licenses/by-nd/3.0/deed.en</url>
+        <text>
+   jucy is licenced under http://creativecommons.org/licenses/by-nd/3.0/deed.en
+Creative Commons Attribution-No Derivative Works 3.0.
+         </text>
+   </license>
+
+   <plugins>
+      <plugin id="com.ibm.icu"/>
+      <plugin id="eu.jucy"/>
+      <plugin id="eu.jucy.Log4J" fragment=""/>
+      <plugin id="eu.jucy.adlsearch"/>
+      <plugin id="eu.jucy.charts"/>
+      <plugin id="eu.jucy.countries"/>
+      <plugin id="eu.jucy.database"/>
+      <plugin id="eu.jucy.geoipmaxmind"/>
+      <plugin id="eu.jucy.gui"/>
+      <plugin id="eu.jucy.gui.help"/>
+      <plugin id="eu.jucy.gui.macosx.cocoa" fragment="true"/>
+      <plugin id="eu.jucy.hashengine"/>
+      <plugin id="eu.jucy.helpers"/>
+      <plugin id="eu.jucy.language"/>
+      <plugin id="eu.jucy.notepad"/>
+      <plugin id="eu.jucy.product1"/>
+      <plugin id="eu.jucy.ui.hublist"/>
+      <plugin id="fr.cryptohash"/>
+      <plugin id="javax.servlet"/>
+      <plugin id="lib.org.apache.lucene"/>
+      <plugin id="net.sbbi.upnp"/>
+      <plugin id="org.apache.tools.bzip2"/>
+      <plugin id="org.eclipse.core.commands"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.databinding"/>
+      <plugin id="org.eclipse.core.databinding.observable"/>
+      <plugin id="org.eclipse.core.databinding.property"/>
+      <plugin id="org.eclipse.core.expressions"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.core.runtime.compatibility"/>
+      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
+      <plugin id="org.eclipse.ecf"/>
+      <plugin id="org.eclipse.ecf.filetransfer"/>
+      <plugin id="org.eclipse.ecf.identity"/>
+      <plugin id="org.eclipse.ecf.ssl" fragment="true"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.frameworkadmin"/>
+      <plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
+      <plugin id="org.eclipse.equinox.http.jetty"/>
+      <plugin id="org.eclipse.equinox.http.servlet"/>
+      <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
+      <plugin id="org.eclipse.equinox.p2.core"/>
+      <plugin id="org.eclipse.equinox.p2.director"/>
+      <plugin id="org.eclipse.equinox.p2.engine"/>
+      <plugin id="org.eclipse.equinox.p2.exemplarysetup"/>
+      <plugin id="org.eclipse.equinox.p2.garbagecollector"/>
+      <plugin id="org.eclipse.equinox.p2.jarprocessor"/>
+      <plugin id="org.eclipse.equinox.p2.metadata"/>
+      <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
+      <plugin id="org.eclipse.equinox.p2.repository"/>
+      <plugin id="org.eclipse.equinox.p2.ui"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.equinox.security"/>
+      <plugin id="org.eclipse.equinox.security.macosx" fragment="true"/>
+      <plugin id="org.eclipse.equinox.security.ui"/>
+      <plugin id="org.eclipse.equinox.security.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.equinox.simpleconfigurator"/>
+      <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
+      <plugin id="org.eclipse.help"/>
+      <plugin id="org.eclipse.jface"/>
+      <plugin id="org.eclipse.jface.databinding"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.eclipse.swt"/>
+      <plugin id="org.eclipse.swt.carbon.macosx" fragment="true"/>
+      <plugin id="org.eclipse.swt.cocoa.macosx" fragment="true"/>
+      <plugin id="org.eclipse.swt.cocoa.macosx.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.linux.ppc" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.linux.s390" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.linux.s390x" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.linux.x86" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.linux.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.solaris.sparc" fragment="true"/>
+      <plugin id="org.eclipse.swt.gtk.solaris.x86" fragment="true"/>
+      <plugin id="org.eclipse.swt.motif.aix.ppc" fragment="true"/>
+      <plugin id="org.eclipse.swt.motif.hpux.PA_RISC" fragment="true"/>
+      <plugin id="org.eclipse.swt.motif.hpux.ia64_32" fragment="true"/>
+      <plugin id="org.eclipse.swt.motif.linux.x86" fragment="true"/>
+      <plugin id="org.eclipse.swt.motif.solaris.sparc" fragment="true"/>
+      <plugin id="org.eclipse.swt.photon.qnx.x86" fragment="true"/>
+      <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.swt.win32.win32.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.swt.wpf.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.ui"/>
+      <plugin id="org.eclipse.ui.carbon" fragment="true"/>
+      <plugin id="org.eclipse.ui.cocoa" fragment="true"/>
+      <plugin id="org.eclipse.ui.workbench"/>
+      <plugin id="org.eclipse.update.configurator"/>
+      <plugin id="org.hamcrest.core"/>
+      <plugin id="org.hsqldb"/>
+      <plugin id="org.junit4"/>
+      <plugin id="org.mortbay.jetty.server"/>
+      <plugin id="org.mortbay.jetty.util"/>
+      <plugin id="org.sat4j.core"/>
+      <plugin id="org.sat4j.pb"/>
+   </plugins>
+
+   <features>
+      <feature id="eu.jucy.feature.baseclient" version="1.1.6"/>
+      <feature id="eu.jucy.feature.rcp" version="1.1.0"/>
+      <feature id="eu.jucy.feature.hublist" version="1.1.2"/>
+   </features>
+
+
+</product>

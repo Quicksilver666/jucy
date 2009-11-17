@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="eu.jucy.gui.TextModificator">
+      <impl
+            class="eu.jucy.ui.smileys.SmileyTextModificator"
+            id="eu.jucy.ui.smileys.impl2"
+            name="Smileys">
+      </impl>
+   </extension>
+   <extension
+         point="eu.jucy.helpers.splashExtension">
+      <splashExtension
+            icon="smileys/BigSmiley.64.png"
+            id="eu.jucy.ui.smileys"
+            tooltip="Smileys Plugin">
+      </splashExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=eu.jucy.gui.toolbarsearch">
+         <toolbar
+               id="eu.jucy.ui.smileys.toolbar1">
+            <command
+                  commandId="eu.jucy.ui.smileys.openDiag"
+                  icon="smileys/BigSmiley.22.png"
+                  style="push">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="eu.jucy.ui.smileys.openDiag"
+            name="Smileys">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="eu.jucy.ui.smileys.OpenSmileyDialogHandler"
+            commandId="eu.jucy.ui.smileys.openDiag">
+         <activeWhen>
+            <with
+                  variable="activeEditor">
+               <instanceof
+                     value="eu.jucy.gui.texteditor.UCTextEditor">
+               </instanceof>
+            </with>
+         </activeWhen>
+      </handler>
+   </extension>
+
+</plugin>

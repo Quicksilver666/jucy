@@ -1,0 +1,7 @@
+
+1.0.0		Initial import everything works.
+
+1.0.1		Changed to Icon with higher resolution for splash screen
+			Added Internationalisation (only German till now)
+			
+1.0.2		Update to 3.4	

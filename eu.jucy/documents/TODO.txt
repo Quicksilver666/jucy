@@ -1,0 +1,19 @@
+Sooner TODO
+ 
+
+
+9. Slot management   use a class slot .. may be give that class a semaphore for controlling the traffic that runs through a slot
+
+18. Add possibility for Listeners to the user   i.e. ConnectionCreatedListener to tack on the ClientClient protocol..
+
+22. may be make user list of a hub a view , do not a sash form
+
+.
+More complex and things in the far distance also fun stuff..
+6. Storage network between trusted peers "friends", upload to people with protocol extension  to receive such from all..
+   Accumulate function: Accumulates a large percentage of a file in your share(in another special storage..)
+   Streaming function: Streams after a file was downloaded the rest of the file together with the downloaded part from the other peers
+   
+   Rights-Management: unix like  users , group and root.
+   
+7. LiveStream through all UC clients using networkcoding and udp...or may be better tcp..

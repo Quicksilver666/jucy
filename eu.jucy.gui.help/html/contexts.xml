@@ -1,0 +1,13 @@
+<contexts>
+	<context id="ConnectionStatus" title="Panic Button Title">
+		<description>Help to get Active</description>
+		<topic href="html/gettingstarted/activemode.html" label="Getting Active"/>
+	</context>
+	<context id="UserCommands">
+		<topic href="html/advanced/usercommands.html" label="User Commands"/>
+	</context>
+	<context id="Preferences_Advanced">
+		<topic href="html/preferences/advanced.html" label="Advanced"/>
+	</context>
+	
+</contexts>

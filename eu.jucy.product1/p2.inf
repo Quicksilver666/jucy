@@ -1,0 +1,5 @@
+instructions.configure=\
+  addRepository(type:0,location:http${#58}//jucy.eu/p2/update);\
+  addRepository(type:1,location:http${#58}//jucy.eu/p2/update);\
+  addRepository(type:0,location:http${#58}//jucy.eu/p2/extensions);\
+  addRepository(type:1,location:http${#58}//jucy.eu/p2/extensions);

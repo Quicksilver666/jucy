@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="eu.jucy.gui.TextModificator">
+      <impl
+            class="eu.jucy.countries.FlagsTextModificator"
+            id="eu.jucy.countries.flags"
+            name="%Flags">
+      </impl>
+   </extension>
+   <extension
+         point="eu.jucy.helpers.tablevieweradministrator">
+      <table
+            id="transfersViewTable">
+         <table_column_decorator
+               class="eu.jucy.countries.IPDecorator"
+               columnToDecorate="eu.jucy.gui.transferview.TransferColumns$IPColumn"
+               id="eu.jucy.countries.ipDecorator"
+               name="%IPFlagsDecoration">
+         </table_column_decorator>
+      </table>
+      <table
+            id="hubWindowUserTable">
+         <table_column
+               class="eu.jucy.countries.UserFlagColumn"
+               id="eu.jucy.countries.table_column5"
+               name="%Location">
+         </table_column>
+      </table>
+   </extension>
+   <extension
+         point="eu.jucy.helpers.splashExtension">
+      <splashExtension
+            icon="png/Flags.64.png"
+            id="eu.jucy.countries.spl1">
+      </splashExtension>
+   </extension>
+
+</plugin>

@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Language Plug-in
+Bundle-SymbolicName: eu.jucy.language
+Bundle-Version: 1.1.2
+Export-Package: eu.jucy.language
+Require-Bundle: eu.jucy.logging,
+ eu.jucy.helpers
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

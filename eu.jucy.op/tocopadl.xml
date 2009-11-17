@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<!--link_to="toc.xml#advanced" -->
+<toc label="Op ADL" link_to="../eu.jucy.gui.help/toc.xml#plugins">  
+	<topic label="OP ADL Search"  href="htmlhelp/opadlSearch.html" />
+</toc>

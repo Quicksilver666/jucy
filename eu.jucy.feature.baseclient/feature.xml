@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="eu.jucy.feature.baseclient"
+      label="Baseclient Feature"
+      version="1.1.6"
+      provider-name="Quicksilver"
+      plugin="eu.jucy.product1">
+
+   <description>
+      Contains the Minimum set of functionality for a working jucy Client.
+   </description>
+
+   <copyright>
+      (c) Quicksilver 2008,2009. All rights reserved.
+Visit &lt;a href=&quot;http://jucy.eu&quot;&gt;http://jucy.eu&lt;/a&gt;
+   </copyright>
+
+   <license url="http://creativecommons.org/licenses/by-nd/3.0/deed.en">
+      jucy is licenced under http://creativecommons.org/licenses/by-nd/3.0/deed.en
+Creative Commons Attribution-No Derivative Works 3.0.
+   </license>
+
+   <url>
+      <update label="jucy UpdateSite" url="http://jucy.eu/p2/update/"/>
+   </url>
+
+   <requires>
+      <import plugin="eu.jucy"/>
+      <import plugin="eu.jucy.logging"/>
+      <import plugin="eu.jucy.language"/>
+      <import plugin="eu.jucy.helpers"/>
+      <import plugin="fr.cryptohash"/>
+      <import plugin="org.apache.tools.bzip2"/>
+      <import plugin="net.sbbi.upnp"/>
+      <import plugin="lib.org.apache.lucene"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.equinox.p2.ui"/>
+      <import plugin="org.eclipse.core.expressions"/>
+      <import plugin="org.eclipse.core.runtime.compatibility"/>
+      <import plugin="org.eclipse.equinox.http.jetty"/>
+      <import plugin="org.eclipse.core.runtime" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui" version="3.5.0" match="greaterOrEqual"/>
+   </requires>
+
+   <plugin
+         id="eu.jucy.logging"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="eu.jucy.database"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="eu.jucy.gui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="eu.jucy.hashengine"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="eu.jucy.helpers"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="eu.jucy.language"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.tools.bzip2"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="eu.jucy"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="eu.jucy.gui.help"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.sbbi.upnp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.hsqldb"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="fr.cryptohash"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="eu.jucy.gui.macosx.cocoa"
+         os="macosx"
+         ws="cocoa"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"
+         unpack="false"/>
+
+   <plugin
+         id="lib.org.apache.lucene"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="eu.jucy.product1"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="lib.org.apache.pdfbox"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

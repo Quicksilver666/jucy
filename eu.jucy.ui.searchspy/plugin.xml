@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="%SearchSpy"
+            icon="icons/SearchSpy.22.png"
+            class="eu.jucy.ui.searchspy.SearchSpyEditor"
+            id="eu.jucy.ui.searchspy.SearchSpyEditor">
+      </editor>
+   </extension>
+   <extension
+         point="eu.jucy.helpers.splashExtension">
+      <splashExtension
+            icon="icons/Searchspy.64.png"
+            id="eu.jucy.ui.searchspy.se1"
+            tooltip="SearchSpy plugin">
+      </splashExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="eu.jucy.ui.searchspy.OpenSearchSpyHandler"
+            description="%Description"
+            id="eu.jucy.ui.searchspy.action"
+            name="%SearchSpy">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:eu.jucy.gui.toolbarsearch?after=eu.jucy.gui.OpenSearchEditor">
+         <command
+               commandId="eu.jucy.ui.searchspy.action"
+               icon="icons/SearchSpy.22.png"
+               label="%SearchSpy"
+               tooltip="%Description">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:view?after=additions">
+         <command
+               commandId="eu.jucy.ui.searchspy.action"
+               icon="icons/SearchSpy.22.gif"
+               label="%SearchSpy"
+               tooltip="%Description">
+         </command>
+      </menuContribution>
+   </extension>
+
+</plugin>

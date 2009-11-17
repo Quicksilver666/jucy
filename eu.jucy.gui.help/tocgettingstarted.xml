@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Getting Started" link_to="toc.xml#gettingstarted"> 
+	<topic label="0. Terminology"  href="html/gettingstarted/terminology.html" />
+	<topic label="1. How to share something"  href="html/gettingstarted/sharemain.html" />  
+	<topic label="2. Connect to a hub" href="html/gettingstarted/connecttohubmain.html" />
+	<topic label="3. Downloading" href="html/gettingstarted/downloadingmain.html" />
+</toc>
