@@ -19,7 +19,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
  * 
  * @since 3.5
  */
-@SuppressWarnings("restriction")
 public class CloudPolicy extends Policy {
 	public CloudPolicy() {
 		// XXX User has no access to manipulate repositories

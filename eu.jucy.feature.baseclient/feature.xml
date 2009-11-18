@@ -24,25 +24,6 @@ Creative Commons Attribution-No Derivative Works 3.0.
       <update label="jucy UpdateSite" url="http://jucy.eu/p2/update/"/>
    </url>
 
-   <requires>
-      <import plugin="eu.jucy"/>
-      <import plugin="eu.jucy.logging"/>
-      <import plugin="eu.jucy.language"/>
-      <import plugin="eu.jucy.helpers"/>
-      <import plugin="fr.cryptohash"/>
-      <import plugin="org.apache.tools.bzip2"/>
-      <import plugin="net.sbbi.upnp"/>
-      <import plugin="lib.org.apache.lucene"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.equinox.p2.ui"/>
-      <import plugin="org.eclipse.core.expressions"/>
-      <import plugin="org.eclipse.core.runtime.compatibility"/>
-      <import plugin="org.eclipse.equinox.http.jetty"/>
-      <import plugin="org.eclipse.core.runtime" version="3.5.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui" version="3.5.0" match="greaterOrEqual"/>
-   </requires>
-
    <plugin
          id="eu.jucy.logging"
          download-size="0"

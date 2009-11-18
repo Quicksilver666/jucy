@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.rcp.help"
       label="Help Feature"
-      version="1.1.0"
+      version="1.1.1"
       provider-name="Quicksilver">
 
    <description>
@@ -83,28 +83,28 @@ Creative Commons Attribution-No Derivative Works 3.0.
          id="org.eclipse.help.base"
          download-size="0"
          install-size="0"
-         version="3.4.0.v200906111540"
+         version="3.4.100.v200910301201"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help.ui"
          download-size="0"
          install-size="0"
-         version="3.4.0.v20090528"
+         version="3.5.0.v20091023"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help.webapp"
          download-size="0"
          install-size="0"
-         version="3.4.0.v20090429_1800"
+         version="3.5.0.v20091023"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.variables"
          download-size="0"
          install-size="0"
-         version="3.2.200.v20090521"
+         version="3.2.300.v20090911"
          unpack="false"/>
 
    <plugin
@@ -153,14 +153,14 @@ Creative Commons Attribution-No Derivative Works 3.0.
          id="org.eclipse.ui.forms"
          download-size="0"
          install-size="0"
-         version="3.4.0.v20090526"
+         version="3.5.0.v20091012"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help"
          download-size="0"
          install-size="0"
-         version="3.4.0.v20090526"
+         version="3.5.0.v20091019"
          unpack="false"/>
 
 </feature>

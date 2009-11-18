@@ -23,7 +23,6 @@ import org.eclipse.ui.PlatformUI;
  * 
  * @since 3.5
  */
-@SuppressWarnings("restriction")
 public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 
 	/**

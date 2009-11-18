@@ -13,7 +13,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 
-@SuppressWarnings("restriction")
+
 public class Activator extends AbstractUIPlugin {
 
 	private static Logger logger = LoggerFactory.make();

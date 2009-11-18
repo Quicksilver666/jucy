@@ -40,8 +40,10 @@ public class RecommendedDownloadsContributionItem extends CompoundContributionIt
 
 
 		Object o = iss.getFirstElement();
-		logger.debug("downloadable: "+o.getClass().getName()+"  size: "+iss.size());
-
+		if (o != null) {
+			logger.debug("downloadable: "+o.getClass().getName()+"  size: "+iss.size());
+		}
+		
 		if (o instanceof IHasDownloadable && ((IHasDownloadable)o).getDownloadable() != null) {
 			IDownloadable idf = ((IHasDownloadable)o).getDownloadable();
 			DownloadQueue dq = ApplicationWorkbenchWindowAdvisor.get().getDownloadQueue();

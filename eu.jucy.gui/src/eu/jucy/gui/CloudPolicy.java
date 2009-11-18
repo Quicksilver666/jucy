@@ -2,11 +2,12 @@ package eu.jucy.gui;
 
 
 
+
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 
 
-@SuppressWarnings("restriction")
+
 public class CloudPolicy extends Policy {
 	
 	public CloudPolicy() {
@@ -19,7 +20,6 @@ public class CloudPolicy extends Policy {
 
 		setQueryContext(queryContext);
 	}
-	
 
 }
 
