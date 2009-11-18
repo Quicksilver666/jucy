@@ -8,7 +8,6 @@ Require-Bundle: eu.jucy,
  eu.jucy.adlsearch;bundle-version="1.0.6",
  eu.jucy.gui;bundle-version="1.0.12",
  eu.jucy.helpers;bundle-version="1.0.11",
- eu.jucy.Log4J;bundle-version="1.0.3",
  org.eclipse.ui;bundle-version="3.5.0",
  eu.jucy.language;bundle-version="1.0.7"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
