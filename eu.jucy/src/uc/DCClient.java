@@ -111,7 +111,7 @@ import uc.protocols.hub.Hub;
  *  TODO may be think about torrent support in dc client -> starting torrents downloaded..
  *  
  *  
- *  TODO spiel einbauen... Schiffe versenken
+ *  TODO implement some game.. i.e. Battleship or chess that could be played against other user..
  *  
  * 
  * 
@@ -121,7 +121,7 @@ import uc.protocols.hub.Hub;
  * TODO after finished downloading file .. may be check if should be hashed and immediately shared..
  *
  *
- * TODO ... new special user categorie for tons of settings..
+ * TODO ... new special user category for tons of settings..
  * i.e. special treatment for PMs ... and and and..
  * 
  * TODO transferred size boxes in statusline could on click change between showing total

@@ -44,6 +44,7 @@ import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import org.apache.pdfbox.util.PDFTextStripper;
@@ -91,7 +92,9 @@ public class TextIndexer {
 	private IndexTextFiles job;
 	
 	public TextIndexer() throws IOException {
-		System.setProperty( "org.apache.lucene.FSDirectory.class", NIOFSDirectory.class.getName());
+		System.setProperty( "org.apache.lucene.FSDirectory.class", "org.apache.lucene.store.FSDirectory");
+		//have to do that -> sadly because of indexer uses it and in 0.79 was set to nioFS which does not exist in old lucene..
+		
 		dir = new File(new File(PI.getStoragePath(),"db"),"textindex");
 		File lockfile = new File(dir,"write.lock");
 		if (lockfile.exists()) {
