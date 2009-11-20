@@ -108,10 +108,6 @@ import uc.protocols.hub.Hub;
  * 
  *  
  *  
- *  TODO full text indexing  ... adding PDF txt html.. mp3 tags.. avi tags.. wmv tags..
- *  for pdfs http://incubator.apache.org/pdfbox/
- *   --> for all apache tika
- *  
  *  TODO may be think about torrent support in dc client -> starting torrents downloaded..
  *  
  *  
