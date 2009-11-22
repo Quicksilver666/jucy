@@ -1185,6 +1185,7 @@ Stato UPnP: %s</it>
 <PopupDissappearanceTime><!-- setting for time popup needs to disappear -->
 <de>Zeit für das Popup zum Verschwinden (in ms)</de>
 <en>Time for Popup to dissappear (in ms)</en>
+<it>Durata dei Popup (in ms)</it>
 </PopupDissappearanceTime>
 <PersonalInformation>
 <de>Persönliche Information</de>
@@ -1489,6 +1490,7 @@ Stato UPnP: %s</it>
 <ShowPMInMainchat><!-- Added 0.80 If PMs should be rerouted to mainchat Preferences-Appearance-Texteditor -->
 <de>Zeige PMs im Mainchat anstelle im PM Fenster</de>
 <en>Show PMs in Mainchat instead of PM window</en>
+<it>Mostra Messaggi Privati nella Mainchat</it>
 </ShowPMInMainchat>
 <ShowPOPUPonChatroom>
 <de>Zeige Pop-up bei neuen Nachrichten in Chaträumen</de>
