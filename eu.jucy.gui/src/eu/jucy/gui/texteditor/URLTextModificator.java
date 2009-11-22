@@ -102,7 +102,7 @@ public class URLTextModificator implements ITextModificator {
 	
 	private StyledText text;
 	private StyledTextViewer viewer;
-	private MouseAdapter listener;
+//	private MouseAdapter listener;
 	
 	
 
@@ -119,9 +119,9 @@ public class URLTextModificator implements ITextModificator {
 	
 	
 	public void dispose() {
-		if (!text.isDisposed()) {
-			text.removeMouseListener(listener);
-		}
+//		if (!text.isDisposed()) {
+//			text.removeMouseListener(listener);
+//		}
 	}
 	
 

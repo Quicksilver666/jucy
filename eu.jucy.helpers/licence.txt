@@ -1,7 +1,0 @@
-All classes in the de.du_hub.uc.helpers package are under Public Domain.
-An exception is the package missing16api as this is sourcecode by sun copied 
-from 1.6 java so jucy still works with 1.5 base.
-Even though jucy itself is not I think this classes might be helpful to everyone.
-
-Especially: TableViewerAdministrator  is a nice add-on to standard jface TableViewer.
-IconManager is a good help for getting icons to files for swt applications.

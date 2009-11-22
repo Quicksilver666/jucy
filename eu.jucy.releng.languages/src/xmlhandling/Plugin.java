@@ -49,11 +49,12 @@ public class Plugin implements Comparable<Plugin> {
 				prop.getParentFile().mkdirs();
 			}
 			
-			
 			FileOutputStream fos = new FileOutputStream(prop); 
 			fos.getChannel().truncate(0); //delete file first..
 			e.getValue().store(fos, null);
 			fos.close();
+			
+			System.out.println("Written file: "+prop.getAbsolutePath());
 		}
 	}
 	

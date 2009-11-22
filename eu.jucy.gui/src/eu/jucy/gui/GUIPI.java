@@ -53,6 +53,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 	windowFontColor		=	"windowFontColor",
 	
 	minimizeToTray		=	"minimizeToTray",
+	setAwayOnMinimize	=	"setAwayOnMinimize",
 	alternativePresentation = "alternativePresentation",
 	
 	//Toaster stuff
@@ -174,6 +175,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 		
 		
 		defaults.putBoolean(minimizeToTray, true);
+		defaults.putBoolean(setAwayOnMinimize, true);
 		defaults.putBoolean(alternativePresentation, false);
 		
 		defaults.putBoolean(showToasterMessages, true);

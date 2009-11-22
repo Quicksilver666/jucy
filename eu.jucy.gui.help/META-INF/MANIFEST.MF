@@ -2,6 +2,6 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Help Plug-in
 Bundle-SymbolicName: eu.jucy.gui.help; singleton:=true
-Bundle-Version: 1.1.5
+Bundle-Version: 1.1.6
 Require-Bundle: org.eclipse.ui
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

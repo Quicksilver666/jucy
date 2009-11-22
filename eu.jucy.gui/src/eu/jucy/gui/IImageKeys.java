@@ -1,6 +1,9 @@
 package eu.jucy.gui;
 
-public interface IImageKeys {
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+public class IImageKeys {
 	
 	// usericons
 	public static final String 
@@ -36,7 +39,7 @@ public interface IImageKeys {
 								
 								
     // Tray icon
-								TRAYICON			=	"icons/icon_16.gif", 
+								TRAYICON			, 
 
 								
 	// misc			
@@ -51,7 +54,14 @@ public interface IImageKeys {
 									;
 								
 								
-								
+	static {
+		boolean christmas;
+		GregorianCalendar beforeCH = new GregorianCalendar(2009,11,24,0,0);
+		GregorianCalendar afterCH  = new GregorianCalendar(2009,11,27,0,0); 
+		christmas = new Date().after(beforeCH.getTime()) && new Date().before(afterCH.getTime());
+		TRAYICON=	christmas?"icons/iconch09_16.gif" :"icons/icon_16.gif";
+	}
+
 								
 
 }

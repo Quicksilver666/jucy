@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: jucy Main Plug-in
 Bundle-SymbolicName: eu.jucy; singleton:=true
-Bundle-Version: 1.1.5
+Bundle-Version: 1.1.6
 Bundle-ClassPath: .
 Export-Package: uc,uc.crypto,uc.database,uc.files,uc.files.downloadqueue,uc.files.filelist,uc.files.search,uc.files.transfer,uc.listener,uc.protocols,uc.protocols.client,uc.protocols.hub
 Require-Bundle: org.eclipse.core.runtime,

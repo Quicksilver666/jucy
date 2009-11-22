@@ -261,7 +261,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     				window.getShell().setVisible(false);
     			}
     		//	trayItem.setVisible(true);
-    			if (!dcc.isAway()) {
+    			if (!dcc.isAway() && GUIPI.getBoolean(GUIPI.setAwayOnMinimize)) {
     				dcc.setAway(true);
     			}
     		}

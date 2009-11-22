@@ -62,7 +62,7 @@ public class TextIndexer {
 	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
 	
 	
-	private static final int MAX_TOTALSIZE = 200*1024*1024; //max size to be indexed..
+	private static final int MAX_TOTALSIZE = 100*1024*1024; //max size to be indexed..
 	private static final int MAX_RAMSIZE_FOR_PDF = 15 * 1024 * 1024; // max size to be held in ram..
 	private static final String FIELD_HASH = "hash",FIELD_CONTENT = "contents",FIELD_ENDING = "ending"; //contens field -> from PDFReader
 	
@@ -283,6 +283,8 @@ public class TextIndexer {
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			String debugcurrent = ""; 
+			int priority = Thread.currentThread().getPriority();
+			Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 			try {
 				List<FileListFile> pdfFiles = new ArrayList<FileListFile>();
 				//FileList fl = list.getFileList();
@@ -318,6 +320,7 @@ public class TextIndexer {
 			} catch (Throwable e) {
 				logger.warn(e + debugcurrent, e);
 			} finally {
+				Thread.currentThread().setPriority(priority);
 				monitor.done();
 				setCreated(true);
 			}
@@ -375,7 +378,7 @@ public class TextIndexer {
 					String contents = writer.getBuffer().toString();
 					reader =  new StringReader(contents);
 				} else {
-					final File f = new File(PI.getStoragePath(),"index.tmp");
+					final File f = new File(PI.getTempPath(),"index.tmp");
 					FileWriter fw = new FileWriter(f);
 					try {
 						stripper.writeText(pdfDocument, fw);

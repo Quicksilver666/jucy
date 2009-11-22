@@ -31,7 +31,9 @@ public class EnlargeShellHandler extends AbstractHandler {
 			shell.setMinimized(false);
 			shell.setActive();
 			shell.setFocus();
-			ApplicationWorkbenchWindowAdvisor.get().setAway(false);
+			if (GUIPI.getBoolean(GUIPI.setAwayOnMinimize)) {
+				ApplicationWorkbenchWindowAdvisor.get().setAway(false);
+			}
 		} 
 		
 		return null;

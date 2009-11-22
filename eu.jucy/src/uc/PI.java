@@ -324,7 +324,13 @@ public class PI extends AbstractPreferenceInitializer {
 		return new File(Platform.getInstanceLocation().getURL().getFile());
 	}
 
-
+	public static File getTempPath() {
+		File f  = new File(getStoragePath(),"tmp");
+		if (!f.isDirectory()) {
+			f.mkdir();
+		}
+		return f;
+	}
 
 
 

@@ -73,12 +73,7 @@ public class FavUserEditor extends UCEditor implements IUserChangedListener {
 		
 		ExpandBar bar = new ExpandBar (parent, SWT.V_SCROLL);
 
-
-	//	Composite tableComp = new Composite(bar,SWT.NONE);
-	//	tableComp.setLayout(new GridLayout());
-
 		Table table = new Table(bar,SWT.CHECK | SWT.SINGLE|SWT.FULL_SELECTION |SWT.HIDE_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.HIDE_SELECTION );
-	//	table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table.setHeaderVisible(true);
 		
 		tableViewerFav = new CheckboxTableViewer( table );
@@ -96,7 +91,6 @@ public class FavUserEditor extends UCEditor implements IUserChangedListener {
 		
 		
 		Table table2 = new Table(bar, SWT.SINGLE|SWT.FULL_SELECTION |SWT.HIDE_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.HIDE_SELECTION );
-	//	table2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table2.setHeaderVisible(true);
 		
 		tableViewerSlot = new TableViewer( table2 );
@@ -111,8 +105,6 @@ public class FavUserEditor extends UCEditor implements IUserChangedListener {
 		spi.addViewer(tableViewerSlot);
 
 		
-		
-		//makeActions();
 		createContextPopup(HubEditor.ID,tableViewerFav);
 		createContextPopup(HubEditor.ID, tableViewerSlot);
 		

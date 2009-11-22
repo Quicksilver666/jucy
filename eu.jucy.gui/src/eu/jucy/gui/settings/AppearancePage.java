@@ -54,6 +54,9 @@ public class AppearancePage extends UCPrefpage {
 		BooleanFieldEditor minimizeToTray = new BooleanFieldEditor(GUIPI.minimizeToTray,Lang.MinimizeToTray,getFieldEditorParent());
 		addField(minimizeToTray);
 		
+		BooleanFieldEditor setAwayOnMinimize = new BooleanFieldEditor(GUIPI.setAwayOnMinimize,"Set away message on minimize",getFieldEditorParent());
+		addField(setAwayOnMinimize);
+		
 		BooleanFieldEditor alternativeTabstyle = new BooleanFieldEditor(GUIPI.alternativePresentation,Lang.UseAlternativeTabs,getFieldEditorParent());
 		addField(alternativeTabstyle);
 		
