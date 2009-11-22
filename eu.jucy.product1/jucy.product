@@ -32,7 +32,7 @@
       <macosx icon="/eu.jucy.product1/icons/icon.icns"/>
       <solaris/>
       <win useIco="true">
-         <ico path="/eu.jucy.gui/icons/icon.ico"/>
+         <ico path="/eu.jucy.product1/icons/icon.ico"/>
          <bmp/>
       </win>
    </launcher>
