@@ -284,7 +284,7 @@
                name="%LogViewer">
          </command>
          <command
-               defaultHandler="eu.jucy.gui.itemhandler.FilelistHandler"
+               defaultHandler="eu.jucy.gui.filelist.FilelistHandler"
                description="%OpenFileList"
                id="eu.jucy.gui.openfilelist"
                name="%OpenFileList">
@@ -295,7 +295,7 @@
             </commandParameter>
          </command>
                   <command
-               defaultHandler="eu.jucy.gui.itemhandler.FilelistHandler$RefreshFilelistHandler"
+               defaultHandler="eu.jucy.gui.filelist.FilelistHandler$RefreshFilelistHandler"
                description="%RefreshFilelist"
                id="eu.jucy.gui.refreshfilelist"
                name="%RefreshFilelist">
@@ -909,7 +909,8 @@
                   visible="true">
             </separator>
             <command
-                  commandId="org.eclipse.ui.file.exit">
+                  commandId="org.eclipse.ui.file.exit"
+                  icon="icons/exit.16.gif">
             </command>
 
 

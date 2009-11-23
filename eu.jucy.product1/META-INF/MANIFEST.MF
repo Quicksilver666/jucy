@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: jucy Product
 Bundle-SymbolicName: eu.jucy.product1;singleton:=true
-Bundle-Version: 1.1.10
+Bundle-Version: 1.1.11
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Localization: product
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0",
