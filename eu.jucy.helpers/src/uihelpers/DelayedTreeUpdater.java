@@ -95,55 +95,54 @@ public class DelayedTreeUpdater<V> {
 	private void ensureUpdate() {
 		if (!updateinProgress) {
 			updateinProgress = true;
-			new SUIJob() { //"bulkupdate"
+			new SUIJob(viewer.getControl()) { //"bulkupdate"
 				public void run() {
-					if (!viewer.getControl().isDisposed()) {
-						synchronized(synchUpdate) {
-							updateinProgress = false;
-							
-							boolean done = false;
-							while (!done) {
-								if (!add.isEmpty()) {
-									for (Entry<Object,Set<V>> e:addInverse.entrySet()) {
-										viewer.add(e.getKey(), e.getValue().toArray());
-									}
-									add.clear();
-									addInverse.clear();
+					synchronized(synchUpdate) {
+						updateinProgress = false;
+
+						boolean done = false;
+						while (!done) {
+							if (!add.isEmpty()) {
+								for (Entry<Object,Set<V>> e:addInverse.entrySet()) {
+									viewer.add(e.getKey(), e.getValue().toArray());
 								}
-								if (!update.isEmpty()) {
-									viewer.update(toArray(update), null); //.toArray()
-									update.clear();
-								}
-								if (!remove.isEmpty()) {
-									viewer.remove(toArray(remove) ); //.toArray()
-									remove.clear();
-								}
-								done = delayed.isEmpty();
-								if (!done) {
-									List<DTEntry<V>> delayCopy = delayed;
-									delayed = new ArrayList<DTEntry<V>>();
-									for (DTEntry<V> dt:delayCopy) {
-										switch(dt.ct) {
-										case ADDED:
-											add(dt.value, dt.parent);
-											break;
-										case CHANGED:
-											change(dt.value, dt.parent);
-											break;
-										case REMOVED:
-											remove(dt.value, dt.parent);
-											break;
-										
-										}
+								add.clear();
+								addInverse.clear();
+							}
+							if (!update.isEmpty()) {
+								viewer.update(toArray(update), null); //.toArray()
+								update.clear();
+							}
+							if (!remove.isEmpty()) {
+								viewer.remove(toArray(remove) ); //.toArray()
+								remove.clear();
+							}
+							done = delayed.isEmpty();
+							if (!done) {
+								List<DTEntry<V>> delayCopy = delayed;
+								delayed = new ArrayList<DTEntry<V>>();
+								for (DTEntry<V> dt:delayCopy) {
+									switch(dt.ct) {
+									case ADDED:
+										add(dt.value, dt.parent);
+										break;
+									case CHANGED:
+										change(dt.value, dt.parent);
+										break;
+									case REMOVED:
+										remove(dt.value, dt.parent);
+										break;
+
 									}
 								}
 							}
-
 						}
-						//viewer.refresh();
-						
-						updateDone();
+
 					}
+					//viewer.refresh();
+
+					updateDone();
+
 				}
 				
 			}.schedule(delay);

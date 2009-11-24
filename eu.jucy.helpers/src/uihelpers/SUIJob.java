@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -26,6 +27,27 @@ public abstract class SUIJob implements Runnable {
 	private volatile boolean cancel = false;
 	
 	
+	private final Runnable exec;
+	
+	public SUIJob() {
+		exec = new Runnable() {
+			public void run() {
+				if (!cancel) {
+					SUIJob.this.run();
+				}
+			}
+		};
+	}
+	
+	public SUIJob(final Control testDisposed) {
+		exec = new Runnable() {
+			public void run() {
+				if (!cancel && !testDisposed.isDisposed()) {
+					SUIJob.this.run();
+				}
+			}
+		};
+	}
 	
 	public abstract void run();
 	
@@ -33,7 +55,7 @@ public abstract class SUIJob implements Runnable {
 	public void schedule() {
 		Display d = Display.getDefault();
 		if (!d.isDisposed()) {
-			d.asyncExec(this);
+			d.asyncExec(exec);
 		}
 	}
 	
@@ -52,9 +74,7 @@ public abstract class SUIJob implements Runnable {
 							d.timerExec(delayMillisecs, new Runnable() {
 								public void run() {
 									jobsInProgress.remove(SUIJob.this.getClass());
-									if (!cancel) {
-										SUIJob.this.run();
-									}
+									exec.run();
 								}
 							});
 						}
@@ -66,20 +86,14 @@ public abstract class SUIJob implements Runnable {
 	
 	/**
 	 * 
-	 * @param delayMillisecs - delay scheduled in miliseconds.
+	 * @param delayMillisecs - delay scheduled in milliseconds.
 	 */
 	public void schedule(final int delayMillisecs) {
 		final Display d = Display.getDefault();
 		if (!d.isDisposed()) {
 			d.asyncExec(new Runnable() {
 				public void run() {
-					d.timerExec(delayMillisecs, new Runnable() {
-						public void run() {
-							if (!cancel) {
-								SUIJob.this.run();
-							}
-						}
-					});
+					d.timerExec(delayMillisecs, exec);
 				}
 			});
 		}
@@ -91,7 +105,7 @@ public abstract class SUIJob implements Runnable {
 	public void scheduleAndJoin() {
 		Display d = Display.getDefault();
 		if (!d.isDisposed()) {
-			d.syncExec(this);
+			d.syncExec(exec);
 		}
 	}
 	

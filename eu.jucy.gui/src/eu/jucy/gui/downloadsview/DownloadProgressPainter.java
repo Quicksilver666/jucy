@@ -26,12 +26,10 @@ public class DownloadProgressPainter implements Listener, ISelectionChangedListe
 		DownloadProgressPainter dpp = new DownloadProgressPainter();
 		tree.addListener(SWT.PaintItem,dpp);
 		treeViewer.addSelectionChangedListener(dpp);
-		new SUIJob() { 
+		new SUIJob(tree) { 
 			@Override
 			public void run() {
-				if (!tree.isDisposed()) {
-					tree.redraw();
-				}
+				tree.redraw();
 				schedule(500);
 			}
 		}.schedule(1000);

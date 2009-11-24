@@ -1,4 +1,4 @@
-package eu.jucy.gui.itemhandler;
+package eu.jucy.gui.filelist;
 
 import java.io.File;
 
@@ -15,25 +15,30 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import uc.IUser;
 import uc.Population;
+import uc.files.IDownloadable;
+import uc.files.filelist.FileList;
 import uihelpers.SUIJob;
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
-import eu.jucy.gui.filelist.FilelistEditor;
-import eu.jucy.gui.filelist.FilelistEditorInput;
 
 public class FilelistHandler extends AbstractHandler {
 
-	public static void openFilelist(final IUser usr) {
+	public static void openFilelist(IUser usr) {
+		openFilelist(usr,null);
+	}
+	
+	public static void openFilelist(final IUser usr,final IDownloadable initialSelection) {
 		if (usr != null && usr.getFilelistDescriptor() != null) {
+			final FileList fl = usr.getFilelistDescriptor().getFilelist(); // force loading Filelist outside of UI thread..
 			new SUIJob() {
-				public void run(){
-					FilelistEditorInput fei = new FilelistEditorInput(usr.getFilelistDescriptor());
+				public void run() {
+					FilelistEditorInput fei = new FilelistEditorInput(usr.getFilelistDescriptor(),initialSelection);
 					IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 					try {
 						window.getActivePage().openEditor(fei,FilelistEditor.ID);
-
 					} catch(PartInitException pie) {
-						MessageDialog.openError(window.getShell(), "Error", "Error opening Filelisteditor:" + pie.getMessage());
+						MessageDialog.openError(window.getShell(), "Error", "Error opening Filelisteditor: " + pie.getMessage()+"  "+fl.getUsr());
 					}
+					
 				}
 			}.schedule();
 		}

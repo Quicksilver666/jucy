@@ -224,6 +224,8 @@ public enum INFField {
 		case AM:
 		case CT: return value.matches(IProtocolCommand.BYTE);
 		case AS:
+		case U4:
+		case U6:
 		case SF: return value.matches(IProtocolCommand.INT);
 		case DS:
 		case US: return value.matches(IProtocolCommand.FILESIZE); 

@@ -78,7 +78,6 @@ public class GuiAppender extends AppenderSkeleton {
 					public void run() {
 						refreshSettings();
 					}
-
 				}.schedule();
 		
 			}

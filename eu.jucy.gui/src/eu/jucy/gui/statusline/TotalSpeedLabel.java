@@ -42,18 +42,15 @@ public class TotalSpeedLabel extends CLabel implements IStatusLineComp {
 	
 	private final boolean up;
 
-	
-	
+
 	public TotalSpeedLabel(Composite comp,boolean up) {
 		super(comp,SWT.BORDER);//up? UPID:DOWNID);
 		this.up = up;
-		new SUIJob() {
+		new SUIJob(this) {
 			@Override
 			public void run() {
-				if (!isDisposed()) {
-					setText();
-					schedule(1000);
-				}
+				setText();
+				schedule(1000);
 			}
 		}.schedule(1000);
 		setText();

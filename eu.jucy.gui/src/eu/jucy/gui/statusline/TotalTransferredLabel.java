@@ -80,12 +80,10 @@ public class TotalTransferredLabel extends CLabel implements IObserver<StatusObj
 	
 
 	public void update(IObservable<StatusObject> o, StatusObject arg) {
-		new SUIJob() {
+		new SUIJob(this) {
 			@Override
 			public void run() {
-				if (!isDisposed()) {
-					setText();
-				}
+				setText();
 			}
 		}.schedule();
 		
@@ -100,7 +98,7 @@ public class TotalTransferredLabel extends CLabel implements IObserver<StatusObj
 	}
 
 	public int getNumberOfCharacters() {
-		return 13;
+		return 13; 
 	}
 
 	

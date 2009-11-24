@@ -127,20 +127,13 @@ public class HublistEditor extends UCEditor {
 		filterText.setLayoutData(gridData_2);
 
 		filterText.addModifyListener(new ModifyListener() {
-			private boolean settingFilter = false;
 			public void modifyText(final ModifyEvent e) {
-				if (!settingFilter) {
-					settingFilter = true;
-					new SUIJob() {
-
-						@Override
-						public void run() {
-							settingFilter = false;
-							setFilter(filterText.getText());
-						}
-						
-					}.schedule(500);
-				}
+				new SUIJob() {
+					@Override
+					public void run() {
+						setFilter(filterText.getText());
+					}	
+				}.scheduleIfNotRunning(700); //works as long as only one hublist present..
 				
 			}
 		});
@@ -205,7 +198,6 @@ public class HublistEditor extends UCEditor {
 		addActions();
 		
 		new SUIJob() {
-
 			@Override
 			public void run() {
 				loadHublist();
@@ -306,33 +298,29 @@ public class HublistEditor extends UCEditor {
 	}
 	
 	private void handleErrorOnOpeningHublist(final Exception e) {
-		new SUIJob() {
+		new SUIJob(table) {
 
 			@Override
 			public void run() {
-				if (!table.isDisposed()) {
-					if (e instanceof SAXException) {
-						String mes = e.getMessage();
-						MessageDialog.openError(getSite().getShell(), "Error", "Error invalid Hublist. No valid XML found.\n" + (mes != null? mes: e.getClass().getSimpleName()));	
-					} else {
-						String mes = e.getMessage();
-						MessageDialog.openError(getSite().getShell(), "Error", "Error loading Hublist:\n" + (mes != null? mes: e.getClass().getSimpleName()));	
-					}
-					logger.info(e,e);
+				if (e instanceof SAXException) {
+					String mes = e.getMessage();
+					MessageDialog.openError(getSite().getShell(), "Error", "Error invalid Hublist. No valid XML found.\n" + (mes != null? mes: e.getClass().getSimpleName()));	
+				} else {
+					String mes = e.getMessage();
+					MessageDialog.openError(getSite().getShell(), "Error", "Error loading Hublist:\n" + (mes != null? mes: e.getClass().getSimpleName()));	
 				}
+				logger.info(e,e);
+				
 			}
 			
 		}.schedule();
 	}
 	
 	private void handleHubListLoaded(final HubList hl) {
-		new SUIJob() {
-
+		new SUIJob(table) {
 			@Override
 			public void run() {
-				if (!table.isDisposed()) {
-					tableViewer.setInput(hl);
-				}
+				tableViewer.setInput(hl);
 			}
 			
 		}.schedule();

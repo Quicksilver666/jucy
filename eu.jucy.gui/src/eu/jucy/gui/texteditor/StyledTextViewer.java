@@ -107,10 +107,10 @@ public class StyledTextViewer {
 		this.hub = hub;
 		text.addModifyListener(new ModifyListener() {//moves the text downwards
 			public void modifyText(final ModifyEvent e) {
-				new SUIJob() {
+				new SUIJob(text) {
 					@Override
 					public void run() {
-						if (!text.isDisposed() && !text.isFocusControl()) {
+						if (!text.isFocusControl()) {
 							text.setSelection(text.getCharCount());
 							text.redraw();
 						}
@@ -351,7 +351,7 @@ public class StyledTextViewer {
 							refreshSettings();
 							refresh();
 						}
-					}.schedule(1000);
+					}.schedule(500);
 				}
 
 			}

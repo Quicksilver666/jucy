@@ -144,76 +144,69 @@ public class FavUserEditor extends UCEditor implements IUserChangedListener {
 	public void changed(final UserChangeEvent uce) {
 		switch(uce.getDetail()) {
 		case UserChangeEvent.FAVUSER_ADDED:
-			new SUIJob() {
+			new SUIJob(tableViewerFav.getTable()) {
 				@Override
 				public void run() {
-					if (!tableViewerFav.getTable().isDisposed()) {
-						tableViewerFav.add(uce.getChanged());
-						if (uce.getChanged().hasCurrentlyAutogrant()) {
-							tableViewerSlot.remove(uce.getChanged());
-						}
+					tableViewerFav.add(uce.getChanged());
+					if (uce.getChanged().hasCurrentlyAutogrant()) {
+						tableViewerSlot.remove(uce.getChanged());
 					}
 				}
 			}.schedule();
 			break;
 		case UserChangeEvent.SLOT_GRANTED:
-			new SUIJob() {
+			new SUIJob(tableViewerSlot.getTable()) {
 				@Override
 				public void run() {
-					if (!tableViewerSlot.getTable().isDisposed()) {
-						if (uce.getChanged().isFavUser()) {
-							tableViewerFav.refresh(uce.getChanged());
-						} else {
-							tableViewerSlot.add(uce.getChanged());
-						}
+					if (uce.getChanged().isFavUser()) {
+						tableViewerFav.refresh(uce.getChanged());
+					} else {
+						tableViewerSlot.add(uce.getChanged());
 					}
 				}
 			}.schedule();
 			break;
 		case UserChangeEvent.FAVUSER_REMOVED:
-			new SUIJob() {
+			new SUIJob(tableViewerFav.getTable()) {
 				@Override
 				public void run() {
-					if (!tableViewerFav.getTable().isDisposed()) {
-						tableViewerFav.remove(uce.getChanged());
-						if (uce.getChanged().hasCurrentlyAutogrant()) {
-							tableViewerSlot.add(uce.getChanged());
-						}
+				
+					tableViewerFav.remove(uce.getChanged());
+					if (uce.getChanged().hasCurrentlyAutogrant()) {
+						tableViewerSlot.add(uce.getChanged());
 					}
+					
 				}
 			}.schedule();
 			break;
 		case UserChangeEvent.SLOTGRANT_REVOKED:
-			new SUIJob() {
+			new SUIJob(tableViewerSlot.getTable()) {
 				@Override
 				public void run() {
-					if (!tableViewerSlot.getTable().isDisposed()) {
-						if (uce.getChanged().isFavUser()) {
-							tableViewerFav.refresh(uce.getChanged());
-						} else {
-							tableViewerSlot.remove(uce.getChanged());
-						}
+
+					if (uce.getChanged().isFavUser()) {
+						tableViewerFav.refresh(uce.getChanged());
+					} else {
+						tableViewerSlot.remove(uce.getChanged());
 					}
+					
 				}
 			}.schedule();
 		break;
 		default:
 			if (uce.getChanged().isFavUser()) {
-				new SUIJob() {
+				new SUIJob(tableViewerFav.getTable()) {
 					@Override
 					public void run() {
-						if (!tableViewerFav.getTable().isDisposed()) {
-							tableViewerFav.refresh(uce.getChanged());
-						}
+						tableViewerFav.refresh(uce.getChanged());
 					}
 				}.schedule();
 			} else if (uce.getChanged().hasCurrentlyAutogrant()) {
-				new SUIJob() {
+				new SUIJob(tableViewerSlot.getTable()) {
 					@Override
 					public void run() {
-						if (!tableViewerSlot.getTable().isDisposed()) {
-							tableViewerSlot.refresh(uce.getChanged());
-						}
+						tableViewerSlot.refresh(uce.getChanged());
+						
 					}
 				}.schedule();
 			}

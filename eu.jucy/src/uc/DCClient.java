@@ -98,7 +98,7 @@ import uc.protocols.hub.Hub;
 /** 
  *
  *
- *  
+ *  TODO internationalisation in hublisteditor
  *
  * Presentation of magnet -> save as button .. or play button could be added / may be a view button also..
  * 

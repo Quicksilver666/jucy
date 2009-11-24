@@ -137,27 +137,24 @@ public class SearchSpyEditor extends UCEditor implements ISearchReceivedListener
 			final int nrOfFoundResults) {
 		final String shown =concat(searchStrings);
 		
-		new SUIJob() {
+		new SUIJob(table) {
 			public void run() {
-				if (!table.isDisposed()) {
-					hits += nrOfFoundResults;
-					totalSearches++;
-					SearchInfo found = info.get(shown);
-					if (found == null) {
-						found = new SearchInfo(shown,nrOfFoundResults);
-						info.put(shown, found);
-						tableViewer.add(found);
-					}
-					found.update(nrOfFoundResults);
-					tableViewer.update(found, null);
-				
-					lastSearchInfos.add(found);
-					if (lastSearchInfos.size() > 5 ) {
-						lastSearchInfos.remove(0);
-					}
-					updateLabels();
+				hits += nrOfFoundResults;
+				totalSearches++;
+				SearchInfo found = info.get(shown);
+				if (found == null) {
+					found = new SearchInfo(shown,nrOfFoundResults);
+					info.put(shown, found);
+					tableViewer.add(found);
 				}
-				
+				found.update(nrOfFoundResults);
+				tableViewer.update(found, null);
+
+				lastSearchInfos.add(found);
+				if (lastSearchInfos.size() > 5 ) {
+					lastSearchInfos.remove(0);
+				}
+				updateLabels();
 			}
 		}.schedule();
 	}

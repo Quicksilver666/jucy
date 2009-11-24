@@ -262,7 +262,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 		if (! type.equals(UserChange.CHANGED)) {
 			userOnline = type == UserChange.CONNECTED;
 			append("*** "+type+" ***",null,System.currentTimeMillis());
-			new SUIJob() {
+			new SUIJob(feedLabel) {
 				public void run() {
 					labelViewer.addMessage("*** "+type+" ***");
 					setCurrentimage();
@@ -282,7 +282,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 	}
 	
 	private void append(final String text,final IUser usr,final long received) {
-		new SUIJob() {
+		new SUIJob(this.text) {
 			public void run() {
 				textViewer.addMessage(text,usr,new Date(received));
 			}	

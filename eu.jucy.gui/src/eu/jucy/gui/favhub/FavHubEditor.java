@@ -374,7 +374,6 @@ public class FavHubEditor extends UCEditor implements IObserver<FavHub> {
 			public void run() {
 				logger.debug("refreshing FavHubs");
 				tableViewer.refresh(); 
-//				return Status.OK_STATUS;
 			}
 			
 		}.schedule();

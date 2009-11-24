@@ -466,8 +466,7 @@ public class DownloadQueueEditor extends UCEditor implements IObserver<StatusObj
 //	}
 	
 	private void pack() {
-		new SUIJob() {
-			
+		new SUIJob(treeViewer.getTree()) {
 			public void run() {
 				Tree tree = treeViewer.getTree();
 				TreeColumn col = tree.getColumn(0);
@@ -511,20 +510,18 @@ public class DownloadQueueEditor extends UCEditor implements IObserver<StatusObj
 
 	
 	public void update(IObservable<StatusObject> o, final StatusObject status) {
-		new SUIJob() {
+		new SUIJob(table) {
 			public void run() {
-				if (!table.isDisposed()) {
-					switch(status.getType()) {
-					case ADDED:
-					case REMOVED:
-						tableViewer.refresh();
-						treeViewer.refresh();
-						updateLabels();
-						break;
-					case CHANGED:
-						tableViewer.update(status.getValue(), null);
-						break;
-					}
+				switch(status.getType()) {
+				case ADDED:
+				case REMOVED:
+					tableViewer.refresh();
+					treeViewer.refresh();
+					updateLabels();
+					break;
+				case CHANGED:
+					tableViewer.update(status.getValue(), null);
+					break;
 				}
 			}
 			

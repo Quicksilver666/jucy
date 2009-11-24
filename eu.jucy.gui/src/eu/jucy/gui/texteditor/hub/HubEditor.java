@@ -564,8 +564,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 
 
 	private void changeLabel(final String message, final int severity) {
-		new SUIJob() {
-			
+		new SUIJob(feedLabel) {
 			public void run() {
 				FeedType ft;
 				switch(severity) {
@@ -599,7 +598,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	 * @param usr - who sent the message... may be null
 	 */
 	public void appendText(final String text,final IUser usr){
-		new SUIJob() {
+		new SUIJob(hubText) {
 			public void run() {
 				textViewer.addMessage(text,usr,new Date()); 
 				boolean activeEditor = HubEditor.this.getSite().getPage().getActiveEditor() == HubEditor.this;
@@ -698,9 +697,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	 * 
 	 */
 	public void statusChanged(final ConnectionState newStatus, ConnectionProtocol cp) {
-		
 		new SUIJob() {
-			
 			public void run() {
 				switch (newStatus){
 				case CONNECTED:
@@ -730,7 +727,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	 */
 	public void feedReceived(final FeedType ft, final String message) {
 		logger.debug("received message: "+ft+" "+message);
-		new SUIJob() { 
+		new SUIJob(feedLabel) { 
 			public void run() {
 				labelViewer.addFeedMessage(ft, message);
 			}

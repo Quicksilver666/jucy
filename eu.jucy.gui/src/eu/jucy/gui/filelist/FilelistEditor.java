@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 
 
+
 import eu.jucy.gui.FindHandler;
 import eu.jucy.gui.GUIPI;
 import eu.jucy.gui.ISearchableEditor;
@@ -57,6 +58,7 @@ import eu.jucy.gui.DownloadableColumn.Size;
 import eu.jucy.gui.DownloadableColumn.TTHRoot;
 import eu.jucy.gui.DownloadableColumn.Type;
 import eu.jucy.gui.itemhandler.DownloadableHandlers.DownloadHandler;
+
 
 
 import uc.files.IDownloadable;
@@ -228,7 +230,6 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor {
 
 		
 		tva.apply();
-		//tableViewer.setComparator(fc.getComparator(false));
 		
 		setControlsForFontAndColour(tableViewer.getTable(),treeViewer.getTree());
 		
@@ -244,43 +245,88 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor {
 
 		
 		
-		new Thread(new Runnable() {
-			private final SUIJob refresher=new SUIJob() {
-				@Override
-				public void run() {
-					if(!tree.isDisposed()) {
-						treeViewer.refresh();
-						setTotalsize(getList().getSharesize());
-						setTotalFiles(getList().getNumberOfFiles());
-					}
-				}
-			};
-			
-			public void run() {	
+		new SUIJob(tree) {
+			@Override
+			public void run() {
+				treeViewer.refresh();
+				setTotalsize(getList().getSharesize());
+				setTotalFiles(getList().getNumberOfFiles());
 				
-				while (!getList().isCompleted()) {
-					try{
-						Thread.sleep(1000);
-					} catch(InterruptedException ie){}
-					if (!table.isDisposed()) {
-						refresher.schedule();
-					}
-				}
-				//a last refresh to ensure we are up to date
-				refresher.schedule();
-
-				//expand some items for a nicer view ..
-				if (!table.isDisposed()) {
-					table.getDisplay().asyncExec(new Runnable() {
-						public void run() {
-							treeViewer.expandToLevel(2);
-							tableViewer.setInput(getList().getRoot());
+				if (!getList().isCompleted()) {
+					schedule(1000);
+				} else {
+					treeViewer.expandToLevel(2);
+					FileList list = getList();
+					IDownloadable in= ((FilelistEditorInput)getEditorInput()).getInitialSelection();
+					IDownloadable input = list.getRoot();
+					if ( in != null) {
+						IDownloadable parentFolder = list.getRoot().getByPath(in.getOnlyPath());
+						if (parentFolder == null && in.isFile()) {
+							FileListFile ff=list.search( ((IDownloadableFile)in).getTTHRoot() );
+							if (ff != null) {
+								parentFolder = ff.getParent();
+							}
 						}
-					});				
+						if (parentFolder != null) {
+							input = parentFolder;
+						}
+					}
+					tableViewer.setInput(input);
 				}
+				
 			}
-		}).start(); 
+		}.schedule();
 		
+//		DCClient.execute(new Runnable() {
+//			private final SUIJob refresher = new SUIJob() {
+//				@Override
+//				public void run() {
+//					if(!tree.isDisposed()) {
+//						treeViewer.refresh();
+//						setTotalsize(getList().getSharesize());
+//						setTotalFiles(getList().getNumberOfFiles());
+//					}
+//					
+//				}
+//			};
+//			
+//			public void run() {	
+//				if (!getList().isCompleted()) {
+//					ApplicationWorkbenchWindowAdvisor.get().getSchedulerDir().schedule(
+//							this, 1, TimeUnit.SECONDS);
+//					if (!table.isDisposed()) {
+//						
+//						refresher.schedule();
+//					}
+//					return;
+//				}
+//				//a last refresh to ensure we are up to date
+//				refresher.schedule();
+//
+//				//expand some items for a nicer view ..
+//				
+//				new SUIJob() {
+//					@Override
+//					public void run() {
+//						if (!table.isDisposed()) {
+//							treeViewer.expandToLevel(2);
+//							FileList list = getList();
+//							IDownloadable in= ((FilelistEditorInput)getEditorInput()).getInitialSelection();
+//							IDownloadable input = list.getRoot();
+//							if ( in != null) {
+//								IDownloadable parentFolder = list.getRoot().getByPath(in.getOnlyPath());
+//								if (parentFolder != null) {
+//									input = parentFolder;
+//								}
+//							}
+//							tableViewer.setInput(input);
+//						}
+//					}
+//				}.schedule();			
+//				
+//			}
+//		}); 
+//		
 		
 	}
 	

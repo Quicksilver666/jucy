@@ -74,14 +74,11 @@ public class Notepad extends UCMessageEditor {
 		text.setMenu(popupMenu);
 		
 		
-		new SUIJob() {
-
+		new SUIJob(text) {
 			@Override
 			public void run() {
-				if (!text.isDisposed()) {
-					checkSave();
-					schedule(10000);
-				}	
+				checkSave();
+				schedule(10000);
 			}
 		}.schedule(1000);
 	}

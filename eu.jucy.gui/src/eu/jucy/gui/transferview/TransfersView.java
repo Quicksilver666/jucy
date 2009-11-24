@@ -172,13 +172,10 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 		sobjects.add(arg);
 		if (!running) {
 			running = true;
-			new SUIJob() {
+			new SUIJob(table) {
 				@Override
 				public void run() {
 					running = false;
-					if (table.isDisposed()) {
-						return;
-					}
 					synchronized(sobjects) {
 						for (StatusObject so: sobjects) {
 							switch(so.getDetail()) {

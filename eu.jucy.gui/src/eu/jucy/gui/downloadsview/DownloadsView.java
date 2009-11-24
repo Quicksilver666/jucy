@@ -152,7 +152,7 @@ public class DownloadsView extends UCView implements IObserver<StatusObject> {
 			switch(arg.getDetail()) {
 			case DownloadQueue.DQE_FIRST_TRANSFER_STARTED:
 				dtu.add(arg.getValue(), dq);
-				new SUIJob() {
+				new SUIJob(tree) {
 					@Override
 					public void run() {
 						treeViewer.expandAll();

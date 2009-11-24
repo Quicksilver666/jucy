@@ -14,6 +14,7 @@ import org.eclipse.core.commands.ExecutionException;
 
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 
 
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -23,6 +24,7 @@ import eu.jucy.gui.GuiHelpers;
 import eu.jucy.gui.ReplaceLine;
 
 
+import eu.jucy.gui.filelist.FilelistHandler;
 import eu.jucy.gui.texteditor.pmeditor.PMEditor;
 import eu.jucy.gui.texteditor.pmeditor.PMEditorInput;
 
@@ -33,6 +35,7 @@ import uc.IHub;
 import uc.IUser;
 import uc.IHasUser.IMultiUser;
 import uc.crypto.HashValue;
+import uc.files.IDownloadable;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry.IDownloadFinished;
 import uc.protocols.SendContext;
 
@@ -116,14 +119,17 @@ public abstract class UserHandlers extends AbstractHandler {
 
 		public static final String COMMAND_ID = "eu.jucy.gui.getfilelist";
 	//	public static final String PARM_COMMAND_ID = "eu.jucy.gui.getfilelistBYUSERID";
+		
 
-		//Lang.GetFilelist
+
+
 
 		protected void doWithUser(final IUser usr,ExecutionEvent event){
+			final IDownloadable id = getDownloadableForUsr(usr, HandlerUtil.getCurrentSelection(event));
 			usr.downloadFilelist().addDoAfterDownload(new IDownloadFinished() {
 
 				public void finishedDownload(File f) {
-					FilelistHandler.openFilelist(usr);
+					FilelistHandler.openFilelist(usr,id);
 				}
 
 				@Override
@@ -137,6 +143,22 @@ public abstract class UserHandlers extends AbstractHandler {
 				}
 				
 			});	
+		}
+		
+		private static IDownloadable getDownloadableForUsr(IUser usr,ISelection selection) {
+			if (selection instanceof StructuredSelection) {
+				for (Object o: ((StructuredSelection)selection).toArray()) {
+					if (o instanceof IDownloadable) {
+						IDownloadable id = (IDownloadable)o;
+						for (IUser dl: id.getIterable()) {
+							if (dl.equals(usr)) {
+								return id;
+							}
+						}
+					} 
+				}
+			}
+			return null;
 		}
 		
 	}

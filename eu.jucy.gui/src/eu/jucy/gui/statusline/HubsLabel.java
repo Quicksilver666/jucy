@@ -40,18 +40,18 @@ public class HubsLabel extends CLabel implements IInfoChanged, IStatusLineComp {
 
 	} */
 	
+	public void dispose() {
+		ApplicationWorkbenchWindowAdvisor.get().unregister(this);
+		super.dispose();
+	}
 
 	public void infoChanged(Set<InfoChange> type) {
 		
 		if (type.contains(InfoChange.Hubs)) {
-			new SUIJob() {
+			new SUIJob(this) {
 				@Override
 				public void run() {
-					if (!isDisposed()) {
-						setText();
-					} else {
-						ApplicationWorkbenchWindowAdvisor.get().unregister(HubsLabel.this);
-					}
+					setText();
 				}
 			}.schedule();
 		}

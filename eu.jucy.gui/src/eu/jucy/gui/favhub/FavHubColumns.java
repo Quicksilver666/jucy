@@ -80,8 +80,7 @@ public abstract class FavHubColumns extends ColumnDescriptor<FavHub> {
 		 */
 		@Override
 		public Image getImage(final FavHub hub) {
-			new SUIJob() {
-
+			new SUIJob(table.getControl()) {
 				@Override
 				public void run() {
 					table.setChecked(hub, hub.isAutoconnect());

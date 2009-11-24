@@ -78,8 +78,7 @@ public abstract class FavUsersColumns extends ColumnDescriptor<IUser> {
 
 		@Override
 		public Image getImage(final IUser usr) {
-			new SUIJob() {
-
+			new SUIJob(table.getControl()) {
 				@Override
 				public void run() {
 					table.setChecked(usr, usr.isAutograntSlot());

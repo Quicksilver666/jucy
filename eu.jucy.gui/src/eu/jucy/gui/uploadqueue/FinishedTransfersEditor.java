@@ -142,11 +142,7 @@ public class FinishedTransfersEditor extends UCEditor implements IObserver<Statu
 	@Override
 	public void dispose() {
 		transfers.deleteObserver(this);
-		
-
-		
 		super.dispose();
-		
 	}
 
 	
@@ -155,7 +151,7 @@ public class FinishedTransfersEditor extends UCEditor implements IObserver<Statu
 	public void update(IObservable<StatusObject> arg0, final StatusObject so) {
 		//final StatusObject so = (StatusObject)arg1;
 		if (so.getValue() instanceof TransferRecord) {
-			new SUIJob() {
+			new SUIJob(table) {
 				@Override
 				public void run() {
 					switch(so.getType()) {

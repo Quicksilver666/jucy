@@ -43,21 +43,17 @@ public abstract class DownloadableColumn extends ColumnDescriptor<IDownloadable>
 		new PreferenceChangedAdapter(GUIPI.get(),
 				GUIPI.fileInDownloadCol,GUIPI.fileInShareCol,GUIPI.fileMultiUserCol,GUIPI.fileDefaultCol) {
 
-			private volatile boolean changeRunning = false;
-			
 			@Override
 			public void preferenceChanged(String preference, String oldValue,
 					String newValue) {
-				if (!changeRunning) {
-					changeRunning = true;
-					new SUIJob() {
-						@Override
-						public void run() {
-							changeRunning = false;
-							loadFontsAndColours();
-						}
-					}.schedule(500);
-				}
+
+				new SUIJob() {
+					@Override
+					public void run() {
+						loadFontsAndColours();
+					}
+				}.scheduleIfNotRunning(500);
+				
 			}
 		};
 	}

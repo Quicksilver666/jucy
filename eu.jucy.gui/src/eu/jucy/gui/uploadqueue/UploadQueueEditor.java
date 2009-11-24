@@ -97,30 +97,17 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 		tableViewer.setInput(ApplicationWorkbenchWindowAdvisor.get().getUpQueue());
 		
 		
-		new SUIJob() {
-
+		new SUIJob(table) {
 			@Override
 			public void run() {
-				if (!table.isDisposed()) {
-					tableViewer.refresh();
-					schedule(60*1000);
-				}
-				//return Status.OK_STATUS;
+				tableViewer.refresh();
+				schedule(60*1000);
 			}
-			
 		}.schedule(60*1000);
 		
 		setControlsForFontAndColour(tableViewer.getTable());
 	}
-	
-/*	private void makeActions() {
-		final IWorkbenchWindow window = getSite().getWorkbenchWindow();
-		PathMenuManager menuManager = new PathMenuManager();
-		actions.addAll(UserActions.createUserActions(tableViewer, window, menuManager,false));
-		
-		Menu menu = menuManager.createContextMenu(tableViewer.getControl());
-    	tableViewer.getControl().setMenu(menu);
-	} */
+
 
 	@Override
 	public void dispose() {
@@ -142,25 +129,22 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 	public void update(IObservable<StatusObject> arg0, final StatusObject st) {
 		//final StatusObject st = (StatusObject)arg1;
 		if (st.getValue() instanceof UploadInfo) {
-			new SUIJob() {
+			new SUIJob(table) {
 				@Override
 				public void run() {
 					logger.debug("found: "+st.getType()+"  "+ ((UploadInfo)st.getValue()).getUser().toString());
-					if (!table.isDisposed()){
-						switch(st.getType()) {
-						case ADDED:
-							tableViewer.add(st.getValue());
-							break;
-						case CHANGED:
-							tableViewer.refresh(st.getValue());
-							break;
-						case REMOVED:
-							tableViewer.remove(st.getValue());
-							break;
-						}
+
+					switch(st.getType()) {
+					case ADDED:
+						tableViewer.add(st.getValue());
+						break;
+					case CHANGED:
+						tableViewer.refresh(st.getValue());
+						break;
+					case REMOVED:
+						tableViewer.remove(st.getValue());
+						break;
 					}
-	
-				
 				}
 				
 			}.schedule();

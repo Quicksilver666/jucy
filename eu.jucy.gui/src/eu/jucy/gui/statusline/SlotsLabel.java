@@ -39,18 +39,19 @@ public class SlotsLabel extends CLabel implements IInfoChanged, IStatusLineComp 
 		
 	} */
 	
+	public void dispose() {
+		ApplicationWorkbenchWindowAdvisor.get().unregister(this);
+		super.dispose();
+		
+	}
 
 	public void infoChanged(Set<InfoChange> type) {
 		
 		if (type.contains(InfoChange.CurrentSlots) || type.contains(InfoChange.Slots)) {
-			new SUIJob() {
+			new SUIJob(this) {
 				@Override
 				public void run() {
-					if (!isDisposed()) {
-						setText();
-					} else {
-						ApplicationWorkbenchWindowAdvisor.get().unregister(SlotsLabel.this);
-					}
+					setText();
 				}
 			}.schedule();
 		}

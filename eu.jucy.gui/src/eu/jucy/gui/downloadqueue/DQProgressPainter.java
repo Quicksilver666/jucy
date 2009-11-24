@@ -41,13 +41,11 @@ public class DQProgressPainter implements Listener {
 
 	public static void addToTable(final Table table, int column) {
 		table.addListener(SWT.PaintItem, new DQProgressPainter(column));
-		new SUIJob() { 
+		new SUIJob(table) { 
 			@Override
 			public void run() {
-				if (!table.isDisposed()) {
-					table.redraw();
-					schedule(500);
-				}
+				table.redraw();
+				schedule(500);
 			}
 		}.schedule(1000);
 	}

@@ -25,16 +25,17 @@ public class SharesizeLabel extends CLabel implements IInfoChanged ,IStatusLineC
 		ApplicationWorkbenchWindowAdvisor.get().register(this);
 	}
 
+	public void dispose() {
+		ApplicationWorkbenchWindowAdvisor.get().unregister(this);
+		super.dispose();
+	}
+	
 	public void infoChanged(Set<InfoChange> type) {
 		if (type.contains(InfoChange.Sharesize)) {
-			new SUIJob() {
+			new SUIJob(this) {
 				@Override
 				public void run() {
-					if (!isDisposed()) {
-						setText();
-					} else {
-						ApplicationWorkbenchWindowAdvisor.get().unregister(SharesizeLabel.this);
-					}
+					setText();
 				}
 			}.schedule();
 		}

@@ -43,22 +43,16 @@ public class NickColourerTextModificator implements ITextModificator {
 				GUIPI.ownNickCol,GUIPI.ownNickFont,GUIPI.opNickCol,GUIPI.normalNickCol,
 				GUIPI.opNickFont,GUIPI.favNickCol,GUIPI.favNickFont,GUIPI.normalNickFont,GUIPI.IDForTextModificatorEnablement(ID) ) {
 
-			private volatile boolean changeRunning = false;
 			
 			@Override
 			public void preferenceChanged(String preference, String oldValue,
 					String newValue) {
-				
-				if (!changeRunning) {
-					changeRunning = true;
-					new SUIJob() {
-						@Override
-						public void run() {
-							changeRunning = false;
-							loadFontsAndColours();
-						}
-					}.schedule(500);
-				}
+				new SUIJob() {
+					@Override
+					public void run() {
+						loadFontsAndColours();
+					}
+				}.scheduleIfNotRunning(500);
 			}
 			
 		};

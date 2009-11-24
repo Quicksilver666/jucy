@@ -64,13 +64,8 @@ public class GraphicalFileDownloader {
 						public void run() {
 							Image image =  scaleIfNeeded(imagedata);
 							mod.addLabelReplacementImage(point.x, url.toString(), image);
-//							target.addControl(control, offset, length)
-//							target.setImage(image);
-						//	utm.downloadedImage(image, url);
 							return;
-
 						}
-						
 					}.schedule();
 				} catch(Exception e) {
 					try {

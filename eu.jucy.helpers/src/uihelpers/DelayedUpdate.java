@@ -79,40 +79,39 @@ public class DelayedUpdate<V> {
 	private void ensureUpdate() {
 		if (!updateinProgress) {
 			updateinProgress = true;
-			new SUIJob() { //"bulkupdate"
+			new SUIJob(viewer.getControl()) { //"bulkupdate"
 				public void run() {
-					if (!viewer.getControl().isDisposed()) {
-						synchronized(synchUser) {
-							while (!add.isEmpty() || !update.isEmpty() || !remove.isEmpty()) {
-								
-								if (!add.isEmpty()) {
-									viewer.add(add.toArray());
-									add.clear();
-								}
-								if (!update.isEmpty()) {
-									viewer.update(update.toArray(), null);
-									update.clear();
-								}
-								if (!remove.isEmpty()) {
-									viewer.remove(remove.toArray());
-									remove.clear();
-								}
-								if (!delayed.isEmpty()) {
-									List<DUEntry<V>> dlaLocal = delayed;
-									delayed = new ArrayList<DUEntry<V>>();
-									for (DUEntry<V> de: dlaLocal) {
-										switch(de.ct) {
-										case ADDED: 	add(de.v); 		break;
-										case CHANGED:	change(de.v); 	break;
-										case REMOVED:	remove(de.v); 	break;
-										}
+					synchronized(synchUser) {
+						while (!add.isEmpty() || !update.isEmpty() || !remove.isEmpty()) {
+
+							if (!add.isEmpty()) {
+								viewer.add(add.toArray());
+								add.clear();
+							}
+							if (!update.isEmpty()) {
+								viewer.update(update.toArray(), null);
+								update.clear();
+							}
+							if (!remove.isEmpty()) {
+								viewer.remove(remove.toArray());
+								remove.clear();
+							}
+							if (!delayed.isEmpty()) {
+								List<DUEntry<V>> dlaLocal = delayed;
+								delayed = new ArrayList<DUEntry<V>>();
+								for (DUEntry<V> de: dlaLocal) {
+									switch(de.ct) {
+									case ADDED: 	add(de.v); 		break;
+									case CHANGED:	change(de.v); 	break;
+									case REMOVED:	remove(de.v); 	break;
 									}
 								}
 							}
-							updateinProgress = false;
 						}
-						updateDone();
+						updateinProgress = false;
 					}
+					updateDone();
+
 				}
 				
 			}.schedule(delay);

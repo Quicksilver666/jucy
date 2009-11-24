@@ -64,12 +64,10 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 
 	
 	public void update(IObservable<String> o, String arg) {
-		new SUIJob() {
+		new SUIJob(this) {
 			@Override
 			public void run() {
-				if (!isDisposed()) {
-					updateLabel();
-				}
+				updateLabel();
 			}
 			
 		}.schedule();
@@ -81,6 +79,7 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 		if (grey != null) {
 			grey.dispose();
 		}
+		super.dispose();
 	}
 
 	

@@ -126,6 +126,8 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 
 	private Button onlyUsersWithFreeSlotsButton;
 	
+	private Button invertButton;
+	
 	private Label itemCountLabel;
 	private Label fileCountLabel;
 	
@@ -267,7 +269,7 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 
 		Group searchOptions = new Group(sideBarComposite,SWT.NONE);
 		final GridLayout gridLayout_options = new GridLayout();
-		gridLayout_options.numColumns = 1;
+		gridLayout_options.numColumns = 2;
 		searchOptions.setLayout(gridLayout_options);
 		searchOptions.setText(Lang.SearchOptions);
 		searchOptions.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
@@ -276,6 +278,18 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 		onlyUsersWithFreeSlotsButton = new Button(searchOptions, SWT.CHECK);
 		onlyUsersWithFreeSlotsButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		onlyUsersWithFreeSlotsButton.setText(Lang.OnlyUsersWithFreeSlots);
+		
+		invertButton = new Button(searchOptions, SWT.PUSH);
+		invertButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		invertButton.setText("Invert");
+		invertButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for (TableItem ti:hubsToSearch.getItems()) {
+					ti.setChecked(!ti.getChecked());
+				}
+			}
+		});
 		
 
 		onlyWhereIAmOpButton = new Button(searchOptions, SWT.CHECK);

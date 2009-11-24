@@ -7,18 +7,21 @@ import org.eclipse.ui.IPersistableElement;
 
 
 
+import uc.files.IDownloadable;
 import uc.files.filelist.FileListDescriptor;
 
 public class FilelistEditorInput implements IEditorInput {
 
-private final FileListDescriptor filelist;
-//private final DownloadQueue dq;
+	private final FileListDescriptor filelist;
+	private final IDownloadable initialSelection;
+
 	
-	public FilelistEditorInput(FileListDescriptor filelist) {
+
+
+	public FilelistEditorInput(FileListDescriptor filelist,IDownloadable initialSelection) {
 		Assert.isNotNull(filelist);
-		//Assert.isNotNull(dq);
 		this.filelist = filelist;
-	//	this.dq=dq;
+		this.initialSelection = initialSelection;
 	}
 	
 	public boolean exists() {
@@ -54,12 +57,9 @@ private final FileListDescriptor filelist;
 		return null;
 	}
 
-	/*
-	 * @return the dq
-	 *
-	public DownloadQueue getDq() {
-		return dq;
-	} */
+	public IDownloadable getInitialSelection() {
+		return initialSelection;
+	}
 
 
 

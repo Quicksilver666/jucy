@@ -64,10 +64,10 @@ public class UCProgressPainter implements Listener {
 
 	public static void AddToTable(final Table table) {
 		table.addListener(SWT.PaintItem, new UCProgressPainter(table));
-		new SUIJob() { 
+		new SUIJob(table) { 
 			@Override
 			public void run() {
-				if (!table.isDisposed() && table.getItemCount() != 0) {
+				if (table.getItemCount() != 0) {
 					table.redraw();
 				}
 				schedule(500);
@@ -86,7 +86,9 @@ public class UCProgressPainter implements Listener {
 		gc.setBackground(c.getBackground());
 		gc.setForeground(c.getForeground()); 
 		gc.fillRectangle(rect);
-		gc.drawString(message,rect.x+5, rect.y+1,true);
+		
+		int pos = (rect.height - gc.getFontMetrics().getHeight()) /2;
+		gc.drawString(message,rect.x+5, rect.y+pos,true);
 		
 		
 		gc.setForeground(oldforeground);
@@ -198,7 +200,9 @@ public class UCProgressPainter implements Listener {
 		//draw the downloadString on the background..
 		gc.setForeground(gc.getDevice().getSystemColor(SWT.COLOR_BLACK));
 		gc.drawRectangle(rect);
-		gc.drawString(downloadString,rect.x+5,rect.y+1,true);
+		
+		int pos = (rect.height - gc.getFontMetrics().getHeight()) /2;
+		gc.drawString(downloadString,rect.x+5,rect.y+pos,true);
 			
 		//draw rectangle with color for transferred bytes.. 
 		gc.setBackground(downloading ? downloadColor2 :uploadColor2 );
