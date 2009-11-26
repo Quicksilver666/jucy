@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 
 import uc.DCClient;
 import uc.crypto.HashValue;
+import uc.files.filelist.OwnFileList.SearchParameter;
 import uc.files.search.ComparisonEnum;
 import uc.files.search.FileSearch;
 import uc.files.search.SearchType;
@@ -96,9 +97,10 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 			long minSize = sizerestricted && !maxsize ? size : 0 ;//  (maxsize?   0  :	size	   ) : 		0; 
 			long maxSize = sizerestricted &&  maxsize ? size : Long.MAX_VALUE; //    (maxsize? size : Long.MAX_VALUE) : Long.MAX_VALUE; 
 			
-			hub.searchReceived(keys,Collections.<String>emptySet(), 
-					minSize, maxSize, -1, searchType.getEndings(), 
-					passive, searcher,searchType.equals(SearchType.Folder),null);
+			SearchParameter sp = new SearchParameter(keys,Collections.<String>emptySet(),minSize,
+					maxSize,-1,searchType.getEndings(),searchType.equals(SearchType.Folder));
+			
+			hub.searchReceived(sp, passive, searcher,null);
 			
 			
 		} else if ((m = tthSearch.matcher(command)).matches()) {

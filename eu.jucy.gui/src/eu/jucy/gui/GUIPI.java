@@ -115,6 +115,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 	fileMultiUserCol = "fileMultiUserCol",
 	fileDefaultCol = "fileDefaultCol",
 	
+	allowTestRepos = "allowTestRepos",
 	
 	lastStartupVersion = "lastStartupVersion";
 
@@ -197,6 +198,8 @@ public class GUIPI extends AbstractPreferenceInitializer {
 		
 		defaults.put(userCommands,"Kick user\\n6\\nop\\n$Kick %[nick]|\\ntrue\\n\n"+
 			"Redirect\\n2\\nop\\n$OpForceMove $Who:%[userNI]$Where:%[line:Address?]$Msg:%[line:Reason?]|\\ntrue\\n");
+		
+		defaults.putBoolean(allowTestRepos, false);
 		
 		defaults.put(lastStartupVersion, "UC V:0.60");
 		

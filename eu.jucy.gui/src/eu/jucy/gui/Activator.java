@@ -4,16 +4,25 @@ package eu.jucy.gui;
 
 
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+import eu.jucy.gui.update.CloudPolicy;
 
 
+
+@SuppressWarnings("restriction")
 public class Activator extends AbstractUIPlugin {
 
 	private static Logger logger = LoggerFactory.make();
@@ -47,34 +56,30 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	
-	
-	private void registerP2Policy(final BundleContext context) {	
+	private void registerP2Policy(final BundleContext context)  {	
 		CloudPolicy cp = new CloudPolicy();
 		policyRegistration = context.registerService(Policy.class.getName(), cp , null);
 		
-		/*UIJob uj = new UIJob("add Repos") {
-
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-					try {
-						CloudPolicy cp = new CloudPolicy(monitor,new URL("http://jucy.eu/p2update").toURI());
-						
-					} catch(Exception e) {
-						logger.warn(e, e);
-					}
-					return Status.OK_STATUS;
+		if (GUIPI.getBoolean(GUIPI.allowTestRepos)) {
+			try {
+				String nickname = "unstable";
+				URI[] repos = new URI [] {	new URI("http://jucy.eu/p2/test_updates"),
+											new URI("http://jucy.eu/p2/test_extensions")};
+				for (URI repo: repos) {
+					ProvisioningUtil.addMetadataRepository(repo, true);
+					ProvisioningUtil.addArtifactRepository(repo, true);
+					ProvisioningUtil.setMetadataRepositoryProperty(repo, 
+							IRepository.PROP_NICKNAME, nickname);
+					ProvisioningUtil.setArtifactRepositoryProperty(repo, 
+							IRepository.PROP_NICKNAME, nickname);
+					
 				}
-				
-		};
-		uj.schedule();
-		try {
-			uj.join();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} */
-		
-	
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			} catch (ProvisionException e) {
+				e.printStackTrace();
+			}
+		}
 		
 	}
 

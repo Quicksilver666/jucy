@@ -1,11 +1,11 @@
 package uc.files.filelist;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Set;
 
 import uc.crypto.HashValue;
 import uc.files.filelist.OwnFileList.FilelistNotReadyException;
+import uc.files.filelist.OwnFileList.SearchParameter;
 
 public interface IOwnFileList {
 
@@ -17,9 +17,7 @@ public interface IOwnFileList {
 	 * @param active
 	 * @return
 	 */
-	Set<IFileListItem> search(Set<String> keys, Set<String> excludes,
-			long minsize, long maxsize, long equalsize,
-			Collection<String> fileendings, int maxResults, boolean onlyFolder);
+	Set<IFileListItem> search(SearchParameter sp);
 
 	/**
 	 * 

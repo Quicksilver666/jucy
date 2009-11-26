@@ -52,7 +52,7 @@ public abstract class DownloadableColumn extends ColumnDescriptor<IDownloadable>
 					public void run() {
 						loadFontsAndColours();
 					}
-				}.scheduleIfNotRunning(500);
+				}.scheduleIfNotRunning(500,getClass());
 				
 			}
 		};

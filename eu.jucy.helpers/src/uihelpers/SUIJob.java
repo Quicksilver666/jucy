@@ -21,8 +21,8 @@ import org.eclipse.ui.PlatformUI;
  */
 public abstract class SUIJob implements Runnable {
 
-	private static Set<Class<? extends SUIJob>> jobsInProgress = Collections.synchronizedSet(
-			new HashSet<Class<? extends SUIJob>>());
+	private static Set<Object> synchInProgress = Collections.synchronizedSet(
+			new HashSet<Object>());
 	
 	private volatile boolean cancel = false;
 	
@@ -63,25 +63,24 @@ public abstract class SUIJob implements Runnable {
 	 * schedules the job only if not the an instance of the same class is already running..
 	 * @param delayMillisecs
 	 */
-	public void scheduleIfNotRunning(final int delayMillisecs) {
-		synchronized(jobsInProgress) {
-			if (!jobsInProgress.contains(getClass())) {
-				jobsInProgress.add(getClass());
-				final Display d = Display.getDefault();
-				if (!d.isDisposed()) {
-					d.asyncExec(new Runnable() {
-						public void run() {
-							d.timerExec(delayMillisecs, new Runnable() {
-								public void run() {
-									jobsInProgress.remove(SUIJob.this.getClass());
-									exec.run();
-								}
-							});
-						}
-					});
-				}
+	public void scheduleIfNotRunning(final int delayMillisecs,final Object synch) {
+		if (synchInProgress.add(synch)) {
+			Display d = Display.getDefault();
+			if (!d.isDisposed()) {
+				d.asyncExec(new Runnable() {
+					public void run() {
+						Display d = Display.getDefault();
+						d.timerExec(delayMillisecs, new Runnable() {
+							public void run() {
+								synchInProgress.remove(synch);
+								exec.run();
+							}
+						});
+					}
+				});
 			}
 		}
+		
 	}
 	
 	/**

@@ -22,7 +22,7 @@ public class FileListMapping implements ISubstringMapping2<IFileListItem> {
 		private final long maxSize;
 		private final long equalsize;
 		
-		private final Collection<String> st;
+		private final Collection<String> endings;
 		
 		private final boolean folder;
 		
@@ -39,7 +39,7 @@ public class FileListMapping implements ISubstringMapping2<IFileListItem> {
 			this.maxSize = maxsize;
 			
 			this.equalsize = equalsize;
-			this.st = s;
+			this.endings = s;
 			this.folder = folder;
 		}
 
@@ -50,7 +50,7 @@ public class FileListMapping implements ISubstringMapping2<IFileListItem> {
 				return true;
 			} else {
 				FileListFile f = (FileListFile)item;
-				if (st.isEmpty() || st.contains(f.getEnding()) ) {
+				if (endings.isEmpty() || endings.contains(f.getEnding()) ) {
 					if (f.getSize() < minSize || f.getSize() > maxSize || (equalsize != -1 && f.getSize() == equalsize) ) {
 						//if (maxSize ? f.getSize() > size :f.getSize() < size) {
 						return false;

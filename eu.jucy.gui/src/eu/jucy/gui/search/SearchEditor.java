@@ -303,7 +303,6 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 		
 		hubsToSearch = new Table(comptable, SWT.BORDER | SWT.CHECK);
 		TableColumn tc = new TableColumn(hubsToSearch,SWT.NONE);
-		
 
 		Map<FavHub,Hub> hubs = ApplicationWorkbenchWindowAdvisor.get().getHubs();
 		List<FavHub> fHubs = new ArrayList<FavHub>(hubs.keySet());
@@ -311,13 +310,12 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 		for (FavHub e: fHubs ) {
 			Hub hub = hubs.get(e);
 			if (hub != null) {
-				final TableItem ti = new TableItem(hubsToSearch,SWT.LEAD);
+				TableItem ti = new TableItem(hubsToSearch,SWT.LEAD);
 				ti.setData(hub);
 				ti.setText(hub.getName());
 				ti.setChecked(true);
 			}
 		}
-		//hubsToSearch.getColumns()[0].pack();
 		tc.pack();
 		hubsToSearch.pack();
 		comptable.pack();
@@ -546,7 +544,7 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 		for (TableItem ti : hubsToSearch.getItems()) {
 			Object o = ti.getData();
 			if (ti.getChecked() && o instanceof IHub ) {
-				logger.debug("sending seach to hub");
+				logger.debug("sending seach to hub: "+ ((IHub)o).getName());
 				IHub hub =(IHub)o;
 				if (!onlyHubsWhereOp || hub.getSelf().isOp()) {
 					usedHubs.add(hub);

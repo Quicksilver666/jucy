@@ -83,6 +83,10 @@ public interface IUserChangedListener {
 			this(changed,type,NotApplicable);
 		}
 		
+		public boolean isFavUserOrSlotGrantEvent() {
+			return SLOTGRANT_REVOKED <= detail && detail <= FAVUSER_ADDED;
+		}
+		
 		public IUser getChanged() {
 			return changed;
 		}

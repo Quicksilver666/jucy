@@ -38,6 +38,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Version;
 
 import helpers.GH;
 import helpers.IFilter;
@@ -168,7 +169,7 @@ public class InvertedIndex<V> implements ISearchMap<V> {
 	private Set<V> getMatching(String querystr) {
 		Set<V> res = new HashSet<V>();
 		try {
-			Query q = new QueryParser("title", analyzer).parse(querystr);
+			Query q = new QueryParser(Version.LUCENE_CURRENT,"title", analyzer).parse(querystr);
 			IndexSearcher searcher = new IndexSearcher(index,true);
 			TopScoreDocCollector collector = TopScoreDocCollector.create(itemByIndex.size(),false);
 		//	TopDocCollector collector = new TopDocCollector(itemByIndex.size());

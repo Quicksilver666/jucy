@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Lucene Plug-in
 Bundle-SymbolicName: lib.org.apache.lucene
 Bundle-Version: 2.9.0
-Bundle-ClassPath: lucene-core-2.9.0.jar
+Bundle-ClassPath: lucene-core-3.0.0.jar
 Export-Package: org.apache.lucene,
  org.apache.lucene.analysis,
  org.apache.lucene.analysis.standard,

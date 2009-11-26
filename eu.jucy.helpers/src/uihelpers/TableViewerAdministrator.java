@@ -182,19 +182,15 @@ public class TableViewerAdministrator<T> {
 			}
 		}
 		changedColsWatcher = new PreferenceChangedAdapter(new InstanceScope().getNode(TVAPI.PLUGIN_ID),allIDs.toArray(new String[0])) {
-			private volatile boolean refreshRunning = false;
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
-				if (!refreshRunning) {
-					refreshRunning = true;
-					new SUIJob() {
-						@Override
-						public void run() {
-							refreshRunning = false;
-							refresh();			
-						}
-					}.schedule(1000);
-				}
+				new SUIJob() {
+					@Override
+					public void run() {
+						refresh();			
+					}
+				}.scheduleIfNotRunning(1000,this);
+				
 			}
 			
 		};

@@ -15,6 +15,7 @@ import uc.User;
 import uc.User.Mode;
 import uc.crypto.HashValue;
 import uc.crypto.TigerHashValue;
+import uc.files.filelist.OwnFileList.SearchParameter;
 import uc.files.search.FileSearch;
 import uc.files.search.SearchType;
 
@@ -79,12 +80,16 @@ TRACE Hub.java Line:463
 			ias = new InetSocketAddress(ia,usr.getUdpPort());
 		}
 		
+		
+		
 		if (flags.containsKey(Flag.TR)) {
 			HashValue hash = HashValue.createHash(flags.get(Flag.TR));
 			hub.searchReceived(hash, passive, passive?usr : ias, flags.get(Flag.TO));
 		} else {
-			hub.searchReceived(includes, excludes, minsize, maxsize, 
-					equalssize, endings,passive, passive? usr : ias, onlyDirectories, flags.get(Flag.TO));
+			SearchParameter sp = new SearchParameter(
+					includes,excludes,minsize,maxsize,equalssize,endings, onlyDirectories);
+			
+			hub.searchReceived(sp,passive, passive? usr : ias, flags.get(Flag.TO));
 		}
 	}
 	

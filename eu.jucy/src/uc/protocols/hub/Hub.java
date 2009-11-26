@@ -8,7 +8,6 @@ import java.util.Collections;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -58,6 +57,7 @@ import uc.files.filelist.FileListDescriptor;
 import uc.files.filelist.FileListFile;
 import uc.files.filelist.FileListFolder;
 import uc.files.filelist.IFileListItem;
+import uc.files.filelist.OwnFileList.SearchParameter;
 import uc.files.search.FileSearch;
 import uc.files.search.SearchResult;
 
@@ -99,7 +99,7 @@ public class Hub extends DCProtocol implements IHub {
 		}
 	}
 	
-	private static final int 	MaxActiveResults = 10, 
+	public static final int 	MaxActiveResults = 10, 
 								MaxPassiveResults = 5;
 	
 	private DBLogger mcLoggerDB; 
@@ -960,12 +960,12 @@ public class Hub extends DCProtocol implements IHub {
 	 * @param searcher - if passive this is a User object .. if active this is an 
 	 * InetSocketAddress address or a User Object (which holds an UDP socket and an InetAddress)
 	 */
-	void searchReceived(Set<String> keys,Set<String> excludes, long minsize, long maxsize,long equalssize,Collection<String> endings , boolean passive, Object searcher, boolean onlyFolder,String token) {
-		Set<IFileListItem> found = dcc.getFilelist().search(keys,excludes
-				   , minsize, maxsize
-				   , equalssize, endings
-				   , passive? MaxPassiveResults:MaxActiveResults, onlyFolder);
-		dcc.searchReceived(keys, searcher, found.size());
+	void searchReceived(SearchParameter sp, boolean passive, Object searcher,String token) {
+		
+		sp.maxResults = passive? MaxPassiveResults:MaxActiveResults;
+		sp.hub = favHub;
+		Set<IFileListItem> found = dcc.getFilelist().search(sp);
+		dcc.searchReceived(sp.keys, searcher, found.size());
 		
 		if (!found.isEmpty()) {
 			sendFoundBack(found,passive,searcher,token);

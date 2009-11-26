@@ -27,7 +27,7 @@
    <splash
       location="eu.jucy.product1"
       handlerType="extensible" />
-   <launcher name="jucy">
+   <launcher name="Jucy">
       <linux icon="/eu.jucy.product1/icons/icon.xpm"/>
       <macosx icon="/eu.jucy.product1/icons/icon.icns"/>
       <solaris/>
@@ -36,6 +36,7 @@
          <bmp/>
       </win>
    </launcher>
+
 
    <vm>
    </vm>

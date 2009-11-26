@@ -46,7 +46,7 @@ public class GET extends AbstractADCHubCommand {
 			byte[] snd = ("HSND blom / 0 "+(m/8)+comp.toString()+"\n").getBytes(DCProtocol.ADCCHARENCODING);
 			byte[] complete = GH.concatenate(snd,bloomBytes);
 			
-			logger.debug("Sending Bloomfilter: lenght: "+complete.length+" ");
+			logger.debug("Sending Bloomfilter: lenght: "+complete.length+" h:"+h+" k:"+k+" m:"+m);
 			
 			hub.sendUnmodifiedRaw(complete);
 			

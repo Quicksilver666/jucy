@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,6 +45,7 @@ import eu.jucy.language.LanguageKeys;
 
 
 import uc.DCClient;
+import uc.FavHub;
 import uc.InfoChange;
 import uc.PI;
 import uc.User;
@@ -75,7 +77,8 @@ public class OwnFileList implements IOwnFileList  {
 	 * mapping from the top Folders in the FileList
 	 * to the real directories on the hdd.
 	 */
-	private volatile Map<FileListFolder,SharedDir> reverselevelone = new HashMap<FileListFolder,SharedDir> ();
+	private volatile Map<FileListFolder,SharedDir> reverselevelone = 
+		new HashMap<FileListFolder,SharedDir>();
 	
 	/**
 	 * maps shared dirs to whether they were online the last time...
@@ -94,7 +97,7 @@ public class OwnFileList implements IOwnFileList  {
 	/**
 	 * if set to true the FileList is being refreshed -> no new refresh is started..
 	 */
-	private volatile boolean refreshing = false;
+	private final Semaphore refresh = new Semaphore(1,false);
 	
 	/**
 	 * variable to store if the FileList in ram is the same as the one
@@ -115,7 +118,6 @@ public class OwnFileList implements IOwnFileList  {
 		}
 		
 		new PreferenceChangedAdapter(PI.get(),PI.sharedDirs2) {
-			
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
 				dcc.getSchedulerDir().schedule(new Runnable() {
@@ -123,7 +125,6 @@ public class OwnFileList implements IOwnFileList  {
 						refresh(false);
 					}
 				} , 500, TimeUnit.MILLISECONDS);	
-				
 			}
 		};
 	}
@@ -151,7 +152,7 @@ public class OwnFileList implements IOwnFileList  {
 	 * simply loads the dirs that are to be shared..
 	 *
 	 */
-	private  void loadSharedDirs(Map<SharedDir,FileListFolder> levelone,
+	private void loadSharedDirs(Map<SharedDir,FileListFolder> levelone,
 			Map<FileListFolder,SharedDir> reverselevelone,FileList fileList) {
 		
 		List<SharedDir> loadeddirs = dcc.getFavFolders().getSharedDirs();
@@ -227,12 +228,8 @@ public class OwnFileList implements IOwnFileList  {
 	 */
 	private void refresh(IProgressMonitor monitor) {
 		
-		if (!refreshing) { //check for refreshing.. only refresh if no other thread is refreshing
-			refreshing = true; //flag that we are refreshing..
-			
+		if (refresh.tryAcquire()) {
 			logger.debug(LanguageKeys.StartedRefreshingTheFilelist);
-			//logger.info("started Refreshing")
-			
 			try {
 				FileList newFilelist  = new FileList(fileList.getUsr());
 				
@@ -245,22 +242,15 @@ public class OwnFileList implements IOwnFileList  {
 				loadSharedDirs(levelone,reverselevelone,newFilelist);
 				
 				monitor.beginTask(LanguageKeys.StartedRefreshingTheFilelist,levelone.size() +1+2+1);
-			
-				//monitor.subTask("checking folders for changed Files");
 				
 				buildFilelist(newFilelist,levelone,monitor);
 				
 				if (monitor.isCanceled()) {
 					return;
 				}
-				
-			//	monitor.subTask("building TTH-Map");
-			
 				newFilelist.calcSharesizeAndBuildTTHMap();
 				monitor.worked(1);
 				
-				
-			//	monitor.subTask("indexing Filelist");
 			
 				//start	indexing the FileList
 				ISearchMap<IFileListItem> filelistmap = new InvertedIndex<IFileListItem>(new FileListMapping());
@@ -268,17 +258,16 @@ public class OwnFileList implements IOwnFileList  {
 				indexFilelist(filelistmap,newFilelist);
 				monitor.worked(2);
 				
-				//end indexing the FileList...
+				
 				if (monitor.isCanceled()) {
 					return;
 				}
-				//monitor.subTask("finalize work / replacing old Filelist");
+				
 				try {
-		
 					this.filelistmap 	= filelistmap;
 					replaceFilelist(newFilelist,reverselevelone);
 				} catch (IOException ioe) {
-					logger.error(ioe,ioe); //if this fails we can't upload the new list.. therefore error level
+					logger.error(ioe,ioe); 
 				} 
 				monitor.worked(1);
 				
@@ -286,7 +275,7 @@ public class OwnFileList implements IOwnFileList  {
 				
 			//flag that refreshing is done..
 			} finally {
-				refreshing = false;
+				refresh.release();
 			}
 			
 			checkSharedDirs(); //finally updating the SharedDirs..
@@ -392,42 +381,66 @@ public class OwnFileList implements IOwnFileList  {
 	
 	
 	private void rekAddFile(final File file, final FileListFolder parent, Map<File,HashedFile> hashedFiles) {
-
 		HashedFile hashedFile =  hashedFiles.get(file);
-			
+		
 		if (hashedFile == null || hashedFile.getLastChanged().getTime() != file.lastModified()) {
 			logger.debug("found file needs hashing: "+file);
-			dcc.getHashEngine().hashFile(file, new IHashedFileListener(){
+			dcc.getHashEngine().hashFile(file, new IHashedFileListener() {
 				public void hashedFile(File f, HashValue root, InterleaveHashes ilh,Date before) {
 					dcc.getDatabase().addOrUpdateFile(f,root, ilh, before);
 					new FileListFile(parent, f.getName(), f.length(), root);
 					defersFromFilelistOnDisc = true; 
 				}
-			});
-				
+			});	
 		} else {
-		//	logger.debug("adding file to filelist:"+file);
+			//logger.debug("adding file to filelist:"+file);
 			//we have a current hash.. so we can create the file with it
-			final HashValue tthRoot = hashedFile.getTTHRoot();
-			
+			HashValue tthRoot = hashedFile.getTTHRoot();
 			if (tthRoot != null) {
 				new FileListFile(parent, file.getName(), file.length(), tthRoot);
-				
-
-				
-				//logger.debug("added File to list:"+f);
+			} else if (Platform.inDevelopmentMode()) {
+				logger.warn("tth is null "+file.getPath());
 			}
 		}
 	}
 	
 
-	
+	public static class SearchParameter {
+		public Set<String> keys;
+		public Set<String> excludes;
+		public long minsize,maxsize, equalsize;
+		public Collection<String> fileendings;
+		public int maxResults;
+		public boolean onlyFolder;
+		
+		/**
+		 * restricts the search to directories available in the given hub
+		 */
+		public FavHub hub;
+		
+		
+		public SearchParameter(Set<String> keys, Set<String> excludes,
+				long minsize, long maxsize, long equalsize,
+				Collection<String> fileendings,
+				boolean onlyFolder) {
+			super();
+			this.keys = keys;
+			this.excludes = excludes;
+			this.minsize = minsize;
+			this.maxsize = maxsize;
+			this.equalsize = equalsize;
+			this.fileendings = fileendings;
+			this.onlyFolder = onlyFolder;
+		}
+		
+		
+	}
 	
 	
 	/* (non-Javadoc)
 	 * @see uc.files.filelist.IOwnFileList#search(java.util.Set, java.util.Set, long, long, long, java.util.Collection, int, boolean)
 	 */
-	public Set<IFileListItem> search(Set<String> keys,Set<String> excludes, long minsize, long maxsize,long equalsize,Collection<String> fileendings , int maxResults, boolean onlyFolder) {
+	public Set<IFileListItem> search(SearchParameter sp) {
 	/*	if (logger.isDebugEnabled()) {
 			String s = "";
 			for (String part:keys) {
@@ -441,21 +454,24 @@ public class OwnFileList implements IOwnFileList  {
 		if (filelistmap == null) {
 			return Collections.<IFileListItem>emptySet();
 		}
-		Set<IFileListItem> res = filelistmap.search(keys,excludes, new FileFilter(minsize,maxsize,equalsize,fileendings,onlyFolder));
+		FileFilter fileFilter = new FileFilter(sp.minsize,sp.maxsize,
+				sp.equalsize,sp.fileendings,sp.onlyFolder);
+		
+		Set<IFileListItem> res = filelistmap.search(sp.keys,sp.excludes,fileFilter);
 
 		logger.debug("Found nr: "+res);
 			
-		//cut the set down to maxsize if needed
-		if (res.size() > maxResults) {
+		//cut the set down to max size if needed
+		if (res.size() > sp.maxResults) {
 			Iterator<IFileListItem> it = res.iterator();
-			while (it.hasNext() && res.size() > maxResults) {
+			while (it.hasNext() && res.size() > sp.maxResults) {
 				it.next();
 				it.remove();
 			}
-		} 
+		}
 		
-		if (keys.size() == 1 ) {
-			String searched = keys.toArray(new String[1])[0];
+		if (sp.keys.size() == 1 ) {
+			String searched = GH.getRandomElement(sp.keys); 
 			if (HashValue.isHash(searched) ) {
 				FileListFile found = search(HashValue.createHash(searched));
 				if (found != null) {
@@ -464,16 +480,16 @@ public class OwnFileList implements IOwnFileList  {
 			}
 		}
 		
-		if (pdfIndex.isCreated()&& res.isEmpty() && TextIndexer.matchesSomeEnding(fileendings)) {
+		if (pdfIndex.isCreated() && res.isEmpty() && TextIndexer.matchesSomeEnding(sp.fileendings)) {
 			if (Platform.inDevelopmentMode()) {
-				logger.info("searching for: "+ GH.toString(keys.toArray()));
+				logger.info("searching for: "+ GH.toString(sp.keys.toArray()));
 			}
-			Set<HashValue> found = pdfIndex.search(keys, excludes,fileendings);
-			res  = new HashSet<IFileListItem>(); //res might not support adding... empty..
+			Set<HashValue> found = pdfIndex.search(sp.keys, sp.excludes,sp.fileendings);
+			res = new HashSet<IFileListItem>(); //res might not support adding... empty..
 			for (HashValue h : found) {
 				FileListFile found2 = search(h);
 				
-				if (found2 != null && minsize <= found2.getSize() && found2.getSize() <= maxsize) { 
+				if (found2 != null && fileFilter.filter(found2)) { 
 					if (Platform.inDevelopmentMode()) {
 						logger.info("found pdf file: "+found2);
 					}
@@ -568,84 +584,20 @@ public class OwnFileList implements IOwnFileList  {
 
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
+			//before and after refresh GC is run as lots of long lived objects get free 
+			//that won't be garbage collected for quite a long time otherwise
+			//(before to make space for refresh and afterwards to get rid of long lived objects)
+			System.gc(); 
 			try {
 				refresh(monitor);
 			} finally {
 				monitor.done();
 			}
+			System.gc(); 
 			return Status.OK_STATUS;
 		}
 	}
-	
 
-	
-	
-	/*public static class PartialFileList extends OwnFileList {
-		private final List<SharedDir> dirs;
-		private final OwnFileList parent;
-		
-		public PartialFileList(List<SharedDir> dirs, OwnFileList parent) {
-			this.dirs    = dirs;
-			this.parent  = parent;
-			
-		}
-
-		@Override
-		public File getFile(FileListFile file) throws FilelistNotReadyException {
-			// TODO Auto-generated method stub
-			return super.getFile(file);
-		}
-
-		@Override
-		public File getFile(HashValue tth) throws FilelistNotReadyException {
-			// TODO Auto-generated method stub
-			return super.getFile(tth);
-		}
-
-		@Override
-		public int getNumberOfFiles() {
-			// TODO Auto-generated method stub
-			return super.getNumberOfFiles();
-		}
-
-		@Override
-		public long getSharesize() {
-			// TODO Auto-generated method stub
-			return super.getSharesize();
-		}
-
-		@Override
-		public void initialise() {
-			// TODO Auto-generated method stub
-			super.initialise();
-		}
-
-		@Override
-		public void refresh(boolean wait) {
-			// TODO Auto-generated method stub
-			super.refresh(wait);
-		}
-
-		@Override
-		public FileListFile search(HashValue tth) {
-			// TODO Auto-generated method stub
-			return super.search(tth);
-		}
-
-		@Override
-		public Set<IFileListItem> search(Set<String> keys,
-				Set<String> excludes, long minsize, long maxsize,
-				long equalsize, Collection<String> fileendings, int maxResults,
-				boolean onlyFolder) {
-			// TODO Auto-generated method stub
-			return super.search(keys, excludes, minsize, maxsize, equalsize, fileendings,
-					maxResults, onlyFolder);
-		}
-		
-		
-		
-		
-	} */
 	
 	public FileList getFileList() {
 		return fileList;

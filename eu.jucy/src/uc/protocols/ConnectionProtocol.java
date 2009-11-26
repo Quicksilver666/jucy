@@ -177,8 +177,11 @@ public abstract class ConnectionProtocol {
 	 * instead of commandReceivedDuringLogin()
 	 */
 	public void onLogIn() throws IOException {
-		if (state != ConnectionState.CONNECTED && Platform.inDevelopmentMode()) {
-			logger.info("Bad state: "+state);
+		if (state != ConnectionState.CONNECTED) {
+			if (Platform.inDevelopmentMode()) {
+				logger.info("Bad state: "+state);
+			}
+			return;
 		}
 		loginDone = true;
 		setState(ConnectionState.LOGGEDIN);

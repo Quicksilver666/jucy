@@ -58,22 +58,16 @@ public class TableTreePersister {
 		
 		//listener that will update the table if some changes occurred
 		pca = new PreferenceChangedAdapter(new InstanceScope().getNode(PLUGIN_ID),columnSizeID,columnOrderID){
-			private boolean loadInProgress = false;
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
-				if (!loadInProgress) {
-					loadInProgress = true;
-					new SUIJob() {
-						@Override
-						public void run() {
-							loadInProgress = false;
-							if (!tableOrTree.isDisposed()) {
-								load();
-							}
+				new SUIJob() {
+					@Override
+					public void run() {
+						if (!tableOrTree.isDisposed()) {
+							load();
 						}
-					}.schedule(10000);
-				}
-				
+					}
+				}.scheduleIfNotRunning(10000,this);
 			}
 		};
 	}
@@ -100,10 +94,11 @@ public class TableTreePersister {
 	public void load() {
 		int[] colwidths = getWidths();
 		for (int i=0; i <colwidths.length; i++) {
+			int width = Math.max(colwidths[i], 10);
 			if (table == null) {
-				tree.getColumn(i).setWidth(colwidths[i]);
+				tree.getColumn(i).setWidth(width);
 			} else {
-				table.getColumn(i).setWidth(colwidths[i]);
+				table.getColumn(i).setWidth(width);
 			}
 		}
 		
@@ -123,7 +118,7 @@ public class TableTreePersister {
 						store();
 					}
 						
-				}.scheduleIfNotRunning(1000);
+				}.scheduleIfNotRunning(1000,TableTreePersister.this);
 			}
 		};
 		

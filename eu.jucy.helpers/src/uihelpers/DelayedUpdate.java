@@ -18,7 +18,6 @@ public class DelayedUpdate<V> {
 	
 	private final TableViewer viewer;
 	
-	private volatile boolean updateinProgress = false;
 	private final Object synchUser = new Object();
 	
 	private final Set<V> add = new HashSet<V>();
@@ -77,45 +76,42 @@ public class DelayedUpdate<V> {
 	}
 	
 	private void ensureUpdate() {
-		if (!updateinProgress) {
-			updateinProgress = true;
-			new SUIJob(viewer.getControl()) { //"bulkupdate"
-				public void run() {
-					synchronized(synchUser) {
-						while (!add.isEmpty() || !update.isEmpty() || !remove.isEmpty()) {
+		new SUIJob(viewer.getControl()) { //"bulkupdate"
+			public void run() {
+				synchronized(synchUser) {
+					while (!add.isEmpty() || !update.isEmpty() || !remove.isEmpty()) {
 
-							if (!add.isEmpty()) {
-								viewer.add(add.toArray());
-								add.clear();
-							}
-							if (!update.isEmpty()) {
-								viewer.update(update.toArray(), null);
-								update.clear();
-							}
-							if (!remove.isEmpty()) {
-								viewer.remove(remove.toArray());
-								remove.clear();
-							}
-							if (!delayed.isEmpty()) {
-								List<DUEntry<V>> dlaLocal = delayed;
-								delayed = new ArrayList<DUEntry<V>>();
-								for (DUEntry<V> de: dlaLocal) {
-									switch(de.ct) {
-									case ADDED: 	add(de.v); 		break;
-									case CHANGED:	change(de.v); 	break;
-									case REMOVED:	remove(de.v); 	break;
-									}
+						if (!add.isEmpty()) {
+							viewer.add(add.toArray());
+							add.clear();
+						}
+						if (!update.isEmpty()) {
+							viewer.update(update.toArray(), null);
+							update.clear();
+						}
+						if (!remove.isEmpty()) {
+							viewer.remove(remove.toArray());
+							remove.clear();
+						}
+						if (!delayed.isEmpty()) {
+							List<DUEntry<V>> dlaLocal = delayed;
+							delayed = new ArrayList<DUEntry<V>>();
+							for (DUEntry<V> de: dlaLocal) {
+								switch(de.ct) {
+								case ADDED: 	add(de.v); 		break;
+								case CHANGED:	change(de.v); 	break;
+								case REMOVED:	remove(de.v); 	break;
 								}
 							}
 						}
-						updateinProgress = false;
 					}
-					updateDone();
-
 				}
-				
-			}.schedule(delay);
-		}
+				updateDone();
+
+			}
+
+		}.scheduleIfNotRunning(delay,this);
+
 	}
 	
 	/**

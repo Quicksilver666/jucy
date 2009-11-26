@@ -356,31 +356,34 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 				@Override
 				public void run() {
 					boolean showInMainchat = GUIPI.getBoolean(GUIPI.showPMsInMC);
+					IWorkbenchPage page = getWindow().getActivePage();
 					boolean mayOpen =!showInMainchat && (SendingWriteline.checkOpenPopUpExecution(1500) || !GUIPI.getBoolean(GUIPI.openPMInForeground));
 					synchronized(pair) {
 						for (Iterator<PrivateMessage> it = pair.iterator(); it.hasNext();) {
 							PrivateMessage current = it.next();
+						
 							PMEditorInput pmi = new PMEditorInput(current.getFrom(), current.getTimeReceived());
-							PMEditor pme = (PMEditor)getWindow().getActivePage().findEditor(pmi);
+							PMEditor pme = (PMEditor)page.findEditor(pmi);
 								
 							if ( pme == null && mayOpen) { 
 								pme = PMEditor.openPMEditor(pmi);
 							}  
 							if (pme != null) {
-								pme.pmReceived(current);
 								it.remove();
+								pme.pmReceived(current);
 							} else if (showInMainchat) {
+								it.remove();
 								String s = String.format("[PM: %s]<%s> %s",current.getFrom().getNick(),current.getSender().getNick(),current.getMessage());
 								HubEditorInput hei = new HubEditorInput(current.getFrom().getHub().getFavHub()); 
-								HubEditor he =  (HubEditor)getWindow().getActivePage().findEditor(hei);
+								HubEditor he =  (HubEditor)page.findEditor(hei);
 								if (he != null) {
 									he.appendText(s, current.getSender());
 								}
-								it.remove();
+								
 							}
 						}	
 						if (!pair.isEmpty()) {
-							schedule(200);
+							schedule(400);
 						}
 					}
 				}

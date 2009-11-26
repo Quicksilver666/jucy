@@ -52,7 +52,7 @@ public class NickColourerTextModificator implements ITextModificator {
 					public void run() {
 						loadFontsAndColours();
 					}
-				}.scheduleIfNotRunning(500);
+				}.scheduleIfNotRunning(500,getClass());
 			}
 			
 		};

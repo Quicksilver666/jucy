@@ -85,7 +85,6 @@ public abstract class FavHubColumns extends ColumnDescriptor<FavHub> {
 				public void run() {
 					table.setChecked(hub, hub.isAutoconnect());
 				}
-				
 			}.schedule();
 			
 			logger.debug("checked state set: "+hub.isAutoconnect());

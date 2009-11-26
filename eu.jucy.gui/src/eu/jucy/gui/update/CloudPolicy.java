@@ -10,8 +10,10 @@
  *******************************************************************************/
 package eu.jucy.gui.update;
 
+
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+
 
 /**
  * CloudPolicy defines the RCP Cloud Example policies for the p2 UI. The policy
@@ -31,4 +33,6 @@ public class CloudPolicy extends Policy {
 		setQueryContext(queryContext);
 		//TODO .. here changes to query context might be able to change what is seen..
 	}
+	
+	
 }

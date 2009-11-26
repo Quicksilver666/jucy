@@ -339,21 +339,17 @@ public class StyledTextViewer {
 		}
 		
 		pfca = new PreferenceChangedAdapter(GUIPI.get(),allIds.toArray(new String[]{})) {
-			private volatile boolean refreshInProgress = false;
+
 			@Override
 			public void preferenceChanged(String preference,String oldValue, String newValue) {
-				if (!refreshInProgress) {
-					refreshInProgress = true;
-					new SUIJob() {
-						@Override
-						public void run() {
-							refreshInProgress = false;
-							refreshSettings();
-							refresh();
-						}
-					}.schedule(500);
-				}
+				new SUIJob() {
+					@Override
+					public void run() {
 
+						refreshSettings();
+						refresh();
+					}
+				}.scheduleIfNotRunning(500,this);
 			}
 		}; 
 	}

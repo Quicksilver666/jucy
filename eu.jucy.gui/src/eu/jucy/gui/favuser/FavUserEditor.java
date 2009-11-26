@@ -142,75 +142,54 @@ public class FavUserEditor extends UCEditor implements IUserChangedListener {
 	 * updates fav users that have changed..
 	 */
 	public void changed(final UserChangeEvent uce) {
-		switch(uce.getDetail()) {
-		case UserChangeEvent.FAVUSER_ADDED:
+		IUser changed = uce.getChanged();
+		if (uce.isFavUserOrSlotGrantEvent() || changed.isFavUser() || changed.hasCurrentlyAutogrant()) {
 			new SUIJob(tableViewerFav.getTable()) {
 				@Override
 				public void run() {
-					tableViewerFav.add(uce.getChanged());
-					if (uce.getChanged().hasCurrentlyAutogrant()) {
-						tableViewerSlot.remove(uce.getChanged());
+					IUser changed = uce.getChanged();
+					switch(uce.getDetail()) {
+					case UserChangeEvent.FAVUSER_ADDED:
+						tableViewerFav.add(changed);
+						if (changed.hasCurrentlyAutogrant()) {
+							tableViewerSlot.remove(uce.getChanged());
+						}
+						break;
+					case UserChangeEvent.SLOT_GRANTED:
+						if (changed.isFavUser()) {
+							tableViewerFav.refresh(changed);
+						} else {
+							tableViewerSlot.add(changed);
+						}
+						break;
+					case UserChangeEvent.FAVUSER_REMOVED:
+						tableViewerFav.remove(changed);
+						if (changed.hasCurrentlyAutogrant()) {
+							tableViewerSlot.add(changed);
+						}
+						break;
+					case UserChangeEvent.SLOTGRANT_REVOKED:
+						if (changed.isFavUser()) {
+							tableViewerFav.refresh(changed);
+						} else {
+							tableViewerSlot.remove(changed);
+						}
+	
+					break;
+					default:
+						if (changed.isFavUser()) {
+							tableViewerFav.refresh(changed);
+						} else if (changed.hasCurrentlyAutogrant()) {
+							tableViewerSlot.refresh(changed);
+						}
 					}
+					
 				}
-			}.schedule();
-			break;
-		case UserChangeEvent.SLOT_GRANTED:
-			new SUIJob(tableViewerSlot.getTable()) {
-				@Override
-				public void run() {
-					if (uce.getChanged().isFavUser()) {
-						tableViewerFav.refresh(uce.getChanged());
-					} else {
-						tableViewerSlot.add(uce.getChanged());
-					}
-				}
-			}.schedule();
-			break;
-		case UserChangeEvent.FAVUSER_REMOVED:
-			new SUIJob(tableViewerFav.getTable()) {
-				@Override
-				public void run() {
 				
-					tableViewerFav.remove(uce.getChanged());
-					if (uce.getChanged().hasCurrentlyAutogrant()) {
-						tableViewerSlot.add(uce.getChanged());
-					}
-					
-				}
 			}.schedule();
-			break;
-		case UserChangeEvent.SLOTGRANT_REVOKED:
-			new SUIJob(tableViewerSlot.getTable()) {
-				@Override
-				public void run() {
-
-					if (uce.getChanged().isFavUser()) {
-						tableViewerFav.refresh(uce.getChanged());
-					} else {
-						tableViewerSlot.remove(uce.getChanged());
-					}
-					
-				}
-			}.schedule();
-		break;
-		default:
-			if (uce.getChanged().isFavUser()) {
-				new SUIJob(tableViewerFav.getTable()) {
-					@Override
-					public void run() {
-						tableViewerFav.refresh(uce.getChanged());
-					}
-				}.schedule();
-			} else if (uce.getChanged().hasCurrentlyAutogrant()) {
-				new SUIJob(tableViewerSlot.getTable()) {
-					@Override
-					public void run() {
-						tableViewerSlot.refresh(uce.getChanged());
-						
-					}
-				}.schedule();
-			}
+			
 		}
+		
 		
 	}
 	

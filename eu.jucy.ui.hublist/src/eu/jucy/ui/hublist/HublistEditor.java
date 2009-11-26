@@ -133,7 +133,7 @@ public class HublistEditor extends UCEditor {
 					public void run() {
 						setFilter(filterText.getText());
 					}	
-				}.scheduleIfNotRunning(700); //works as long as only one hublist present..
+				}.scheduleIfNotRunning(700,HublistEditor.this); 
 				
 			}
 		});

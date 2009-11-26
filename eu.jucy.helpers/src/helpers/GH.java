@@ -92,6 +92,12 @@ public final class GH {
 		return files;
 	}
 	
+	
+	@SuppressWarnings("unchecked")
+	public static  <K> K getRandomElement(Collection<K> source) {
+		return (K)source.toArray()[nextInt(source.size())];
+	}
+	
 	/**
 	 * closes all provided streams ignoring exceptions
 	 * @param closeable
