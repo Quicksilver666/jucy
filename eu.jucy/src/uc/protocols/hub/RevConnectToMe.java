@@ -1,6 +1,7 @@
 package uc.protocols.hub;
 
 import java.io.IOException;
+import java.util.Collections;
 
 
 import uc.IUser;
@@ -29,7 +30,8 @@ public class RevConnectToMe extends AbstractNMDCHubProtocolCommand {
 
 	
 	public static void sendRCM(Hub hub, IUser target) {
-		hub.sendRaw("$RevConnectToMe %[myNI] %[userNI]|",  new SendContext(target));
+		hub.sendRaw("$RevConnectToMe %[myNI] %[userNI]|",  
+				new SendContext(target,Collections.<String,String>emptyMap()));
 	}
 
 }

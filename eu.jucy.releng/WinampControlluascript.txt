@@ -1,0 +1,95 @@
+just an example script found how to use lua in windows to control winamp
+
+--[[
+    2 	Name: 		Players
+    3 	Author: 		adrian_007(c)
+    4 	Date: 		02/09/2007
+    5 	Description: 	Lua script for controlling media players (Winamp and Windows Media Player) by commands..
+    6 
+    7 	Written for RSX++
+    8 	Note: This is only an example of using Win functions FindWindow and SendMessage!
+    9 ]]--
+   10 
+   11 dcpp:setListener("ownChatOut", "players", function(hub, text)
+   12 	--// 273 = WM_COMMAND
+   13 	local cmd = string.lower(text)
+   14 	local hwndWinamp = 	DC():FindWindowHandle("Winamp v1.x", 0)
+   15 	local hwndWmp = 	DC():FindWindowHandle("WMPlayerApp", 0)
+   16 
+   17 	if cmd == "/mp p" then
+   18 		if DC():IsWindow(hwndWinamp) then
+   19 			DC():SendWindowMessageEx(hwndWinamp, 273, 40046, 0)
+   20 			hub:addLine("play/pause")
+   21 		elseif DC():IsWindow(hwndWmp) then
+   22 			DC():SendWindowMessageEx(hwndWmp, 273, 18808, 0)
+   23 			hub:addLine("play/pause")
+   24 		end
+   25 		return 1
+   26 	elseif cmd == "/mp s" or cmd == "/mp stop" then
+   27 		if DC():IsWindow(hwndWinamp) then
+   28 			DC():SendWindowMessageEx(hwndWinamp, 273, 40047, 0)
+   29 			hub:addLine("stopped")
+   30 		elseif DC():IsWindow(hwndWmp) then
+   31 			DC():SendWindowMessageEx(hwndWmp, 273, 18809, 0)
+   32 			hub:addLine("stopped")
+   33 		end
+   34 		return 1
+   35 	elseif cmd == "/mp b" or cmd == "/mp back" then
+   36 		if DC():IsWindow(hwndWinamp) then
+   37 			DC():SendWindowMessageEx(hwndWinamp, 273, 40044, 0)
+   38 			hub:addLine("back")
+   39 		elseif DC():IsWindow(hwndWmp) then
+   40 			DC():SendWindowMessageEx(hwndWmp, 273, 18810, 0)
+   41 			hub:addLine("back")
+   42 		end
+   43 		return 1
+   44 	elseif cmd == "/mp n" or cmd== "/mp next" then
+   45 		if DC():IsWindow(hwndWinamp) then
+   46 			DC():SendWindowMessageEx(hwndWinamp, 273, 40048, 0)
+   47 			hub:addLine("next")
+   48 		elseif DC():IsWindow(hwndWmp) then
+   49 			DC():SendWindowMessageEx(hwndWmp, 273, 18811, 0)
+   50 			hub:addLine("next")
+   51 		end
+   52 		return 1
+   53 	elseif cmd == "/mp pl" or cmd == "/mp play" then
+   54 		if DC():IsWindow(hwndWinamp) then
+   55 			DC():SendWindowMessageEx(hwndWinamp, 273, 40045, 0)
+   56 			hub:addLine("play")
+   57 		end
+   58 		return 1
+   59 	elseif cmd == "/mp up" then
+   60 		if DC():IsWindow(hwndWinamp) then
+   61 			DC():SendWindowMessageEx(hwndWinamp, 273, 40058, 0)
+   62 			hub:addLine("volume up")
+   63 		elseif DC():IsWindow(hwndWmp) then
+   64 			DC():SendWindowMessageEx(hwndWmp, 273, 18815, 0)
+   65 			hub:addLine("volume up")
+   66 		end
+   67 		return 1
+   68 	elseif cmd == "/mp down" then
+   69 		if DC():IsWindow(hwndWinamp) then
+   70 			DC():SendWindowMessageEx(hwndWinamp, 273, 40059, 0)
+   71 			hub:addLine("volume down")
+   72 		elseif DC():IsWindow(hwndWmp) then
+   73 			DC():SendWindowMessageEx(hwndWmp, 273, 18816, 0)
+   74 			hub:addLine("volume down")
+   75 		end
+   76 		return 1
+   77 	elseif cmd == "/help" then
+   78 		local tmp = "players.lua\n" ..
+   79 					"\tby this script you can controll Winamp and Windows Media Player\n"..
+   80 					"\tcommands:\n"..
+   81 					"\t/mp p				play/pause\n"..
+   82 					"\t/mp pl(play)			play\n"..
+   83 					"\t/mp s(stop)			stop\n"..
+   84 					"\t/mp b(back)			back\n"..
+   85 					"\t/mp n(next)			next\n"..
+   86 					"\t/mp up				volume up\n"..
+   87 					"\t/mp down			volume down\n"
+   88 		hub:addLine(tmp)
+   89 		return 1
+   90 	end
+   91 end)
+   92 
+   93 DC():PrintDebug( "  ** Loaded players.lua **" )

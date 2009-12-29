@@ -115,6 +115,8 @@ public class Lang {
 	ShowPOPUPonChatroom 	,//= Lang.getString("ShowPOPUPonChatroom"), //$NON-NLS-1$
 	ShowPOPUPonNickinMC 	,//= Lang.getString("ShowPOPUPonNickinMC"), //$NON-NLS-1$
 	
+	SetAwayMessageOnMinimize,
+	
 	
 	TimeStamps		,//= Lang.getString("TimeStamps"),//$NON-NLS-1$
 	TLSTCPPort		,//= Lang.getString("TLSTCPPort"),//$NON-NLS-1$
@@ -334,8 +336,10 @@ public class Lang {
 	User, 
 	UserCommand,
 	UserCommands,
+	UserJoins,
 	UserMenu,
 	UserOnline	, 
+	UserParts,
 	UserDescription	, 
 	
 

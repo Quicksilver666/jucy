@@ -16,7 +16,7 @@
 Includes: RegExp for files to be shared (useful for example to specify if you only want to share mp3s)
 Default is to share anything.
 <p>
-Excludes: Files you want o be excluded from sharing, like tmp files.
+Excludes: RegExp for Files you want to be excluded from sharing, like tmp files.
 <p>
 
 <h4>Max Hashspeed</h4>
@@ -29,7 +29,10 @@ How often the filelist should be refreshed.
 Set an interface name to bind to an interface.
 Or use an IP to specify an interface.
 Jucy will use this interface for all outgoing connections.
-
+<h4>Minimum Segment Size</h4>
+The Minimum size a file must have per parallel download. 
+i.e. with 8 MiB set the file needs at least 16 MiB in size to allow 2 
+downloaders at the same time. With 24 MiB it would then allow 3. etc.
 </div>
 </body>
 </html>

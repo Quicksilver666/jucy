@@ -82,7 +82,7 @@ public interface IConnection extends Closeable {
 	 * @return if returning was successful
 	 * @throws IOException
 	 */
-	boolean returnChannel(ByteChannel sochan) throws IOException;
+	boolean returnChannel(ByteChannel sochan);
 
 	/**
 	 * should try to flush the stream for up to provided time

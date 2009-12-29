@@ -5,6 +5,7 @@ import helpers.GH;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import logger.LoggerFactory;
 
@@ -283,11 +284,11 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 		@Override
 		protected void run(List<IDownloadable> files,ExecutionEvent event) {
 			String command = event.getParameter(UCContributionItem.SEND); 
-			command = ReplaceLine.get().replaceLines(command);
-			if (!GH.isNullOrEmpty(command)) {
+			Map<String,String> reps = ReplaceLine.get().replaceLines(command);
+			if (!GH.isNullOrEmpty(command)  && reps != null) {
 				for (IDownloadable f:files) {
 					for (IUser usr:f.getIterable()) {
-						usr.getHub().sendRaw(command, new SendContext(f,usr));
+						usr.getHub().sendRaw(command, new SendContext(f,usr,reps));
 					}
 				}
 			}

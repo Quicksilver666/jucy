@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 
 
 
+
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -81,6 +82,7 @@ import eu.jucy.gui.texteditor.StyledTextViewer;
 import eu.jucy.gui.texteditor.UCTextEditor;
 import eu.jucy.gui.texteditor.SendingWriteline.HubSendingWriteline;
 import eu.jucy.gui.texteditor.pmeditor.PMEditor;
+import eu.jucy.language.LanguageKeys;
 
 
 
@@ -115,8 +117,8 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 
 	private static final Logger logger = LoggerFactory.make();
 	
-
-
+	public static final String ID = "eu.jucy.hub";
+	
 	
 	public static final Image 	green ,
 								yellow,
@@ -136,9 +138,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		
 	}
 
-//	private final List<IWorkbenchAction> actions = new ArrayList<IWorkbenchAction>();
-	
-//	private volatile boolean userCommandsDirty = false;
+
 	
 	private Hub hub;
 	
@@ -155,11 +155,13 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	
 	private DelayedUpdate<IUser> updater;
 	
-	//private PreferenceChangedAdapter changedUsercommands;
 
 
-	public static final String ID = "eu.jucy.hub";
 
+	
+
+	
+	
 
 	
 	private StyledText hubText;
@@ -335,17 +337,13 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		
 		tableViewer.setInput(getHub());
 		getHub().registerHubListener(this);//register the listeners..
-	//	getHub().registerUCListener(this);
 		
 	
 		
 		makeActions(); //create menu and actions
 		logger.debug("created HubEditor partControl");
 		
-		//fire the status changed once.. so the tab has the correct colour..
-		statusChanged(hub.getState(),hub);
-		//also set hub name..
-	//	addListeners();
+	//	setTitleImage();
 		
 		setControlsForFontAndColour(hubText,tableViewer.getTable(),writeline,filterText );
 
@@ -394,53 +392,12 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 			}
 			
 		});
-		
-//		tableViewer.addDoubleClickListener(new IDoubleClickListener(){
-//			public void doubleClick(DoubleClickEvent event ) {
-//				IHandlerService hs
-//				  = (IHandlerService) getSite().getService(IHandlerService.class);
-//				
-//				try {
-//					hs.executeCommand(GetFilelistHandler.ID, null);
-//				} catch (Exception e) {
-//					logger.error(e,e);
-//				} 
-//				
-//				/*IWorkbenchAction a = actions.get(0); 
-//				if (a.isEnabled()) {
-//					a.run(); //runs the first Action(GetFileListAction)
-//				} */
-//			}
-//		});
-
-    	/*changedUsercommands = new PreferenceChangedAdapter(GUIPI.get(),GUIPI.userCommands){
-			
-			public void preferenceChanged(String preference,String oldValue, String newValue) {
-				new SUIJob() {
-					public void run() {
-						refreshActions();
-					}
-				}.schedule();
-			}
-		}; */
 	}
 	
 
 
 
-//	private void disposeActions() {
-//		for (IWorkbenchAction ua : actions) {
-//			ua.dispose();
-//		}
-//		actions.clear();
-//		
-//		if (!table.isDisposed()) {
-//			table.getMenu().dispose();
-//		}
-//		if (!hubText.isDisposed()) {
-//			hubText.getMenu().dispose();
-//		}
-//	}
+
 	
 	
 	@Override
@@ -451,54 +408,6 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		setTitleImage();
 	}
 	
-//	private void addListeners() {
-//		getSite().getPage().addPartListener(new IPartListener() {
-//			public void partActivated(IWorkbenchPart part) {
-//				if (part == HubEditor.this) {
-//					
-//				}
-//			}
-//
-//			public void partBroughtToTop(IWorkbenchPart part) {
-//				partActivated(part);
-//			}
-//			
-//			public void partClosed(IWorkbenchPart part) {}
-//			public void partDeactivated(IWorkbenchPart part) {}
-//			public void partOpened(IWorkbenchPart part) {}
-//			
-//		});
-//		
-//		//adds a listener that selects a user in the userlist if clicked in text
-//		/*hubText.addMouseListener(new MouseAdapter() {
-//			public void mouseDoubleClick(MouseEvent e) {
-//				logger.debug("doublicklick received");
-//				IUser usr = getUsrFromPosition(e.x,e.y);
-//				if (usr != null) {
-//					tableViewer.setSelection(new StructuredSelection(usr),true);
-//				}
-//			}
-//		});	 */
-//	}
-	
-
-
-	
-//	
-//	public void userCommandsChanged() {
-//	/*	if (!userCommandsDirty) {
-//			userCommandsDirty = true;
-//			new SUIJob() {
-//				public void run() {
-//					userCommandsDirty = false;
-//					if (!table.isDisposed()) {
-//						refreshActions();
-//					}
-//				}
-//			}.schedule(1000);
-//		} */
-//	} 
-
 
 
 
@@ -532,6 +441,11 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		switch(uce.getType()) {
 		case CONNECTED:
 			updater.add(uce.getChanged());
+			if (ConnectionState.LOGGEDIN.equals(hub.getState())) {
+				if (getInput().isShowJoins() || (getInput().isShowFavJoins() && uce.getChanged().isFavUser())) {
+					statusMessage(String.format(Lang.UserJoins,uce.getChanged().getNick()), 0);
+				} 
+			}
 			break;
 		case CHANGED:
 			updater.change(uce.getChanged());
@@ -539,6 +453,11 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		case DISCONNECTED:
 		case QUIT:
 			updater.remove(uce.getChanged());
+			if (ConnectionState.LOGGEDIN.equals(hub.getState())) {
+				if (getInput().isShowJoins() || (getInput().isShowFavJoins() && uce.getChanged().isFavUser())) {
+					statusMessage(String.format(Lang.UserParts,uce.getChanged().getNick()), 0);
+				} 
+			}
 			break;
 		}
 	}
@@ -598,7 +517,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	 * @param usr - who sent the message... may be null
 	 */
 	public void appendText(final String text,final IUser usr){
-		new SUIJob(hubText) {
+		SUIJob job = new SUIJob(hubText) {
 			public void run() {
 				textViewer.addMessage(text,usr,new Date()); 
 				boolean activeEditor = HubEditor.this.getSite().getPage().getActiveEditor() == HubEditor.this;
@@ -622,7 +541,8 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 					setTitleImage();
 				}
 			}
-		}.schedule();
+		};
+		job.scheduleOrRun();
 	}
 	
 	private void setTitleImage() {
@@ -699,12 +619,19 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	public void statusChanged(final ConnectionState newStatus, ConnectionProtocol cp) {
 		new SUIJob() {
 			public void run() {
-				switch (newStatus){
-				case CONNECTED:
-				case LOGGEDIN:
-				case CONNECTING:
-				case CLOSED:
+				if (newStatus != ConnectionState.DESTROYED) {
 					setTitleImage();
+				}
+				switch (newStatus) {
+				case CONNECTING:
+					logger.debug("statchanged connecting "+hub.getHubaddy());
+					statusMessage(String.format(LanguageKeys.ConnectingTo,hub.getHubaddy()),0);
+					break;
+				case CONNECTED:
+					statusMessage(LanguageKeys.Connected,0);
+					break;
+				case CLOSED:
+					statusMessage(LanguageKeys.Disconnected,0);
 					break;
 				case DESTROYED:
 					dispose();
@@ -747,20 +674,12 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	
 	public void dispose() {
 		
-		
-	//	disposeActions(); //dispose the created actions
-		
 		getHub().unregisterHubListener(this);
-	//	getHub().unregisterUCListener(this);
-	
-		
 		//if this is the last Hubeditor on this hub.. 
 		if (!anotherEditorIsOpenOnHub()) {
 			getHub().close();//disconnect and no reconnect;
 		}
-//		if (changedUsercommands != null) {
-//			changedUsercommands.dispose();
-//		}
+
 		
 		super.dispose();
 

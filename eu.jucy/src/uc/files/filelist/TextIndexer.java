@@ -415,7 +415,7 @@ public class TextIndexer {
 		return created;
 	}
 
-	public void setCreated(boolean created) {
+	private void setCreated(boolean created) {
 		this.created = created;
 	}
 }

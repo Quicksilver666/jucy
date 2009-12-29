@@ -4,6 +4,7 @@ package eu.jucy.gui.filelist;
 
 import helpers.SizeEnum;
 
+
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.List;
@@ -33,9 +34,12 @@ import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+
+
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
@@ -142,41 +146,55 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor {
 		gridLayout_1.verticalSpacing = 0;
 		gridLayout_1.marginWidth = 0;
 		gridLayout_1.marginHeight = 0;
-		gridLayout_1.horizontalSpacing = 0;
-		gridLayout_1.numColumns = 8;
+		gridLayout_1.horizontalSpacing = 1;
+		gridLayout_1.numColumns = 7;
+		
+	//	RowLayout rowLayout = new RowLayout();
+	//	rowLayout.wrap = false;
+		
 		composite_1.setLayout(gridLayout_1);
 		final GridData gridData_1 = new GridData(SWT.FILL, SWT.FILL, true, false);
 		composite_1.setLayoutData(gridData_1);
 
 		final CLabel label = new CLabel(composite_1, SWT.BORDER);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+	//	label.setLayoutData(new RowData());
+		label.setText(getList().getGenerator());
 
-		final CLabel label_1 = new CLabel(composite_1, SWT.BORDER);
-		final GridData gridData_2 = new GridData(SWT.FILL, SWT.FILL, false, false);
-		gridData_2.widthHint = 100;
-		label_1.setLayoutData(gridData_2);
+//		final CLabel label_1 = new CLabel(composite_1, SWT.BORDER);
+//		final GridData gridData_2 = new GridData(SWT.FILL, SWT.FILL, false, false);
+//		gridData_2.widthHint = 100;
+//		label_1.setLayoutData(gridData_2);
+		
+		int labelWidth= 100;
+		GC gc = new GC(composite_1);
+		int cWidth = gc.getFontMetrics().getAverageCharWidth();
+		gc.dispose();
+		labelWidth = (int)(Math.max(Lang.Size.length()+10, Lang.Files.length()+8)*cWidth*1.05d);
+		
+	
 
 		totalFiles = new CLabel(composite_1, SWT.BORDER);
 		final GridData gridData_5 = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		gridData_5.widthHint = 100;
+		gridData_5.widthHint = labelWidth;
 		totalFiles.setLayoutData(gridData_5);
 	
 
 		totalsize = new CLabel(composite_1, SWT.BORDER);
 		final GridData gridData_4 = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		gridData_4.widthHint = 100;
+		gridData_4.widthHint = labelWidth;
 		totalsize.setLayoutData(gridData_4);
 	
 
 		containedFiles = new CLabel(composite_1, SWT.BORDER);
 		final GridData gridData_3 = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		gridData_3.widthHint = 100;
+		gridData_3.widthHint = labelWidth;
 		containedFiles.setLayoutData(gridData_3);
 	
 
 		containedSize = new CLabel(composite_1, SWT.BORDER);
 		final GridData gridData_6 = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		gridData_6.widthHint = 100;
+		gridData_6.widthHint = labelWidth;
 		containedSize.setLayoutData(gridData_6);
 	
 
@@ -249,8 +267,9 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor {
 			@Override
 			public void run() {
 				treeViewer.refresh();
-				setTotalsize(getList().getSharesize());
-				setTotalFiles(getList().getNumberOfFiles());
+				updateTotal();
+			//	setTotalsize(getList().getSharesize());
+			//	setTotalFiles(getList().getNumberOfFiles());
 				
 				if (!getList().isCompleted()) {
 					schedule(1000);
@@ -258,13 +277,14 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor {
 					treeViewer.expandToLevel(2);
 					FileList list = getList();
 					IDownloadable in= ((FilelistEditorInput)getEditorInput()).getInitialSelection();
+					FileListFile select = null;
 					IDownloadable input = list.getRoot();
 					if ( in != null) {
 						IDownloadable parentFolder = list.getRoot().getByPath(in.getOnlyPath());
-						if (parentFolder == null && in.isFile()) {
-							FileListFile ff=list.search( ((IDownloadableFile)in).getTTHRoot() );
-							if (ff != null) {
-								parentFolder = ff.getParent();
+						if (in.isFile()) {
+							select = list.search( ((IDownloadableFile)in).getTTHRoot() );
+							if (parentFolder == null && select != null) {
+								parentFolder = select.getParent();
 							}
 						}
 						if (parentFolder != null) {
@@ -272,6 +292,9 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor {
 						}
 					}
 					tableViewer.setInput(input);
+					if (select != null) {
+						tableViewer.setSelection(new StructuredSelection(select), true);
+					}
 				}
 				
 			}
@@ -419,17 +442,24 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor {
 
 	}
 	
-	void setTotalsize(long total){
-		totalsize.setText(Lang.Size+": "+SizeEnum.getReadableSize(total));
+	private void updateTotal() {
+		totalsize.setText(Lang.Size+": "+SizeEnum.getReadableSize(getList().getSharesize()));
+		totalFiles.setText(Lang.Files+": "+getList().getNumberOfFiles());
+		totalFiles.getParent().layout();
 	}
 	
-	void setTotalFiles(int total){
-		totalFiles.setText(Lang.Files+": "+total);
-	}
-	
+//	void setTotalsize(long total){
+//		
+//	}
+//	
+//	void setTotalFiles(int total){
+//		totalFiles.setText(Lang.Files+": "+total);
+//	}
+//	
 	private void setContained(FileListFolder folder) {
-		containedFiles.setText(Lang.Files+": "+folder.getContainedFiles() );
+		containedFiles.setText(""+Lang.Files+": "+folder.getContainedFiles() );
 		containedSize.setText(Lang.Size+": "+SizeEnum.getReadableSize(folder.getContainedSize()));
+		containedFiles.getParent().layout();
 	}
 
 	/* (non-Javadoc)
@@ -450,7 +480,12 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor {
 				FileListFolder folder = (FileListFolder)inputElement;
 				setContained(folder);
 				treeViewer.expandToLevel(folder, 1);
-				return folder.getChildren() ;
+				
+				List<IFileListItem> children = folder.getChildren();
+//				if (folder.getParent() != null) {
+//					children.add(0, new FileListFolderUp(folder.getParent())); 
+//				}
+				return  children.toArray();
 			}
 			return new Object[0];
 		}
@@ -463,6 +498,49 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor {
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {	
 		}
 	}
+	
+//	public static class FileListFolderUp extends FileListFolder {
+//
+//		private final FileListFolder copy;
+//		
+//		public FileListFolderUp( FileListFolder copy) {
+//			super(copy.getFilelist(), copy.getParent(), "..");
+//			this.copy = copy;
+//		}
+//
+//		public AbstractDownloadQueueEntry download() {
+//			return copy.download();
+//		}
+//
+//		public AbstractDownloadQueueEntry download(File target) {
+//			return copy.download(target);
+//		}
+//
+//		public FileListFolder getChildPerName(String foldernameOfTheChild) {
+//			return copy.getChildPerName(foldernameOfTheChild);
+//		}
+//
+//		public List<IFileListItem> getChildren() {
+//			return copy.getChildren();
+//		}
+//
+//		public int getContainedFiles() {
+//			return copy.getContainedFiles();
+//		}
+//
+//		public long getContainedSize() {
+//			return copy.getContainedSize();
+//		}
+//
+//		public List<FileListFile> getFiles() {
+//			return copy.getFiles();
+//		}
+//
+//		public List<FileListFolder> getSubfolders() {
+//			return copy.getSubfolders();
+//		}
+//
+//	}
 	
 	
 	public static class FilelistTreeProvider implements ITreeContentProvider , ILabelProvider  {
@@ -495,7 +573,7 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor {
 		 */
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof FileListFolder) {
-				return ((FileListFolder)parentElement).getChildren();
+				return ((FileListFolder)parentElement).getChildren().toArray();
 			}
 			return new Object[]{};
 		}
@@ -567,12 +645,8 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor {
 		
 		
 	}
-	protected CLabel getContainedFiles() {
-		return containedFiles;
-	}
-	protected CLabel getContainedSize() {
-		return containedSize;
-	}
+
+
 	
 	
 }

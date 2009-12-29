@@ -10,7 +10,7 @@ import java.util.List;
 import logger.LoggerFactory;
 
 
-import org.apache.log4j.Level;
+
 import org.apache.log4j.Logger;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.Separator;
@@ -65,7 +65,7 @@ import uihelpers.ToasterUtil;
 
 public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 
-	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
+	private static final Logger logger = LoggerFactory.make();
 	
 	public static final String ID = "eu.jucy.PM";
 	

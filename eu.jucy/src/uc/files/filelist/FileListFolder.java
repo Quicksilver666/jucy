@@ -5,6 +5,7 @@ import helpers.GH;
 import java.io.File;
 
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -44,209 +45,58 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 	private final FileListFolder parent;
 	private final String foldername;
 	private final List<FileListFolder> subfolders = new CopyOnWriteArrayList<FileListFolder>();
+	private final List<FileListFile> files = new CopyOnWriteArrayList<FileListFile>();
 	
-//	private final Map<String,FileListFolder> subfolders = new HashMap<String,FileListFolder>(1,2);
-	
-//	private final Map<String,FileListFile>   files      = new HashMap<String,FileListFile>(1,2);
-	private final List<FileListFile>   files      = new CopyOnWriteArrayList<FileListFile>();
-		
-//	-----------------------Start Enumerator .. ..
-		private class FLIterator implements Iterator<FileListFile>{
-			//iterate over a copy to prevent concurrent modification problems..
-			private Iterator<FileListFolder> e1;
-			private Iterator<FileListFile>   e2; 
-			private Iterator<FileListFile> current;
+			
+	public FileListFolder(FileList f, FileListFolder parent, String foldername /*, int incompleteness*/){
+		this.fileList	= f;
+		this.parent		= parent;
+		this.foldername	= foldername;
+		if (parent != null) {
+			parent.addChild(this);
+		}
+	}
 
-			public FLIterator() {
 
-				e1 = subfolders.iterator();
-				e2 = files.iterator();
-				if (e1.hasNext()) {
-					current = e1.next().iterator();
-				}
+	public FileListFolder getChildPerName(String foldernameOfTheChild){
+		for (FileListFolder f:subfolders) {
+			if (f.foldername.equals(foldernameOfTheChild)) {
+				return f;
 			}
-			
-			public boolean hasNext() {
-				if (e2.hasNext()) {
-					return true;	
-				} else if (current == null) {
-					return false;
-				} else if (current.hasNext()) {
-					return true;
-				} else if (e1.hasNext()) {
-					current = e1.next().iterator();
-					return hasNext();
-				} else {
-					current = null;
-					return false;
-				}
-			}
-			
-			public FileListFile next() {
-				if (e2.hasNext()) {
-					return e2.next();
-				} else if (current == null) {
-					return null;
-				} else if (current.hasNext()) {
-					return current.next();
-				} else if(e1.hasNext()) {
-					current= e1.next().iterator();
-					return next();
-				} else {
-					current = null;
-					return null;
-				}
-			}
-			
-			public void remove(){
-				throw new UnsupportedOperationException();
-			}	
 		}
+		return null;
+	}
 
-		/**
-		 * iterates over all FileListFiles contained
-		 * in this Folder or its subfolders recursively..
-		 */
-		public Iterator<FileListFile> iterator() { 
-			return new FLIterator();
+	public FileListFile getFilePerName(String filenameOfTheChild){
+		for (FileListFile f:files) {
+			if (f.getName().equals(filenameOfTheChild)) {
+				return f;
+			}
 		}
-		
-		private class FolderIterator implements Iterator<FileListFolder> {
+		return null;
+	}
 
-			private Iterator<FileListFolder> first =  subfolders.iterator();
-			private Iterator<FileListFolder> second =  subfolders.iterator();
-			
-			private Iterator<FileListFolder> current;
-			
-			public FolderIterator() {
-				if (second.hasNext()) {
-					current= second.next().iterator2();
-				}
-			}
-			
-			public boolean hasNext() {
-				if (current == null) {
-					return false;
-				} else if (first.hasNext()) {
-					return true;
-				} else if (current.hasNext()) {
-					return true;
-				} else if (second.hasNext()) {
-					current = second.next().iterator2();
-					return hasNext();
-				} else {
-					current = null;
-					return false;
-				}
-				
-			//	return first.hasNext() || current.hasNext();
-				
-				/*if (current == null) {
-					return false;
-				} else if (current.hasNext()) {
-					return true;
-				} else if (e1.hasNext()) {
-					current = e1.next().iterator2();
-					return hasNext();
-				} else {
-					current = null;
-					return false;
-				} */
-			}
 
-			public FileListFolder next() {
-				if (current == null) {
-					return null;
-				} else if (first.hasNext()) {
-					return first.next();
-				} else if(current.hasNext()) {
-					return current.next();
-				} else if (second.hasNext()) {
-					current = second.next().iterator2();
-					return next();
-				} else {
-					current = null;
-					return null;
-				}
-			}
+	private void addSizeToFolderparent(long size){
+		containedSize += size;
+		containedFiles++;
+		if (parent!= null) {
+			parent.addSizeToFolderparent(size);
+		}
+	}
 
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-			
+	/**
+	 * adds a new filelistfile to this folder.. 
+	 * only called by filelistfile
+	 * @param a - the file that should be added to this folder
+	 */
+	void addChild(FileListFile a) {
+		int found = Collections.binarySearch(files, a);
+		if (found < 0) {
+			files.add(-(found+1) , a);
+			addSizeToFolderparent(a.getSize());
 		}
-		
-		/**
-		 * gives an iterator that iterates over all contained 
-		 * subfolders recursively
-		 * @return
-		 */
-		public Iterator<FileListFolder> iterator2() {
-			return new FolderIterator();
-		}
-		
-		
-		//-----------------------End Enumerator ..
-
-		
-		public FileListFolder(FileList f, FileListFolder parent, String foldername /*, int incompleteness*/){
-			this.fileList	= f;
-			this.parent		= parent;
-			this.foldername	= foldername;
-			if (parent != null) {
-				parent.addChild(this);
-			}
-		}
-		
-		
-		public FileListFolder getChildPerName(String foldernameOfTheChild){
-			for (FileListFolder f:subfolders) {
-				if (f.foldername.equals(foldernameOfTheChild)) {
-					return f;
-				}
-			}
-			return null;
-		}
-		
-		public FileListFile getFilePerName(String filenameOfTheChild){
-			for (FileListFile f:files) {
-				if (f.getName().equals(filenameOfTheChild)) {
-					return f;
-				}
-			}
-			return null;
-		}
-		
-		
-		private void addSizeToFolderparent(long size){
-			containedSize += size;
-			containedFiles++;
-			if (parent!= null) {
-				parent.addSizeToFolderparent(size);
-			}
-		}
-		
-		/**
-		 * adds a new filelistfile to this folder.. 
-		 * only called by filelistfile
-		 * @param a - the file that should be added to this folder
-		 */
-		void addChild(FileListFile a) {
-			int found = Collections.binarySearch(files, a);
-			if (found < 0) {
-				files.add(-(found+1) , a);
-				addSizeToFolderparent(a.getSize());
-			}
-			
-			
-//			List<FileListFile> f = new ArrayList<FileListFile>(files);
-//			f.add(a);
-//			Collections.sort(f);
-//			files.clear();
-//			files.addAll(f);
-
-			
-		}
+	}
 		
 		/**
 		 * 
@@ -332,23 +182,12 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 		}
 
 		
-		public Object[] getChildren() {
-			Object[] retval= new Object[ subfolders.size()+ files.size()];
-			int i = 0;
-			
-			for (FileListFolder f:subfolders) {
-				retval[i++] = f;
-			}
-			
-			
-			
-			for (FileListFile f: files) {
-				retval[i++] = f;
-			}
-			
-			
+		public List<IFileListItem> getChildren() {
+			List<IFileListItem> children = new ArrayList<IFileListItem>();
+			children.addAll(subfolders);
+			children.addAll(files);
 
-			return retval;
+			return children;
 		}
 		
 		public boolean hasSubfolders() {
@@ -535,6 +374,130 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 			return true;
 		}
 
+//		-----------------------Start Enumerator .. ..
+		private class FLIterator implements Iterator<FileListFile>{
+			//iterate over a copy to prevent concurrent modification problems..
+			private Iterator<FileListFolder> e1;
+			private Iterator<FileListFile>   e2; 
+			private Iterator<FileListFile> current;
+
+			public FLIterator() {
+
+				e1 = subfolders.iterator();
+				e2 = files.iterator();
+				if (e1.hasNext()) {
+					current = e1.next().iterator();
+				}
+			}
+			
+			public boolean hasNext() {
+				if (e2.hasNext()) {
+					return true;	
+				} else if (current == null) {
+					return false;
+				} else if (current.hasNext()) {
+					return true;
+				} else if (e1.hasNext()) {
+					current = e1.next().iterator();
+					return hasNext();
+				} else {
+					current = null;
+					return false;
+				}
+			}
+			
+			public FileListFile next() {
+				if (e2.hasNext()) {
+					return e2.next();
+				} else if (current == null) {
+					return null;
+				} else if (current.hasNext()) {
+					return current.next();
+				} else if(e1.hasNext()) {
+					current= e1.next().iterator();
+					return next();
+				} else {
+					current = null;
+					return null;
+				}
+			}
+			
+			public void remove(){
+				throw new UnsupportedOperationException();
+			}	
+		}
+
+		/**
+		 * iterates over all FileListFiles contained
+		 * in this Folder or its subfolders recursively..
+		 */
+		public Iterator<FileListFile> iterator() { 
+			return new FLIterator();
+		}
+		
+		private class FolderIterator implements Iterator<FileListFolder> {
+
+			private Iterator<FileListFolder> first =  subfolders.iterator();
+			private Iterator<FileListFolder> second =  subfolders.iterator();
+			
+			private Iterator<FileListFolder> current;
+			
+			public FolderIterator() {
+				if (second.hasNext()) {
+					current= second.next().iterator2();
+				}
+			}
+			
+			public boolean hasNext() {
+				if (current == null) {
+					return false;
+				} else if (first.hasNext()) {
+					return true;
+				} else if (current.hasNext()) {
+					return true;
+				} else if (second.hasNext()) {
+					current = second.next().iterator2();
+					return hasNext();
+				} else {
+					current = null;
+					return false;
+				}
+			}
+
+			public FileListFolder next() {
+				if (current == null) {
+					return null;
+				} else if (first.hasNext()) {
+					return first.next();
+				} else if(current.hasNext()) {
+					return current.next();
+				} else if (second.hasNext()) {
+					current = second.next().iterator2();
+					return next();
+				} else {
+					current = null;
+					return null;
+				}
+			}
+
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+			
+		}
+		
+		/**
+		 * gives an iterator that iterates over all contained 
+		 * subfolders recursively
+		 * @return
+		 */
+		public Iterator<FileListFolder> iterator2() {
+			return new FolderIterator();
+		}
+		
+		
+		//-----------------------End Enumerator ..
+		
 		
 	}
 

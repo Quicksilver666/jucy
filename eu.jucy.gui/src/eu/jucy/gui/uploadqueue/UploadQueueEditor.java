@@ -12,7 +12,6 @@ import logger.LoggerFactory;
 
 
 import org.apache.log4j.Logger;
-
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -26,6 +25,7 @@ import org.eclipse.swt.widgets.Table;
 
 
 import uc.files.UploadQueue.UploadInfo;
+import uihelpers.DelayedUpdate;
 import uihelpers.SUIJob;
 import uihelpers.TableViewerAdministrator;
 
@@ -55,14 +55,13 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 	private Table table;
 	private TableViewer tableViewer;
 	private TableViewerAdministrator<UploadInfo> tva;
+	private DelayedUpdate<UploadInfo> update;
 	
-//	private final List<IWorkbenchAction> actions = new ArrayList<IWorkbenchAction>();
-	
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void createPartControl(Composite arg0) {
-		final GridLayout gridLayout = new GridLayout();
+		GridLayout gridLayout = new GridLayout();
 		arg0.setLayout(gridLayout);
 
 		tableViewer = new TableViewer(arg0, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER);
@@ -75,14 +74,15 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 				Arrays.asList(NameUserCol.<UploadInfo>get(),new NameRequestedCol(),new TotalSizeCol(),
 						new FirstRequestCol(),new RequestsReceivedCol(),new LastRequestCol(), 
 						new SlotReceivedCol(),new PositionCol()),
-						GUIPI.uploadQueueTable,5);
+						GUIPI.uploadQueueTable,7);
 		tva.apply();
+		
+		update = new DelayedUpdate<UploadInfo>(tableViewer);
 		
 		tableViewer.setContentProvider(new UploadQueueProvider());
 		tableViewer.addFilter(new ViewerFilter() {
 			@Override
-			public boolean select(Viewer viewer, Object parentElement,
-					Object element) {
+			public boolean select(Viewer viewer, Object parentElement,Object element) {
 				UploadInfo ui = (UploadInfo)element;
 				long milisecondssincelast = System.currentTimeMillis()- ui.getLastRequest().getTime();
 				return milisecondssincelast < 1000*60*10; //only show users with requests in the last 10 minutes..
@@ -90,7 +90,7 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 			
 		});
 		
-		//makeActions();
+		
 		getSite().setSelectionProvider(tableViewer);
 		createContextPopup(HubEditor.ID, tableViewer);
 		ApplicationWorkbenchWindowAdvisor.get().getUpQueue().addObserver(this);
@@ -100,7 +100,8 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 		new SUIJob(table) {
 			@Override
 			public void run() {
-				tableViewer.refresh();
+				update.clear();
+				tableViewer.setInput(ApplicationWorkbenchWindowAdvisor.get().getUpQueue());
 				schedule(60*1000);
 			}
 		}.schedule(60*1000);
@@ -112,9 +113,6 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 	@Override
 	public void dispose() {
 		ApplicationWorkbenchWindowAdvisor.get().getUpQueue().deleteObserver(this);
-
-
-		
 		super.dispose();
 	}
 
@@ -129,25 +127,7 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 	public void update(IObservable<StatusObject> arg0, final StatusObject st) {
 		//final StatusObject st = (StatusObject)arg1;
 		if (st.getValue() instanceof UploadInfo) {
-			new SUIJob(table) {
-				@Override
-				public void run() {
-					logger.debug("found: "+st.getType()+"  "+ ((UploadInfo)st.getValue()).getUser().toString());
-
-					switch(st.getType()) {
-					case ADDED:
-						tableViewer.add(st.getValue());
-						break;
-					case CHANGED:
-						tableViewer.refresh(st.getValue());
-						break;
-					case REMOVED:
-						tableViewer.remove(st.getValue());
-						break;
-					}
-				}
-				
-			}.schedule();
+			update.put(st.getType(), (UploadInfo)st.getValue());
 		}
 		
 	}

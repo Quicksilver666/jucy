@@ -106,7 +106,6 @@ public class FileList implements Iterable<IFileListItem> {
 	 * Folders
 	 */
 	public Iterator<IFileListItem> iterator() {
-		
 		return new Iterator<IFileListItem>() {
 			private final Iterator<FileListFile> itFile = root.iterator();
 			private final Iterator<FileListFolder> itFolder = root.iterator2();
@@ -235,6 +234,9 @@ public class FileList implements Iterable<IFileListItem> {
 	 * @throws IllegalArgumentException - if the path does no exist
 	 */
 	private void writeFilelist(OutputStream out,String path,boolean recursive) throws UnsupportedEncodingException , IOException , IllegalArgumentException {
+		if (path == null) {
+			path = "/";
+		}
 		try {
 			StreamResult streamResult = new StreamResult(out);
 			SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory
@@ -331,10 +333,9 @@ public class FileList implements Iterable<IFileListItem> {
 	 * @return
 	 */
 	public byte[] writeFileList(String path, boolean recursive)  {
-		if (path == null) {
-			path = "/";
-		}
-		if (path.equals("/")) { //try load filelist from reference... if filelist is currently in upload..
+		logger.debug("("+(path == null? "null":path)+")" );
+		
+		if (path == null) { //try load filelist from reference... if filelist is currently in upload..
 			synchronized (this) {
 				byte[] present = fullFileListinUpload.get();
 				if (present != null) {
@@ -343,23 +344,26 @@ public class FileList implements Iterable<IFileListItem> {
 			}
 		}
 		ByteArrayOutputStream baos = null;
-		OutputStream zipstream = null;
+		OutputStream out = null;
 		try {
 			baos = new  ByteArrayOutputStream();
-			baos.write('B');
-			baos.write('Z');
-			zipstream 	= new CBZip2OutputStream(baos);
-			writeFilelist(zipstream,path,recursive);
-			zipstream.flush();
+			out = baos;
+			if (path == null) {
+				baos.write('B');
+				baos.write('Z');
+				out 	= new CBZip2OutputStream(baos);
+			}
+			writeFilelist(out,path,recursive);
+			
 		} catch(IOException ioe) {
 			logger.warn(ioe,ioe); //this should never happen... everything is done in memory..
 		} finally {
-			GH.close(zipstream);
+			GH.close(out);
 		}
 		byte[] fileList = baos.toByteArray();
 		
 		
-		if (path.equals("/")) { //store fileList in ref ..
+		if (path == null) { //store fileList in ref ..
 			synchronized (this) {
 				fullFileListinUpload = new WeakReference<byte[]>(fileList);
 			}

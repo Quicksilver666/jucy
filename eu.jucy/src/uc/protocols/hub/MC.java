@@ -55,10 +55,11 @@ public class MC extends AbstractNMDCHubProtocolCommand {
 	
 	public static void sendMainchatMessage(Hub hub,String message, boolean me) {
 		String msg = DCProtocol.doReplaces(message);
+		String nick = hub.getSelf().getNick();
 		if (me) {
-			hub.sendUnmodifiedRaw("*"+hub.getSelf().getNick()+" "+msg+"*|");
+			hub.sendUnmodifiedRaw("<"+nick+"> +me "+msg+"|");
 		} else {
-			hub.sendUnmodifiedRaw("<"+hub.getSelf().getNick()+"> "+msg+"|");
+			hub.sendUnmodifiedRaw("<"+nick+"> "+msg+"|");
 		}
 	}
 	

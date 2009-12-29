@@ -6,7 +6,7 @@ package eu.jucy.gui.favhub;
 import helpers.IObservable;
 import helpers.Observable.IObserver;
 
-import java.io.IOException;
+
 import java.util.Arrays;
 
 
@@ -15,7 +15,6 @@ import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 
 
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -387,20 +386,7 @@ public class FavHubEditor extends UCEditor implements IObserver<FavHub> {
 	
 	public void dispose(){
 		favHubs.deleteObserver(this);
-		try {
-			favHubs.store();
-		} catch(final IOException ioe) {
-			new SUIJob() {
-				public void run() {
-					MessageDialog.openError(getWindow().getShell(), "Error", ioe.toString());
-				}
-			}.schedule();
-		}
-		
-//	
-//		changePropertiesAction.dispose();
-//		createFavHubAction.dispose();
-//		openHubAction.dispose();
+		favHubs.store();
 
 		super.dispose();
 	}
@@ -409,14 +395,11 @@ public class FavHubEditor extends UCEditor implements IObserver<FavHub> {
 	public static class FavHubContentProvider implements IStructuredContentProvider {
 
 		
-		public void dispose() {
-		}
+		public void dispose() {}
 
 		
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		}
+		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
 
-		
 		public Object[] getElements(Object inputElement) {
 			IFavHubs hubs = (IFavHubs)inputElement;
 			return hubs.getFavHubs().toArray();

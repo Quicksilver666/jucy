@@ -103,7 +103,7 @@ public class TestHubConnection implements IConnection {
 		throw new IllegalStateException("unimplemented Method in TestHubConnection called");
 	}
 
-	public boolean returnChannel(ByteChannel sochan) throws IOException {
+	public boolean returnChannel(ByteChannel sochan) {
 		logger.error("unimplemented Method in TestHubConnection called");
 		throw new IllegalStateException("unimplemented Method in TestHubConnection called");
 	}

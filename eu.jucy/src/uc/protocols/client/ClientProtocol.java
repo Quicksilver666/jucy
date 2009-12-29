@@ -260,12 +260,10 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 */
 	public void onLogIn() throws IOException {
 		logger.debug("called OnLogIn");
-		
-		
+
 		if (getState() != ConnectionState.CONNECTED) {
 			logger.debug("current state: "+getState()); //no login -> we already disconnected..TODO -> move into superclass..
 			throw new IOException("Illegal state for login");
-	//		return;
 		}
 		super.onLogIn();
 		
@@ -611,114 +609,124 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 * if everything in FTI is set
 	 */
 	void transfer() throws IOException {
-		
 		logger.debug("in transfer()");
+
 		try {
 			boolean successful = fti.setFileInterval(ch.getDCC());
+//			if (Platform.inDevelopmentMode()) {
+//				logger.info(fti);
+//			}
 			if (successful) {
-				if (fti.isDownload() || (slot = ch.getSlotManager().getSlot(fti.getOther(),fti.getType(),fti.getFile())) != null) { //get a slot for the upload
-					ByteChannel source = null;
-					try {
-						if (fti.isUpload()) {
-							getAwaited = false;
-							
-							logger.debug("transfer() is an upload..now sending ADCSND");
-							if (nmdc) {
-								ADCSND.sendADCSND(this);
-							} else {
-								SND.sendADCSND(this);
-							}
-							ch.getDCC().getUpQueue().userRequestedFile(
-									fti.getOther(), fti.getNameOfTransferred(),fti.getHashValue(), true);
-						} 
-		
-						//create an upload..
-						fileTransfer = fti.create(this);
-						setState(ConnectionState.TRANSFERSTARTED);
-						ch.notifyOfChange(ConnectionHandler.TRANSFER_STARTED,this,fileTransfer);
-						
-						if (fti.isDownload()) { //Register download.. with DQE..
-							fti.getDqe().startedDownload(fileTransfer);
-						}
-						logger.debug("transfer() start transferring data..");
-						source = connection.retrieveChannel();
-						fileTransfer.transferData(source); 
-						logger.debug("transfer() finished transferring data..");
-						immediateReconnect = true; 
-						
-					} catch(IOException ioe) { 
-						logger.debug("transfer broke with ioexception "+ioe);
-					} finally {
-						
-						boolean wasDownload = false ;
-
-						if (fileTransfer != null) {
-							wasDownload = fileTransfer.isDownload();
-							ch.getDCC().getUpDownQueue(fileTransfer.isUpload()).transferFinished(
-									fti.getFile(),
-									fti.getOther(), 
-									fti.getNameOfTransferred(), 
-									fti.getHashValue(), 
-									fileTransfer.getBytesTransferred(),
-									fileTransfer.getStartTime(),
-									System.currentTimeMillis()-fileTransfer.getStartTime().getTime());
-							
-							ch.notifyOfChange(ConnectionHandler.TRANSFER_FINISHED,this,fileTransfer);
-							setState(ConnectionState.TRANSFERFINISHED);
-							timerTransferCreateTimeout = 0;
-							fileTransfer = null;
-						}
-
-						boolean returnSuccessful = false;
-						if (source != null) {
-							returnSuccessful = connection.returnChannel(source);
-						}
-						if (debugMessages.size() > 1000) {
-							//check error... too many debug messages..
-							if (Platform.inDevelopmentMode()) {
-								logger.warn("Debug Messages count too large "+debugMessages.size());
-							}
-							connection.close();
-						} else if (slot != null) { //upload
-							ch.getSlotManager().returnSlot(slot,fti.getOther());
-							slot = null;
-							awaitingADCGet = 10;
-							getAwaited = true;
-						} else if (wasDownload && returnSuccessful) { // download:
-							logger.debug("relogin");
-							relogin();
-						}
-						
-
-						logger.debug("transfer() finished was download"+wasDownload+"  return succ:"+returnSuccessful);
-					}
-					
-				} else {
-					//being here means this is an upload and no slots are free.
-					//send No slots signal
-					int queuePosition = ch.getSlotManager().getPositionInQueue(fti.getOther());
-					if (nmdc) {
-						MaxedOut.sendMaxedOut(this,queuePosition);
-					} else {
-						STA.sendSTA(this, new ADCStatusMessage(DisconnectReason.NOSLOTS.toString(),2,53,Flag.QP,""+queuePosition));
-						//here ADC no slots.. //STA maxed out..
-					}
-					ch.getDCC().getUpQueue().userRequestedFile(fti.getOther(), fti.getNameOfTransferred(),fti.getHashValue(), false);
-					disconnect(DisconnectReason.NOSLOTS);
-				}
+				getSlotAndDoTransfer();
 			} else {
 				//could no create fileInterval.. -> just disconnect..
 				if (nmdc) {
 					sendError(DisconnectReason.FILENOTAVAILABLE );
 				} else {
-					STA.sendSTA(this, new ADCStatusMessage("File Not Available",ADCStatusMessage.FATAL,ADCStatusMessage.TransferFileNotAvailable));
+					STA.sendSTA(this, 
+							new ADCStatusMessage(DisconnectReason.FILENOTAVAILABLE.toString(),
+									ADCStatusMessage.FATAL,
+									ADCStatusMessage.TransferFileNotAvailable));
 				}
 			}
 		} catch (FilelistNotReadyException flnre) { //ugly ugly.. though no longer in use..
 			disconnect(DisconnectReason.UNKNOWN);
 			logger.debug("disconnected because filelist was not ready");
 		}
-		
+	}
+	
+	private void getSlotAndDoTransfer() {
+		DCClient dcc = ch.getDCC();
+		if (fti.isDownload() || (slot = ch.getSlotManager().getSlot(fti.getOther(),fti.getType(),fti.getFile())) != null) { //get a slot for the upload
+			ByteChannel source = null;
+			try {
+				if (fti.isUpload()) {
+					getAwaited = false;
+					
+					logger.debug("transfer() is an upload..now sending ADCSND");
+					if (nmdc) {
+						ADCSND.sendADCSND(this);
+					} else {
+						SND.sendADCSND(this);
+					}
+					dcc.getUpQueue().userRequestedFile(
+							fti.getOther(), fti.getNameOfTransferred(),fti.getHashValue(), true);
+				} 
+
+				//create an upload..
+				fileTransfer = fti.create(this);
+				setState(ConnectionState.TRANSFERSTARTED);
+				ch.notifyOfChange(ConnectionHandler.TRANSFER_STARTED,this,fileTransfer);
+				
+				if (fti.isDownload()) { //Register download.. with DQE..
+					fti.getDqe().startedDownload(fileTransfer);
+				}
+				logger.debug("transfer() start transferring data..");
+				source = connection.retrieveChannel();
+				fileTransfer.transferData(source); 
+				logger.debug("transfer() finished transferring data..");
+				immediateReconnect = true; 
+				
+			} catch(IOException ioe) { 
+				logger.debug("transfer broke with ioexception "+ioe);
+			} finally {
+				
+				boolean wasDownload = false ;
+
+				if (fileTransfer != null) {
+					wasDownload = fileTransfer.isDownload();
+					dcc.getUpDownQueue(fileTransfer.isUpload()).transferFinished(
+							fti.getFile(),
+							fti.getOther(), 
+							fti.getNameOfTransferred(), 
+							fti.getHashValue(), 
+							fileTransfer.getBytesTransferred(),
+							fileTransfer.getStartTime(),
+							System.currentTimeMillis()-fileTransfer.getStartTime().getTime());
+					
+					ch.notifyOfChange(ConnectionHandler.TRANSFER_FINISHED,this,fileTransfer);
+					setState(ConnectionState.TRANSFERFINISHED);
+					timerTransferCreateTimeout = 0;
+					fileTransfer = null;
+				}
+
+				boolean returnSuccessful = false;
+				if (source != null) {
+					returnSuccessful = connection.returnChannel(source);
+				}
+				if (debugMessages.size() > 1000) {
+					//check error... too many debug messages..
+					if (Platform.inDevelopmentMode()) {
+						logger.warn("Debug Messages count too large "+debugMessages.size());
+					}
+					connection.close();
+				} else if (slot != null) { //upload
+					ch.getSlotManager().returnSlot(slot,fti.getOther());
+					slot = null;
+					awaitingADCGet = 10;
+					getAwaited = true;
+				} else if (wasDownload && returnSuccessful) { // download:
+					logger.debug("relogin");
+					relogin();
+				}
+				
+
+				logger.debug("transfer() finished was download"+wasDownload+"  return succ:"+returnSuccessful);
+			}
+			
+		} else {
+			//being here means this is an upload and no slots are free.
+			//send No slots signal
+			int queuePosition = ch.getSlotManager().getPositionInQueue(fti.getOther());
+			if (nmdc) {
+				MaxedOut.sendMaxedOut(this,queuePosition);
+			} else {
+				STA.sendSTA(this, new ADCStatusMessage(DisconnectReason.NOSLOTS.toString(),2,53,Flag.QP,""+queuePosition));
+				//here ADC no slots.. //STA maxed out..
+			}
+			dcc.getUpQueue().userRequestedFile(fti.getOther(), fti.getNameOfTransferred(),fti.getHashValue(), false);
+			disconnect(DisconnectReason.NOSLOTS);
+		}
 	}
 	
 	
@@ -865,7 +873,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 
 
 
-	public void setNewList(boolean newList) {
+	public void setPartialList(boolean newList) {
 		this.newList = newList;
 	}
 	

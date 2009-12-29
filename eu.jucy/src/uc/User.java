@@ -261,7 +261,7 @@ public class User implements IUser , IHasUser {
 			case U4:
 			case U6:
 				udpPort = (short) Integer.parseInt(val);
-				updateModecharBasedOnIPPort();
+//				updateModecharBasedOnIPPort();
 				break;
 			case PD: //PID is never sent to us, only interesting for the hub
 				break;
@@ -343,7 +343,7 @@ public class User implements IUser , IHasUser {
 		case U4:
 		case U6:
 			udpPort = 0;
-			updateModecharBasedOnIPPort();
+	//		updateModecharBasedOnIPPort();
 			break;
 		case PD: //PID is never sent to us, only interesting for the hub
 			break;
@@ -363,7 +363,7 @@ public class User implements IUser , IHasUser {
 	 */
 	private void updateModecharBasedOnIPPort() {
 		if (isADCUser()) {
-			setModechar( udpPort != 0 && ip != null  ? Mode.ACTIVE:Mode.PASSIVE );
+			setModechar(ip != null ? Mode.ACTIVE : Mode.PASSIVE);
 		}
 	}
 	
@@ -943,29 +943,26 @@ public class User implements IUser , IHasUser {
 	/**
 	 * @param download the download to set
 	 */
-	public void addTransfer(ClientProtocol nmdcc) {
-		synchronized(this) {
-			makeSureExtendedExists();
-			if (extended.transfers == null) {
-				extended.transfers =  new CopyOnWriteArraySet<ClientProtocol>();
-			}
-			extended.transfers.add( nmdcc );
+	public synchronized void addTransfer(ClientProtocol nmdcc) {
+		makeSureExtendedExists();
+		if (extended.transfers == null) {
+			extended.transfers =  new CopyOnWriteArraySet<ClientProtocol>();
 		}
+		extended.transfers.add( nmdcc );
+		
 	}
 
 	/**
 	 * @return the upload
 	 */
-	public ClientProtocol getUpload() {
-		synchronized(this) {
-			if (extended == null || extended.transfers == null) {
-				return null;
-			}
-		
-			for (ClientProtocol nmdcc:extended.transfers) {
-				if (nmdcc.getFileTransfer()!= null && nmdcc.getFileTransfer().isUpload()) {
-					return nmdcc;
-				}
+	public synchronized ClientProtocol getUpload() {
+		if (extended == null || extended.transfers == null) {
+			return null;
+		}
+
+		for (ClientProtocol nmdcc:extended.transfers) {
+			if (nmdcc.getFileTransfer()!= null && nmdcc.getFileTransfer().isUpload()) {
+				return nmdcc;
 			}
 		}
 		return null;

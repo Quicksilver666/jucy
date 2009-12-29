@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -266,10 +267,10 @@ public abstract class UserHandlers extends AbstractHandler {
 		@Override
 		protected void doWithUsers(List<IUser> users,ExecutionEvent event) {
 			String command = event.getParameter(UCContributionItem.SEND); 
-			command = ReplaceLine.get().replaceLines(command);
-			if (!GH.isNullOrEmpty(command)) {
+			Map<String,String> reps = ReplaceLine.get().replaceLines(command);
+			if (!GH.isNullOrEmpty(command) && reps != null) {
 				for (IUser usr:users) {
-					usr.getHub().sendRaw(command, new SendContext(usr));
+					usr.getHub().sendRaw(command, new SendContext(usr,reps));
 				}
 			}
 			

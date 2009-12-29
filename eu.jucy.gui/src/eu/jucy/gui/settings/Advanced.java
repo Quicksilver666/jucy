@@ -45,6 +45,13 @@ public class Advanced extends UCPrefpage {
 		addField(bindAddress);	
 		
 		
+		
+		IntegerFieldEditor minimumSegmentSize= new IntegerFieldEditor(PI.minimumSegmentSize,
+				"Minimum Segment Size(MiB)",
+				getFieldEditorParent());
+		minimumSegmentSize.setValidRange(5, Integer.MAX_VALUE); 
+		addField(minimumSegmentSize);
+		
 	}
 
 	

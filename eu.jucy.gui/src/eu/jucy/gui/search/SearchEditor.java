@@ -232,7 +232,7 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 
 		
 		Combo unitCombo = new Combo(sizeComp, SWT.READ_ONLY);
-		unitComboViewer = new ComboBoxViewer(unitCombo,SizeEnum.values());
+		unitComboViewer = new ComboBoxViewer<SizeEnum>(unitCombo,SizeEnum.values());
 		unitComboViewer.select(SizeEnum.B);
 
 
@@ -413,7 +413,7 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 		fileCountLabel.setLayoutData(gridData_1);
 		//
 		
-		update = new DelayedTreeUpdater(treeViewer) {
+		update = new DelayedTreeUpdater<IDownloadable>(treeViewer) {
 			@Override
 			protected void updateDone() {
 				updateLabels();
@@ -646,7 +646,6 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 
 
 	public static class SearchTreeProvider implements ITreeContentProvider {
-
 		
 		public Object[] getElements(Object inputElement) {
 			if(inputElement instanceof FileSearch){

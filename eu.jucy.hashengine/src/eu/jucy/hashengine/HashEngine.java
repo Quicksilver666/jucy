@@ -51,11 +51,7 @@ public class HashEngine implements IHashEngine {
 
 	private static final Logger logger = LoggerFactory.make();
 
-//	static int nrOfHashThreads = 1; //Runtime.getRuntime().availableProcessors();
 
-	//private ExecutorService exec = Executors.newFixedThreadPool(nrOfHashThreads);
-	
-//	private final BlockingDeque<HashJob> filesTohash = new LinkedBlockingDeque<HashJob>();
 	private final BlockingQueue<HashJob> blocksToVerify = new LinkedBlockingQueue<HashJob>();
 	private final BlockingQueue<HashJob> filesForHashing = new LinkedBlockingQueue<HashJob>();
 	
@@ -80,8 +76,6 @@ public class HashEngine implements IHashEngine {
 	
 
 	public void init() {
-		//for (int i=0;i < nrOfHashThreads;i++) {
-		//	final int threadnumber = i;
 		Runnable r = new Runnable() {
 			public void run() {
 				try {
@@ -124,9 +118,6 @@ public class HashEngine implements IHashEngine {
 
 	private void execThread(Runnable r) {
 		Thread t = new Thread(r,"Main-HashThread");
-	//	if (Runtime.getRuntime().availableProcessors() <= nrOfHashThreads  ) {
-	//		t.setPriority( (Thread.MIN_PRIORITY+Thread.NORM_PRIORITY)/2);
-	//	}
 		t.start();
 	}
 

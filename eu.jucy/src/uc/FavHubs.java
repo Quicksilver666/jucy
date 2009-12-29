@@ -3,7 +3,7 @@ package uc;
 import helpers.Observable;
 
 
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,16 +32,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 
 	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
 	
-	/*
-	private static class Holder {
-		private static final FavHubs singleton = new FavHubs(null);
-	}
-	
-	public static FavHubs get() {
-		return Holder.singleton;
-	}  */
 
-//	private boolean loadedInLegacyMode = false;
 	
 	@SuppressWarnings("serial")
 	private final Map<Integer,FavHub> favHubs = Collections.synchronizedMap(new HashMap<Integer,FavHub>() {
@@ -71,7 +62,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 	/* (non-Javadoc)
 	 * @see uc.IFavHubs#store()
 	 */
-	public void store() throws IOException {
+	public void store()  {
 	//	boolean legacymode = false;
 	//	if (!legacymode) {
 		logger.debug("Storeing FavHubs modern way");
@@ -81,42 +72,11 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 					new FavHubTranslater());
 			
 			
-			/*String[] all = new String[favHubs.size()];
-			for (int i = 0; i < favHubs.size() ; i++ ) {
-				FavHub hub = favHubs.get(i);
-				all[i] = hub.store();
-			} */
 			if (!PI.put(PI.favHubs2, p)) {
-				throw new IOException("Could not store FavHub");
+				logger.error("Could not store FavHub");
 			}
 		}
-		/*	if (!PI.put(PI.favHubs2, PrefConverter.asString(all))) {
-				logger.warn("Favourite hubs could not be stored");
-			} else {
-				
-				if (loadedInLegacyMode) {
-					//or may be not..
-				}
-			}*/
-			
-		/*} else {
-			try {
-				Preferences pref = PI.get().node(PI.favHubs);
-				pref.removeNode();
-				pref =  PI.get().node(PI.favHubs);
-				synchronized(favHubs) {
-					for (FavHub fh: favHubs.values()) {
-						Preferences p = pref.node(""+fh.getOrder());
-						fh.store(p);
-					}
-				}
-				pref.flush();
-				
-			} catch(BackingStoreException bse) {
-				logger.warn("Favorite hubs could not be stored",bse);
-				throw new missing16api.IOException(bse);
-			}
-		} */
+
 		notifyObservers(null);
 	}
 	
@@ -165,12 +125,8 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 			hub.setOrder(favHubs.size());
 		}
 		favHubs.put(hub.getOrder(), hub);
+		store();
 		notifyObservers(null);
-		try {
-			store();
-		} catch(IOException ioe) {
-			logger.warn(ioe,ioe);
-		}
 		checkOrder();
 	}
 	
@@ -205,13 +161,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 		checkOrder();
 	}
 	
-/*	private void notifyListeners() {
-		synchronized(listeners) {
-			for (IFavHubsChangedListener listener: listeners) {
-				listener.favHubsChanged();
-			}
-		}
-	} */
+
 
 	/* (non-Javadoc)
 	 * @see uc.IFavHubs#openAutoStartHubs()
@@ -223,11 +173,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 					FavHub favHub = favHubs.get(i);
 					if (favHub == null) { //try repairing on startup if something goes wrong..
 						repairOrders();
-						try {
-							store();
-						} catch(IOException ioe) {
-							logger.warn(ioe, ioe);
-						}
+						store();
 					} else if (favHub.isAutoconnect()) {
 						favHub.connect(dcc);
 					}
@@ -237,21 +183,6 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 		});
 	}
 	
-	/*
-	 * adds a listener that will be notified when 
-	 * a hub is inserted, removed or the order of a hub changes..
-	 * 
-	 *
-	public void addListener(IFavHubsChangedListener listener) {
-		listeners.add(listener);
-		checkOrder();
-	} */
-	
-	/*
-	public void removeListener(IFavHubsChangedListener listener) {
-		listeners.remove(listener);
-		checkOrder();
-	}*/
 	
 	/* (non-Javadoc)
 	 * @see uc.IFavHubs#contains(java.lang.String)
@@ -274,19 +205,6 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 		return hub.equals(favHubs.get(hub.getOrder()));	
 	}
 	
-	/*
-	 * listener for the GUI to react to changes.
-	 * @author Quicksilver
-	 *
-	 *
-	public static interface IFavHubsChangedListener {
-		
-		/*
-		 * just signals a change though not 
-		 * what is changed..
-		 *
-		void favHubsChanged();
-	} */
 	
 	/**
 	 * if one Order is missing in between

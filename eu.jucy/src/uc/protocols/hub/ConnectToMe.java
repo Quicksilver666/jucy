@@ -2,6 +2,7 @@ package uc.protocols.hub;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Collections;
 
 
 
@@ -34,8 +35,6 @@ public class ConnectToMe extends AbstractNMDCHubProtocolCommand {
 
 	@Override
 	public void handle(String command) throws IOException {
-
-		
 		InetSocketAddress isa = ConnectionProtocol.inetFromString(matcher.group(1),412);
 		boolean encryption = "S".equals(matcher.group(2));
 		hub.ctmReceived(isa,null,encryption?CPType.NMDCS:CPType.NMDC,null);
@@ -49,7 +48,7 @@ public class ConnectToMe extends AbstractNMDCHubProtocolCommand {
 		hub.sendRaw(	"$ConnectToMe %[userNI] %[myI4]:"
 				+ dcc.getCh().getPort(type.isEncrypted())
 				+ (type.isEncrypted()?"S":"") +"|",  
-						new SendContext(target));
+						new SendContext(target,Collections.<String,String>emptyMap()));
 	}
 	   
 

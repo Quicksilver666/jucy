@@ -90,8 +90,11 @@ public final class LoggerFactory {
 	}
 	
 	public static void clearErrorLog() {
-		
 		errorLog.deleteOnExit();
+		File log = new File(new File(Platform.getInstanceLocation().getURL().getFile(),".metadata"),".log");
+		if (log.isFile() && !log.delete()) {
+			log.deleteOnExit();
+		}
 	}
 
 }

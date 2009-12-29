@@ -113,7 +113,7 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 		comp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 2));
 		
 		
-		styledText = new StyledText(comp, SWT.BORDER| SWT.V_SCROLL);
+		styledText = new StyledText(comp, SWT.BORDER| SWT.V_SCROLL | SWT.WRAP);
 		styledText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		
 		final Composite belowText  = new Composite(comp,SWT.BORDER);

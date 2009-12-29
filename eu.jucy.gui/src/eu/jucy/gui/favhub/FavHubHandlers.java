@@ -1,7 +1,5 @@
 package eu.jucy.gui.favhub;
 
-import java.io.IOException;
-
 import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
@@ -46,11 +44,7 @@ public abstract class FavHubHandlers extends AbstractHandler {
 		protected void run(FavHub fh,IFavHubs favHubs, ExecutionEvent event) {
 			FavHubPropertiesDialog diag = new FavHubPropertiesDialog(HandlerUtil.getActiveShell(event),fh);
 			if (diag.open() == Dialog.OK) {
-				try {
-					ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
-				} catch(IOException ioe) {
-					logger.warn(ioe,ioe);
-				}
+				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
 			}
 		}
 	}

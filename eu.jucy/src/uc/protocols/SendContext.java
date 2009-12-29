@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,30 +57,6 @@ public class SendContext {
 	
 	private static final Pattern datematcher = Pattern.compile(".*?(%[aAbBcdHIjmMpSxXyYzZ]).*");
 	
-
-	
-	/**
-	 * empty send context.. if none is available
-	 */
-	public SendContext() {}
-
-	/**
-	 * create a send Context with a set other user..
-	 * @param other
-	 */
-	public SendContext(IUser other) {
-		this.user = other;
-	}
-	
-	public SendContext(IDownloadable fileOrFolder) {
-		this(fileOrFolder,fileOrFolder.getUser());
-	}
-	
-	public SendContext(IDownloadable fileOrFolder,IUser user) {
-		this.fileOrFolder = fileOrFolder;
-		this.user = user;
-	}
-	
 	
 	/**
 	 * the hub and with it, the user we represent our self is always
@@ -95,6 +72,40 @@ public class SendContext {
 	
 	private IDownloadable fileOrFolder;
 	
+	private Map<String,String> replacements;
+
+	
+	/**
+	 * empty send context.. if none is available
+	 */
+	public SendContext() {}
+	
+	public SendContext(Map<String,String> replacements) {
+		this.replacements = replacements;
+	}
+
+	/**
+	 * create a send Context with a set other user..
+	 * @param other
+	 */
+	public SendContext(IUser other,Map<String,String> replacements) {
+		this(replacements);
+		this.user = other;
+	}
+	
+	public SendContext(IDownloadable fileOrFolder,Map<String,String> replacements) {
+		this(fileOrFolder,fileOrFolder.getUser(),replacements);
+	}
+	
+	public SendContext(IDownloadable fileOrFolder,IUser user,Map<String,String> replacements) {
+		this.fileOrFolder = fileOrFolder;
+		this.user = user;
+		this.replacements = replacements;
+	}
+	
+	
+
+	
 	/**
 	 * 
 	 * @param command - a command that is to be sent..
@@ -103,6 +114,14 @@ public class SendContext {
 	 * DC
 	 */
 	public String format(String command) {
+		if (replacements != null) {
+			for (Entry<String,String> e : replacements.entrySet()) {
+				String repl = hub.isNMDC()? DCProtocol.doReplaces(e.getValue()):
+											AbstractADCCommand.doReplaces(e.getValue());
+				command = command.replace(e.getKey(), repl);
+			}
+		}
+		
 		Matcher m = replace.matcher(command);
 		int currentpos = 0;
 		

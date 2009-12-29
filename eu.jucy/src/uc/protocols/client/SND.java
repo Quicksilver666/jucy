@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import uc.crypto.HashValue;
 import uc.files.transfer.FileTransferInformation;
+import uc.protocols.AbstractADCCommand;
 import uc.protocols.Compression;
 
 public class SND extends AbstractADCClientProtocolCommand {
@@ -39,7 +40,7 @@ public class SND extends AbstractADCClientProtocolCommand {
 	public SND(ClientProtocol client) {
 		super(client);
 		String filelista = "file files\\.xml\\.bz2";
-		String filelistb = "list /.*?";
+		String filelistb = "list /"+TEXT_NOSPACE;
 		String filelists = "(?:(?:"+filelista+")|(?:"+filelistb+"))";
 		
 		setPattern(prefix + " "+filelists+" 0 ("+FILESIZE+")("+COMPRESSION+")",true);
@@ -71,7 +72,7 @@ public class SND extends AbstractADCClientProtocolCommand {
 	 * @param length - how large the FileList is..
 	 */
 	private static void sendADCSNDforFilelist(ClientProtocol client,long length,Compression comp) {
-		String list = (client.isNewList()? "list "+client.getFti().getFileListSubPath():"file files.xml.bz2");
+		String list = (client.isNewList()? "list "+AbstractADCCommand.doReplaces(client.getFti().getFileListSubPath()):"file files.xml.bz2");
 		client.sendRaw("CSND "+ list+ " 0 " + length +comp.toString() +"\n");
 	}
 	

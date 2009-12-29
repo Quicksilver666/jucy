@@ -36,6 +36,7 @@ public class GET extends AbstractADCHubCommand {
 			int h = Integer.parseInt(flags.get(Flag.BH));
 			int k = Integer.parseInt(flags.get(Flag.BK));
 			
+			long starttime = System.currentTimeMillis();
 			BloomFilter blom = 
 			BloomFilter.create(hub.getSelf().getFilelistDescriptor().getFilelist(), 
 					m, h, k);
@@ -45,8 +46,9 @@ public class GET extends AbstractADCHubCommand {
 			
 			byte[] snd = ("HSND blom / 0 "+(m/8)+comp.toString()+"\n").getBytes(DCProtocol.ADCCHARENCODING);
 			byte[] complete = GH.concatenate(snd,bloomBytes);
-			
-			logger.debug("Sending Bloomfilter: lenght: "+complete.length+" h:"+h+" k:"+k+" m:"+m);
+
+			long duration = System.currentTimeMillis() - starttime;
+			logger.debug("Sending Bloomfilter: lenght: "+complete.length+" h:"+h+" k:"+k+" m:"+m+"  duration: "+duration+" ms");
 			
 			hub.sendUnmodifiedRaw(complete);
 			

@@ -9,6 +9,7 @@ import helpers.PreferenceChangedAdapter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -17,7 +18,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -45,6 +46,7 @@ import eu.jucy.language.LanguageKeys;
 
 
 import uc.DCClient;
+import uc.FavFolders;
 import uc.FavHub;
 import uc.InfoChange;
 import uc.PI;
@@ -71,14 +73,11 @@ public class OwnFileList implements IOwnFileList  {
 	private final DCClient dcc;
 	private volatile ISearchMap<IFileListItem> filelistmap;
 	
-	private TextIndexer pdfIndex;
+	private final TextIndexer pdfIndex;
 
-	/**
-	 * mapping from the top Folders in the FileList
-	 * to the real directories on the hdd.
-	 */
-	private volatile Map<FileListFolder,SharedDir> reverselevelone = 
-		new HashMap<FileListFolder,SharedDir>();
+
+	
+	private final List<TopFolder> topFolders =   new CopyOnWriteArrayList<TopFolder>(); 
 	
 	/**
 	 * maps shared dirs to whether they were online the last time...
@@ -86,6 +85,7 @@ public class OwnFileList implements IOwnFileList  {
 	 */
 	private Map<SharedDir,Boolean> lastOnlineDirs = new HashMap<SharedDir,Boolean>();
 	
+	private final User filelistSelf;
 	/**
 	 * our own FileList
 	 */
@@ -109,13 +109,16 @@ public class OwnFileList implements IOwnFileList  {
 	
 	public OwnFileList(User self,DCClient dcclient) {
 		dcc = dcclient;
+		this.filelistSelf = self;
 		fileList = new FileList(self);
 		
+		TextIndexer pdfI = null;
 		try {
-			pdfIndex = new TextIndexer();
+			pdfI = new TextIndexer();
 		} catch(IOException e) {
 			logger.warn(e,e);
 		}
+		pdfIndex = pdfI;
 		
 		new PreferenceChangedAdapter(PI.get(),PI.sharedDirs2) {
 			@Override
@@ -136,12 +139,12 @@ public class OwnFileList implements IOwnFileList  {
 	 * side effect: lastOnlineDirs state variable needed by this method
 	 * is updated..
 	 * 
-	 * @return true if the SharedDirs changed
+	 * @return true if the SharedDirs changed since last call of this method
 	 */
 	private boolean checkSharedDirs() {
 		Map<SharedDir,Boolean> dirs = new HashMap<SharedDir,Boolean>();
-		for (SharedDir dir: reverselevelone.values()) {
-			dirs.put(dir, dir.getDirectory().isDirectory());
+		for (TopFolder dir: topFolders) {
+			dirs.put(dir.getSharedDir(), dir.isOnline());
 		}
 		boolean ret = !dirs.equals(lastOnlineDirs);
 		lastOnlineDirs = dirs;
@@ -152,29 +155,27 @@ public class OwnFileList implements IOwnFileList  {
 	 * simply loads the dirs that are to be shared..
 	 *
 	 */
-	private void loadSharedDirs(Map<SharedDir,FileListFolder> levelone,
-			Map<FileListFolder,SharedDir> reverselevelone,FileList fileList) {
+	private void loadSharedDirs(List<TopFolder> topLevelFolders,FileList fileList) {
 		
 		List<SharedDir> loadeddirs = dcc.getFavFolders().getSharedDirs();
 		
 		//add new dirs
 		for (SharedDir dir: loadeddirs ) {
-			FileListFolder f = 
-				new FileListFolder(fileList, fileList.getRoot(), dir.getName());
-			levelone.put(dir, f);
-			reverselevelone.put(f,dir);
+			TopFolder f = 
+				new TopFolder(fileList, fileList.getRoot(), dir);
+			topLevelFolders.add(f);
 		}
 	}
 
 	/**
-	 * used in conjunction with iCon manager..
+	 * used in conjunction with icon manager..
 	 * shared folders are used to get Icons for
 	 * File endings
 	 */
-	public static void loadSharedDirsForIconManager(final DCClient dcc) {
+	public static void loadSharedDirsForIconManager(final FavFolders favs) {
 		DCClient.execute(new Runnable() {
 			public void run() {
-				List<SharedDir> loadeddirs = dcc.getFavFolders().getSharedDirs();
+				List<SharedDir> loadeddirs = favs.getSharedDirs();
 				for (SharedDir sd: loadeddirs) {
 					if (sd.getDirectory().isDirectory()) {
 						IconManager.loadImageSources(sd.getDirectory());
@@ -203,7 +204,9 @@ public class OwnFileList implements IOwnFileList  {
 		
 		dcc.notifyChangedInfo(InfoChange.Sharesize);
 		
-		pdfIndex.init(this);
+		if (PI.getBoolean(PI.fullTextSearch)) {
+			pdfIndex.init(this);
+		}
 		
 	}
 	
@@ -217,7 +220,7 @@ public class OwnFileList implements IOwnFileList  {
 		if (wait) {
 			try {
 				rj.join();
-			}catch(InterruptedException is) {}
+			} catch(InterruptedException is) {}
 		}
 	}
 	
@@ -231,19 +234,19 @@ public class OwnFileList implements IOwnFileList  {
 		if (refresh.tryAcquire()) {
 			logger.debug(LanguageKeys.StartedRefreshingTheFilelist);
 			try {
-				FileList newFilelist  = new FileList(fileList.getUsr());
-				
+				FileList newFilelist  = new FileList(filelistSelf);
+				newFilelist.setGenerator(DCClient.LONGVERSION);
 				dcc.getHashEngine().clearFileJobs(); //if for example less files are shared this will help that no useless files are hashed
 				//the folder lookup and reverse folders
 				
-				Map<SharedDir,FileListFolder> levelone = new HashMap<SharedDir,FileListFolder>();
-				Map<FileListFolder,SharedDir> reverselevelone = new HashMap<FileListFolder,SharedDir>();
 				
-				loadSharedDirs(levelone,reverselevelone,newFilelist);
+				List<TopFolder> topLevelFolders = new ArrayList<TopFolder>();
 				
-				monitor.beginTask(LanguageKeys.StartedRefreshingTheFilelist,levelone.size() +1+2+1);
+				loadSharedDirs(topLevelFolders,newFilelist);
 				
-				buildFilelist(newFilelist,levelone,monitor);
+				monitor.beginTask(LanguageKeys.StartedRefreshingTheFilelist,topLevelFolders.size() +1+2+1);
+				
+				buildFilelist(newFilelist,topLevelFolders,monitor);
 				
 				if (monitor.isCanceled()) {
 					return;
@@ -264,8 +267,8 @@ public class OwnFileList implements IOwnFileList  {
 				}
 				
 				try {
-					this.filelistmap 	= filelistmap;
-					replaceFilelist(newFilelist,reverselevelone);
+					this.filelistmap =	filelistmap;
+					replaceFilelist(newFilelist,topLevelFolders);
 				} catch (IOException ioe) {
 					logger.error(ioe,ioe); 
 				} 
@@ -286,7 +289,7 @@ public class OwnFileList implements IOwnFileList  {
 	}
 	
 	private void replaceFilelist(FileList currentFilelist,
-			Map<FileListFolder,SharedDir> reverselevelone) throws IOException {
+			List<TopFolder> topLevelFolders) throws IOException {
 			
 		logger.debug("written filelist");
 
@@ -296,8 +299,9 @@ public class OwnFileList implements IOwnFileList  {
 		self.setFilelistDescriptor(new FileListDescriptor(fileList.getUsr(),currentFilelist));
 		self.setShared(currentFilelist.getSharesize());
 		
-		
-		this.reverselevelone	= reverselevelone;
+		this.topFolders.clear();
+		this.topFolders.addAll(topLevelFolders);
+		//this.topLevelFolders	= reverselevelone;
 		FileList oldFilelist 	= fileList; 
 		fileList 				= currentFilelist;
 		
@@ -323,7 +327,7 @@ public class OwnFileList implements IOwnFileList  {
 		}
 	}
 	
-	private void buildFilelist(FileList newFilelist,Map<SharedDir,FileListFolder> levelone,IProgressMonitor monitor) {
+	private void buildFilelist(FileList newFilelist,List<TopFolder> topLevelFolders,IProgressMonitor monitor) {
 		Map<File,HashedFile> hashedFiles = dcc.getDatabase().getAllHashedFiles();
 		logger.debug("in refreshing own filelist: found "+hashedFiles.size()+" hashed files");
 		
@@ -331,18 +335,18 @@ public class OwnFileList implements IOwnFileList  {
 		Pattern include = Pattern.compile(PI.get(PI.includeFiles));
 		
 		//recursively go through all shared dirs..
-		for (Entry<SharedDir,FileListFolder> entry : levelone.entrySet()) {
-			SharedDir dir = entry.getKey();
+		for (TopFolder folder : topLevelFolders) {
+			SharedDir dir = folder.getSharedDir();
 			if (dir.getDirectory().isDirectory()) {
 	
 				rekBuildFilelist(dir.getDirectory()
-					, entry.getValue()
+					, folder
 					, newFilelist
 					, PI.getBoolean(PI.shareHiddenFiles)
 					, hashedFiles,exclude,include);
 		
 		
-				dir.setLastShared( entry.getValue().getContainedSize());
+				dir.setLastShared( folder.getContainedSize());
 			}
 			monitor.worked(1);
 			if (monitor.isCanceled()) {
@@ -512,7 +516,7 @@ public class OwnFileList implements IOwnFileList  {
 	 * @see uc.files.filelist.IOwnFileList#getFile(uc.crypto.HashValue)
 	 */
 	public File getFile(HashValue tth) throws FilelistNotReadyException {
-		if (reverselevelone.isEmpty()) {
+		if (topFolders.isEmpty()) {
 			throw new FilelistNotReadyException();
 		}
 		FileListFile f = search(tth);
@@ -533,19 +537,16 @@ public class OwnFileList implements IOwnFileList  {
 		//determine level one folder
 		FileListFolder cur = file.getParent(); 
 		
-		while (cur != null && cur.getParent() != fileList.getRoot() ){
+		while (cur != null && !(cur instanceof TopFolder)) {
 			cur = cur.getParent();
 		}
+		
 		if (cur == null) {
 			throw new FilelistNotReadyException();
 		}
 		
-		SharedDir sd = reverselevelone.get(cur);
-		
-		String realpath=file.getPath();
-		String pathRelativeToLevelone = realpath.substring(realpath.indexOf(File.separatorChar)+1);
-		
-		return new File(sd.getDirectory(), pathRelativeToLevelone );
+		return ((TopFolder)cur).getRealPath(file);
+
 	}
 	
 	/* (non-Javadoc)
@@ -609,6 +610,32 @@ public class OwnFileList implements IOwnFileList  {
 		if (pdfIndex != null) {
 			pdfIndex.stop();
 		}
+	}
+	
+	public static class TopFolder extends FileListFolder {
+
+		private final SharedDir sharedDir;
+
+		public TopFolder(FileList f, FileListFolder root,SharedDir sd) {
+			super(f, root, sd.getName());
+			this.sharedDir = sd;
+		}
+		
+		public SharedDir getSharedDir() {
+			return sharedDir;
+		}
+		
+		public boolean isOnline() {
+			return sharedDir.getDirectory().isDirectory();
+		}
+		
+		public File getRealPath(FileListFile decendant) {
+			String realpath = decendant.getPath();
+			String pathRelativeToLevelone = realpath.substring(realpath.indexOf(File.separatorChar)+1);
+			
+			return new File(sharedDir.getDirectory(), pathRelativeToLevelone );
+		}
+		
 	}
 	
 }

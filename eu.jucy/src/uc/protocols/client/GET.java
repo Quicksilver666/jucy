@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import uc.crypto.HashValue;
 import uc.files.transfer.FileTransferInformation;
+import uc.protocols.AbstractADCCommand;
 import uc.protocols.Compression;
 import uc.protocols.TransferType;
 
@@ -40,7 +41,7 @@ Note that GET can also be used by extensions for binary transfers between hub an
 		interleaves = Pattern.compile(prefix + " tthl TTH/("+TTH+") 0 -1("+COMPRESSION+")");
 		
 		String filelista = "file files\\.xml\\.bz2";
-		String filelistb = "list /.*?";
+		String filelistb = "list /"+TEXT_NOSPACE;
 		String filelists = "(?:(?:"+filelista+")|(?:"+filelistb+"))";
 		
 		filelist = Pattern.compile(prefix + " ("+filelists+") 0 -1("+COMPRESSION+") ?(.*)");
@@ -77,10 +78,10 @@ Note that GET can also be used by extensions for binary transfers between hub an
 			fti.setType(TransferType.FILELIST);
 			Compression comp = Compression.parseNMDCString(m.group(2));
 			fti.setCompression(comp);
-			boolean newList= m.group(1).startsWith("list /");
-			client.setNewList(newList);
-			if (newList) {
-				String path =  m.group(1).substring(5);
+			boolean partialList = m.group(1).startsWith("list /");
+			client.setPartialList(partialList);
+			if (partialList) {
+				String path =  AbstractADCCommand.revReplaces(m.group(1).substring(5));
 				fti.setPartialFileList(path,"RE1".equals(m.group(3)));
 			}
 			

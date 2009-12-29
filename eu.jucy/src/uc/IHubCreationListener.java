@@ -16,7 +16,11 @@ public interface IHubCreationListener {
 	 * 
 	 * @param fh - the FavHub used to create the hub..
 	 * @param showInUI tells if the hub should be shown to the user
+	 * @param callback  must be called when finished with the method 
+	 *  implemented due to synchronization complexity of making this method blocking
 	 */
-	void hubCreated(FavHub fh, boolean showInUI);
+	void hubCreated(FavHub fh, boolean showInUI,Runnable callback);
+	
+	
 	
 }

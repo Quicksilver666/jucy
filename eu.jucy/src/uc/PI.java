@@ -49,6 +49,9 @@ public class PI extends AbstractPreferenceInitializer {
 	tlsPort				=	"tlsPort",
 	bindAddress			=	"bindAddress",
 	
+	minimumSegmentSize	=	"minimumSegmentSize",
+	fullTextSearch		=	"fullTextSearch",
+	
 	allowTLS			=	"allowTLS",
 	description			=	"Description", //default userdescription
 	connection			=	"Connection", //what connection IE 0.2 or 20 MBit
@@ -188,6 +191,9 @@ public class PI extends AbstractPreferenceInitializer {
 		defaults.putBoolean(allowTLS, true );
 
 		defaults.put(bindAddress, "");
+		
+		defaults.putInt(minimumSegmentSize, 8);
+		defaults.putBoolean(fullTextSearch, true);
 		
 		defaults.put( nick ,System.getProperty("user.name") );
 		

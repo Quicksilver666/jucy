@@ -112,7 +112,7 @@ public abstract class UCEditor extends EditorPart implements IUCEditor {
 		CommandContributionItemParameter ccip = 
 			new CommandContributionItemParameter(getSite(), null, CloseEditorHandler.COMMAND_ID,SWT.PUSH);
 		ccip.icon = AbstractUIPlugin.imageDescriptorFromPlugin(Application.PLUGIN_ID, IImageKeys.STOPICON);
-
+		
 		CommandContributionItem cci = new CommandContributionItem(ccip);
 		
 		items.add(cci);
@@ -134,7 +134,6 @@ public abstract class UCEditor extends EditorPart implements IUCEditor {
 		setSite(site);
 		setInput(input);
 		setPartName( input.getName());
-		
 	}
 
 	
@@ -174,7 +173,6 @@ public abstract class UCEditor extends EditorPart implements IUCEditor {
 	 */
 	public void executeCommand(String commandID) {
 		IHandlerService hs = (IHandlerService)getSite().getService(IHandlerService.class);
-
 		try {
 			hs.executeCommand(commandID, null);
 		} catch (Exception e) {

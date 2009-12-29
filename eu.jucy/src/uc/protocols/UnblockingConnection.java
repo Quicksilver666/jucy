@@ -60,8 +60,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	private volatile SelectionKey key; 
 	private volatile boolean blocking = false;
 	
-//	private volatile long connectionCreated;
-//	private volatile boolean printLifetime; 
+
 	
 	public void setKey(SelectionKey key) {
 		this.key = key;
@@ -92,15 +91,17 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	private final StringBuffer stringbuffer = new StringBuffer();
 	
 
+
 	
 	/**
 	 * used for client as well as server mode.
 	 */
-	public UnblockingConnection(SocketChannel soChan, ConnectionProtocol connectionProt,boolean encryption, boolean serverSide ){
+	public UnblockingConnection(SocketChannel soChan, ConnectionProtocol connectionProt,boolean encryption, boolean serverSide) {
 		super(connectionProt);
 		this.encryption = encryption;
 		this.serverSide = serverSide;
 		this.target = soChan;
+	
 	}
 	
 	
@@ -110,12 +111,14 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 * @param addy
 	 * @param connectionProt
 	 * @param encryption
+	 * @param allowDH - can forbid DH keys due to problems with DH and other clients... especialyl apex..
 	 */
-	public UnblockingConnection(String addy, ConnectionProtocol connectionProt,boolean encryption ) {
+	public UnblockingConnection(String addy, ConnectionProtocol connectionProt,boolean encryption) {
 		super(connectionProt);
 		this.encryption = encryption;
 		this.target = addy;
 		serverSide = false;
+
 	}
 	
 	public void start() { //todo ... if Proxy in use start connect should be in seperate thread..
@@ -300,7 +303,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			DCClient.execute(new Runnable(){
 				public void run() {
 					try {
-						if (!connectSent && Platform.inDevelopmentMode()) {  //DEBUG TODO remove
+						if (!connectSent && Platform.inDevelopmentMode()) {  //DEBUG  remove
 							logger.warn("connect not sent");
 						}
 						processread();
@@ -319,10 +322,6 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				public void run() {
 					synchronized (cp) {
 						try {
-//							if (engine != null && Platform.inDevelopmentMode()) {
-//								logger.info("Connect made with TLS! "
-//									+ engine.getSession().getCipherSuite());
-//							}
 							if (cp.getState() == ConnectionState.CONNECTING) {
 								cp.onConnect();
 							} else {
@@ -416,7 +415,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			if (inetAddress != null) {
 				boolean contained = problematic.contains(inetAddress.getAddress());
 				problematic.add(inetAddress.getAddress());
-				if (contained && Platform.inDevelopmentMode()) {
+				if (Platform.inDevelopmentMode()) {
 					if (e.toString().contains("unknown_ca")) {
 						logger.info(e+" "+inetAddress.getAddress()+" probcontains: "+contained);
 					} else {
@@ -473,7 +472,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 							}
 							if (encryption) {
 								synchronized (inetAddySynch) {
-									if (problematic.contains(inetAddress.getAddress())) {
+									if (problematic.contains(inetAddress.getAddress()) || !(target instanceof String)) {
 										List<String> s = Arrays.asList(engine.getEnabledCipherSuites());
 										s = GH.filter(s, "_DHE_");
 										s = GH.filter(s, "_ECDH_");
@@ -811,7 +810,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	}
 
 	@Override
-	public boolean returnChannel(ByteChannel bc) throws IOException {
+	public boolean returnChannel(ByteChannel bc) {
 		if (!blocking) {
 			throw new IllegalStateException();
 		}
@@ -819,7 +818,11 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		SocketChannel soChan = (SocketChannel)key.channel();
 
 		if (soChan.isOpen()) {
-			soChan.configureBlocking(false);
+			try {
+				soChan.configureBlocking(false);
+			} catch(IOException ioe) {
+				return false;
+			}
 			blocking = false;
 			MultiStandardConnection.get().register(soChan, this, true);
 			return soChan.isOpen();
@@ -858,10 +861,10 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		}
 
 		public int write(ByteBuffer src) throws IOException {
-			
+
 			//int toWrite = src.remaining();
 
-			send(src);
+			UnblockingConnection.this.send(src);
 			
 
 			int toWrite = varOutBuffer.writeToChannel((SocketChannel)key.channel());
@@ -872,6 +875,9 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		}
 
 		public int read(ByteBuffer dst) throws IOException {
+			if (!isOpen() && Platform.inDevelopmentMode()) {
+				logger.warn("reading from closed channel");
+			}
 			synchronized (bufferLock) {
 				
 				while (!varInBuffer.hasRemaining()) {

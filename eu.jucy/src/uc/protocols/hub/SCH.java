@@ -12,7 +12,6 @@ import java.util.Set;
 
 import uc.DCClient;
 import uc.User;
-import uc.User.Mode;
 import uc.crypto.HashValue;
 import uc.crypto.TigerHashValue;
 import uc.files.filelist.OwnFileList.SearchParameter;
@@ -74,7 +73,7 @@ TRACE Hub.java Line:463
 		}
 		InetAddress ia = usr.getIp();
 		
-		boolean passive = !(usr.getModechar() == Mode.ACTIVE && ia != null  && usr.getUdpPort() != 0);
+		boolean passive = !(ia != null  && usr.getUdpPort() != 0);
 		InetSocketAddress ias  = null;
 		if (!passive) {
 			ias = new InetSocketAddress(ia,usr.getUdpPort());

@@ -170,7 +170,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	});
     	
     	dcc.register(new IHubCreationListener() {
-			public void hubCreated(final FavHub fh, boolean showInUI) {
+			public void hubCreated(final FavHub fh, boolean showInUI, final Runnable callback) {
 				if (showInUI) {
 					new SUIJob() {
 						public void run() {
@@ -180,9 +180,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 				        	} catch(PartInitException pie) {
 				        		MessageDialog.openError(window.getShell(), "Error", "Error open hub:" + pie.getMessage());
 				        	}	
+				        	DCClient.execute(callback);
 						}
-					}.executeNow();
-					//force an immediate blocking execution .. no matter from where this was called..
+					}.schedule();
 				}
 			}
     		
@@ -190,14 +190,11 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	
     	//listener for setting topic string on the top of the window
     	final ITopicChangedListener listener = new ITopicChangedListener() {
-
-			
 			public void topicChanged(IUCEditor editor) {
 				String text = DCClient.LONGVERSION+" -["+editor.getTopic()+"]";
 				window.getShell().setText(text);
 						
 			}
-    		
     	};
  
     	window.getPartService().addPartListener(new IPartListener() {
@@ -301,7 +298,13 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     
     private TrayItem initTaskItem(IWorkbenchWindow window){
     	trayImage = AbstractUIPlugin.imageDescriptorFromPlugin(Application.PLUGIN_ID, IImageKeys.TRAYICON).createImage();
-
+    	
+    	if (Platform.OS_MACOSX.equals(Platform.getOS())) { //MacOsX uses grey tray icons..
+    		Image img = new Image(null,trayImage,SWT.IMAGE_GRAY);
+    		trayImage.dispose();
+    		trayImage = img;
+    	}
+    	
     	try {
 	    	final Tray tray = window.getShell().getDisplay().getSystemTray();
 	    	if( tray == null ) {

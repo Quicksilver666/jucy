@@ -238,7 +238,7 @@ public class FileTransferInformation  {
 			case FILELIST: 
 				return "FileList";
 			case TTHL:
-				return "TTHL of "+getHashValue();
+				return "TTHL: "+getHashValue();
 			}
 		}
 		
@@ -403,5 +403,17 @@ public class FileTransferInformation  {
 		return recursive;
 	}
 
+	@Override
+	public String toString() {
+		return "FileTransferInformation [other=" + other + ", compression="
+				+ compression + ", startposition=" + startposition
+				+ ", length=" + length + ", hashValue=" + hashValue + ", type="
+				+ type + ", nameOfTransferred=" + nameOfTransferred + ", dqe="
+				+ dqe + ", download=" + download + ", fileInterval="
+				+ fileInterval + ", fileListSubPath=" + fileListSubPath
+				+ ", recursive=" + recursive + "]";
+	}
 
+
+	
 }

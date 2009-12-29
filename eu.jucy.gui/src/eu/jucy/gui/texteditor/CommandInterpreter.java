@@ -39,7 +39,9 @@ public class CommandInterpreter {
 	private static final Map<String,Command> mapping = new HashMap<String,Command>();
 	
 	static {
-		Command.values();
+		for (Command com: Command.values()) {
+			mapping.put(com.name(), com);
+		}
 	}
 	
 	private final Hub he;
@@ -92,12 +94,10 @@ public class CommandInterpreter {
 	
 	private static enum Command {
 		
-		AWAY,BACK,UC,REFRESH,ME,PM,SEARCH,SLOTS,REBUILD,PRUNEHASHES,JOIN,CLEAR,TS,CLOSE,GETLIST,FAVORITES,FAV,PASS,HELP;
+		AWAY,BACK,UC,REFRESH,ME,PM,SEARCH,SLOTS,REBUILD,PRUNEHASHES,JOIN,CLEAR,TS,CLOSE,GETLIST,FAVORITES,FAV,PASS,HELP,SHOWJOINS,SHOWFAVJOINS;
 		
 	
-		Command() {
-			mapping.put(name(), this);
-		}
+		Command() {}
 		
 		public void execute(String line,final Hub hub,IUser usr, UCMessageEditor editor) {
 			
@@ -142,7 +142,7 @@ public class CommandInterpreter {
 						usr.setFavUser(true);
 					}
 				} else if (!hub.getFavHub().isFavHub(ApplicationWorkbenchWindowAdvisor.get().getFavHubs())) {
-					FavHub fh= hub.getFavHub();
+					FavHub fh = hub.getFavHub();
 					fh.setHubname(hub.getHubname());
 					fh.setDescription(hub.getTopic());
 					fh.addToFavHubs(ApplicationWorkbenchWindowAdvisor.get().getFavHubs());
@@ -208,6 +208,18 @@ public class CommandInterpreter {
 				String search = GetAllAfterCommand(line).trim();
 				OpenSearchEditorHandler.openSearchEditor(editor.getSite().getWorkbenchWindow(), search);
 				break;
+			case SHOWJOINS:
+				FavHub fh = hub.getFavHub();
+				fh.setShowJoins(!fh.isShowJoins());
+				hub.statusMessage("Show Joins: "+fh.isShowJoins(),0);
+				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
+				break;
+			case SHOWFAVJOINS:
+				FavHub fhs = hub.getFavHub();
+				fhs.setShowFavJoins(!fhs.isShowFavJoins());
+				hub.statusMessage("Show Favjoins: "+fhs.isShowFavJoins(),0);
+				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
+				break;
 			case PASS:
 				String passwd = GetFirstWord(line).trim();
 				if (!GH.isEmpty(passwd)) {
@@ -227,7 +239,7 @@ public class CommandInterpreter {
 				break;
 			case HELP:
 				hub.statusMessage("/away <msg>, /me <msg>, /back, /refresh, /slots #, /uc, /rebuild, /pruneHashes, /join <hub-ip>,"
-						+" /clear, /ts, /close, /fav, /pm <user> [message], /getList <user> ",0);
+						+" /clear, /ts, /close, /fav, /pm <user> [message], /getList <user>, /showjoins, /showfavjoins ",0);
 				break;
 			}
 		}

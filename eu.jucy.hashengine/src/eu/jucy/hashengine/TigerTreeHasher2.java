@@ -33,7 +33,9 @@ import uc.crypto.TigerHashValue;
 
 public class TigerTreeHasher2  implements IHasher {
 
-	private static final int BufferSize = 1024 * 64;
+	private static final int PrivateLevels = 7;
+	private static final int BufferSize = 1024 * (int)Math.pow(2, PrivateLevels-1);
+	
 	
 	private final BlockingQueue<HashPart> partsForHashing = new LinkedBlockingQueue<HashPart>(100);
 	
@@ -72,14 +74,13 @@ public class TigerTreeHasher2  implements IHasher {
 		
 		for (int i = 0; i < hashThreads; i++) { //may be use min maxthreads na segments..
 			DCClient.execute(new HashThread());
-			//new HashThread(i).start();
 		}
 		
 		long last = System.currentTimeMillis()-1000; //first time more lies more than one sec in the past -> no stopping first time  
 		
-		ByteBuffer buf = ByteBuffer.allocate(BufferSize);
+		ByteBuffer buf;// ;
 		int counter = -1;
-		while (-1 != chan.read(buf)) {
+		while (-1 != chan.read(buf = ByteBuffer.allocate(BufferSize))) {
 			buf.flip();
 			HashPart part = new HashPart(buf,++counter);
 			synchronized(part) {
@@ -96,7 +97,7 @@ public class TigerTreeHasher2  implements IHasher {
 				last = System.currentTimeMillis();
 			}
 			
-			buf = ByteBuffer.allocate(BufferSize);
+			//buf = ByteBuffer.allocate(BufferSize);
 			if (counter % 100 == 0) {
 				monitor.worked(100);
 			}
@@ -209,7 +210,7 @@ public class TigerTreeHasher2  implements IHasher {
 	 * @return the partsize for specified filesize and level used
 	 */
 	private static long getPartSize(int level) {
-		long sizeLevelZero = 64*1024;
+		long sizeLevelZero = BufferSize;
 		 
 		while (--level > 0) {
 			sizeLevelZero*=2;
@@ -236,7 +237,7 @@ public class TigerTreeHasher2  implements IHasher {
 	    private final Digest md;
 	    private byte[] small = new byte[1025];
 	    
-	    private HashValue[] hashes = new HashValue[7]; //64 KiB -> 1 2 4 8 16 32 64 -> 7 levels 
+	    private HashValue[] hashes = new HashValue[PrivateLevels]; //64 KiB -> 1 2 4 8 16 32 64 -> 7 levels 
 	    
 		public HashThread() {
 			//super("Hasher-"+number);

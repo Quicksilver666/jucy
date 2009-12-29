@@ -2,6 +2,7 @@ package uc.files.transfer;
 
 
 
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,14 +73,17 @@ public class SlotManager implements ISlotManager {
 	 */
 	public Slot getSlot(IUser usr ,TransferType type,File f)  {
 		if (usr == null) {
-			logger.error("user was null");
+			if (Platform.inDevelopmentMode()) {
+				logger.error("user was null");
+			}
+			return null;
 		}
 		synchronized(slotsSynch) {
-			if (usr.getUpload() != null) {
+			if (usersThatReceivedSlot.containsKey(usr)) {
 				logger.debug(usr.getNick()+" tried getting upload even if he already had an upload running");
 				return null; //no slot for that user
 			}
-			if (currentExtraSlots.size() >= MaxTransfers && !usr.isOp()) { //TOO many uploads running.. no slots anymore. To prevent DoS 
+			if (currentExtraSlots.size() >= MaxTransfers && !usr.isOp()) { //Too many uploads running.. no slots anymore. To prevent DoS 
 				return null; 
 			}
 			updateUserOnlineAndInterested(usr);
@@ -98,9 +102,6 @@ public class SlotManager implements ISlotManager {
 	}
 	
 	private Slot getSlotPriv(IUser usr ,TransferType type,File f) {
-		if (usr == null && Platform.inDevelopmentMode()) {
-			logger.error("user was null");
-		}
 		try {
 			switch(type) {
 			case TTHL:
@@ -153,6 +154,9 @@ public class SlotManager implements ISlotManager {
 			
 			WaitingUser wu = usersThatReceivedSlot.remove(usr);
 			if (wu != null) {
+				if (waitingQueue.contains(wu) && Platform.inDevelopmentMode()) {
+					logger.warn("user already in Queue "+usr.getNick());
+				}
 				waitingQueue.add(wu);
 			}
 			
@@ -189,9 +193,18 @@ public class SlotManager implements ISlotManager {
 	 * @see uc.ISlotManager#getPositionInQueue(uc.IUser)
 	 */
 	public int getPositionInQueue(IUser usr) {
+		int x = -1;
 		synchronized (slotsSynch) {
-			return waitingQueue.indexOf(new WaitingUser(usr));
+			for (WaitingUser wu:waitingQueue) {
+				if (wu.isOnlineAndInterested()) {
+					x++;
+				}
+				if (wu.usr.equals(usr)) {
+					return x;
+				}
+			}
 		}
+		return -1;
 	}
 
 	
@@ -223,15 +236,19 @@ public class SlotManager implements ISlotManager {
 	 * @return a waiting user object for the given username
 	 */
 	private WaitingUser getWU(IUser usr) {
-		int i = getPositionInQueue(usr);
-		if (i == -1) {
-			return new WaitingUser(usr);
-		} else {
-			return waitingQueue.get(i);
+		synchronized (slotsSynch) {
+			for (WaitingUser wu:waitingQueue) {
+				if (wu.usr.equals(usr)) {
+					return wu;
+				}
+			}
 		}
+		return new WaitingUser(usr);
 	}
 	
-	
+	public void printQueue() {
+		logger.info(waitingQueue.toString());
+	}
 	
 	
 	private void removeUsersNotRecentlyOnlineAndInterested() {
@@ -300,6 +317,11 @@ public class SlotManager implements ISlotManager {
 				return Long.valueOf(waitingSince).compareTo(Long.MAX_VALUE);
 			}
 			return Long.valueOf(waitingSince).compareTo(o.waitingSince);
+		}
+		
+		public String toString() {
+			return usr.getNick()+" Wait: "+((System.currentTimeMillis()-waitingSince)/1000)
+			+" LIR: "+((System.currentTimeMillis()-lastInterestedReceived)/1000);
 		}
 	}
 	

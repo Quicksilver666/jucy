@@ -174,7 +174,7 @@ public abstract class DCProtocol extends ConnectionProtocol {
 		
 		
 		
-		byte[] dcnEncoded = dcnEncode(key);
+		byte[] dcnEncoded = dcnEncode(key,cs);
 		
 		
 		byte[] completeKey = new byte[dcnEncoded.length + 6];
@@ -196,16 +196,18 @@ public abstract class DCProtocol extends ConnectionProtocol {
 	
 
 	
-	private static byte[] dcnEncode(byte[] lock) {
+	private static byte[] dcnEncode(byte[] lock,Charset cs) throws UnsupportedEncodingException {
 		
 		List<Byte> encoded = new ArrayList<Byte>();
 		
 		for (byte b: lock ) {
 			if (b == 0 || b == 5 || b == 36 || b == 96 || b == 124 || b == 126 ) {
 				String paddedDecimal= "/%DCN"+String.format("%03d", (int)b)+"%/";  
-				for (byte dcn : paddedDecimal.getBytes() ) {
+				
+				for (byte dcn :  paddedDecimal.getBytes(cs.name()) ) {
 					encoded.add(dcn);
 				}
+	
 			} else {
 				encoded.add(b);
 			}

@@ -14,6 +14,8 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import uc.protocols.AbstractADCCommand;
+
 
 
 /**
@@ -28,9 +30,9 @@ public final class ReplaceLine {
 	
 
 	
-	private static final Pattern replace = Pattern.compile(".*?(%\\[line:(.+?)\\]).*");
+	private static final Pattern replace = Pattern.compile("(%\\[line:(.+?)\\])");
 	
-	private Map<String,String> replacementCache = new HashMap<String,String>();
+	private final Map<String,String> replacementCache = new HashMap<String,String>();
 	
 	
 	private static class SingletonHolder {
@@ -56,41 +58,45 @@ public final class ReplaceLine {
 	 * @return command with replaced line statements
 	 *  null if the user refused to provide one replacement
 	 */
-	public String replaceLines(String command) {
+	public Map<String,String> replaceLines(String command) {
 		logger.debug("line sent for replacement: "+command);
+		Map<String,String> replacements = new HashMap<String,String>();
 		Matcher m = replace.matcher(command);
 		int currentpos = 0;
-		Map<String,String> localReplacementsCache = new HashMap<String,String>();
+	//	Map<String,String> localReplacementsCache = new HashMap<String,String>();
 		while(m.find(currentpos)) {
 			String message = m.group(2);
+			String fullBox = m.group(1);
 			String replacement;
-			if (localReplacementsCache.containsKey(message)) {
-				replacement = localReplacementsCache.get(message);
+			if (replacements.containsKey(fullBox)) {
+				replacement = replacements.get(fullBox);
 			} else {
-				replacement =  getReplacement(message);
+				replacement =  getReplacement(message,!(command.startsWith("$")||command.startsWith("<")));
 			}
 			
 			if (replacement == null) {
 				logger.debug("no replacement provided : breaking");
 				return null;
 			} 
-			command = command.replace(m.group(1), replacement);
-			localReplacementsCache.put(message, replacement);
-			currentpos = m.start(1)+1;
+			//command = command.replace(m.group(1), replacement);
+	
+			replacements.put(fullBox, replacement);
+			currentpos = m.end(1)+1;
+			
 		}
 		logger.debug("line returned with replacement: "+command);
-		return command;
+		return replacements;
 	}
 	
-	private String getReplacement(String message) {
+	private String getReplacement(String message,boolean mightBeADC) {
 		
 		
 		String recommended = replacementCache.get(message);
 		if (recommended == null) {
 			recommended = "";
 		}
-		
-		String ret = openBox(message,recommended);
+		String mes = mightBeADC? AbstractADCCommand.revReplaces(message):message;//bad hack.. though probably won't do damage..we just assume ADC as protocol..
+		String ret = openBox(mes,recommended); 
 		
 		if (ret != null) {
 			replacementCache.put(message, ret);

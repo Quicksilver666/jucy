@@ -42,6 +42,14 @@ public class DelayedUpdate<V> {
 		return add.contains(v)|| update.contains(v)|| remove.contains(v);
 	}
 	
+	public void put(ChangeType ct,V v) {
+		switch(ct) {
+		case ADDED: 	add(v); 		break;
+		case CHANGED:	change(v); 	break;
+		case REMOVED:	remove(v); 	break;
+		}
+	}
+	
 	public void add(V v) {
 		synchronized(synchUser) {
 			if (isPresent(v)) {
@@ -97,11 +105,7 @@ public class DelayedUpdate<V> {
 							List<DUEntry<V>> dlaLocal = delayed;
 							delayed = new ArrayList<DUEntry<V>>();
 							for (DUEntry<V> de: dlaLocal) {
-								switch(de.ct) {
-								case ADDED: 	add(de.v); 		break;
-								case CHANGED:	change(de.v); 	break;
-								case REMOVED:	remove(de.v); 	break;
-								}
+								put(de.ct,de.v);
 							}
 						}
 					}

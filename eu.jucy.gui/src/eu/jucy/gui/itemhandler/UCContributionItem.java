@@ -230,10 +230,11 @@ public abstract class UCContributionItem extends CompoundContributionItem implem
 		public Object execute(ExecutionEvent event) throws ExecutionException {
 			IEditorPart part = HandlerUtil.getActiveEditor(event);
 			if (part instanceof UCTextEditor) {
+				IHub hub = ((UCTextEditor)part).getHub();
 				String command = event.getParameter(SEND); 
-				command = ReplaceLine.get().replaceLines(command);
-				if (!GH.isNullOrEmpty(command)) {
-					((UCTextEditor)part).getHub().sendRaw(command,new SendContext());
+				Map<String,String> reps = ReplaceLine.get().replaceLines(command);
+				if (!GH.isNullOrEmpty(command) && reps != null) {
+					hub.sendRaw(command,new SendContext(reps));
 				}
 			}
 			return null;

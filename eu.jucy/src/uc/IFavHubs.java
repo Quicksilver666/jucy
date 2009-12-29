@@ -11,7 +11,7 @@ public interface IFavHubs extends IObservable<FavHub> {
 	 * stores all hubs to disc.
 	 * @throws IOException if storing didn't work.
 	 */
-	void store() throws IOException;
+	void store();
 
 	List<FavHub> getFavHubs();
 

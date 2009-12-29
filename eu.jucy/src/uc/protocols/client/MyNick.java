@@ -51,7 +51,7 @@ public class MyNick extends AbstractNMDCClientProtocolCommand {
 	public static void sendMyNickAndLock(ClientProtocol client) {
 		client.sendRaw("$MyNick " + client.getSelf().getNick()
 				+ "|$Lock EXTENDEDPROTOCOLABCABCABCABCABCABC Pk="
-				+ DCClient.VERSION + "|");
+				+ DCClient.LONGVERSION.replace(" ", "_")+ "|");
 		client.addCommand(new Key(client));
 		client.addCommand(new Direction(client));
 		client.addCommand(new Supports(client));

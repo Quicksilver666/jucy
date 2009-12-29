@@ -35,7 +35,6 @@ public class ADCSND extends AbstractNMDCClientProtocolCommand {
 	public ADCSND(ClientProtocol client,HashValue expectedinterleaves) {
 		super(client);
 		setPattern(prefix + " tthl TTH/"+expectedinterleaves+" 0 ("+FILESIZE+")("+COMPRESSION+")",false);
-	//	transferType = TransferType.TTHL;
 	}
 	
 	/**
@@ -46,7 +45,6 @@ public class ADCSND extends AbstractNMDCClientProtocolCommand {
 	public ADCSND(ClientProtocol client) {
 		super(client);
 		setPattern(prefix + " file files\\.xml\\.bz2 0 ("+FILESIZE+")("+COMPRESSION+")",true);
-	//	transferType = TransferType.FILELIST;
 	}
 	
 	@Override

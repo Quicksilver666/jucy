@@ -22,22 +22,26 @@ public class TimeToken {
 	private static LinkedList<TimeToken> lastToken = new LinkedList<TimeToken>();
 	
 	private static void  addTimeToken(TimeToken to) {
-		while (!lastToken.isEmpty() && lastToken.getFirst().creationTime < to.creationTime - 20000 ) {
-			lastToken.remove();
+		synchronized (lastToken) {
+			while (!lastToken.isEmpty() && lastToken.getFirst().creationTime < to.creationTime - 20000 ) {
+				lastToken.remove();
+			}
+			lastToken.add(to);
 		}
-		lastToken.add(to);
 	}
 	
 	private static long getMinimumEstimateForRest() {
 		long minimum = Long.MAX_VALUE;
-		for (TimeToken tt: lastToken) {
-			long timeest = tt.getEstimateForRest(); 
-			minimum = Math.min(timeest, minimum);
-		}
-		if (minimum == 0) {
-			return lastToken.getLast().getEstimateForRest();
-		} else {
-			return minimum;
+		synchronized (lastToken) {
+			for (TimeToken tt: lastToken) {
+				long timeest = tt.getEstimateForRest(); 
+				minimum = Math.min(timeest, minimum);
+			}
+			if (minimum == 0) {
+				return lastToken.getLast().getEstimateForRest();
+			} else {
+				return minimum;
+			}
 		}
 	}
 	

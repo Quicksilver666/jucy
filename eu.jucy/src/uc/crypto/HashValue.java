@@ -103,7 +103,11 @@ public abstract class HashValue implements Comparable<HashValue> {
 
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(getRaw());
+		return 
+			 hashValue[0]		| 
+			(hashValue[1] << 8)	|
+			(hashValue[2] << 16)| 
+			(hashValue[2] << 24) ;
 	}
 	
 	/**

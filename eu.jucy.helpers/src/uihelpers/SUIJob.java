@@ -119,10 +119,24 @@ public abstract class SUIJob implements Runnable {
 	 * that determines if the caller thread is the UI
 	 * thread.. based on this
 	 * the caller runs itself or waits until ui thread has run it..
+	 * 
+	 * @deprecated has proven in practice to bring high chance of creating deadlocks
 	 */
 	public void executeNow() {
 		if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() == null) {
 			scheduleAndJoin();
+		} else {
+			run();
+		}
+	}
+	
+	/**
+	 * schedules the job if called from normal thread..
+	 * if called from UI thread runs directly..
+	 */
+	public void scheduleOrRun() {
+		if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() == null) {
+			schedule();
 		} else {
 			run();
 		}

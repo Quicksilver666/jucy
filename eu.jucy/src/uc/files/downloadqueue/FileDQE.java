@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import uc.DCClient;
 import uc.IUser;
+import uc.PI;
 import uc.crypto.InterleaveHashes;
 import uc.files.IDownloadable.IDownloadableFile;
 
@@ -33,7 +34,8 @@ public class FileDQE extends AbstractFileDQE {
 	/**
 	 * the minimum size a file must have so multiple downloads are allowed..
 	 */
-	private static final long MULTIDOWNLOADTHRESHOLD = 8 * 1024*1024;
+	private static final long MULTIDOWNLOADTHRESHOLD = PI.getInt(PI.minimumSegmentSize) * 1024*1024;
+	
 	
 	/**
 	 * object to synchronize requests against..

@@ -36,7 +36,9 @@ public class FavHub implements Comparable<FavHub> {
 	private int[] weights = new int[] {300,100}; //The weights of the SashForm of this hub
 	private String charset = "";  //empty for default
 	
-	
+	private boolean showJoins = false,showFavJoins = false;
+
+
 
 
 	private final Map<String,String> info = new HashMap<String,String>();
@@ -70,6 +72,7 @@ public class FavHub implements Comparable<FavHub> {
 		fh.setWeights( p.get(PI.favHubweights, fh.getWeights() ) );
 		fh.info.putAll( PrefConverter.asMap(p.get(PI.favInfo, "")));
 		fh.charset = p.get(PI.favCharset, "");
+
 		return fh;
 	}
 	
@@ -448,7 +451,21 @@ public class FavHub implements Comparable<FavHub> {
 		return charset;
 	}
 	
-	
+	public boolean isShowJoins() {
+		return showJoins;
+	}
+
+	public void setShowJoins(boolean showJoins) {
+		this.showJoins = showJoins;
+	}
+
+	public boolean isShowFavJoins() {
+		return showFavJoins;
+	}
+
+	public void setShowFavJoins(boolean showFavJoins) {
+		this.showFavJoins = showFavJoins;
+	}
 
 	public void setCharset(String encoding) {
 		this.charset = encoding;
@@ -484,22 +501,28 @@ public class FavHub implements Comparable<FavHub> {
 			t.userDescription,
 			t.getWeights(),
 			PrefConverter.asString(t.info),
-			t.charset};
+			t.charset,
+			""+t.showJoins,
+			""+t.showFavJoins};
 		}
 
 		public FavHub unSerialize(String[] data) {
-			FavHub fh = new FavHub(Integer.parseInt(data[0]), data[1]); // p.get(PI.favHubhubaddy, "unknown"));
-			fh.autoconnect = Boolean.parseBoolean(data[2]); //   p.getBoolean(PI.favHubAutoconnect, false);
-			fh.chatOnly = Boolean.parseBoolean(data[3]);// p.getBoolean(PI.favHubchatOnly, false);
-			fh.hubname = data[4]; // p.get(PI.favHubhubname, "");
-			fh.email = data[5]; //p.get(PI.eMail, "");
-			fh.description =  data[6]; //p.get(PI.description, "");
-			fh.nick	= data[7];//	p.get(PI.nick, "");
-			fh.password =  data[8]; //p.get(PI.favHubpassword,"" );
-			fh.userDescription = data[9]; // p.get(PI.favHubuserDescription, "");
-			fh.setWeights(data[10]); // p.get(PI.favHubweights, fh.getWeights() ) );
-			fh.info.putAll( PrefConverter.asMap(data[11]));   //p.get(PI.favInfo, "")));
-			fh.charset =  data[12];// p.get(PI.favCharset, "");
+			FavHub fh = new FavHub(Integer.parseInt(data[0]), data[1]); 
+			fh.autoconnect = Boolean.parseBoolean(data[2]);
+			fh.chatOnly = Boolean.parseBoolean(data[3]);
+			fh.hubname = data[4]; 
+			fh.email = data[5]; 
+			fh.description =  data[6]; 
+			fh.nick	= data[7];
+			fh.password =  data[8]; 
+			fh.userDescription = data[9]; 
+			fh.setWeights(data[10]); 
+			fh.info.putAll( PrefConverter.asMap(data[11]));   
+			fh.charset =  data[12];
+			if (data.length > 14) {
+				fh.showJoins = Boolean.parseBoolean(data[13]);
+				fh.showFavJoins = Boolean.parseBoolean(data[14]);
+			}
 			
 			return fh;
 		}

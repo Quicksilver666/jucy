@@ -312,7 +312,7 @@ Stato UPnP: %s</it>
 <it>Scegli Cartella</it>
 </ChooseFolder>
 <Close>
-<de>Verlassen</de>
+<de>Schließen</de>
 <en>Close</en>
 <hu>Bezár</hu>
 <it>Chiudi</it>
@@ -336,8 +336,8 @@ Stato UPnP: %s</it>
 <it>Chiudi Connessione</it>
 </CloseConnection>
 <CloseDescription>
-<de>Verlasse den Hub</de>
-<en>Closes the hub</en>
+<de>Schliesst das Fenster</de>
+<en>Closes the window</en>
 <hu>Bezárja a Hub ablakot</hu>
 <it>Esci dall'hub</it>
 </CloseDescription>
@@ -1433,6 +1433,10 @@ Stato UPnP: %s</it>
 <hu>Elválasztó</hu>
 <it>Separatore</it>
 </Separator>
+<SetAwayMessageOnMinimize>
+<de>Setze Abwesenheitsmitteilung beim minimieren</de>
+<en>Set away message on minimize</en>
+</SetAwayMessageOnMinimize>
 <SetPriority>
 <de>Setze Priorität</de>
 <en>Set priority</en>
@@ -1841,6 +1845,10 @@ Stato UPnP: %s</it>
 <hu>Felhasználó leírása</hu>
 <it>Descrizione</it>
 </UserDescription>
+<UserJoins>
+<de>%s betritt den hub</de>
+<en>%s joins the hub</en>
+</UserJoins>
 <UserMenu>
 <en>User Menu</en>
 <hu>Felhasználói Menü</hu>
@@ -1852,6 +1860,10 @@ Stato UPnP: %s</it>
 <hu>Felhasználó online</hu>
 <it>User online</it>
 </UserOnline>
+<UserParts>
+<de>%s verlässt den hub</de>
+<en>%s leaves the hub</en>
+</UserParts>
 <UserTable>
 <de>User Tabelle</de>
 <en>User table</en>
@@ -2246,7 +2258,7 @@ Stato UPnP: %s</it>
 <it>Crea hub</it>
 </CreateHub>
 <DefaultAwayMessage>
-<de>Standard Abwesendheitsnachricht</de>
+<de>Standard Abwesenheitsnachricht</de>
 <en>Default away message</en>
 <hu>Alapértelmezett távolléti üzenet</hu>
 <it>Messaggio di away predefinito</it>

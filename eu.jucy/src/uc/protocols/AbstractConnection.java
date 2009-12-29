@@ -181,7 +181,7 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 	/* (non-Javadoc)
 	 * @see uc.protocols.IConnection#returnChannel(java.nio.channels.ByteChannel)
 	 */
-	public abstract boolean returnChannel(ByteChannel sochan) throws IOException ;
+	public abstract boolean returnChannel(ByteChannel sochan);
 	
 	/* (non-Javadoc)
 	 * @see uc.protocols.IConnection#flush(int)

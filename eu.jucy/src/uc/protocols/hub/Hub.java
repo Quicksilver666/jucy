@@ -33,9 +33,6 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 
-import org.eclipse.core.runtime.Platform;
-
-
 
 
 import eu.jucy.language.LanguageKeys;
@@ -291,7 +288,7 @@ public class Hub extends DCProtocol implements IHub {
 
 			@Override
 			public HashValue getCID() { 
-				return dcc.getPID().hashOfHash();
+				return getPD().hashOfHash();
 			}
 
 			@Override
@@ -490,7 +487,7 @@ public class Hub extends DCProtocol implements IHub {
 		registered = false;
 		
 		
-		self.setProperty(INFField.CT, ""); //delete OP status...
+		self.setProperty(INFField.CT, ""); //delete our OP status...
 
 	
 		userIPReceived = false;
@@ -509,12 +506,12 @@ public class Hub extends DCProtocol implements IHub {
 					new MSG(this),new STA(this),new GPA(this),
 					new CMD(this),new GET(this));
 		}
-		logger.debug("middle beforeConnect()");
+	
 		
-		statusMessage(String.format(LanguageKeys.ConnectingTo,hubaddy)+ 
-				(Platform.inDevelopmentMode()&& connection.getInetSocketAddress() != null
-						?" "+connection.getInetSocketAddress().getAddress().getHostAddress()
-								:""),0); //should be in gui...
+//		statusMessage(String.format(LanguageKeys.ConnectingTo,hubaddy)+ 
+//				(Platform.inDevelopmentMode()&& connection.getInetSocketAddress() != null
+//						?" "+connection.getInetSocketAddress().getAddress().getHostAddress()
+//								:""),0); //should be in gui...
 		
 		logger.debug("end beforeConnect()");
 		
@@ -523,7 +520,7 @@ public class Hub extends DCProtocol implements IHub {
 	public void onConnect() throws IOException { //not needed... in NMDC Client hub protocol...
 		logger.debug("onConnect()");
 		super.onConnect();
-		statusMessage(LanguageKeys.Connected,0);
+	//	statusMessage(LanguageKeys.Connected,0);
 		unsuccessfulConnectionsInARow = 0;
 		
 		if (!nmdc) { //in ADC clients sends the first command not the hub
@@ -585,7 +582,6 @@ public class Hub extends DCProtocol implements IHub {
 	public void onDisconnect() throws IOException {
 		super.onDisconnect();
 		disconnectAllUsers();
-		statusMessage(LanguageKeys.Disconnected,0);
 	
         if (dcc.isRunningHub(favHub) && checkReconnect()) { //only reconnect if reconnect was requested by user.. or we already connected once... for security..
         	logger.debug("scheduling reconnect");
@@ -643,14 +639,6 @@ public class Hub extends DCProtocol implements IHub {
 		context.setHub(this);
 		String mes = context.format(message);
 		sendUnmodifiedRaw(mes);
-		
-	/*	try {		
-			
-			connection.send(mes);
-			logger.debug("sent raw: "+mes);
-		} catch(IOException ioe) {
-			logger.warn(ioe,ioe); 
-		} */
 	}
 	
 	/**

@@ -107,14 +107,22 @@ import uc.protocols.hub.Hub;
  * My Personal Bugtracker:
  * 
  *  
+ *  TODO show joins/parts   + show joins parts of favs
  *  
  *  TODO may be think about torrent support in dc client -> starting torrents downloaded..
  *  
  *  
  *  TODO implement some game.. i.e. Battleship or chess that could be played against other user..
  *  
+ * TODO .. people with slot not Properly removed in SlotManager from slotqueue may cause not all slots filled up..
  * 
  * 
+ *  TODO http://www.adcportal.com/wiki/index.php/UCMD   usercommand escapes 
+ *  or usercommand in general seems not to work too well in ADC ..
+ *  double escapes of spaces in line:Reason .. also some stuff not being seen at all..
+ *  TODO NMDC/ADC issue with line escapeing what ever comes out of the line:Reason box
+ *  
+ *  
  * /me in PM TODO not really done I think..
  * 
  * 
@@ -151,19 +159,19 @@ import uc.protocols.hub.Hub;
  * TODO  may be some statistics window?? drawing what is currently transferred...
  *
  * TODO translation function : http://code.google.com/p/google-api-translate-java/ might be good
- *
+ * 
  * 
  * TODO preview of files using some mediaplayer...
  * 
  * TODO test maximise on jucy icon  under kde  3 doubleclicks or 
- * 3 times clicking on Maximise.. needed according to hali -> might be problem with no active workbench window if minimized..
+ * 3 times clicking on Maximise.. needed according to hali -
+ * -> might be problem with no active workbench window if minimized..
+ * --> tried and could not be verified.. i.e. works fine with Kubuntu
  * 
- * Low Priority:
- *  - integration of winamp/amarok(Linux) plugin; .. really? for learning jni would be nice..
- *  - write unit test for hashengine.. 
- *  - some SWT stuff.. need Documentation for jucy
  *  
- * TODO warning when running out of space.. --> not possible due to Missing api in 1.5
+ * TODO warning when running out of space.. 
+ * -> not possible due to Missing api in 1.5 
+ * --> wait for 1.6 as requirement
  *  
  * @author Quicksilver
  */
@@ -308,8 +316,8 @@ public final class DCClient {
 	private final DownloadQueue downloadQueue;
 
 
-
-	private volatile ScheduledFuture<?> myInfoUpdater = null;
+	private final Object infSynch = new Object();
+	private ScheduledFuture<?> myInfoUpdater = null;
 	
 	/**
 	 * current version as it is used in 
@@ -414,6 +422,7 @@ public final class DCClient {
 				return PI.get(PI.nick);
 			}
     	};
+   
 
     	filelist = new OwnFileList(fileListSelf,this); 
         
@@ -597,7 +606,7 @@ public final class DCClient {
     	favHubs.openAutoStartHubs();
     	monitor.worked(3);
     	//can take some time.. we usually won't need this from start..-> done in separate thread..
-    	OwnFileList.loadSharedDirsForIconManager(this); 
+    	OwnFileList.loadSharedDirsForIconManager(favFolders); 
     	monitor.worked(2);
 
     	altSearch.start();
@@ -631,7 +640,7 @@ public final class DCClient {
    
     /**
      * 
-     * @return the CID of the client
+     * @return the PID of the client 
      */
     public synchronized HashValue getPID() {
     	return pid;
@@ -766,30 +775,35 @@ public final class DCClient {
     	synchronized (this) {
     		hub = hubs.get(favHub);
     		if (hub == null) {
-
-
     			hub = new Hub(favHub,this);
     			synchronized(hub) {
     				hubs.put(favHub, hub);
     				if (!favHub.isChatOnly()) {
     					hub.registerCTMListener(ch);
     				} 
+    				final Hub hubf = hub; 
+    				
+    				Runnable finish = new Runnable() {
+    					int i = hublisteners.size();
+						public synchronized void run() {
+							if (--i == 0) {
+								scheduler.schedule(new Runnable() {
+			    					public void run() {
+			    						synchronized(hubf) {
+			    							hubf.start();
+			    						}
+			    						notifyChangedInfo(InfoChange.Hubs);
+			    					}
+			    					//wait with starting some time (race condition though helps registering listeners)
+			    				}, 100, TimeUnit.MILLISECONDS);
+							}
+						}
+    					
+    				};
     				
     				for (IHubCreationListener hubl:hublisteners) {
-    					hubl.hubCreated(favHub,showInUI);
+    					hubl.hubCreated(favHub,showInUI,finish);
     				}
-    				
-    				final Hub hubf = hub; 
-    				//wait with starting some time (race condition though helps registering listeners)
-    				scheduler.schedule(new Runnable() {
-    					public void run() {
-    						synchronized(hubf) {
-    							hubf.start();
-    						}
-    						notifyChangedInfo(InfoChange.Hubs);
-    					}
-
-    				}, 100, TimeUnit.MILLISECONDS);
     			}
     		}
     	}
@@ -900,37 +914,38 @@ public final class DCClient {
 				iic.infoChanged(Collections.singleton(type));
 			}
     	} else {
-    	
 	    	changes.add(type);
-	    	if (myInfoUpdater != null && myInfoUpdater.getDelay(TimeUnit.MILLISECONDS) > type.getDelay()) {
-	    		myInfoUpdater.cancel(false);
-	    		myInfoUpdater = null;
-	    	}
-	    	
-	    	if (myInfoUpdater == null) {
-	    		myInfoUpdater = scheduler.schedule(
-	    		    	new Runnable() {
-	    					public void run() {
-	    						myInfoUpdater = null;
-	    						for (Hub hub : hubs.values()) {
-	    							synchronized(hub) {
-		    							if (hub.getState() == ConnectionState.LOGGEDIN) {
-		    								hub.sendMyInfo(false);
-		    							}
-	    							}
-	    							Set<InfoChange> copy;
-	    							synchronized(changes) {
-	    								copy = new HashSet<InfoChange>(changes);
-	    								changes.clear();
-	    							}
-	    							for (IInfoChanged iic: changedInfo) {
-	    								iic.infoChanged(copy);
-	    							}
-	    							
-	    						}
-	    						
-	    					}
-	    				}, type.getDelay(), TimeUnit.MILLISECONDS);
+	    	synchronized(infSynch) {
+		    	if (myInfoUpdater != null && myInfoUpdater.getDelay(TimeUnit.MILLISECONDS) > type.getDelay()) {
+		    		myInfoUpdater.cancel(false);
+		    		myInfoUpdater = null;
+		    	}
+		    	
+		    	if (myInfoUpdater == null) {
+		    		myInfoUpdater = scheduler.schedule(new Runnable() {
+		    			public void run() {
+		    				synchronized(infSynch) {
+		    					myInfoUpdater = null;
+		    				}
+		    				for (Hub hub : hubs.values()) {
+		    					synchronized(hub) {
+			    					if (hub.getState() == ConnectionState.LOGGEDIN) {
+			    						hub.sendMyInfo(false);
+			    					}
+		    					}
+		    					Set<InfoChange> copy;
+		    					synchronized(changes) {
+		    						copy = new HashSet<InfoChange>(changes);
+		    						changes.clear();
+		    					}
+		    					for (IInfoChanged iic: changedInfo) {
+		    						iic.infoChanged(copy);
+		    					}
+		    				}
+		    						
+		    			}
+		    		}, type.getDelay(), TimeUnit.MILLISECONDS);
+		    	}
 	    	}
     	}
     }

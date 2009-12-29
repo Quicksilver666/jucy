@@ -3,10 +3,8 @@ package eu.jucy.gui.transferview;
 
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+
 
 
 import helpers.IObservable;
@@ -57,6 +55,7 @@ import uc.files.transfer.IFileTransfer;
 import uc.files.transfer.TransferChange;
 import uc.protocols.client.ClientProtocol;
 import uc.protocols.client.ClientProtocolStateMachine;
+import uihelpers.DelayedUpdate;
 import uihelpers.SUIJob;
 import uihelpers.TableViewerAdministrator;
 import uihelpers.ToolTipProvider;
@@ -71,15 +70,15 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 
 
 	private TableViewer tableViewer;
-	private volatile boolean running = false;
-	private final List<StatusObject> sobjects = 
-		Collections.synchronizedList(new ArrayList<StatusObject>());
+//	private volatile boolean running = false;
+//	private final List<StatusObject> sobjects = 
+//		Collections.synchronizedList(new ArrayList<StatusObject>());
 	
 	private Table table;
 	
 
 	private TableViewerAdministrator<Object> tva; 
-	
+	private DelayedUpdate<Object> update; 
 	
 
 	@Override
@@ -88,6 +87,7 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 		table = new Table(parent,SWT.BORDER | SWT.FULL_SELECTION);
 		
 		tableViewer =  new TableViewer(table);
+		
 		table.setHeaderVisible(true);
 		
 		UCProgressPainter.AddToTable(table);
@@ -100,6 +100,8 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 						new SizeColumn(), new IPColumn()),GUIPI.transfersViewTable,2);
 						
 		tva.apply();
+		
+		update = new DelayedUpdate<Object>(tableViewer);
 		
 		TransferContentProvider tcp = new TransferContentProvider();
 		tableViewer.setContentProvider(tcp);
@@ -162,6 +164,7 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 	
 	@Override
 	public void dispose() {
+		update.clear();
 		ApplicationWorkbenchWindowAdvisor.get().getCh().deleteObserver(this);
 		super.dispose();
 	}
@@ -169,64 +172,105 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 
 	public void update(IObservable<StatusObject> o, StatusObject arg) {
 	//	logger.debug("addin so: "+arg.getDetail()+"   "+arg	+"\n" +(arg.getDetailObject() != null?arg.getDetailObject().getClass().getSimpleName():"") );
-		sobjects.add(arg);
-		if (!running) {
-			running = true;
-			new SUIJob(table) {
-				@Override
-				public void run() {
-					running = false;
-					synchronized(sobjects) {
-						for (StatusObject so: sobjects) {
-							switch(so.getDetail()) {
-							case ConnectionHandler.USER_IDENTIFIED_IN_CONNECTION:
-								if (so.getDetailObject() != null) {
-									tableViewer.remove(so.getDetailObject());
-								}
-								tableViewer.add(so.getValue());
-								break;
-							case ConnectionHandler.CONNECTION_CLOSED:
-								tableViewer.remove(so.getValue());
-								ClientProtocolStateMachine cpsm = (ClientProtocolStateMachine)so.getDetailObject();
-								if (cpsm != null) {
-									logger.debug("adding cpsm "+cpsm.isActive());
-								}
-								if (cpsm != null && cpsm.isActive()) { 
-									logger.debug("adding cpsm1: "+cpsm.getUser());
-									tableViewer.add(cpsm);
-								}
-								break;
-								
-							case ConnectionHandler.TRANSFER_STARTED:
-								tableViewer.remove(so.getValue());
-								tableViewer.add(so.getValue()); //do structural change.. sorting..
-								((IFileTransfer)so.getDetailObject()).addObserver(transferListener);
-								break;
-							case ConnectionHandler.TRANSFER_FINISHED:
-								tableViewer.remove(so.getValue());
-								tableViewer.add(so.getValue()); //do structural change.. sorting..
-								((IFileTransfer)so.getDetailObject()).deleteObserver(transferListener);
-								break;
-								
-							case ConnectionHandler.STATEMACHINE_CREATED:
-								logger.debug("adding cpsm2: "+((ClientProtocolStateMachine)so.getDetailObject()).getUser());
-								tableViewer.add(so.getDetailObject());
-								break;
-							case ConnectionHandler.STATEMACHINE_CHANGED:
-								tableViewer.refresh(so.getDetailObject());
-								break;
-							case ConnectionHandler.STATEMACHINE_DESTROYED:
-								tableViewer.remove(so.getDetailObject());
-								break;
-							}
-						}
-						sobjects.clear();
-					}
-				}
+		switch(arg.getDetail()) {
+		case ConnectionHandler.USER_IDENTIFIED_IN_CONNECTION:
+			if (arg.getDetailObject() != null) {
+				update.remove(arg.getDetailObject());
+			}
+			update.add(arg.getValue());
+			break;
+		case ConnectionHandler.CONNECTION_CLOSED:
+			update.remove(arg.getValue());
+			ClientProtocolStateMachine cpsm = (ClientProtocolStateMachine)arg.getDetailObject();
+			if (cpsm != null && cpsm.isActive()) { 
+			//	logger.debug("adding cpsm1: "+cpsm.getUser());
+				update.add(cpsm);
+			}
+			break;
 			
-			}.schedule();
+		case ConnectionHandler.TRANSFER_STARTED:
+			update.remove(arg.getValue());
+			update.add(arg.getValue()); //do structural change.. sorting..
+			((IFileTransfer)arg.getDetailObject()).addObserver(transferListener);
+			break;
+		case ConnectionHandler.TRANSFER_FINISHED:
+			update.remove(arg.getValue());
+			update.add(arg.getValue()); //do structural change.. sorting..
+			((IFileTransfer)arg.getDetailObject()).deleteObserver(transferListener);
+			break;
+			
+		case ConnectionHandler.STATEMACHINE_CREATED:
+		//	logger.debug("adding cpsm2: "+((ClientProtocolStateMachine)arg.getDetailObject()).getUser());
+			update.add(arg.getDetailObject());
+			break;
+		case ConnectionHandler.STATEMACHINE_CHANGED:
+			update.change(arg.getDetailObject());
+			break;
+		case ConnectionHandler.STATEMACHINE_DESTROYED:
+			update.remove(arg.getDetailObject());
+			break;
 		}
 	}
+		
+//		
+//		sobjects.add(arg);
+//		if (!running) {
+//			running = true;
+//			new SUIJob(table) {
+//				@Override
+//				public void run() {
+//					running = false;
+//					synchronized(sobjects) {
+//						for (StatusObject so: sobjects) {
+//							switch(so.getDetail()) {
+//							case ConnectionHandler.USER_IDENTIFIED_IN_CONNECTION:
+//								if (so.getDetailObject() != null) {
+//									tableViewer.remove(so.getDetailObject());
+//								}
+//								tableViewer.add(so.getValue());
+//								break;
+//							case ConnectionHandler.CONNECTION_CLOSED:
+//								tableViewer.remove(so.getValue());
+//								ClientProtocolStateMachine cpsm = (ClientProtocolStateMachine)so.getDetailObject();
+//								if (cpsm != null) {
+//									logger.debug("adding cpsm "+cpsm.isActive());
+//								}
+//								if (cpsm != null && cpsm.isActive()) { 
+//									logger.debug("adding cpsm1: "+cpsm.getUser());
+//									tableViewer.add(cpsm);
+//								}
+//								break;
+//								
+//							case ConnectionHandler.TRANSFER_STARTED:
+//								tableViewer.remove(so.getValue());
+//								tableViewer.add(so.getValue()); //do structural change.. sorting..
+//								((IFileTransfer)so.getDetailObject()).addObserver(transferListener);
+//								break;
+//							case ConnectionHandler.TRANSFER_FINISHED:
+//								tableViewer.remove(so.getValue());
+//								tableViewer.add(so.getValue()); //do structural change.. sorting..
+//								((IFileTransfer)so.getDetailObject()).deleteObserver(transferListener);
+//								break;
+//								
+//							case ConnectionHandler.STATEMACHINE_CREATED:
+//								logger.debug("adding cpsm2: "+((ClientProtocolStateMachine)so.getDetailObject()).getUser());
+//								tableViewer.add(so.getDetailObject());
+//								break;
+//							case ConnectionHandler.STATEMACHINE_CHANGED:
+//								tableViewer.refresh(so.getDetailObject());
+//								break;
+//							case ConnectionHandler.STATEMACHINE_DESTROYED:
+//								tableViewer.remove(so.getDetailObject());
+//								break;
+//							}
+//						}
+//						sobjects.clear();
+//					}
+//				}
+//			
+//			}.schedule();
+//		}
+//	}
 
 	
 /*	public void update(IObservable<StatusObject> o, StatusObject arg) {
