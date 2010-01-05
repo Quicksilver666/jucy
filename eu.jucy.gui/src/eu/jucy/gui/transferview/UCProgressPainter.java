@@ -112,7 +112,8 @@ public class UCProgressPainter implements Listener {
 					drawFileTransfer(ft,event.gc);
 				}
 				break;
-			case CLOSED: //will not be shown .. immediately removed..
+			case DESTROYED:
+			case CLOSED:
 				String reason = cp.getDisconnectReason();
 				drawString(reason != null? reason : "idle" ,table, event.gc);
 				break;

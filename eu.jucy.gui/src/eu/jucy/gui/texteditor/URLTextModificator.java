@@ -86,12 +86,14 @@ public class URLTextModificator implements ITextModificator {
 	
 	public static final String ID = "eu.jucy.gui.URLTextModificator";
 	
-	private static final String URLENDING = "[\\w\\p{L}\\-_]+(\\.[\\w\\p{L}\\-_]+)+([\\w\\p{L}\\-\\.,@?^=%&amp;:/~\\+#\\(\\)]*[\\w\\p{L}\\-\\@?^=%&amp;/~\\+#])?";
+	private static final String URLENDING = 
+		"[\\w\\p{L}\\-_]+(\\.[\\w\\p{L}\\-_]+)+([\\w\\p{L}\\-\\.,@?^=%&amp;:/~\\+#\\(\\)]*[\\w\\p{L}\\-\\@?^=%&amp;/~\\+#])?";
 	private static final String URL = "(http|ftp|https):\\/\\/"+URLENDING;
 
 
 	
-	private final AbstractLinkType[] LINK_TYPES = new AbstractLinkType[]{new HTTPLink(),new MagLink(),new HubLink()}; 
+	private final AbstractLinkType[] LINK_TYPES = new AbstractLinkType[]{
+				new HTTPLink(),new MagLink(),new HubLink()}; 
 	
 	private static final Pattern ANY_URL = Pattern.compile(
 			"((?:"+URL+")|(?:"+MagnetLink.MagnetURI+")|(?:"+HubLink.HL_PAT+"))"); 
@@ -327,7 +329,7 @@ public class URLTextModificator implements ITextModificator {
 
 		public boolean hasImageAfterURI(String uri) {
 			for (String ending: IMAGE_ENDINGS) {
-				if (uri.endsWith(ending)) {
+				if (uri.toLowerCase().endsWith(ending)) {
 					return true;
 				}
 			}
@@ -336,7 +338,7 @@ public class URLTextModificator implements ITextModificator {
 		@Override
 		public Image getImageAfterURI(String uri) {
 			for (String ending: IMAGE_ENDINGS) {
-				if (uri.endsWith(ending)) {
+				if (uri.toLowerCase().endsWith(ending)) {
 					return getImageURLIcon();
 				}
 			}

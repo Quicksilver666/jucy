@@ -41,7 +41,7 @@ import uc.UDPhandler;
 
 import uc.DCClient.Initializer;
 import uc.FavFolders.SharedDir;
-import uc.User.Mode;
+import uc.IUser.Mode;
 import uc.crypto.BloomFilter;
 import uc.crypto.IHashEngine.HashedListener;
 import uc.files.filelist.FileListFile;

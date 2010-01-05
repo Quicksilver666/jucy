@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 
 
@@ -46,12 +47,12 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	/**
 	 * here we store Ip addresses of other clients that failed DHE key exchange with us..
 	 */
-	private static final Set<InetAddress> problematic = Collections.synchronizedSet(new HashSet<InetAddress>());
+	private static final Set<InetAddress> problematic = 
+		Collections.synchronizedSet(new HashSet<InetAddress>());
 	
 	private final boolean encryption;
-
-
 	private final boolean serverSide;
+	
 	private volatile SSLEngine engine;
 	private volatile boolean connectSent = false;
 	
@@ -612,42 +613,36 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 						 */
 						enabledCS = GH.filter(enabledCS,"MD5","RC4","KRB5","SSL");
 					
-					//	enabledCS = GH.filter(enabledCS, "DHE");
-					//	enabledCS = GH.filter(enabledCS, "RSA");
-		
+	
+						GH.sort(enabledCS, "_AES_256_");
 					
 						//move these ciphers to the end so DHE is preferred..
-						String noDHEStrong= "TLS_RSA_WITH_AES_256_CBC_SHA";
-						if (enabledCS.remove(noDHEStrong)) {
-							enabledCS.add(noDHEStrong);
-						}
-						String noDHE = "TLS_RSA_WITH_AES_128_CBC_SHA";
-						if (enabledCS.remove(noDHE)) {
-							enabledCS.add(noDHE);
-						}
+//						String noDHEStrong= "TLS_RSA_WITH_AES_256_CBC_SHA";
+//						if (enabledCS.remove(noDHEStrong)) {
+//							enabledCS.add(noDHEStrong);
+//						}
+//						
+//						String noDHE = "TLS_RSA_WITH_AES_128_CBC_SHA";
+//						if (enabledCS.remove(noDHE)) {
+//							enabledCS.add(noDHE);
+//						}
 						
-					//	enabledCS.remove("TLS_RSA_WITH_AES_256_CBC_SHA");
-					//	enabledCS.add("TLS_RSA_WITH_AES_128_CBC_SHA");
 						if (!enabledCS.isEmpty()) {
 							engine.setEnabledCipherSuites( enabledCS.toArray(new String[]{}));
 						}
 						
-						//logger.debug("Supported CS: "+GH.toString(engine.getSupportedCipherSuites()));
+				
 						List<String> enabledProt = Arrays.asList(engine.getSupportedProtocols());
 						enabledProt = GH.filter(enabledProt, "SSL");
 						
-						//String[] enabledProt = new String[] {"TLSv1"}; //,"SSLv3"
 						if (!enabledProt.isEmpty()) {
 							engine.setEnabledProtocols(enabledProt.toArray(new String[]{}));
 						}
-					//	logger.info("Enabled Prot: "+GH.toString(engine.getEnabledProtocols()));
-					//	logger.info("Enabled CS: "+enabledCS.size());
-					//	logger.info("Enabled CS: "+GH.toString(engine.getEnabledCipherSuites()));
 						
-
-						byteBuffer = ByteBuffer.allocate(engine.getSession().getPacketBufferSize());
-						decrypting = ByteBuffer.allocate(engine.getSession().getApplicationBufferSize());
-						encrypting = ByteBuffer.allocate(engine.getSession().getPacketBufferSize());
+						SSLSession ssle = engine.getSession();
+						byteBuffer = ByteBuffer.allocate(ssle.getPacketBufferSize());
+						decrypting = ByteBuffer.allocate(ssle.getApplicationBufferSize());
+						encrypting = ByteBuffer.allocate(ssle.getPacketBufferSize());
 						
 						logger.debug("encrypted connection created");
 				//	}

@@ -63,6 +63,10 @@ public abstract class UCTextEditor extends UCMessageEditor {
 		
 		UCWorkbenchPart.createContextPopups(getSite(), TEXT_POPUP_ID, tus, getText());
 	}
+	
+	public void storedPM(String message,boolean me) {
+		
+	}
 
 	
 	

@@ -2,8 +2,6 @@ package uc;
 
 import java.net.InetAddress;
 
-import uc.User.AwayMode;
-import uc.User.Mode;
 import uc.crypto.HashValue;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import uc.files.downloadqueue.FileListDQE;
@@ -162,30 +160,24 @@ public interface IUser  {
 	
 	IHub getHub();
 	
-	/*
-	 * registers a listener with the user that tells
-	 * when the user connects, disconnects, quits or is simply changed ie by a new MyInfo
-	 * 
-	 * @param listener
-	 */
-	//void registerUserChangedListener(IUserChangedListener listener);
-	
-	/*
-	 * unregisters a UserChangedlistener with the user 
-	 * 
-	 * @param listener
-	 */
-	//void unregisterUserChangedListener(IUserChangedListener listener);
+
 	
 	/**
 	 * sends a Private Message to the user.
 	 * 
 	 * @param message - what is sent
 	 * @param me - if me should be used.. false normally
+	 * @param allowStore 
 	 * @return true if the message could be sent 
+	 *  false if the message was stored for later sending.. 
+	 *  (if allow store false -> message will just be discarded)
 	 */
-	boolean sendPM(String message, boolean me);
+	PMResult sendPM(String message, boolean me, boolean allowStore);
 	
+	
+	public static enum PMResult {
+		SENT,STORED,DISCARDED;
+	}
 	
 	/**
 	 * sets the FavUser state ..
@@ -299,5 +291,92 @@ public interface IUser  {
 	 * @return total size in bytes of all files in Queue
 	 */
 	long sizeOfFilesInQueue();
+	
+	
+	
+	public static enum Mode {
+		// A for active P for passive   5 for Socks
+		ACTIVE('A'),PASSIVE('P'),SOCKS('5');
+	
+		private final char modeChar;
+		
+		public static Mode fromModeChar(char c) {
+			for (Mode m: Mode.values()) {
+				if (m.modeChar == c) {
+					return m;
+				}
+			}
+			throw new IllegalStateException();
+		}
+		
+		public char getModeChar() {
+			return modeChar;
+		}
+		
+		Mode(char modeChar) {
+			this.modeChar = modeChar;
+		}
+		@Override
+		public String toString() {
+			return ""+modeChar;
+		}
+
+		
+	}
+	
+	public static enum AwayMode {
+		NORMAL(0),AWAY(1),EXTENDEDAWAY(2);
+		
+		private final int value;
+		private final String val;
+		
+		private AwayMode(int i) {
+			this.value = i;
+			val = Integer.toString(i);
+		}
+		
+		public static AwayMode parse(String value) {
+			try {
+				int mode = Integer.valueOf(value);
+				for (AwayMode am:AwayMode.values()) {
+					if (am.value == mode) {
+						return am;
+					}
+				}
+
+			} catch(RuntimeException re) {}
+			
+			return NORMAL;
+		}
+		
+		public static AwayMode parseFlag(byte flag) {
+			switch(flag) {
+			case 1: 
+			case 4:
+			case 5:
+			case 8:
+			case 9:
+				return NORMAL;
+			case 2: 
+			case 6:
+			case 10:
+				return AWAY;
+			case 3: 
+			case 7:
+			case 11:
+				return EXTENDEDAWAY;
+			}
+			return NORMAL;
+		}
+
+		public int getValue() {
+			return value;
+		}
+
+		public String getVal() {
+			return val;
+		}
+
+	}
 
 }

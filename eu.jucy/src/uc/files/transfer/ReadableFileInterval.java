@@ -1,5 +1,7 @@
 package uc.files.transfer;
 
+import helpers.GH;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,15 +10,92 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
+import logger.LoggerFactory;
+
+
+import org.apache.log4j.Logger;
+
+import uc.DCClient;
 import uc.crypto.HashValue;
 import uc.crypto.InterleaveHashes;
 
 public class ReadableFileInterval extends AbstractFileInterval {
 
+	private static final Logger logger = LoggerFactory.make();
 
+	private static final class FCHolder {
+		public FCHolder(FileChannel fc) {
+			super();
+			this.fc = fc;
+		}
+		private final FileChannel fc;
+		private final Set<ReadableFileInterval> readingFrom = new HashSet<ReadableFileInterval>();
+		private Future<?> closer;
+	}
+	private static final Map<File,FCHolder> cachedFiles = new HashMap<File,FCHolder>();
+	
+	private static FileChannel openFC(File source,ReadableFileInterval rfi) throws IOException {
+	//	logger.debug("opening file: "+source);
+		synchronized (cachedFiles) {
+			FCHolder fch = cachedFiles.get(source);
+			if (fch == null) {
+				fch = new FCHolder(new FileInputStream(source).getChannel());
+				cachedFiles.put(source, fch);
+			}
+			if (fch.closer != null) {
+				fch.closer.cancel(false);
+			}
+			fch.readingFrom.add(rfi);
+			return fch.fc;
+		}
+	}
+	
+	private static boolean isOpenFC(File source,ReadableFileInterval rfi) {
+		logger.debug("checking file: "+source);
+		synchronized (cachedFiles) {
+			FCHolder fch = cachedFiles.get(source);
+			if (fch == null) {
+				return false;
+			}
+			return fch.readingFrom.contains(rfi) && fch.fc.isOpen();
+		}
+	}
+	
+	private static void closeFC(final File source,ReadableFileInterval rfi) {
+	//	logger.debug("closeing file: "+source);
+		synchronized (cachedFiles) {
+			final FCHolder fch = cachedFiles.get(source);
+			if (fch != null) {
+				fch.readingFrom.remove(rfi);
+				if (fch.closer != null) {
+					fch.closer.cancel(false);
+				}
+				if (fch.readingFrom.isEmpty()) {
+				//	logger.debug("scheduleing closer: "+source);
+					fch.closer = DCClient.getScheduler().schedule(new Runnable() {
+						public void run() {
+							synchronized(cachedFiles) {
+								if (fch.readingFrom.isEmpty()) {
+								//	logger.debug("final closeing file: "+source);
+									GH.close(fch.fc);
+									cachedFiles.remove(source);
+								}
+							}
+						}
+					}, 15, TimeUnit.SECONDS);
+				}
+			}
+		}
+	}
 
-
+	
 	
 	/**
 	 * possible source for upload
@@ -25,7 +104,6 @@ public class ReadableFileInterval extends AbstractFileInterval {
 	/**
 	 * other possible source for an upload..
 	 */
-	//private final InterleaveHashes interleaves;
 	
 	private final byte[] directBytes;
 	/**
@@ -52,31 +130,6 @@ public class ReadableFileInterval extends AbstractFileInterval {
 		directBytes = null;
 	}
 	
-//	@Override
-//	public long getShownLength() {
-//		return getTotalLength();
-//	}
-//	
-//	@Override
-//	public long getShownRelativePos() {
-//		return currentpos;
-//	}
-	
-/*
-	public ReadableFileInterval(InterleaveHashes interleaves) {
-		source = null;
-		currentpos = 0;
-		length = interleaves.byteSize();
-		//this.interleaves = interleaves;
-		directBytes = new byte[(int)length];
-		
-		int current = 0;
-		for (HashValue hash :interleaves.getInterleaves()) {
-			byte[] hashbytes= hash.getRaw();
-			System.arraycopy(hashbytes, 0, directBytes, current, hashbytes.length);
-			current += hashbytes.length;
-		}
-	} */
 	
 
 	/**
@@ -103,14 +156,8 @@ public class ReadableFileInterval extends AbstractFileInterval {
 	public ReadableFileInterval(byte[] bytes) {
 		super(0,bytes.length,bytes.length);
 		source = null;
-	//	currentpos = 0;
-	//	length = bytes.length;
-	//	interleaves = null;
 		directBytes = bytes;
 	}
-	
-
-	
 	
 
 	@Override
@@ -140,14 +187,11 @@ public class ReadableFileInterval extends AbstractFileInterval {
 					}
 					return read;
 				}
-				
 			});
 		} else {
 			return new ReadableByteChannel() {
-
-				FileChannel fc = new FileInputStream(source).getChannel();
+				FileChannel fc = openFC(source,ReadableFileInterval.this); 
 				
-		
 				public int read(ByteBuffer dst) throws IOException {
 					if (currentpos == length) {
 						return -1;
@@ -166,59 +210,15 @@ public class ReadableFileInterval extends AbstractFileInterval {
 
 		
 				public void close() throws IOException {
-					fc.close();
+					closeFC(source, ReadableFileInterval.this);
 				}
-
 			
 				public boolean isOpen() {
-					return fc.isOpen();
+					return isOpenFC(source, ReadableFileInterval.this); // fc.isOpen();
 				}
 			};
 			
 		}
 	}
-	
-	/*
-	 * creates a channel for the interleave hashes..
-	 *
-	 *
-	private ReadableByteChannel getInterleaveChannel() {
-		return new ReadableByteChannel() {
-			private boolean open = true;
-			
-			@Override
-			public int read(ByteBuffer dst) throws IOException {
-				if (currentpos == length) {
-					return -1;
-				}
-				
-				int read = 0;
-				while (dst.hasRemaining() && currentpos != length) {
-					int currentHashValue = (int) (currentpos / HashValue.digestlength);
-					int positionInArray = (int) (currentpos % HashValue.digestlength);
-					
-					int bytesSentToBuffer = Math.min(dst.remaining(),  HashValue.digestlength - positionInArray);
-					
-					dst.put( interleaves.getHashValue(currentHashValue).getRaw() ,positionInArray , bytesSentToBuffer);
-					currentpos   += bytesSentToBuffer;
-					read += bytesSentToBuffer;
-				}
-				
-				return read;
-			}
-
-			@Override
-			public void close() throws IOException {
-				open = false;
-			}
-
-			@Override
-			public boolean isOpen() {
-				return open;
-			}
-			
-		};
-	} */
-	
 
 }

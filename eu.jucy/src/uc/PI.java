@@ -95,7 +95,7 @@ public class PI extends AbstractPreferenceInitializer {
 	logPM				=	"logPM",
 	logFeed				=	"logFeed",
 	
-	
+	storedPMs			=	"storedPMs",
 	
 	
 	
@@ -238,6 +238,8 @@ public class PI extends AbstractPreferenceInitializer {
 		defaults.putBoolean(logPM, true);
 		defaults.putBoolean(logFeed, true);
 		defaults.put(logTimeStamps, "[dd.MM. HH:mm]");
+		
+		defaults.put(PI.storedPMs, "");
 		
 		defaults.putBoolean(checkForUpdates	, true);
 		defaults.putLong(lastCheckForUpdates, 0);

@@ -183,7 +183,6 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 			update.remove(arg.getValue());
 			ClientProtocolStateMachine cpsm = (ClientProtocolStateMachine)arg.getDetailObject();
 			if (cpsm != null && cpsm.isActive()) { 
-			//	logger.debug("adding cpsm1: "+cpsm.getUser());
 				update.add(cpsm);
 			}
 			break;

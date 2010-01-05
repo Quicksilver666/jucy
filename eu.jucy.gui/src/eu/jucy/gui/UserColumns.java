@@ -21,7 +21,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import uc.IHasUser;
 import uc.IHub;
 import uc.IUser;
-import uc.User.Mode;
+import uc.IUser.Mode;
 import uihelpers.TableViewerAdministrator.ColumnDescriptor;
 
 

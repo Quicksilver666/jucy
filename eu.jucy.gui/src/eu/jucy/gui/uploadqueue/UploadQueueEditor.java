@@ -61,6 +61,7 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 	@SuppressWarnings("unchecked")
 	@Override
 	public void createPartControl(Composite arg0) {
+		logger.debug("create upqueue");
 		GridLayout gridLayout = new GridLayout();
 		arg0.setLayout(gridLayout);
 
@@ -102,11 +103,11 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 			public void run() {
 				update.clear();
 				tableViewer.setInput(ApplicationWorkbenchWindowAdvisor.get().getUpQueue());
-				schedule(60*1000);
+				schedule(10*1000);
 			}
-		}.schedule(60*1000);
+		}.schedule(10*1000);
 		
-		setControlsForFontAndColour(tableViewer.getTable());
+		setControlsForFontAndColour(table);
 	}
 
 
@@ -125,13 +126,9 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 
 
 	public void update(IObservable<StatusObject> arg0, final StatusObject st) {
-		//final StatusObject st = (StatusObject)arg1;
 		if (st.getValue() instanceof UploadInfo) {
 			update.put(st.getType(), (UploadInfo)st.getValue());
 		}
-		
 	}
-
-	
 	
 }

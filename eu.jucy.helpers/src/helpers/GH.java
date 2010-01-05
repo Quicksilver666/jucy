@@ -13,6 +13,8 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
@@ -158,16 +160,13 @@ public final class GH {
 	 * replaces invalid characters in Filenames
 	 */
 	public static String replaceInvalidFilename(String filename) {
-
-		filename = filename.replace("\\", ".");
-		filename = filename.replace("/", ".");
-		filename = filename.replace("*", ".");
-		filename = filename.replace("?", ".");
-		filename = filename.replace("\"", "\'");
-		filename = filename.replace("<", ".");
-		filename = filename.replace(">", ".");
-		filename = filename.replace("|", ".");
-		filename = filename.replace(":", "-");  
+		for (char replace: new char[]{'\\','/','*','?','<','>','|'}) {
+			filename = filename.replace(replace,'.');
+		}
+		
+		filename = filename.replace('\"', '\'');
+		filename = filename.replace(':', '-');
+		
 		for (int i = 0; i < filename.length();i++) {
 			if (filename.charAt(i) < 20) {
 				filename = filename.substring(0, i)+filename.substring(i+1);
@@ -181,15 +180,13 @@ public final class GH {
 	 * replaces invalid filepath 
 	 */
 	public static String replaceInvalidFilpath(String filename) {
-		
-		filename = filename.replace(File.separator.equals("\\")?"/": "\\", ".");
-		filename = filename.replace("*", ".");
-		filename = filename.replace("?", ".");
-		filename = filename.replace("\"", "\'");
-		filename = filename.replace("<", ".");
-		filename = filename.replace(">", ".");
-		filename = filename.replace("|", ".");
-		filename = filename.replace(":", "-");    
+		filename = filename.replace(File.separator.equals("\\")?'/': '\\', '.');
+				
+		for (char replace: new char[]{'*','?','<','>','|'}) {
+			filename = filename.replace(replace,'.');
+		}
+		filename = filename.replace('\"', '\'');
+		filename = filename.replace(':', '-');    
 
 		return filename;
 	}
@@ -298,6 +295,25 @@ public final class GH {
 			}
 		}
 		return s;
+	}
+	
+	public static <K> void sort(List<K> toSort,final String... sortUpIfContains) {
+		Collections.sort(toSort, new Comparator<K>() {
+			public int compare(K o1, K o2) {
+				int k1 = 0,k2 = 0;
+				
+				for (int i = 0; i < sortUpIfContains.length ; i++) {
+					if (o1.toString().contains(sortUpIfContains[i])) {
+						k1+= sortUpIfContains.length-i ;
+					}
+					if (o2.toString().contains(sortUpIfContains[i])) {
+						k2+= sortUpIfContains.length-i;
+					}
+				}
+				
+				return -compareTo(k1, k2);
+			}
+		});
 	}
 	
 	

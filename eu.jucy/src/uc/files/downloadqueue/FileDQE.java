@@ -90,7 +90,6 @@ public class FileDQE extends AbstractFileDQE {
 	private void setBlockInfoIfNotSet() {
 		synchronized (synch) {
 			if (bi == null) {
-	//			InterleaveHashes ih =  dq.getDatabase().getInterleaves(getTTHRoot());
 				setBlockInfo(getIh());
 			}
 		}

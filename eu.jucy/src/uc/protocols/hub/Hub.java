@@ -47,7 +47,7 @@ import uc.IUser;
 import uc.InfoChange;
 import uc.PI;
 import uc.User;
-import uc.User.Mode;
+import uc.IUser.Mode;
 import uc.crypto.HashValue;
 import uc.database.DBLogger;
 import uc.files.filelist.FileListDescriptor;

@@ -99,20 +99,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 			}
 		});
 		pmText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
-		//add copy 
-		/*Menu popupMenu = new Menu(pmText);
-		MenuItem copyItem = new MenuItem(popupMenu, SWT.PUSH);
-		copyItem.setText("Copy");
-		copyItem.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event event) {
-				pmText.copy();
-			}
-		});
-		pmText.setMenu(popupMenu); */
-		//done adding copy
 	
-
 		Hub hub = (Hub)getHub();
 		textViewer = new StyledTextViewer(pmText,hub,true,getUser(), 
 				((PMEditorInput)getEditorInput()).getTime());
@@ -132,34 +119,11 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 		
 		ApplicationWorkbenchWindowAdvisor.get().getPopulation()
 			.registerUserChangedListener(this, getUser().getUserid());
-		//getUser().registerUserChangedListener(this);
 		
 		setTitleImage( Nick.GetUserImage(getUser()));
 		
 		setControlsForFontAndColour(text,pmText);
 		
-//		getSite().getPage().addPartListener(new IPartListener() {
-//			public void partActivated(IWorkbenchPart part) {
-//				if (part == PMEditor.this) {
-//					
-//				//	tus.setSelection(getUser());
-//				}
-//			}
-//
-//			public void partBroughtToTop(IWorkbenchPart part) {
-//				partActivated(part);
-//			}
-//
-//			
-//			public void partClosed(IWorkbenchPart part) {}
-//
-//			
-//			public void partDeactivated(IWorkbenchPart part) {}
-//
-//			
-//			public void partOpened(IWorkbenchPart part) {}
-//			
-//		});
 	}
 
 
@@ -170,16 +134,6 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 		setCurrentimage();
 	}
 	
-	
-//	@Override
-//	public void tabMenuBeforeShow() {
-//		super.tabMenuBeforeShow();
-//		tus.setSelection(new StructuredSelection(getUser()));
-//	}
-
-
-
-
 
 
 	public void setFocus() {
@@ -259,7 +213,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 	 */
 	public void changed(UserChangeEvent uce) {
 		final UserChange type = uce.getType();
-		if (! type.equals(UserChange.CHANGED)) {
+		if (!type.equals(UserChange.CHANGED)) {
 			userOnline = type == UserChange.CONNECTED;
 			append("*** "+type+" ***",null,System.currentTimeMillis());
 			new SUIJob(feedLabel) {
@@ -267,11 +221,13 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 					labelViewer.addMessage("*** "+type+" ***");
 					setCurrentimage();
 				}
-			}.schedule(100);
+			}.schedule();
 			fireTopicChangedListeners();
 		}
 		
 	}
+	
+	
 	
 	private void setCurrentimage() {
 		if (messagesWaiting) {
@@ -291,6 +247,13 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 	
 
 	
+	
+	@Override
+	public void storedPM(String message, boolean me) {
+		append("*** stored PM: "+message,null,System.currentTimeMillis()); //TODO internationalize
+	}
+
+
 	private IUser getUser() {
 		return ((PMEditorInput)getEditorInput()).getOther();
 	}

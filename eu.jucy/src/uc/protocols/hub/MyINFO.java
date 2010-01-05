@@ -16,8 +16,8 @@ import org.apache.log4j.Logger;
 
 import uc.DCClient;
 import uc.User;
-import uc.User.AwayMode;
-import uc.User.Mode;
+import uc.IUser.AwayMode;
+import uc.IUser.Mode;
 import uc.crypto.HashValue;
 import uc.listener.IUserChangedListener.UserChange;
 import uc.listener.IUserChangedListener.UserChangeEvent;
@@ -77,7 +77,10 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 	@Override
 	public void handle(String command) throws IOException {
 		//logger.debug("foundMyINFO: "+command+"  "+hub.getHubname());
-		boolean connected;
+//		if (hub.getHubaddy().startsWith("connyconny")) {
+//			logger.debug("mi: "+command);
+//		}
+		boolean connected = false;
 		User current;
 	
 		Matcher m = myinfo.matcher(command);
@@ -88,9 +91,7 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 			if (current == null) { 
 				connected = true;
 				current = hub.getDcc().getPopulation().get(nick, userid);  
-			} else {
-				connected = false;
-			}
+			} 
 			
 			String description = m.group(2);
 			String userDescription;
@@ -130,23 +131,19 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 		     
 		        
 			HashValue userid= DCProtocol.nickToUserID(nick,hub ); // calc userid
-			current= hub.getUser(userid);  // look if the user is known
+			current = hub.getUser(userid);  // look if the user is known
 			if (current == null) { 
 				connected = true;
 				current= hub.getDcc().getPopulation().get(nick, userid);  
-			} else {
-				connected = false;
 			}
 		  
 			if (nickAndDescription.length > 1) {
 				int split= nickAndDescription[1].lastIndexOf('<');
 				if (split == -1) {
 					current.setProperty(INFField.DE,nickAndDescription[1]);
-				//	current.setDescription(nickAndDescription[1]);
 					current.setTag("");
 				} else {
 					current.setProperty(INFField.DE,nickAndDescription[1].substring(0, split));
-				//	current.setDescription(nickAndDescription[1].substring(0, split));
 					current.setTag(nickAndDescription[1].substring(split));
 				}
 			}
@@ -156,47 +153,34 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 				current.setConnection(  a[2].substring( 0,(a[2].length()-1) ).intern() );
 				byte flag = a[2].substring( (a[2].length()-1) ).getBytes()[0];
 				current.setFlag(flag);
-				//current.setAwayMode(AwayMode.parseFlag(flag));
 				current.setProperty(INFField.AW, AwayMode.parseFlag(flag).getVal());
 			}
 		        // a[3]
 			if (a.length > 3) {
 				current.setProperty(INFField.EM, a[3].trim());
-			//	current.setEMail(  a[3].trim() );
 			}
 		        //a[4]
 			if (a.length >= 5) {
 				String shared = a[4].trim();
 				if (GH.isEmpty(shared) || !shared.matches(FILESIZE)) {
 					shared = "0";
-				}
-				
-			//	current.setShared(Long.valueOf(shared));	  
+				}	  
 				current.setProperty(INFField.SS, shared);
 			} else {
 				current.setProperty(INFField.SS, "0");
-				
-				//current.setShared(0);
 			}
 		}
 		
 		Matcher my = description.matcher(current.getTag());
 
-		if(my.matches()) {
-			
+		if (my.matches()) {
 			current.setModechar(Mode.fromModeChar(my.group(1).charAt(0)));
-		//	logger.debug("matched user: "+current.getNick()+"  "+current.getTag() + " mode: "+current.getModechar());
 			current.setProperty(INFField.HN, my.group(2));
-		//	current.setNormHubs(Integer.valueOf());
 			current.setProperty(INFField.HR, my.group(3));
-		//	current.setRegHubs( Integer.valueOf(my.group(3))); 
-		//	current.setOpHubs(  Integer.valueOf(my.group(4))); 
 			current.setProperty(INFField.HO, my.group(4));
 			
 			current.setProperty(INFField.SL, my.group(5));
-		//	current.setSlots(   Integer.valueOf(my.group(5))); 
 		} else {
-		//	logger.debug("not matched: "+current.getTag());
 			current.setModechar(Mode.ACTIVE); // set active so connects can still happen if we are passive..
 		}
 		
@@ -205,12 +189,6 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 		} else {
 			current.notifyUserChanged(UserChange.CHANGED,UserChangeEvent.INF);
 		}
-
-	/*	if (current.getNick().equals("BigMuscle")) {
-			logger.info("STRongDC myinfo: "+current+"   "+command+"  "+current.getFlag());
-		} else {
-			logger.info("other myinfo: "+current+"   "+command+"  "+current.getFlag());
-		}  */
 	}
 
 	@Override

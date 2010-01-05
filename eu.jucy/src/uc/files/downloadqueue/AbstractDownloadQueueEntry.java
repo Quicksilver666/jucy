@@ -273,7 +273,14 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	 * 
 	 */
 	public File getTempPath() { 
-		return new File(PI.getTempDownloadDirectory(),getID() +".dctmp");
+		String id = getID().toString();
+		for (File f : PI.getTempDownloadDirectory().listFiles()) {
+			if (f.isFile() && f.getName().contains(id)) {
+				return f;
+			}
+		}
+		return new File(PI.getTempDownloadDirectory(), 
+				GH.replaceInvalidFilename(getFileName())+"."+id +".dctmp");
 	}
 	
 	/**
@@ -285,7 +292,7 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	}
 	
 	/**
-	 * conveninece method for returning the parent folder
+	 * convenience method for returning the parent folder
 	 * of the file
 	 * @return the parent folder of the path where the file will be 
 	 * stored when the download has completed..

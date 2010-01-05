@@ -27,11 +27,14 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Text;
 
 
-import eu.jucy.gui.UCMessageEditor;
+
+import eu.jucy.gui.texteditor.hub.HubEditor;
+import eu.jucy.gui.texteditor.pmeditor.PMEditor;
 
 
 import uc.DCClient;
 import uc.IUser;
+import uc.IUser.PMResult;
 import uc.protocols.hub.Hub;
 import uihelpers.SUIJob;
 
@@ -60,7 +63,8 @@ public abstract class SendingWriteline  {
 
 	/**
 	 * sent messages stuff .. 
-	 * store for emssages sent recently..
+	 * store for messages sent recently..
+	 * -> navigateing..
 	 */
 	private final List<String> sentMessages = new CopyOnWriteArrayList<String>();
 	
@@ -146,7 +150,8 @@ public abstract class SendingWriteline  {
 							interpreter.executeCommand(sendText);
 							writeline.setText("");
 							logger.debug("line is command. "+sendText);
-						} else if (send(sendText)) {
+						} else {
+							send(sendText);
 							sentMessages.add(0,sendText);
 							if (sentMessages.size() > HISTORYTYPED) {
 								sentMessages.remove(sentMessages.size()-1);
@@ -175,6 +180,7 @@ public abstract class SendingWriteline  {
 		});
 	}
 	
+
 	/**
 	 * moves to the next sentMessage ..
 	 * if nothing is pressed for more than 10 secs  we forget where we were..
@@ -196,7 +202,7 @@ public abstract class SendingWriteline  {
 	}
 	
 	
-	public abstract boolean send(String s);
+	public abstract void send(String s);
 
 
 
@@ -208,40 +214,42 @@ public abstract class SendingWriteline  {
 	public static class HubSendingWriteline extends SendingWriteline {
 
 		private final Hub hub;
-		public HubSendingWriteline(Text line, SortedMap<String, IUser> users, Hub hub,UCMessageEditor he) {
+		public HubSendingWriteline(Text line, SortedMap<String, IUser> users, Hub hub,HubEditor he) {
 			super(line, users, new CommandInterpreter(hub,he));
 			this.hub = hub;
 		}
 
 		@Override
-		public boolean send(final String s) {
-			
+		public void send(final String s) {
 			DCClient.execute(new Runnable() {
 				public void run() {
 					hub.sendMM(s, false);
 				}
 			});
-			return true;
 		}
 		
 	}
 	
 	public static class UserSendingWriteline extends SendingWriteline {
 		private final IUser usr;
+		private final PMEditor pme;
 
-		public UserSendingWriteline(Text line, SortedMap<String, IUser> users, IUser other, UCMessageEditor pme) {
+		public UserSendingWriteline(Text line, SortedMap<String, IUser> users, IUser other, PMEditor pme) {
 			super(line, users, new CommandInterpreter(other,pme));
 			this.usr = other;
+			this.pme = pme;
 		}
 
 		@Override
-		public boolean send(final String s) {
+		public void send(final String s) {
 			DCClient.execute(new Runnable() {
 				public void run() {
-					usr.sendPM(s,false);
+					PMResult pmres = usr.sendPM(s, false, true);
+					if (pmres == PMResult.STORED) {
+						pme.storedPM(s, false);
+					}
 				}
 			});
-			return usr.isOnline();
 		}
 	}
 	

@@ -63,8 +63,8 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 
 
 
+import uc.IUser.Mode;
 import uc.InfoChange.IInfoChanged;
-import uc.User.Mode;
 import uc.crypto.HashValue;
 import uc.crypto.IHashEngine;
 import uc.crypto.Tiger;
@@ -102,7 +102,6 @@ import uc.protocols.hub.Hub;
  *
  * Presentation of magnet -> save as button .. or play button could be added / may be a view button also..
  * 
- * TODO functionality to store send messages until both users are online if other is offline..
  * 
  * My Personal Bugtracker:
  * 
@@ -123,7 +122,6 @@ import uc.protocols.hub.Hub;
  *  TODO NMDC/ADC issue with line escapeing what ever comes out of the line:Reason box
  *  
  *  
- * /me in PM TODO not really done I think..
  * 
  * 
  * TODO after finished downloading file .. may be check if should be hashed and immediately shared..
@@ -151,7 +149,6 @@ import uc.protocols.hub.Hub;
  * TODO .. adding massive ammount of DQ entries makes jucy unstable...
  * -> especially closing will result on failed restore operations...
  * 
- * GET on partial FileLists not implemented.. -> ADC compatibility.. DONE --> needs testing ->> TODO unit test
  * 
  * TODO always reconnecting peer requesting the same interval over and over and over have to be stopped..
  * --> slots stay open  bandwidth is wasted..
@@ -313,6 +310,7 @@ public final class DCClient {
 	private final ISlotManager slotManager;
 	
 	private final Population population;
+	private final StoredPM storedPM;
 	private final DownloadQueue downloadQueue;
 
 
@@ -402,6 +400,7 @@ public final class DCClient {
     	logger.debug("creating client");
     	favFolders = new FavFolders();
     	population = new Population(this);
+    	storedPM = new StoredPM(population);
     	altSearch =  new AutomaticSearchForAlternatives(this);
     	downloadQueue = new DownloadQueue(this);
     	
@@ -600,6 +599,7 @@ public final class DCClient {
     	} catch(Exception e) {
     		logger.warn(e,e);
     	}
+    	storedPM.init();
     	
     	logger.info("starting hubs");
     	//downloads can be started..
@@ -657,6 +657,7 @@ public final class DCClient {
     	if (PI.getBoolean(PI.deleteFilelistsOnExit)) {
     		FileList.deleteFilelists();
     	}
+    	storedPM.dispose();
     	ch.stop();
     	downloadQueue.stop();
     	altSearch.stop();
@@ -679,7 +680,8 @@ public final class DCClient {
     	
     }
     
-    /**
+
+	/**
      * creates tag  
      * (i.e. something like <UC 0.03,M:A,H:0/0/1,S:2> )
      * 
@@ -1224,6 +1226,10 @@ public final class DCClient {
 
 	public DownloadQueue getDownloadQueue() {
 		return downloadQueue;
+	}
+
+    public StoredPM getStoredPM() {
+		return storedPM;
 	}
 
 

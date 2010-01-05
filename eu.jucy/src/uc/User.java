@@ -464,17 +464,26 @@ public class User implements IUser , IHasUser {
 		return sid != SID_NOT_SET;
 	}
 	
+
+	
 	/**
 	 * 
 	 * @param message  the pm message
 	 * @return if the message could be sent..
+	 * false means message was stored (if allowstore true else discarded..).. 
 	 */
-	public boolean sendPM(String message,boolean me) {
+	public PMResult sendPM(final String message,final boolean me,boolean allowStore) {
 		if (isOnline()) {
-			getHub().sendPM(this, message,me);
-			return true;
+			getHub().sendPM(User.this, message,me);
+			return PMResult.SENT;
 		} else {
-			return false;	
+			if (allowStore) {
+				return dcc.getStoredPM().storePM(this, message, me)?
+						PMResult.STORED:
+						PMResult.DISCARDED;
+			} else {
+				return PMResult.DISCARDED;
+			}
 		}
 	}
 	
@@ -1141,17 +1150,9 @@ public class User implements IUser , IHasUser {
 		return ct;
 	}
 
-/*	protected void setCt(byte ct) {
-		this.ct = ct;
-	} */
-
 	public AwayMode getAwayMode() {
 		return awayMode;
 	}
-
-/*	public void setAwayMode(AwayMode awayMode) {
-		this.awayMode = awayMode;
-	} */
 	
 
 	public byte getFlag() {
@@ -1263,60 +1264,7 @@ public class User implements IUser , IHasUser {
 		return (short)i;
 	}
 	
-	public static enum AwayMode {
-		NORMAL(0),AWAY(1),EXTENDEDAWAY(2);
-		
-		private final int value;
-		private final String val;
-		
-		private AwayMode(int i) {
-			this.value = i;
-			val = Integer.toString(i);
-		}
-		
-		public static AwayMode parse(String value) {
-			try {
-				int mode = Integer.valueOf(value);
-				for (AwayMode am:AwayMode.values()) {
-					if (am.value == mode) {
-						return am;
-					}
-				}
 
-			} catch(RuntimeException re) {}
-			
-			return NORMAL;
-		}
-		
-		public static AwayMode parseFlag(byte flag) {
-			switch(flag) {
-			case 1: 
-			case 4:
-			case 5:
-			case 8:
-			case 9:
-				return NORMAL;
-			case 2: 
-			case 6:
-			case 10:
-				return AWAY;
-			case 3: 
-			case 7:
-			case 11:
-				return EXTENDEDAWAY;
-			}
-			return NORMAL;
-		}
-
-		public int getValue() {
-			return value;
-		}
-
-		public String getVal() {
-			return val;
-		}
-
-	}
 	
 
 	private static class ExtendedInfo {
@@ -1334,35 +1282,7 @@ public class User implements IUser , IHasUser {
 		
 	}
 	
-	public static enum Mode {
-		// A for active P for passive   5 for Socks
-		ACTIVE('A'),PASSIVE('P'),SOCKS('5');
 	
-		private final char modeChar;
-		
-		public static Mode fromModeChar(char c) {
-			for (Mode m: Mode.values()) {
-				if (m.modeChar == c) {
-					return m;
-				}
-			}
-			throw new IllegalStateException();
-		}
-		
-		public char getModeChar() {
-			return modeChar;
-		}
-		
-		Mode(char modeChar) {
-			this.modeChar = modeChar;
-		}
-		@Override
-		public String toString() {
-			return ""+modeChar;
-		}
-
-		
-	}
 }
 
 	

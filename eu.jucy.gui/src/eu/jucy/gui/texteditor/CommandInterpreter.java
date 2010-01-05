@@ -16,7 +16,6 @@ import org.apache.log4j.Logger;
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GUIPI;
 import eu.jucy.gui.Lang;
-import eu.jucy.gui.UCMessageEditor;
 import eu.jucy.gui.search.OpenSearchEditorHandler;
 
 
@@ -24,6 +23,7 @@ import uc.DCClient;
 import uc.FavHub;
 import uc.IUser;
 import uc.PI;
+import uc.IUser.PMResult;
 import uc.protocols.hub.Hub;
 
 /**
@@ -45,16 +45,16 @@ public class CommandInterpreter {
 	}
 	
 	private final Hub he;
-	private final UCMessageEditor editor;
+	private final UCTextEditor editor;
 	private final IUser usr;
 	
-	public CommandInterpreter(Hub he, UCMessageEditor editor) {
+	public CommandInterpreter(Hub he, UCTextEditor editor) {
 		this.he = he;
 		this.editor = editor;
 		usr = null;
 	}
 	
-	public CommandInterpreter(IUser usr, UCMessageEditor editor) {
+	public CommandInterpreter(IUser usr, UCTextEditor editor) {
 		he = (Hub)usr.getHub();
 		this.editor = editor;
 		this.usr = usr;
@@ -99,8 +99,7 @@ public class CommandInterpreter {
 	
 		Command() {}
 		
-		public void execute(String line,final Hub hub,IUser usr, UCMessageEditor editor) {
-			
+		public void execute(String line,final Hub hub,final IUser usr, final UCTextEditor editor) {
 			switch(this) {
 			case UC:
 				List<String> phrases = Arrays.asList(
@@ -125,10 +124,17 @@ public class CommandInterpreter {
 			case ME:
 				int i = line.indexOf(' ');
 				if (i != -1) {
-					String send = line.substring(i+1);
+					final String send = line.substring(i+1);
 					if (!GH.isEmpty(send)) {
 						if (usr != null) {
-							usr.sendPM(send,true);
+							DCClient.execute(new Runnable() {
+								public void run() {
+									PMResult pmres = usr.sendPM(send, true, true);
+									if (pmres == PMResult.STORED) {
+										editor.storedPM(send, true);
+									}
+								}
+							});
 						} else {
 							hub.sendMM(send, true);
 						}
@@ -157,7 +163,6 @@ public class CommandInterpreter {
 				IUser user = hub.getUserByNick(nick);
 				if (user != null) {
 					user.downloadFilelist();
-					
 					break;
 				}
 				break;
@@ -173,7 +178,10 @@ public class CommandInterpreter {
 				IUser usrByNick = hub.getUserByNick(receiverNick);
 				String[] splits = line.split(Pattern.quote(" "),3);
 				if (usrByNick != null && splits.length == 3) {
-					usrByNick.sendPM(splits[2],false);
+					PMResult pmres = usrByNick.sendPM(splits[2],false,true);
+					if (pmres == PMResult.STORED) {
+						editor.storedPM(splits[2], false);
+					}
 				}
 				
 				break;
@@ -266,6 +274,6 @@ public class CommandInterpreter {
 		}
 	}
 	
-	
+
 	
 }
