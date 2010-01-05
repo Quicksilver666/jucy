@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Logging Plug-in
 Bundle-SymbolicName: eu.jucy.logging
-Bundle-Version: 1.1.2
+Bundle-Version: 1.1.3
 Bundle-ClassPath: .,
  log4j-1.2.14.jar
 Export-Package: logger,

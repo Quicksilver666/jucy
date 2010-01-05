@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.baseclient"
       label="Baseclient Feature"
-      version="1.1.8"
+      version="1.1.9"
       provider-name="Quicksilver"
       plugin="eu.jucy.product1">
 
