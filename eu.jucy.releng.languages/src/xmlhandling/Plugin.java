@@ -123,6 +123,21 @@ public class Plugin implements Comparable<Plugin> {
 		
 	}
 	
+	public void writeToXML2(TransformerHandler hd,AttributesImpl atts) throws SAXException {
+		atts.clear();
+
+		atts.addAttribute("", "", "id", "CDATA", id);
+		atts.addAttribute("", "", "name", "CDATA", propertiesname);
+		
+		hd.startElement("", "", qNamePlugin, atts);
+		
+		for (Entry e:entries) {
+			e.writeToXML2(hd, atts);
+		}
+		
+		hd.endElement("", "",qNamePlugin);
+		
+	}
 	
 	
 	@Override
@@ -159,6 +174,17 @@ public class Plugin implements Comparable<Plugin> {
 			}
 			
 			hd.endElement("", "", name);
+		}
+		
+		public void writeToXML2(TransformerHandler hd,AttributesImpl atts) throws SAXException {
+			atts.clear();
+			atts.addAttribute("", "", "id", "CDATA", name);
+			hd.startElement("", "", "Trl", atts);
+			for (Transl t:translations) {
+				t.writeToXML(hd, atts);
+			}
+			
+			hd.endElement("", "", "Trl");
 		}
 
 		@Override

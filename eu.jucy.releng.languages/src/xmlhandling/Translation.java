@@ -89,6 +89,31 @@ public class Translation {
 		hd.endDocument();
 	}
 	
+	public void writeXML2(OutputStream out) throws Exception {
+		StreamResult streamResult = new StreamResult(out);
+		SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+		// SAX2.0 ContentHandler.
+		TransformerHandler hd = tf.newTransformerHandler();
+		Transformer serializer = hd.getTransformer();
+		serializer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
+		serializer.setOutputProperty(OutputKeys.INDENT, "yes");
+		serializer.setOutputProperty(OutputKeys.VERSION, "1.0");
+		serializer.setOutputProperty(OutputKeys.STANDALONE, "yes");
+		hd.setResult(streamResult);
+		hd.startDocument();
+		AttributesImpl atts = new AttributesImpl();
+
+		hd.startElement("", "", "Translation", atts);
+
+		for (Plugin p: allPlugins) {
+			p.writeToXML2(hd, atts);
+		}
+		hd.endElement("", "", "Translation");
+		hd.endDocument();
+	}
+	
+	
+	
 	public void readXML(InputStream in) throws Exception {
 		SAXParserFactory saxFactory = SAXParserFactory.newInstance();
 		SAXParser saxParser = saxFactory.newSAXParser();
@@ -132,7 +157,7 @@ public class Translation {
 				} 
 			break;
 			case plugin:
-				currentE = new Entry(qName);
+				currentE = new Entry(qName.equals("Trl") ? attributes.getValue("id") :qName);
 				state = entry;
 				break;
 			case entry:

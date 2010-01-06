@@ -72,9 +72,9 @@ public class SlotManager implements ISlotManager {
 	 * @see uc.ISlotManager#getSlot(uc.User, uc.protocols.TransferType, java.io.File)
 	 */
 	public Slot getSlot(IUser usr ,TransferType type,File f)  {
-		if (usr == null) {
+		if (usr == null || (type == TransferType.FILE && f == null )) {
 			if (Platform.inDevelopmentMode()) {
-				logger.error("user was null");
+				logger.error("user "+(usr==null? "null":usr)+" file:"+(f==null?"null":f));
 			}
 			return null;
 		}

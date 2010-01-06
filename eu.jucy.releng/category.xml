@@ -78,6 +78,9 @@
    <feature url="features/eu.jucy.feature.smileys_1.1.5.jar" id="eu.jucy.feature.smileys" version="1.1.5">
       <category name="eu.jucy.enhancements"/>
    </feature>
+   <feature url="features/eu.jucy.feature.adlsearch_1.1.5.jar" id="eu.jucy.feature.adlsearch" version="1.1.5">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
    <category-def name="eu.jucy.enhancements" label="Enhancements">
       <description>
          Extensiosn to jucy that provide extra functionality!

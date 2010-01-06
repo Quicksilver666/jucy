@@ -1,0 +1,3542 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Translation>
+<Plugin id="eu.jucy.adlsearch" name="adl">
+<Trl id="ADL.ADLSearch">
+<de>Automatische DateiListen Suche (ADL)</de>
+<en>Automatic Directory Listing Search</en>
+<it>Cartelle di destinazione</it>
+</Trl>
+<Trl id="ADL.Active">
+<de>Aktiv</de>
+<en>Active</en>
+<it>Attiva</it>
+</Trl>
+<Trl id="ADL.Directory">
+<de>Verzeichnis</de>
+<en>Directory</en>
+<it>Cartella</it>
+</Trl>
+<Trl id="ADL.DownloadMatches">
+<de>Treffer Herunterladen</de>
+<en>Download Matches</en>
+<it>Scarica File trovati</it>
+</Trl>
+<Trl id="ADL.Filename">
+<de>Dateiname</de>
+<en>Filename</en>
+<it>Nome File</it>
+</Trl>
+<Trl id="ADL.FullPath">
+<de>Ganzer Pfad</de>
+<en>Full Path</en>
+<it>Percorso</it>
+</Trl>
+<Trl id="ADL.MaxSize">
+<de>Max Größe</de>
+<en>Max Size</en>
+<it>Dimensione massima</it>
+</Trl>
+<Trl id="ADL.MinSize">
+<de>Min Größe</de>
+<en>Min Size</en>
+<it>Dimensione minima</it>
+</Trl>
+<Trl id="ADL.SearchString">
+<de>Such Begriff</de>
+<en>Search String</en>
+<it>Cerca stringa</it>
+</Trl>
+<Trl id="ADL.SearchType">
+<de>Such Typ</de>
+<en>Search Type</en>
+<it>Tipo File</it>
+</Trl>
+<Trl id="ADL.SizeType">
+<de>Einheit</de>
+<en>Size Type</en>
+<it>Unità misura</it>
+</Trl>
+<Trl id="ADL.TargetFolder">
+<de>Ziel Verzeichnis</de>
+<en>Target Folder</en>
+<it>Cartella di destinazione</it>
+</Trl>
+<Trl id="ADLSearch">
+<de>ADL Suche</de>
+<en>ADL Search</en>
+<it>ADL Search</it>
+</Trl>
+</Plugin>
+<Plugin id="eu.jucy.countries" name="countries">
+<Trl id="Flags">
+<de>Flaggen</de>
+<en>Flags</en>
+<it>Bandiere</it>
+</Trl>
+<Trl id="IPFlagsDecoration">
+<de>IP-Spalte - Flagen - Dekoration</de>
+<en>IP-Column - Flags - Decoration</en>
+<it>Colonna IP - Bandiere - Decorazioni</it>
+</Trl>
+<Trl id="Location">
+<de>Ort</de>
+<en>Location</en>
+<it>Luogo</it>
+</Trl>
+</Plugin>
+<Plugin id="eu.jucy.gui" name="gui">
+<Trl id="ActionMen">
+<de>Aktion</de>
+<en>Action</en>
+<hu>Mûködés</hu>
+<it>Azioni</it>
+</Trl>
+<Trl id="ActiveModeSettings">
+<de>Aktiver Modus Einstellungen</de>
+<en>Active Mode Settings</en>
+<hu>Aktív mód Beállításai</hu>
+<it>Impostazioni Modalità Attiva</it>
+</Trl>
+<Trl id="AddFolder">
+<de>Neuer Ordner</de>
+<en>Add folder</en>
+<hu>Hozzáadás</hu>
+<it>Aggiungi Cartella</it>
+</Trl>
+<Trl id="AddSoundNotificationToChatroom">
+<de>Füge Sound zu Nachrichten in Chaträumen hinzu</de>
+<en>Add sound to message in chatroom</en>
+<hu>Hangjelzés, ha üzenet érkezik a chatszobában</hu>
+<it>Riproduci suono per messaggio in MainChat</it>
+</Trl>
+<Trl id="AddSoundNotificationToPM">
+<de>Füge Sound zu PMs hinzu </de>
+<en>Add sound  to PM </en>
+<hu>Hangjelzés, ha PÜ érkezik</hu>
+<it>Riproduci suono per PM ricevuto</it>
+</Trl>
+<Trl id="AddSoundOnNickInMainchat">
+<de>Füge Sound zu Nachrichten im Mainchat hinzu wenn der eigene Nick genannt wird</de>
+<en>Add sound if own nick is named in mainchat</en>
+<hu>Hangjelzés, ha valaki a mi becenevünket írja a fõablakban</hu>
+<it>Riproduci suono se il tuo nick viene scritto in MainChat</it>
+</Trl>
+<Trl id="AddToFavorites">
+<de>Hinzufügen zu Favoriten</de>
+<en>Add To Favourites</en>
+<hu>Kedvencekhez Adás</hu>
+<it>Aggiungi ai preferiti</it>
+</Trl>
+<Trl id="Added">
+<de>Hinzugefügt</de>
+<en>Added</en>
+<hu>Hozzáadva</hu>
+<it>Aggiunto</it>
+</Trl>
+<Trl id="AddedFileViaMagnet">
+<de>Fügte %s via magnet link hinzu </de>
+<en>Added %s via magnet link</en>
+<it>Aggiunto %s con magnet link</it>
+</Trl>
+<Trl id="Address">
+<de>Addresse</de>
+<en>Address</en>
+<hu>Cím</hu>
+<it>Indirizzo</it>
+</Trl>
+<Trl id="Advanced">
+<de>Erweitert</de>
+<en>Advanced</en>
+<hu>Haladó</hu>
+<it>Avanzate</it>
+</Trl>
+<Trl id="AdvancedFavHubProperties">
+<de>Erweiterte FavHub Eigenschaften</de>
+<en>Advanced FavHub properties</en>
+<hu>Haladó Kedvenc Hubok beállításai</hu>
+<it>Proprietà Avanzate Hub Preferiti</it>
+</Trl>
+<Trl id="All">
+<de>Alle</de>
+<en>All</en>
+<hu>Mind</hu>
+<it>Tutti</it>
+</Trl>
+<Trl id="AllXUsersOffline">
+<de>Alle %1$s User offline</de>
+<en>All %1$s Users offline</en>
+<hu>Minden %1$s felhasználó offline</hu>
+<it>Tutti i %1$s User offline</it>
+</Trl>
+<Trl id="AllowUsingUPnP">
+<de>Nutze UPnP wenn nötig</de>
+<en>Use UPnP if needed</en>
+<hu>UPnP használata, ha szükséges</hu>
+<it>Usa UPnP se necessario</it>
+</Trl>
+<Trl id="Appearance">
+<de>Aussehen</de>
+<en>Appearance</en>
+<hu>Kinézet</hu>
+<it>Stili e Colori</it>
+</Trl>
+<Trl id="AreYouSureYouWantToCloseJucy">
+<de>Willst du jucy beenden?</de>
+<en>Are you sure you want to close jucy?</en>
+<hu>Biztos, hogy bezárod a jucy-t??</hu>
+<it>Sei sicuro di voler uscire da jucy?</it>
+</Trl>
+<Trl id="AskBeforeShutdown">
+<de>Fragen vor dem Beenden</de>
+<en>Ask before shutdown</en>
+<hu>Rákérdezés, kilépés elõt</hu>
+<it>Chiedi conferma prima di chiudere</it>
+</Trl>
+<Trl id="AutoConnect">
+<de>Automatisch verbinden</de>
+<en>Auto connect</en>
+<hu>Automatikus csatlakozás</hu>
+<it>Connessione Automatica</it>
+</Trl>
+<Trl id="AutoGrantSlot">
+<de>Automatisch slot gewähren</de>
+<en>Auto grant slot</en>
+<hu>Automatikus slot biztosítása</hu>
+<it>Slot Extra Automatico</it>
+</Trl>
+<Trl id="AutomaticallyCheckForUpdates">
+<de>Automatisch nach Updates suchen </de>
+<en>Automatically check for updates</en>
+<hu>Frissítések automatikus ellenõrzése</hu>
+<it>Cerca aggiornamenti in automatico</it>
+</Trl>
+<Trl id="AutomaticallyFollowRedirects">
+<de>Automatisch Umleitungen vom Hub Folgen</de>
+<en>Automatically follow Redirects sent by Hub</en>
+<it>Segui redirect proposti dall'hub</it>
+</Trl>
+<Trl id="AutomaticallySearchForAlternates">
+<de>Automatisch nach alternativen Uploadern suchen</de>
+<en>Automatically search for alternative Uploaders</en>
+<hu>Alternatív feltöltõk automatikus keresése</hu>
+<it>Cerca fonti alternative in automatico</it>
+</Trl>
+<Trl id="AverageSpeed">
+<de>Durchschnittstempo: %s</de>
+<en>Average Speed: %s</en>
+<hu>Átlagos Sebesség: %s</hu>
+<it>Velocità media: %s</it>
+</Trl>
+<Trl id="Browse">
+<de>Durchsuchen</de>
+<en>Browse</en>
+<hu>Tallózás</hu>
+<it>Apri</it>
+</Trl>
+<Trl id="BrowseFilelist">
+<de>Durchsuche Dateiliste</de>
+<en>Browse FileList</en>
+<hu>Fájllista Tallózása</hu>
+<it>Apri Lista File</it>
+</Trl>
+<Trl id="CSNATDetected">
+<de>NAT erkannt</de>
+<en>NAT detected</en>
+<hu>NAT detektálva</hu>
+<it>Trovato NAT</it>
+</Trl>
+<Trl id="CSNOTWORKING">
+<de>FUNKTIONIERT NICHT</de>
+<en>NOT WORKING</en>
+<hu>NEM MÛKÖDIK</hu>
+<it>INATTIVO</it>
+</Trl>
+<Trl id="CSNoNATDetected">
+<de>Direkte Verbindung</de>
+<en>Direct Connection</en>
+<hu>Közvetlen Csatlakozás</hu>
+<it>Connessione Diretta (Attivo)</it>
+</Trl>
+<Trl id="CSPassiveMode">
+<de>Passiv Modus (Eingeschränkte Suche, von anderen passiven kann nicht geladen werden)</de>
+<en>Passive Mode (Restricted Search, no download from other passive users)</en>
+<hu>Passzív Mód (Korlátozott Keresés, letöltés nem lehetséges más passzív felhasználótól)</hu>
+<it>Modalità Passiva (Ricerca limitata, non scarichi da altri utenti passivi)</it>
+</Trl>
+<Trl id="CSToolTip">
+<de>IP: %s 
+%s
+TCP status: %s
+TCP+TLS status: %s
+UDP status: %s
+UPnP status: %s</de>
+<en>IP: %s 
+%s
+TCP state: %s
+TCP+TLS state: %s
+UDP state: %s
+UPnP state: %s</en>
+<hu>IP: %s 
+%s
+TCP állapota: %s
+TCP+TLS állapota: %s
+UDP állapota: %s
+UPnP állapota: %s</hu>
+<it>IP: %s 
+Stato TCP: %s
+Stato UDP: %s
+Stato UPnP: %s</it>
+</Trl>
+<Trl id="CSUNKNOWN">
+<de>UNBEKANNT</de>
+<en>UNKNOWN</en>
+<hu>ISMERETLEN</hu>
+<it>SCONOSCIUTO</it>
+</Trl>
+<Trl id="CSWORKING">
+<de>FUNKTIONIERT</de>
+<en>WORKING</en>
+<hu>MÛKÖDIK</hu>
+<it>ATTIVO</it>
+</Trl>
+<Trl id="ChatOnly">
+<de>Nur Chat</de>
+<en>ChatOnly</en>
+<hu>Csak Chat</hu>
+<it>Solo Chat</it>
+</Trl>
+<Trl id="ChooseFolder">
+<de>Wähle Ordner</de>
+<en>Choose folder</en>
+<hu>Válassz könyvtárat</hu>
+<it>Scegli Cartella</it>
+</Trl>
+<Trl id="Close">
+<de>Schließen</de>
+<en>Close</en>
+<hu>Bezár</hu>
+<it>Chiudi</it>
+</Trl>
+<Trl id="CloseAllPM">
+<de>Schliesse PMs</de>
+<en>Close PMs</en>
+<hu>PÜ-k bezárása</hu>
+<it>Chiudi tutti i PM</it>
+</Trl>
+<Trl id="CloseAllPMDescription">
+<de>Schliest alle offenen PM Fenster</de>
+<en>Closes all open PM windows</en>
+<hu>Bezárja a összes PÜ ablakot</hu>
+<it>Chiude tutti i PM aperti</it>
+</Trl>
+<Trl id="CloseConnection">
+<de>Schliesse Verbindung</de>
+<en>Close connection</en>
+<hu>Kapcsolat lezárása</hu>
+<it>Chiudi Connessione</it>
+</Trl>
+<Trl id="CloseDescription">
+<de>Schliesst das Fenster</de>
+<en>Closes the window</en>
+<hu>Bezárja a Hub ablakot</hu>
+<it>Esci dall'hub</it>
+</Trl>
+<Trl id="Command">
+<en>Command</en>
+<hu>Parancs</hu>
+<it>Comando</it>
+</Trl>
+<Trl id="ConfigurePublicHubLists">
+<de>Konfiguriere Öffentliche Hublisten</de>
+<en>Configure Public Hubs List</en>
+<hu>Publikus Hub Lista Konfigurálása</hu>
+<it>Configura HubList</it>
+</Trl>
+<Trl id="Connect">
+<de>Verbinde</de>
+<en>Connect</en>
+<hu>Kapcsolódás</hu>
+<it>Connetti</it>
+</Trl>
+<Trl id="ConnectingTo">
+<de>Verbinde zu %s ...</de>
+<en>Connecting to %s ...</en>
+<hu>Kapcsolódás %s-hoz ...</hu>
+<it>Connessione a %s ...</it>
+</Trl>
+<Trl id="Connection">
+<de>Verbindung</de>
+<en>Connection</en>
+<hu>Kapcsolat</hu>
+<it>Connessione</it>
+</Trl>
+<Trl id="ConnectionSettings">
+<de>Verbindungseinstellungen</de>
+<en>Connection settings</en>
+<hu>Kapcsolódás beállításai</hu>
+<it>Impostazioni Connessione</it>
+</Trl>
+<Trl id="Context">
+<en>Context</en>
+<hu>Kontextus</hu>
+<it>Contesto</it>
+</Trl>
+<Trl id="CopyAddressToClipboard">
+<de>Kopiere Addresse ins clipboard</de>
+<en>Copy address to clipboard</en>
+<hu>Cím másolása a vágólapra</hu>
+<it>Copia indirizzo</it>
+</Trl>
+<Trl id="CopyMagnetLinkToClipboard">
+<de>Kopiere Magnet-link in die Zwischenablage </de>
+<en>Copy magnet link to Clipboard</en>
+<it>Copia magnet link</it>
+</Trl>
+<Trl id="CopyNickToClipboard">
+<de>Kopiere Nick in die Zwischenablage</de>
+<en>Copy nick to clipboard</en>
+<hu>Becenév másolása a vágólapra</hu>
+<it>Copia nick</it>
+</Trl>
+<Trl id="CopyTTHToClipboard">
+<de>Kopiere TTH in die Zwischenablage</de>
+<en>Copy TTH to clipboard</en>
+<hu>TTH másolása a vágólapra</hu>
+<it>Copia TTH</it>
+</Trl>
+<Trl id="DefaultAwayMessage">
+<de>Standard Abwesendheitsnachricht</de>
+<en>Default away message</en>
+<hu>Alapértelmezett távolléti üzenet</hu>
+<it>Messaggio di away predefinito</it>
+</Trl>
+<Trl id="DefaultDownloadDirectory">
+<de>Standard Download Ordner</de>
+<en>Default download directory</en>
+<hu>Alapértelmezett letöltési könyvtár</hu>
+<it>Cartella di download predefinita</it>
+</Trl>
+<Trl id="DeleteLog">
+<de>Lösche Log</de>
+<en>Delete Log</en>
+<hu>Napló törlése</hu>
+<it>Cancella i Log</it>
+</Trl>
+<Trl id="Description">
+<de>Beschreibung</de>
+<en>Description</en>
+<hu>Leírás</hu>
+<it>Descrizione</it>
+</Trl>
+<Trl id="DifferentFiles">
+<de>%s Dateien</de>
+<en>%s files</en>
+<hu>%s fájl</hu>
+<it>%s file</it>
+</Trl>
+<Trl id="Directory">
+<de>Verzeichnis</de>
+<en>Directory</en>
+<hu>Könyvtár</hu>
+<it>Cartella</it>
+</Trl>
+<Trl id="Download">
+<de>Herunterladen</de>
+<en>Download</en>
+<hu>Letöltés</hu>
+<it>Download</it>
+</Trl>
+<Trl id="DownloadLimit">
+<de>Download limit in (KiB/s, 0 = keines)</de>
+<en>Download limit in (KiB/s, 0 = disabled)</en>
+<hu>Letöltési korlát (KiB/s, 0 = kikapcsolva)</hu>
+<it>Limite Download (KiB/s, 0 = disabilitato)</it>
+</Trl>
+<Trl id="DownloadQueue">
+<de>Download Warteschlange</de>
+<en>Download Queue</en>
+<hu>Letöltési Sor</hu>
+<it>Coda Download</it>
+</Trl>
+<Trl id="DownloadQueueDescription">
+<de>Öffnet Download Warteschlange</de>
+<en>Open Download Queue</en>
+<hu>Letöltési Sor megnyitása</hu>
+<it>Apri coda Download</it>
+</Trl>
+<Trl id="DownloadTo">
+<de>Herunterladen nach</de>
+<en>Download to</en>
+<hu>Letöltés ide</hu>
+<it>Scarica in...</it>
+</Trl>
+<Trl id="Downloaded">
+<de>Heruntergeladen</de>
+<en>Downloaded</en>
+<hu>Letöltve</hu>
+<it>Download completato</it>
+</Trl>
+<Trl id="Downloading">
+<de>Am herunterladen</de>
+<en>Downloading</en>
+<hu>Letöltés</hu>
+<it>Download in corso</it>
+</Trl>
+<Trl id="Downloads">
+<de>Downloads</de>
+<en>Downloads</en>
+<hu>Letöltések</hu>
+<it>Download</it>
+</Trl>
+<Trl id="Duration">
+<de>Dauer</de>
+<en>Duration</en>
+<hu>Idõtartam</hu>
+<it>Durata</it>
+</Trl>
+<Trl id="EMail">
+<de>E-Mail</de>
+<en>E-Mail</en>
+<hu>E-Mail</hu>
+<it>E-Mail</it>
+</Trl>
+<Trl id="EnterAddressOfTheHublist">
+<de>Addresse der Hubliste eingeben</de>
+<en>Enter Address of the Hublist</en>
+<hu>Add meg a Hublista címét</hu>
+<it>Inserisci indirizzo dell'Hublist</it>
+</Trl>
+<Trl id="EnterSearch">
+<de>suche eingeben</de>
+<en>enter search</en>
+<it>inserisci ricerca</it>
+</Trl>
+<Trl id="Errors">
+<de>Fehler</de>
+<en>Errors</en>
+<hu>Hibák</hu>
+<it>Errori</it>
+</Trl>
+<Trl id="ExactSize">
+<de>Genaue Größe</de>
+<en>Exact size</en>
+<hu>Pontos Méret</hu>
+<it>Dimensione esatta</it>
+</Trl>
+<Trl id="ExcludedFiles">
+<de>RegExp für Dateien die vom Sharen ausgenommen sind</de>
+<en>RegExp for files excluded from sharing</en>
+<hu>RegExp for files excluded from sharing</hu>
+<it>RegExp per escludere file dallo share</it>
+</Trl>
+<Trl id="ExecuteAfterDownload">
+<de>Ausführen nach dem Herunterladen</de>
+<en>Execute after download</en>
+<hu>Futtatás letöltés után</hu>
+<it>Esegui dopo il download</it>
+</Trl>
+<Trl id="ExportAllLogs">
+<de>Exportiere alle logs</de>
+<en>Export all logs</en>
+<it>Esporta tutti i log</it>
+</Trl>
+<Trl id="ExportLog">
+<de>Exportiere log</de>
+<en>Export log</en>
+<hu>Napló exportálása</hu>
+<it>Esporta log</it>
+</Trl>
+<Trl id="ExternalWANIP">
+<de>Externe / WAN IP , frei lassen für automatisch Erkennung (momentan: %1$s)</de>
+<en>External / WAN IP , leave blank for autodetection (currently: %1$s)</en>
+<hu>Külsõ / WAN IP , hagyd üresen az automatikus felismeréshez (jelenleg: %1$s)</hu>
+<it>IP esterno / WAN IP, lasciare in bianco per rilevamento automatico (%1$s)</it>
+</Trl>
+<Trl id="FavHubProperties">
+<de>Lieblings Hub Einstellungen</de>
+<en>Favourite Hub Properties</en>
+<hu>Kedvenc Hubok beállításai</hu>
+<it>Proprietà hub preferiti</it>
+</Trl>
+<Trl id="FavoriteHubs">
+<de>Favorisierte Hubs</de>
+<en>Favourite Hubs</en>
+<hu>Kedvenc Hubok</hu>
+<it>Hub preferiti</it>
+</Trl>
+<Trl id="FavoriteUsers">
+<de>Favorisierte User</de>
+<en>Favourite Users</en>
+<hu>Kedvenc Felhasználók</hu>
+<it>User preferiti</it>
+</Trl>
+<Trl id="FavouriteFolders">
+<de>Favorisierte Ordner</de>
+<en>Favourite Folders</en>
+<hu>Kedvenc Könyvtárak</hu>
+<it>Cartelle preferite</it>
+</Trl>
+<Trl id="FavouriteHubs">
+<de>Favorisierte Hubs</de>
+<en>Favourite Hubs</en>
+<hu>Kedvenc Hubok</hu>
+<it>Hub preferiti</it>
+</Trl>
+<Trl id="FavouriteHubsDescription">
+<de>Öffnet Favorisierte Hubs</de>
+<en>Open Favourite Hubs</en>
+<hu>Kedvenc Hubok megnyitása</hu>
+<it>Apri Hub preferiti</it>
+</Trl>
+<Trl id="FavouriteUsers">
+<de>Favorisierte User</de>
+<en>Favourite Users</en>
+<hu>Fedvenc Felhasználók</hu>
+<it>User preferiti</it>
+</Trl>
+<Trl id="FavouriteUsersDescription">
+<de>Öffnet Favorisierte User</de>
+<en>Open Favourite Users</en>
+<hu>Kedvenc Felhasználók megnyitása</hu>
+<it>Apri User preferiti</it>
+</Trl>
+<Trl id="FavouritesNicks">
+<de>Nicknamen von Favorisierten Usern</de>
+<en>Favourites' Nicks</en>
+<hu>Kedvencek Becenevei</hu>
+<it>Nick user preferiti</it>
+</Trl>
+<Trl id="FileCol">
+<de>Datei</de>
+<en>File</en>
+<hu>Fájl</hu>
+<it>File</it>
+</Trl>
+<Trl id="FileColouring">
+<de>Datei Farben</de>
+<en>File colouring</en>
+<it>Colorazione dei file</it>
+</Trl>
+<Trl id="FileDefaultCol">
+<de>Datei standard Farbe</de>
+<en>Default file colour</en>
+<it>Colorazione di default dei file</it>
+</Trl>
+<Trl id="FileInDownloadCol">
+<de>Datei am herunterladen</de>
+<en>File in download</en>
+<it>File in download</it>
+</Trl>
+<Trl id="FileInShareCol">
+<de>Datei im Share</de>
+<en>File in share</en>
+<it>File in share</it>
+</Trl>
+<Trl id="FileListMenu">
+<en>FileList Menu</en>
+<hu>Fájllista Menü</hu>
+<it>Menu FileList</it>
+</Trl>
+<Trl id="FileMen">
+<de>Datei</de>
+<en>File</en>
+<hu>Fájl</hu>
+<it>File</it>
+</Trl>
+<Trl id="FileMultiUserCol">
+<de>Datei mit mehreren Usern</de>
+<en>File with multiple users</en>
+<it>File con fonti multiple</it>
+</Trl>
+<Trl id="FileType">
+<de>Datei typ</de>
+<en>File type</en>
+<hu>Fájl típusa</hu>
+<it>Tipo file</it>
+</Trl>
+<Trl id="Filelist">
+<de>Dateiliste</de>
+<en>Filelist</en>
+<hu>Fájllista</hu>
+<it>Filelist</it>
+</Trl>
+<Trl id="FilelistRefreshInterval">
+<de>Dateilisten Erneuerungs Interval (in Minuten)</de>
+<en>Filelist refresh interval (in Minutes)</en>
+<hu>Fájllista frissítésének idõköze (percekben)</hu>
+<it>Intervallo Aggiornamento Filelist (in Minuti)</it>
+</Trl>
+<Trl id="Filename">
+<de>Dateiname</de>
+<en>Filename</en>
+<hu>Fájl név</hu>
+<it>Nome file</it>
+</Trl>
+<Trl id="Files">
+<de>Dateien</de>
+<en>Files</en>
+<hu>Fájlok</hu>
+<it>File</it>
+</Trl>
+<Trl id="FilesLeft">
+<de>Dateien übrig</de>
+<en>Files left</en>
+<it>File rimanenti</it>
+</Trl>
+<Trl id="Find">
+<de>Finde</de>
+<en>Find</en>
+<hu>Keres</hu>
+<it>Cerca</it>
+</Trl>
+<Trl id="FindDescription">
+<de>Sucht im aktiven Fenster</de>
+<en>Searches in the active window</en>
+<hu>Keresés az aktuális ablakon belül</hu>
+<it>Cerca nella finestra attiva</it>
+</Trl>
+<Trl id="FindExtensions">
+<de>Suche Erweiterungen</de>
+<en>Find Extensions</en>
+<hu>Beépülõ keresése</hu>
+<it>Cerca Estensioni</it>
+</Trl>
+<Trl id="FindExtensionsDescription">
+<de>Sucht nach Zusatz Plugins zum Installieren</de>
+<en>Looks for additional Plugins to install</en>
+<hu>További beépülök keresése és installálása</hu>
+<it>Cerca Plugin di jucy</it>
+</Trl>
+<Trl id="Finished">
+<de>Beendet</de>
+<en>Finished</en>
+<hu>Befejezve</hu>
+<it>Completo</it>
+</Trl>
+<Trl id="FinishedDownloads">
+<de>Beendete Downloads</de>
+<en>Finished Downloads</en>
+<hu>Befejezett Letöltések</hu>
+<it>Download Completi</it>
+</Trl>
+<Trl id="FinishedDownloadsDescription">
+<de>Öffnet Beendete Downloads</de>
+<en>Open Finished Downloads</en>
+<hu>Befejezett Letöltések megnyitása</hu>
+<it>Apri Download Completi</it>
+</Trl>
+<Trl id="FinishedHashingXinY">
+<de>Hashen beendet von %1$s (%2$s - ETA: %3$s)</de>
+<en>Finished hashing %1$s (%2$s - ETA: %3$s)</en>
+<hu>Hashelés befejezve %1$s (%2$s - ETA: %3$s)</hu>
+<it>Hashing completo %1$s (%2$s - ETA: %3$s)</it>
+</Trl>
+<Trl id="FinishedUploads">
+<de>Beendete Uploads</de>
+<en>Finished Uploads</en>
+<hu>Befejezett Feltöltések</hu>
+<it>Upload Completi</it>
+</Trl>
+<Trl id="FinishedUploadsDescription">
+<de>Öffnet Beendete Uploads</de>
+<en>Open Finished Uploads</en>
+<hu>Befejezett Feltöltések megnyitása</hu>
+<it>Apri Upload Completi</it>
+</Trl>
+<Trl id="FirstRequest">
+<de>Erste Anfrage</de>
+<en>First Request</en>
+<hu>Elsõ kérés</hu>
+<it>Prima richiesta</it>
+</Trl>
+<Trl id="FollowRedirect">
+<de>Folge Umleitung</de>
+<en>Follow Redirect</en>
+<hu>Átirányítás követése</hu>
+<it>Segui Redirect</it>
+</Trl>
+<Trl id="FollowRedirectDescription">
+<de>Folgt einer Umleitungsanfrage die vom Hub gesendet wurde</de>
+<en>Follow Redirect sent by hub</en>
+<hu>A hub által küldött átirányítás követése</hu>
+<it>Segue i Redirect richiesti dall'hub</it>
+</Trl>
+<Trl id="FontColour">
+<de>Schrift Farbe</de>
+<en>Font colour</en>
+<hu>Betû színe</hu>
+<it>Colore testo</it>
+</Trl>
+<Trl id="ForceAttempt">
+<de>Erzwinge Versuch</de>
+<en>Force attempt</en>
+<hu>Erõltetett kísérlet</hu>
+<it>Forza tentativo</it>
+</Trl>
+<Trl id="GetFilelist">
+<de>Lade Dateiliste</de>
+<en>Get FileList</en>
+<hu>Fájlista Letöltése</hu>
+<it>Scarica Lista File</it>
+</Trl>
+<Trl id="GrantExtraSlot">
+<de>Extra Slot gewähren</de>
+<en>Grant extra slot</en>
+<hu>Extra Slot biztosítása</hu>
+<it>Concedi slot extra</it>
+</Trl>
+<Trl id="HasExtraSlotUntil">
+<de>Hat Extra Slot bis</de>
+<en>Has extra Slot until</en>
+<hu>Extra Slot biztosítva eddig</hu>
+<it>Ha Slot extra per..</it>
+</Trl>
+<Trl id="Help">
+<de>Hilfe</de>
+<en>Help</en>
+<hu>Súgó</hu>
+<it>Aiuto</it>
+</Trl>
+<Trl id="HideToolbar">
+<de>Verstecke Toolbar</de>
+<en>Hide Toolbar</en>
+<hu>Eszköztár elrejtése</hu>
+<it>Nascondi Toolbar</it>
+</Trl>
+<Trl id="High">
+<de>Hoch</de>
+<en>High</en>
+<hu>Magas</hu>
+<it>Alta</it>
+</Trl>
+<Trl id="Highest">
+<de>Am Höchsten</de>
+<en>Highest</en>
+<hu>Magasabb</hu>
+<it>Molto Alta</it>
+</Trl>
+<Trl id="Hub">
+<de>Hub</de>
+<en>Hub</en>
+<hu>Hub</hu>
+<it>Hub</it>
+</Trl>
+<Trl id="HubAddedToFavorites">
+<de>Hub den Favoriten hinzugefügt</de>
+<en>Hub added to favorites</en>
+<hu>A Hub hozzáadva a kedvencekhez</hu>
+<it>Hub aggiunto ai preferiti</it>
+</Trl>
+<Trl id="HubExplaCommands">
+<en>Hub (""=for all, "op"=all hubs where op, url to specify hub)</en>
+<hu>Hub (""=az összes, "op"=az összes ahol op, url a hub megadásához)</hu>
+<it>Hub (""=in tutti, "op"=negli hub dove sono op, indirizzo per hub specifico)</it>
+</Trl>
+<Trl id="HubIsAlreadyFavorite">
+<de>Hub ist bereits bei den Favoriten</de>
+<en>Hub already exists as a favorite</en>
+<hu>A Hub már létezik a kedvencek közt</hu>
+<it>L'hub è già nei preferiti</it>
+</Trl>
+<Trl id="HubMenu">
+<en>Hub Menu</en>
+<hu>Hub Menü</hu>
+<it>Hub Menu</it>
+</Trl>
+<Trl id="HubRequestedPassword">
+<de>Hub verlangt Passwort!
+ Sende ein Passwort in dem du: /pass &lt;password&gt;   tippst</de>
+<en>Hub requests password!
+ Send a password by typing: /pass &lt;password&gt;</en>
+<hu>A Hub jelszót kér!
+ Így küldd el a jelszót: /pass &lt;jelszó&gt;</hu>
+<it>L'hub ha richiesto una password!
+ Invia la password scrivendo: /pass &lt;password&gt;</it>
+</Trl>
+<Trl id="Hublist">
+<de>Hubliste</de>
+<en>Hublist</en>
+<hu>Hublista</hu>
+<it>Lista hub</it>
+</Trl>
+<Trl id="Hubs">
+<de>Hubs</de>
+<en>Hubs</en>
+<hu>Hubok</hu>
+<it>Hub</it>
+</Trl>
+<Trl id="IP">
+<de>IP</de>
+<en>IP</en>
+<hu>IP</hu>
+<it>IP</it>
+</Trl>
+<Trl id="Identification">
+<de>Identifikation (frei lassen für Standardwerte)</de>
+<en>Identification (leave blank for defaults)</en>
+<hu>Azonosítás (hagyd üresen az alapértelmezéshez)</hu>
+<it>Profilo (Lascia in bianco per default)</it>
+</Trl>
+<Trl id="ImportFromDCPP">
+<de>Importiere Favoriten...</de>
+<en>Import Favourites...</en>
+<hu>Kedvencek importálása...</hu>
+<it>Importa Preferiti...</it>
+</Trl>
+<Trl id="ImportFromDCPPDescription">
+<de>Importiert Favoriten aus DC++ und ähnlichen clients</de>
+<en>Imports Favourites from DC++ and alike clients</en>
+<hu>Kedvencek importálása DC++ és hasonló kliensekbõl</hu>
+<it>Importa preferiti da DC++ e client simili</it>
+</Trl>
+<Trl id="IncludedFiles">
+<de>RegExp für Dateien die geshared werden sollen </de>
+<en>RegExp for files to be shared </en>
+<hu>RegExp for files to be shared </hu>
+<it>RegExp per file da condividere </it>
+</Trl>
+<Trl id="IncomingConnectionSettings">
+<de>Einstellungen für Einkommende Verbindungen</de>
+<en>Incoming connection settings</en>
+<hu>Bejövõ kapcsolatok beállítása</hu>
+<it>Impostazioni connessioni in arrivo</it>
+</Trl>
+<Trl id="LastRequest">
+<de>Letzte Anfrage</de>
+<en>Last request</en>
+<hu>Utolsó kérés</hu>
+<it>Ultima Richiesta</it>
+</Trl>
+<Trl id="LineSpeed">
+<de>Leitungstempo (upload in MiBits/s)</de>
+<en>Line speed (upload in MiBits/s)</en>
+<hu>Feltöltési sebesség (MiBits/s-ban)</hu>
+<it>Velocità connessione (upload in MiBits/s)</it>
+</Trl>
+<Trl id="LoadHublist">
+<de>Lade Hubliste</de>
+<en>Load Hublist</en>
+<hu>Hublista betöltése</hu>
+<it>Scarica Hublist</it>
+</Trl>
+<Trl id="LogFeed">
+<de>Logge Feed</de>
+<en>Log Feed</en>
+<hu>Naplózás gördítése</hu>
+<it>Log Feed</it>
+</Trl>
+<Trl id="LogMainchat">
+<de>Logge Mainchat</de>
+<en>Log Mainchat</en>
+<hu>Beszélgetések Naplózása</hu>
+<it>Log Mainchat</it>
+</Trl>
+<Trl id="LogPM">
+<de>Logge Private Nachrichten</de>
+<en>Log Private Messages</en>
+<hu>Privát Beszélgetések Naplózása</hu>
+<it>Log Messagi privati</it>
+</Trl>
+<Trl id="LogViewer">
+<de>Log Betrachter</de>
+<en>Log Viewer</en>
+<hu>Naplózás Megjelenítõ</hu>
+<it>Visualizzatore Log</it>
+</Trl>
+<Trl id="LogViewerDescription">
+<de>Ansehen und Verwalten der Logs</de>
+<en>Manage and view logs</en>
+<hu>Naplózások megjelenítése és kezelése</hu>
+<it>Gestisci e visualizza log</it>
+</Trl>
+<Trl id="Logging">
+<de>Logging</de>
+<en>Logging</en>
+<hu>Naplózás</hu>
+<it>Log</it>
+</Trl>
+<Trl id="Logs">
+<de>Logs</de>
+<en>Logs</en>
+<hu>Naplózások</hu>
+<it>Log</it>
+</Trl>
+<Trl id="LogsDescription">
+<de>Öffnet SystemLog</de>
+<en>Open SystemLog</en>
+<hu>Rendszernapló megnyitása</hu>
+<it>Apri SystemLog</it>
+</Trl>
+<Trl id="Low">
+<de>Niedrig</de>
+<en>Low</en>
+<hu>Alacsony</hu>
+<it>Bassa</it>
+</Trl>
+<Trl id="Lowest">
+<de>Am Niedrigsten </de>
+<en>Lowest</en>
+<hu>Alacsonyabb</hu>
+<it>Molto Bassa</it>
+</Trl>
+<Trl id="MatchQueue">
+<de>Queue Abgleichen</de>
+<en>Match queue</en>
+<hu>Találati sor</hu>
+<it>Confronta coda</it>
+</Trl>
+<Trl id="MatchedXFilesWithUserY">
+<de>%1$s Dateien abgeglichen mit %2$s</de>
+<en>Matched %1$s files with %2$s</en>
+<hu>Matched %1$s files with %2$s</hu>
+<it>Trovati %1$s file di %2$s</it>
+</Trl>
+<Trl id="MaxHashSpeed">
+<de>Maximale Hash Geschwindigkeit (in MiB/s, 0 = unbegrenzt)</de>
+<en>Max Hash speed (in MiB/s, 0 = infinite)</en>
+<hu>Max Hashelési sebesség (MiB/s-ban, 0 = végtelen)</hu>
+<it>Max velocità Hashing (in MiB/s, 0 = infinito)</it>
+</Trl>
+<Trl id="Maximize">
+<de>Maximiere</de>
+<en>Maximize</en>
+<hu>Maximalizál</hu>
+<it>Ingrandisci</it>
+</Trl>
+<Trl id="MaximumSimultaneousDownloads">
+<de>Maximum simultane downloads (0 = unbegrenzt)</de>
+<en>Maximum simultaneous downloads (0 = infinite)</en>
+<hu>Maximális egyidejû letöltés (0 = végtelen)</hu>
+<it>Download simultanei massimi (0 = infiniti)</it>
+</Trl>
+<Trl id="MinimizeToTray">
+<de>Zum Tray minimieren</de>
+<en>Minimize to Tray</en>
+<hu>Kicsinyítés Télcára</hu>
+<it>Minimizza in Tray</it>
+</Trl>
+<Trl id="MiscHubTab">
+<de>Verschiedenes</de>
+<en>Misc</en>
+<hu>Egyéb</hu>
+<it>Misc</it>
+</Trl>
+<Trl id="MiscPrefPage">
+<de>Verschiedenes</de>
+<en>Misc</en>
+<hu>Egyéb</hu>
+<it>Misc</it>
+</Trl>
+<Trl id="MoveDown">
+<de>Runter</de>
+<en>Move Down</en>
+<hu>Le</hu>
+<it>Sposta Giù</it>
+</Trl>
+<Trl id="MoveRename">
+<de>Verschieben/Umbenenen</de>
+<en>Move/Rename</en>
+<hu>Áthelyez/Átnevez</hu>
+<it>Sposta/Rinomina</it>
+</Trl>
+<Trl id="MoveUp">
+<de>Hoch</de>
+<en>Move Up</en>
+<hu>Fel</hu>
+<it>Sposta Su</it>
+</Trl>
+<Trl id="Name">
+<de>Name</de>
+<en>Name</en>
+<hu>Név</hu>
+<it>Nome</it>
+</Trl>
+<Trl id="NameUnderWhichTheOthersSeeTheDirectory">
+<de>Name unter welchem andere das Verzeichnis sehen</de>
+<en>Name under which the others see the directory</en>
+<hu>A többiek e név alatt fogják látni a Könyvtárat</hu>
+<it>Nome con il quale gli altri vedranno la cartella</it>
+</Trl>
+<Trl id="New">
+<de>Neu</de>
+<en>New</en>
+<hu>Új</hu>
+<it>Nuovo</it>
+</Trl>
+<Trl id="Next">
+<de>Nächstes</de>
+<en>Next</en>
+<hu>Következõ</hu>
+<it>Prossimo</it>
+</Trl>
+<Trl id="Nick">
+<de>Nick</de>
+<en>Nick</en>
+<hu>Becenév</hu>
+<it>Nick</it>
+</Trl>
+<Trl id="NickColourer">
+<de>Nicknamen Einfärben</de>
+<en>Nick Colourer</en>
+<hu>Becenév színezés</hu>
+<it>Colori Nick</it>
+</Trl>
+<Trl id="No">
+<de>Nein</de>
+<en>No</en>
+<hu>Nem</hu>
+<it>No</it>
+</Trl>
+<Trl id="NoUsers">
+<de>Keine User</de>
+<en>No users</en>
+<hu>Nincs felhasználó</hu>
+<it>Nessun user</it>
+</Trl>
+<Trl id="Normal">
+<de>Normal</de>
+<en>Normal</en>
+<hu>Normális</hu>
+<it>Normale</it>
+</Trl>
+<Trl id="NormalNicks">
+<de>Normale Nicknamen</de>
+<en>Normal nicks</en>
+<hu>Normál Becenevek</hu>
+<it>Altri Nick</it>
+</Trl>
+<Trl id="Online">
+<de>Online</de>
+<en>Online</en>
+<hu>Online</hu>
+<it>Online</it>
+</Trl>
+<Trl id="OnlyUsersWithFreeSlots">
+<de>Nur User mit freien Slots</de>
+<en>Only users with free slots</en>
+<hu>Csak szabad slot-tal rendelkezõ felhasználók</hu>
+<it>Solo user con slot liberi</it>
+</Trl>
+<Trl id="OnlyWhereIAmOp">
+<de>Nur wo ich OP bin</de>
+<en>Only where I'm OP</en>
+<hu>Csak ahol OP vagyok</hu>
+<it>Solo dove sono OP</it>
+</Trl>
+<Trl id="OpenFileList">
+<de>Öffne Dateiliste</de>
+<en>Open file list</en>
+<hu>Fájl lista megnyitása</hu>
+<it>Apri Lista File</it>
+</Trl>
+<Trl id="OpenOwnList">
+<de>Öffne eigene Dateiliste</de>
+<en>Open own list</en>
+<hu>Saját lista megnyitása</hu>
+<it>Apri propria Lista File</it>
+</Trl>
+<Trl id="OpenPMinForeground">
+<de>Öffne PMs im Vordergrund</de>
+<en>Open PM in foreground</en>
+<hu>PÜ megnyitása az elõtérben</hu>
+<it>Apri PM in primo piano</it>
+</Trl>
+<Trl id="OperatorNicks">
+<de>Operatoren Nicknamen</de>
+<en>Operators' Nicks</en>
+<hu>Operátorok Becenevei</hu>
+<it>Nick Operatori</it>
+</Trl>
+<Trl id="OverrideProtocolCodepage">
+<de>Überschreibe normale protocol codepage</de>
+<en>Override default protocol codepage</en>
+<hu>Alapértelmezett protokoll kódlap felülbírálása</hu>
+<it>Sostituisci codificazione predefinita</it>
+</Trl>
+<Trl id="OwnNick">
+<de>Eigener Nickname</de>
+<en>Own Nick</en>
+<hu>Saját Becenév</hu>
+<it>Proprio Nick</it>
+</Trl>
+<Trl id="Parameter">
+<en>Parameter</en>
+<hu>Paraméter</hu>
+<it>Parametri</it>
+</Trl>
+<Trl id="Password">
+<de>Passwort</de>
+<en>Password</en>
+<hu>Jelszó</hu>
+<it>Password</it>
+</Trl>
+<Trl id="Path">
+<de>Pfad</de>
+<en>Path</en>
+<hu>Útvonal</hu>
+<it>Percorso</it>
+</Trl>
+<Trl id="Paused">
+<de>Pausiert</de>
+<en>Paused</en>
+<hu>Megállítva</hu>
+<it>Pausa</it>
+</Trl>
+<Trl id="PersonalInformation">
+<de>Persönliche Information</de>
+<en>Personal Information</en>
+<hu>Személyes Információ</hu>
+<it>Informazioni personali</it>
+</Trl>
+<Trl id="PopupDissappearanceTime">
+<de>Zeit für das Popup zum Verschwinden (in ms)</de>
+<en>Time for Popup to dissappear (in ms)</en>
+<it>Durata dei Popup (in ms)</it>
+</Trl>
+<Trl id="Preferences">
+<de>Einstellungen</de>
+<en>Preferences</en>
+<hu>Tulajdonságok</hu>
+<it>Impostazioni</it>
+</Trl>
+<Trl id="PreferencesDescription">
+<de>Öffnet Einstellungen</de>
+<en>Opens Preferences</en>
+<hu>Tulajdonságok megnyitása</hu>
+<it>Apri impostazioni</it>
+</Trl>
+<Trl id="PrimaryDownloadColour">
+<de>Primäre download Farbe</de>
+<en>Primary download colour</en>
+<hu>Elsõdleges letöltési szín</hu>
+<it>Colore Download primario</it>
+</Trl>
+<Trl id="PrimaryUploadColour">
+<de>Primäre upload Farbe</de>
+<en>Primary upload colour</en>
+<hu>Elsõdleges feltöltési szín</hu>
+<it>Colore Upload primario</it>
+</Trl>
+<Trl id="Priority">
+<de>Priorität</de>
+<en>Priority</en>
+<hu>Prioritás</hu>
+<it>Priorità</it>
+</Trl>
+<Trl id="ProgressView">
+<de>Fortschrittsanzeige</de>
+<en>Progress View</en>
+<hu>Haladási mutató</hu>
+<it>Azioni in corso</it>
+</Trl>
+<Trl id="Properties">
+<de>Eigenschaften</de>
+<en>Properties</en>
+<hu>Tulajdonságok</hu>
+<it>Proprietà</it>
+</Trl>
+<Trl id="PruneAllOlderThan">
+<de>Lösche alles vor</de>
+<en>Prune all older than</en>
+<hu>Töröld mindet, ami öregebb mint</hu>
+<it>Cancella i precedenti al</it>
+</Trl>
+<Trl id="PublicHubs">
+<de>Öffentliche Hubs</de>
+<en>Public Hubs</en>
+<hu>Publikus Hubok</hu>
+<it>Hub Pubblici</it>
+</Trl>
+<Trl id="Question">
+<de>Frage</de>
+<en>Question</en>
+<hu>Kérdés</hu>
+<it>Conferma</it>
+</Trl>
+<Trl id="QuickConnect">
+<de>Schnell Verbinden</de>
+<en>Quick Connect</en>
+<hu>Kapcsolódás</hu>
+<it>Connessione Veloce</it>
+</Trl>
+<Trl id="QuickConnectDescription">
+<de>Verbindet zu einem Hub</de>
+<en>Connects to a hub</en>
+<hu>Kapcsolódás egy hub-hoz</hu>
+<it>Connessione Veloce</it>
+</Trl>
+<Trl id="Ratio">
+<de>Ratio</de>
+<en>Ratio</en>
+<hu>Arány</hu>
+<it>Rapporto</it>
+</Trl>
+<Trl id="RatioDesc">
+<de>Kompressions ratio Spalte</de>
+<en>Total compression ratio column</en>
+<hu>Teljes tömörítési arány oszlop</hu>
+<it>Rapporto di compressione</it>
+</Trl>
+<Trl id="ReAddUserToFile">
+<de>User zur Datei wieder hinzufügen</de>
+<en>Re-add user to file</en>
+<hu>Felhasználó fájlhoz adása</hu>
+<it>RiAggiungi user al file</it>
+</Trl>
+<Trl id="ReceivedResults">
+<de>%s erhalten</de>
+<en>%s received</en>
+<hu>%s fogadva</hu>
+<it>%s ricevuti</it>
+</Trl>
+<Trl id="Reconnect">
+<de>Wiederverbinden</de>
+<en>Reconnect</en>
+<hu>Újrakapcsolódás</hu>
+<it>Riconnetti</it>
+</Trl>
+<Trl id="ReconnectDescription">
+<de>Stellt die Verbindung zum Hub neu her</de>
+<en>Reconnects a hub</en>
+<hu>Újrakapcsolódik a hub-hoz</hu>
+<it>Riconnetti all'hub</it>
+</Trl>
+<Trl id="RefreshFilelist">
+<de>Dateiliste erneuern</de>
+<en>Refresh file list</en>
+<hu>Fájl lista frissítése</hu>
+<it>Aggiorna lista file</it>
+</Trl>
+<Trl id="Remove">
+<de>Entfernen</de>
+<en>Remove</en>
+<hu>Eltávolítás</hu>
+<it>Rimuovi</it>
+</Trl>
+<Trl id="RemoveDescription">
+<de>Entfernt einen Warteschlangeneintrag</de>
+<en>Removes a DQ item</en>
+<hu>Egy DQ eszköz eltávolítása</hu>
+<it>Rimuovi oggetto dalla coda</it>
+</Trl>
+<Trl id="RemoveFileFromQueue">
+<de>Entferne Datei aus der Warteschlange</de>
+<en>Remove file from queue</en>
+<it>Rimuovi file dalla coda</it>
+</Trl>
+<Trl id="RemoveFromFavorites">
+<de>Entferne von Favoriten</de>
+<en>Remove From Favourites</en>
+<hu>Eltávolítás a Kedvencekbõl</hu>
+<it>Rimuovi dai preferiti</it>
+</Trl>
+<Trl id="RemoveUserFromDQ">
+<de>Entferne User aus der Warteschlange</de>
+<en>Remove user from queue</en>
+<hu>Felhasználó eltávolítása a sorból</hu>
+<it>Rimuovi user dalla coda</it>
+</Trl>
+<Trl id="RemoveUserFromFile">
+<de>Entferne User von der Datei</de>
+<en>Remove user from file</en>
+<hu>Felhasználó eltávolítása a fájlból</hu>
+<it>Rimuovi user da file</it>
+</Trl>
+<Trl id="Rename">
+<de>Umbenennen</de>
+<en>Rename</en>
+<hu>Átnevezés</hu>
+<it>Rinomina</it>
+</Trl>
+<Trl id="RequestsReceived">
+<de>Anfragen erhalten</de>
+<en>Requests received</en>
+<hu>Fogadott kérések</hu>
+<it>Richieste ricevute</it>
+</Trl>
+<Trl id="Restore">
+<de>Wiederherstellen</de>
+<en>Restore</en>
+<it>Ripristina</it>
+</Trl>
+<Trl id="RevokeGrantedSlot">
+<de>Extra Slot zurückziehen</de>
+<en>Revoke granted slot</en>
+<it>Rimuovi slot extra</it>
+</Trl>
+<Trl id="Search">
+<de>Suche</de>
+<en>Search</en>
+<hu>Keresés</hu>
+<it>Cerca</it>
+</Trl>
+<Trl id="SearchDescription">
+<de>Öffnet Suche</de>
+<en>Open Search</en>
+<hu>Keresés megnyitása</hu>
+<it>Apri Cerca</it>
+</Trl>
+<Trl id="SearchFor">
+<de>Suche nach</de>
+<en>Search for</en>
+<hu>Keresés erre</hu>
+<it>Ricerca per</it>
+</Trl>
+<Trl id="SearchForAlternates">
+<de>Nach Alternativen suchen</de>
+<en>Search for alternates</en>
+<hu>Alternatívák keresése</hu>
+<it>Cerca altre fonti</it>
+</Trl>
+<Trl id="SearchMenu">
+<en>Search Menu</en>
+<hu>Keresés Menü</hu>
+<it>Menu di ricerca</it>
+</Trl>
+<Trl id="SearchOptions">
+<de>Such optionen</de>
+<en>Search options</en>
+<hu>Keresési Opciók</hu>
+<it>Opzioni di ricerca</it>
+</Trl>
+<Trl id="SecondaryDownloadColour">
+<de>Sekundäre download Farbe</de>
+<en>Secondary download colour</en>
+<hu>Másodlagos letöltési szín</hu>
+<it>Colore Download secondario</it>
+</Trl>
+<Trl id="SecondaryUploadColour">
+<de>Sekundäre upload Farbe</de>
+<en>Secondary upload colour</en>
+<hu>Másodlagos Feltöltési szín</hu>
+<it>Colore Upload secondario</it>
+</Trl>
+<Trl id="SelectFont">
+<de>Schrift auswählen:</de>
+<en>Select a Font:</en>
+<hu>Válassz betûtípust:</hu>
+<it>Seleziona un carattere:</it>
+</Trl>
+<Trl id="SendOnceForEachUser">
+<en>Send once for each User</en>
+<hu>Küldés minden felhasználónak</hu>
+<it>Invia a tutti gli user</it>
+</Trl>
+<Trl id="SendPrivateMessage">
+<de>Sende Private Nachricht</de>
+<en>Send private message</en>
+<hu>Privát Üzenet küldése</hu>
+<it>Invia un messaggio privato</it>
+</Trl>
+<Trl id="Separator">
+<en>Separator</en>
+<hu>Elválasztó</hu>
+<it>Separatore</it>
+</Trl>
+<Trl id="SetAwayMessageOnMinimize">
+<de>Setze Abwesenheitsmitteilung beim minimieren</de>
+<en>Set away message on minimize</en>
+</Trl>
+<Trl id="SetPriority">
+<de>Setze Priorität</de>
+<en>Set priority</en>
+<hu>Prioritás beállítása</hu>
+<it>Imposta priorità</it>
+</Trl>
+<Trl id="ShareHiddenFiles">
+<de>Share versteckte Dateien</de>
+<en>Share hidden files</en>
+<hu>Rejtett fájlok megosztása</hu>
+<it>Condividi fle nascosti</it>
+</Trl>
+<Trl id="Shared">
+<de>Shared</de>
+<en>Shared</en>
+<hu>Megosztott</hu>
+<it>Condivisi</it>
+</Trl>
+<Trl id="SharedDirectorys">
+<de>Gesharte Verzeichnisse</de>
+<en>Shared directories</en>
+<hu>Megosztott könyvtárak</hu>
+<it>Cartelle Condivise</it>
+</Trl>
+<Trl id="Sharing">
+<de>Sharing</de>
+<en>Sharing</en>
+<hu>Megosztás</hu>
+<it>Condivisione</it>
+</Trl>
+<Trl id="ShowConnStatus">
+<de>Zeige Verbindungsstatus</de>
+<en>Show connection status</en>
+<hu>Kapcsolat állapotának megjelenítése</hu>
+<it>Mostra stato connessione</it>
+</Trl>
+<Trl id="ShowDownSpeed">
+<de>Zeige momentanes Downloadtempo</de>
+<en>Show current download speed</en>
+<hu>Jelenlegi letöltési sebesség megjelenítése</hu>
+<it>Mostra velocità download</it>
+</Trl>
+<Trl id="ShowDownTotal">
+<de>Zeige insgesamt herunter geladen</de>
+<en>Show downloaded total size</en>
+<hu>Teljes letöltött adatmennyiség megjelenítése</hu>
+<it>Mostra dimensione totale download</it>
+</Trl>
+<Trl id="ShowHubs">
+<de>Zeige Hubs</de>
+<en>Show hubs</en>
+<hu>Hubok megjelenítése</hu>
+<it>Mostra hub</it>
+</Trl>
+<Trl id="ShowPMInMainchat">
+<de>Zeige PMs im Mainchat anstelle im PM Fenster</de>
+<en>Show PMs in Mainchat instead of PM window</en>
+<it>Mostra Messaggi Privati nella Mainchat</it>
+</Trl>
+<Trl id="ShowPOPUPonChatroom">
+<de>Zeige Pop-up bei neuen Nachrichten in Chaträumen</de>
+<en>Show Pop-up on new message in chatroom</en>
+<hu>Értesítés új chatszoba üzenet érkezésekor </hu>
+<it>Mostra Pop-up per messaggi in MainChat</it>
+</Trl>
+<Trl id="ShowPOPUPonNickinMC">
+<de>Zeige Pop-up  wenn der eigene Nick im Mainchat genannt wird</de>
+<en>Show Pop-up if own nick is named in mainchat</en>
+<hu>Értesítés, ha a nevem megjelenik a fõablakban</hu>
+<it>Mostra Pop-up se il proprio nick viene scritto in MainChat</it>
+</Trl>
+<Trl id="ShowPOPUPonPM">
+<de>Zeige Pop-up bei neuen PMs</de>
+<en>Show Pop-up on new PM</en>
+<hu>Értesítés új PÜ érkezésekor</hu>
+<it>Mostra Pop-up per PM ricevuti</it>
+</Trl>
+<Trl id="ShowSharesize">
+<de>Zeige Sharegröße</de>
+<en>Show sharesize</en>
+<hu>Megosztás méretnek megjelenítése</hu>
+<it>Mostra dimensione share</it>
+</Trl>
+<Trl id="ShowSidebar">
+<de>Zeige Seitenleiste</de>
+<en>Show Sidebar</en>
+<hu>Oldalsáv mutatása</hu>
+<it>Mostra Sidebar</it>
+</Trl>
+<Trl id="ShowSlots">
+<de>Zeige Slots</de>
+<en>Show slots</en>
+<hu>Show megjelenítése</hu>
+<it>Mostra numero slot</it>
+</Trl>
+<Trl id="ShowUpSpeed">
+<de>Zeige momentanes Uploadtempo</de>
+<en>Show current upload speed</en>
+<hu>Jelenlegi feltöltési sebesség megjelenítése</hu>
+<it>Mostra velocità upload</it>
+</Trl>
+<Trl id="ShowUpTotal">
+<de>Zeige insgesamt hoch geladen</de>
+<en>Show uploaded total size</en>
+<hu>Teljes feltöltött adatmennyiség megjelenítése</hu>
+<it>Mostra dimensione totale upload</it>
+</Trl>
+<Trl id="Size">
+<de>Größe</de>
+<en>Size</en>
+<hu>Méret</hu>
+<it>Dimensione</it>
+</Trl>
+<Trl id="SizeLeft">
+<de>Größe übrig</de>
+<en>Size left</en>
+<it>Dimensione rimanente</it>
+</Trl>
+<Trl id="SlotReceived">
+<de>Slot erhalten</de>
+<en>Slot received</en>
+<hu>Kapott Slotok</hu>
+<it>Slot ricevuti</it>
+</Trl>
+<Trl id="Slots">
+<de>Slots</de>
+<en>Slots</en>
+<hu>Slotok</hu>
+<it>Slot</it>
+</Trl>
+<Trl id="Speed">
+<de>Tempo</de>
+<en>Speed</en>
+<hu>Sebesség</hu>
+<it>Velocità</it>
+</Trl>
+<Trl id="Started">
+<de>Begonnen</de>
+<en>Started</en>
+<hu>Elkezdett</hu>
+<it>Iniziato</it>
+</Trl>
+<Trl id="Status">
+<de>Status</de>
+<en>Status</en>
+<hu>Státusz</hu>
+<it>Stato</it>
+</Trl>
+<Trl id="StatusBarPrefPage">
+<de>Status Bar</de>
+<en>Status Bar</en>
+<hu>Állapotsor</hu>
+<it>Barra di stato</it>
+</Trl>
+<Trl id="SystemLog">
+<de>System Log</de>
+<en>System Log</en>
+<hu>Rendszer Napló</hu>
+<it>Log di Sistema</it>
+</Trl>
+<Trl id="TCPPort">
+<de>TCP Port</de>
+<en>TCP port</en>
+<hu>TCP port</hu>
+<it>Porta TCP</it>
+</Trl>
+<Trl id="TLSTCPPort">
+<de>TLS+TCP Port</de>
+<en>TLS+TCP Port</en>
+<hu>TLS+TCP Port</hu>
+<it>Porta TLS+TCP</it>
+</Trl>
+<Trl id="TTHRoot">
+<de>TTH Root</de>
+<en>TTH Root</en>
+<hu>TTH Root</hu>
+<it>Radice TTH</it>
+</Trl>
+<Trl id="Tag">
+<de>Tag</de>
+<en>Tag</en>
+<hu>Aláírás</hu>
+<it>Tag</it>
+</Trl>
+<Trl id="TextModifications">
+<de>Text Modifikationen</de>
+<en>Text Modifications</en>
+<hu>Szöveg módosítások</hu>
+<it>Imposta caratteri e colori</it>
+</Trl>
+<Trl id="TimeLastSeen">
+<de>Zuletzt gesehen</de>
+<en>Time last seen</en>
+<hu>Utoljára aktív</hu>
+<it>Ultima volta visto</it>
+</Trl>
+<Trl id="TimeLeft">
+<de>Zeit übrig</de>
+<en>Time left</en>
+<hu>Fennmaradó idõ</hu>
+<it>Tempo rimanente</it>
+</Trl>
+<Trl id="TimeStamps">
+<de>Zeitstempel</de>
+<en>Time Stamps</en>
+<hu>Idõbélyegzõ</hu>
+<it>Time Stamp</it>
+</Trl>
+<Trl id="ToggleToolbar">
+<de>Toolbar umschalten</de>
+<en>Toggle Toolbar</en>
+<hu>Ezsköztár mutatása</hu>
+<it>Mostra e nascondi Toolbar</it>
+</Trl>
+<Trl id="ToggleToolbarDescription">
+<de>Zeigt und Versteckt die Toolbar</de>
+<en>Shows and Hides the Toolbar</en>
+<hu>Eszköztár megjelenítése és elrejtése</hu>
+<it>Mostra o nascondi Toolbar</it>
+</Trl>
+<Trl id="TotalDownloaded">
+<de>Insgesamt geladen </de>
+<en>Total Downloaded</en>
+<hu>Teljes letöltött</hu>
+<it>Totale Scaricato</it>
+</Trl>
+<Trl id="TotalElements">
+<de>Elemente Insgs.: %d</de>
+<en>Total Elements: %d</en>
+<hu>Összes elem: %d</hu>
+<it>Totale Elementi: %d</it>
+</Trl>
+<Trl id="TotalFiles">
+<de>Total Files: %d</de>
+<en>Total Files: %d</en>
+<hu>Összes fájl: %d</hu>
+<it>Totale File: %d</it>
+</Trl>
+<Trl id="TotalMessages">
+<de>Nachrichten insgesamt: %d</de>
+<en>Total Messages: %d</en>
+<hu>Összes Üzenetek: %d</hu>
+<it>Totale Messagggi: %d</it>
+</Trl>
+<Trl id="TotalSize">
+<de>Gesamt größe: %s</de>
+<en>Total Size: %s</en>
+<hu>Teljes méret: %s</hu>
+<it>Dimensione Totale: %s</it>
+</Trl>
+<Trl id="TotalSizeLeft">
+<de>Gesamt größe übrig</de>
+<en>Total size left</en>
+<it>Dimensione Totale rimanente</it>
+</Trl>
+<Trl id="TotalSizeNoParm">
+<de>Gesamt Größe</de>
+<en>Total size</en>
+<hu>Teljes méret</hu>
+<it>Dimensione Totale</it>
+</Trl>
+<Trl id="TotalTimeLeft">
+<de>Gesamte Zeit übrig</de>
+<en>Total Time Left</en>
+<it>Tempo Totale rimanente</it>
+</Trl>
+<Trl id="Transfers">
+<de>Transfers</de>
+<en>Transfers</en>
+<hu>Átvitelek</hu>
+<it>Trasferimenti</it>
+</Trl>
+<Trl id="TransfersTable">
+<de>Transfers Tabelle</de>
+<en>Transfers table</en>
+<hu>Átviteli asztal</hu>
+<it>Tabella Transferimenti</it>
+</Trl>
+<Trl id="Type">
+<de>Typ</de>
+<en>Type</en>
+<hu>Típus</hu>
+<it>Tipo</it>
+</Trl>
+<Trl id="UDPPort">
+<de>UDP Port</de>
+<en>UDP port</en>
+<hu>UDP port</hu>
+<it>Porta UDP</it>
+</Trl>
+<Trl id="URLColour">
+<de>URL Farbe</de>
+<en>URL colour</en>
+</Trl>
+<Trl id="URLFont">
+<de>URL schrift</de>
+<en>URL font</en>
+</Trl>
+<Trl id="URLHighlighting">
+<de>URL Hervorhebung</de>
+<en>URL Highlighting</en>
+<hu>URL kiemelés</hu>
+<it>Evidenzia URL</it>
+</Trl>
+<Trl id="UnfinishedDownloadsDirectory">
+<de>Ordner für unfertige Downloads(Änderung erzwingt Neustart)</de>
+<en>Unfinished downloads directory (Change forces restart)</en>
+<hu>Befejezetlen letöltések lönyvtára (Beállítás után a program újraindul)</hu>
+<it>Cartella download temporanei (La modifica richiede un riavvio)</it>
+</Trl>
+<Trl id="Unlimited">
+<de>Unbegrenzt</de>
+<en>Unlimited</en>
+<it>Illimitato</it>
+</Trl>
+<Trl id="Update">
+<de>Update</de>
+<en>Update</en>
+<hu>Frissítés</hu>
+<it>Aggiornamenti</it>
+</Trl>
+<Trl id="UpdateAvailable">
+<de>Update verfügbar</de>
+<en>Update available</en>
+<hu>Frissítés elérhetõ</hu>
+<it>Aggiornamenti disponibili</it>
+</Trl>
+<Trl id="UpdateAvailableMessage">
+<de>Es ist ein Update verfügbar. Siehe Hilfe -&gt; Update.</de>
+<en>There is an update available. Go to Help -&gt; Update.</en>
+<hu>Újabb frissítés érhetõ el. Kattints a Súgó -&gt; Frissítés -re.</hu>
+<it>Ci sono Aggiornamenti disponibili. Vedi Aiuto -&gt; Aggiornamenti.</it>
+</Trl>
+<Trl id="UpdateDescription">
+<de>Findet Updates für jucy</de>
+<en>Finds Updates for jucy</en>
+<hu>Frissítések keresése a jucy-hoz</hu>
+<it>Cerca aggiornamenti per jucy</it>
+</Trl>
+<Trl id="UploadLimit">
+<de>Upload limit in (KiB/s, 0 = keines)</de>
+<en>Upload limit in (KiB/s, 0 = disabled)</en>
+<hu>Feltöltési korlát megadása (KiB/s, 0 = kikapcsolva)</hu>
+<it>Limite Upload (KiB/s, 0 = disabilitato)</it>
+</Trl>
+<Trl id="UploadQueue">
+<de>Upload Warteschlange</de>
+<en>Upload Queue</en>
+<hu>Feltöltési Sor</hu>
+<it>Coda Upload</it>
+</Trl>
+<Trl id="UploadQueueDescription">
+<de>Öffnet Upload Warteschlange</de>
+<en>Open Upload Queue</en>
+<hu>Feltöltési Sor megnyitása</hu>
+<it>Apri coda Upload</it>
+</Trl>
+<Trl id="UploadSlots">
+<de>Upload Slots</de>
+<en>Upload slots</en>
+<hu>Feltöltési slotok</hu>
+<it>Upload slot</it>
+</Trl>
+<Trl id="UseAlternativeTabs">
+<de>Nutze alternative Tabs (Braucht Neustart)</de>
+<en>Use alternative Tabs (requires restart)</en>
+<hu>Alternatív fülek használata (újraindítás szükséges)</hu>
+<it>Use Tab alternativa (Richiede riavvio)</it>
+</Trl>
+<Trl id="UsePassiveMode">
+<de>Nutze Passiv Modus</de>
+<en>Use passive Mode</en>
+<hu>Passzív Mód használata</hu>
+<it>Usa modalità passiva</it>
+</Trl>
+<Trl id="UseTLSIfPossible">
+<de>Nutze Verschlüsselung wenn möglich</de>
+<en>Use Encryption whenever possible</en>
+<hu>Titkosítás használata ha lehetséges</hu>
+<it>Usa criptaggio quando possibile</it>
+</Trl>
+<Trl id="User">
+<de>User</de>
+<en>User</en>
+<hu>Felhasználó</hu>
+<it>User</it>
+</Trl>
+<Trl id="UserCommand">
+<en>User Command</en>
+<hu>Felhasználói Parancs</hu>
+<it>User Command</it>
+</Trl>
+<Trl id="UserCommands">
+<de>Eigene Kommandos</de>
+<en>User Commands</en>
+<hu>Felhasználói Parancsok</hu>
+<it>User Command</it>
+</Trl>
+<Trl id="UserDescription">
+<de>User Beschreibung</de>
+<en>User Description</en>
+<hu>Felhasználó leírása</hu>
+<it>Descrizione</it>
+</Trl>
+<Trl id="UserJoins">
+<de>%s betritt den hub</de>
+<en>%s joins the hub</en>
+</Trl>
+<Trl id="UserMenu">
+<en>User Menu</en>
+<hu>Felhasználói Menü</hu>
+<it>User Menu</it>
+</Trl>
+<Trl id="UserOnline">
+<de>User online</de>
+<en>User online</en>
+<hu>Felhasználó online</hu>
+<it>User online</it>
+</Trl>
+<Trl id="UserParts">
+<de>%s verlässt den hub</de>
+<en>%s leaves the hub</en>
+</Trl>
+<Trl id="UserTable">
+<de>User Tabelle</de>
+<en>User table</en>
+<hu>Felhasználói asztal</hu>
+<it>Tabella User</it>
+</Trl>
+<Trl id="Users">
+<de>Users</de>
+<en>Users</en>
+<hu>Felhasználók</hu>
+<it>User</it>
+</Trl>
+<Trl id="View">
+<de>Fenster</de>
+<en>View</en>
+<hu>Mutat</hu>
+<it>Visualizza</it>
+</Trl>
+<Trl id="VirtualName">
+<de>Virtueller Name</de>
+<en>Virtual Name</en>
+<hu>Virtuális Név</hu>
+<it>Nome virtuale</it>
+</Trl>
+<Trl id="WindowBackgroundColour">
+<de>Fenster Hintergrundfarbe</de>
+<en>Window background-colour</en>
+<hu>Ablak hátterének színe</hu>
+<it>Colore di sfondo</it>
+</Trl>
+<Trl id="XOfYUsersOnline">
+<de>%1$s von %2$s Users online</de>
+<en>%1$s of %2$s Users online</en>
+<hu>%1$s a(z) %2$s felhasználóból online</hu>
+<it>%1$s di %2$s User online</it>
+</Trl>
+<Trl id="Yes">
+<de>Ja</de>
+<en>Yes</en>
+<hu>Igen</hu>
+<it>Si</it>
+</Trl>
+</Plugin>
+<Plugin id="eu.jucy.helpers" name="helpers">
+<Trl id="Tables">
+<de>Tabellen</de>
+<en>Tables</en>
+<it>Tabelle</it>
+</Trl>
+</Plugin>
+<Plugin id="eu.jucy.language" name="language">
+<Trl id="ActionMen">
+<de>Aktion</de>
+<en>Action</en>
+<hu>Mûködés</hu>
+<it>Azioni</it>
+</Trl>
+<Trl id="Active">
+<de>Aktiv</de>
+<en>Active</en>
+<hu>Aktív</hu>
+<it>Attivo</it>
+</Trl>
+<Trl id="Add">
+<de>Hinzufügen</de>
+<en>Add</en>
+<hu>Hozzáadás</hu>
+<it>Aggiungi</it>
+</Trl>
+<Trl id="AddFolder">
+<de>Neuer Ordner</de>
+<en>Add folder</en>
+<hu>Hozzáadás</hu>
+<it>Aggiungi Cartella</it>
+</Trl>
+<Trl id="AddToFavorites">
+<de>Hinzufügen zu Favoriten</de>
+<en>Add To Favourites</en>
+<hu>Kedvencekhez Adás</hu>
+<it>Aggiungi ai preferiti</it>
+</Trl>
+<Trl id="Added">
+<de>Hinzugefügt</de>
+<en>Added</en>
+<hu>Hozzáadva</hu>
+<it>Aggiunto</it>
+</Trl>
+<Trl id="Address">
+<de>Addresse</de>
+<en>Address</en>
+<hu>Cím</hu>
+<it>Indirizzo</it>
+</Trl>
+<Trl id="AddressCouldNotBeResolved">
+<de>Addresse konnte nicht aufgelöst werden</de>
+<en>Address could not be resolved</en>
+<hu>A megadott cím nem oldható fel.</hu>
+<it>L'indirizzo non può essere risolto</it>
+</Trl>
+<Trl id="All">
+<de>Alle</de>
+<en>All</en>
+<hu>Mind</hu>
+<it>Tutti</it>
+</Trl>
+<Trl id="AllXUsersOffline">
+<de>Alle %1$s User offline</de>
+<en>All %1$s Users offline</en>
+<hu>Minden %1$s felhasználó offline</hu>
+<it>Tutti i %1$s User offline</it>
+</Trl>
+<Trl id="AllowUsingUPnP">
+<de>Nutze UPnP wenn nötig</de>
+<en>Use UPnP if needed</en>
+<hu>UPnP használata, ha szükséges</hu>
+<it>Usa UPnP se possibile</it>
+</Trl>
+<Trl id="AtLeast">
+<de>Mindestens</de>
+<en>At least</en>
+<hu>Legalább</hu>
+<it>Almeno</it>
+</Trl>
+<Trl id="AtMost">
+<de>Höchstens</de>
+<en>At most</en>
+<hu>Legfeljebb</hu>
+<it>Al massimo</it>
+</Trl>
+<Trl id="AutoConnect">
+<de>Automatisch verbinden</de>
+<en>Auto connect</en>
+<hu>Automatikus csatlakozás</hu>
+<it>Connessione Automatica</it>
+</Trl>
+<Trl id="AutoGrantSlot">
+<de>Automatisch slot gewähren</de>
+<en>Auto grant slot</en>
+<hu>Automatikus slot biztosítása</hu>
+<it>Slot Extra Automatico</it>
+</Trl>
+<Trl id="Average">
+<de>Durchschnitt/s: %.2f</de>
+<en>Average/s: %.2f</en>
+<hu>Átlag/s: %.2f</hu>
+<it>Media: %.2f</it>
+</Trl>
+<Trl id="Browse">
+<de>Durchsuchen</de>
+<en>Browse</en>
+<hu>Tallózás</hu>
+<it>Apri</it>
+</Trl>
+<Trl id="BrowseFilelist">
+<de>Durchsuche Dateiliste</de>
+<en>Browse FileList</en>
+<hu>Fájllista Tallózása</hu>
+<it>Apri Lista File</it>
+</Trl>
+<Trl id="CDCheckFirewall">
+<de>Falls eine Firewall vorhanden ist überprüfe ob sie jucy erlaubt.</de>
+<en>If a firewall is present check if it allows jucy's traffic.</en>
+<hu>Ha van tüzfalad, ellenõrizd h engedélyezi a jucy-nak az adatforgalmat.</hu>
+<it>Se è presente un firewall controlla che permetta il traffico a jucy.</it>
+</Trl>
+<Trl id="CDCheckForwardedPorts">
+<de>Überprüfe ob %s am Router/NAT weitergeleitet sind.
+Jedoch Achtung ein UDP FUNKTIONIERT NICHT kann 
+auch einfach eine erfolglose Suche als Grund haben.
+ </de>
+<en>Check if you forwarded %s on your router/NAT.
+Though be aware a UDP NOT WORKING could also 
+result from just an unsuccessful search.
+</en>
+<hu>Nézd meg h a(z) %s port megfelelõen át van-e irányítva a routereden/NAT-ban.
+Ügyelj arra, hogy egy NEM MÛKÖDÕ UDP 
+is okozhat eredménytelen keresést.
+</hu>
+<it>Verifica di aver configurato la porta %s nel router/NAT.
+Sembrerebbe dipendere dal malfunzionamento della porta UDP
+oppure da una ricerca infruttuosa.
+</it>
+</Trl>
+<Trl id="CDCheckTCP">
+<de>TCP Port(%d)</de>
+<en>TCP port(%d)</en>
+<hu>TCP port(%d)</hu>
+<it>Porta TCP(%d)</it>
+</Trl>
+<Trl id="CDCheckUDP">
+<de>UDP Port(%d)</de>
+<en>UDP port(%d)</en>
+<hu>UDP port(%d)</hu>
+<it>Porta UDP(%d)</it>
+</Trl>
+<Trl id="CDDeterminedIPOverWeb">
+<de>IP Addresse über web bestimmt: %s</de>
+<en>Determined IP address by web: %s</en>
+<hu>A web által meghatározott IP cím: %s</hu>
+<it>Indirizzo IP determinato dal web: %s</it>
+</Trl>
+<Trl id="CDUPnPNotPresent">
+<de>
+Kein Router der UPnP unterstützt gefunden.</de>
+<en>
+No router with UPnP support found.</en>
+<hu>
+UPnP támogatású router nem található.</hu>
+<it>
+Il router non supporta UPnP.</it>
+</Trl>
+<Trl id="CDUPnPNotWorking">
+<de>
+UPnP könnte versagt haben wegen einer Software Firewall.</de>
+<en>
+UPnP might have failed to work due to a software firewall.</en>
+<hu>
+Az UPnP nem használható egy esetleges szoftveres tûzfal miatt.</hu>
+<it>
+UPnP potrebbe aver fallito per colpa di un software firewall.</it>
+</Trl>
+<Trl id="CSNATDetected">
+<de>NAT erkannt</de>
+<en>NAT detected</en>
+<hu>NAT detektálva</hu>
+<it>Trovato NAT</it>
+</Trl>
+<Trl id="CSNOTWORKING">
+<de>FUNKTIONIERT NICHT</de>
+<en>NOT WORKING</en>
+<hu>NEM MÛKÖDIK</hu>
+<it>NON FUNZIONANTE</it>
+</Trl>
+<Trl id="CSNoNATDetected">
+<de>Direkte Verbindung</de>
+<en>Direct Connection</en>
+<hu>Közvetlen Csatlakozás</hu>
+<it>Connessione Diretta (Attivo)</it>
+</Trl>
+<Trl id="CSPassiveMode">
+<de>Passiv Modus (Eingeschränkte Suche, von anderen passiven kann nicht geladen werden)</de>
+<en>Passive Mode (Restricted Search, no download from other passive users)</en>
+<hu>Passzív Mód (Korlátozott Keresés, letöltés nem lehetséges más passzív felhasználótól)</hu>
+<it>Modalità Passiva (Ricerca limitata, non scarichi da altri utenti passivi)</it>
+</Trl>
+<Trl id="CSToolTip">
+<de>IP: %s 
+%s
+TCP status: %s
+TCP+TLS status: %s
+UDP status: %s
+UPnP status: %s</de>
+<en>IP: %s 
+%s
+TCP state: %s
+TCP+TLS state: %s
+UDP state: %s
+UPnP state: %s</en>
+<hu>IP: %s 
+%s
+TCP állapota: %s
+TCP+TLS állapota: %s
+UDP állapota: %s
+UPnP állapota: %s</hu>
+<it>IP: %s
+Stato TCP: %s
+Stato UDP: %s
+Stato UPnP: %s</it>
+</Trl>
+<Trl id="CSUNKNOWN">
+<de>UNBEKANNT</de>
+<en>UNKNOWN</en>
+<hu>ISMERETLEN</hu>
+<it>SCONOSCIUTO</it>
+</Trl>
+<Trl id="CSWORKING">
+<de>FUNKTIONIERT</de>
+<en>WORKING</en>
+<hu>MÛKÖDIK</hu>
+<it>FUNZIONANTE</it>
+</Trl>
+<Trl id="ChatOnly">
+<de>Nur Chat</de>
+<en>ChatOnly</en>
+<hu>Csak Chat</hu>
+<it>Solo Chat</it>
+</Trl>
+<Trl id="ChooseFolder">
+<de>Wähle Ordner</de>
+<en>Choose folder</en>
+<hu>Válassz könyvtárat</hu>
+<it>Scegli Cartella</it>
+</Trl>
+<Trl id="CloseConnection">
+<de>Schliesse Verbindung</de>
+<en>Close connection</en>
+<hu>Kapcsolat lezárása</hu>
+<it>Chiudi Connessione</it>
+</Trl>
+<Trl id="Closed">
+<de>Geschlossen</de>
+<en>Closed</en>
+<hu>Zárva</hu>
+<it>Chiuso</it>
+</Trl>
+<Trl id="Command">
+<en>Command</en>
+<hu>Parancs</hu>
+<it>Comando</it>
+</Trl>
+<Trl id="ConfigurePublicHubLists">
+<de>Konfiguriere Öffentliche Hublisten</de>
+<en>Configure Public Hubs List</en>
+<hu>Publikus Hub Lista Konfigurálása</hu>
+<it>Configura HubList</it>
+</Trl>
+<Trl id="Connect">
+<de>Verbinde</de>
+<en>Connect</en>
+<hu>Kapcsolódás</hu>
+<it>Connetti</it>
+</Trl>
+<Trl id="Connected">
+<de>Verbunden</de>
+<en>Connected</en>
+<hu>Kapcsolódva</hu>
+<it>Connesso</it>
+</Trl>
+<Trl id="Connecting">
+<de>Verbinde</de>
+<en>Connecting</en>
+<hu>Kapcsolódás</hu>
+<it>Connessione in corso</it>
+</Trl>
+<Trl id="ConnectingTo">
+<de>Verbinde zu %s ...</de>
+<en>Connecting to %s ...</en>
+<hu>Kapcsolódás %s-hoz ...</hu>
+<it>Connessione a %s ...</it>
+</Trl>
+<Trl id="Connection">
+<de>Verbindung</de>
+<en>Connection</en>
+<hu>Kapcsolat</hu>
+<it>Connessione</it>
+</Trl>
+<Trl id="ConnectionSettings">
+<de>Verbindungs Einstellungen</de>
+<en>Connection settings</en>
+<hu>Kapcsolódás beállításai</hu>
+<it>Impostazioni Connessione</it>
+</Trl>
+<Trl id="ConnectionTimeout">
+<de>Verbindungs Timeout</de>
+<en>Connection Timeout</en>
+<hu>Kapcsolódási idõtúllépés</hu>
+<it>Connessione in Timeout</it>
+</Trl>
+<Trl id="Context">
+<en>Context</en>
+<hu>Kontextus</hu>
+<it>Contesto</it>
+</Trl>
+<Trl id="CopyAddressToClipboard">
+<de>Kopiere Addresse ins clipboard</de>
+<en>Copy address to clipboard</en>
+<hu>Cím másolása a vágólapra</hu>
+<it>Copia indirizzo negli appunti</it>
+</Trl>
+<Trl id="CopyNickToClipboard">
+<de>Kopiere Nick in die Zwischenablage</de>
+<en>Copy nick to clipboard</en>
+<hu>Becenév másolása a vágólapra</hu>
+<it>Copia nick negli appunti</it>
+</Trl>
+<Trl id="CopyTTHToClipboard">
+<de>Kopiere TTH die Zwischenablage</de>
+<en>Copy TTH to clipboard</en>
+<hu>TTH másolása a vágólapra</hu>
+<it>Copia TTH megli appunti</it>
+</Trl>
+<Trl id="Count">
+<de>Anzahl</de>
+<en>Count</en>
+<hu>Sorszám</hu>
+<it>Numero</it>
+</Trl>
+<Trl id="CreateHub">
+<de>Erstelle Hub</de>
+<en>Create hub</en>
+<hu>Hub készítése</hu>
+<it>Crea hub</it>
+</Trl>
+<Trl id="DefaultAwayMessage">
+<de>Standard Abwesenheitsnachricht</de>
+<en>Default away message</en>
+<hu>Alapértelmezett távolléti üzenet</hu>
+<it>Messaggio di away predefinito</it>
+</Trl>
+<Trl id="DefaultDownloadDirectory">
+<de>Standard Download Ordner</de>
+<en>Default download directory</en>
+<hu>Alapértelmezett letöltési könyvtár</hu>
+<it>Cartella di download predefinita</it>
+</Trl>
+<Trl id="Description">
+<de>Beschreibung</de>
+<en>Description</en>
+<hu>Leírás</hu>
+<it>Descrizione</it>
+</Trl>
+<Trl id="Directories">
+<de>Verzeichnisse</de>
+<en>Directories</en>
+<hu>Könyvtárak</hu>
+<it>Cartelle</it>
+</Trl>
+<Trl id="Directory">
+<de>Verzeichnis</de>
+<en>Directory</en>
+<hu>Könyvtár</hu>
+<it>Cartella</it>
+</Trl>
+<Trl id="DirectoryForLogs">
+<de>Verzeichnis für Log</de>
+<en>Directory for logs</en>
+<hu>Nalózási könyvtár</hu>
+<it>Cartella dei log</it>
+</Trl>
+<Trl id="Disconnected">
+<de>Getrennt</de>
+<en>Disconnected</en>
+<hu>Lecsatlakozva</hu>
+<it>Disconnesso</it>
+</Trl>
+<Trl id="Download">
+<de>Herunterladen</de>
+<en>Download</en>
+<hu>Letöltés</hu>
+<it>Scarica</it>
+</Trl>
+<Trl id="DownloadAndOpen">
+<de>Herunterladen und öffnen</de>
+<en>Download and open</en>
+<hu>Letöltés és megnyitás</hu>
+<it>Scarica e apri</it>
+</Trl>
+<Trl id="DownloadLimit">
+<de>Download limit in (KiB/s, 0 = keines)</de>
+<en>Download limit in (KiB/s, 0 = disabled)</en>
+<hu>Letöltési korlát (KiB/s, 0 = kikapcsolva)</hu>
+<it>Download limit (KiB/s, 0 = disabilitato)</it>
+</Trl>
+<Trl id="DownloadTo">
+<de>Herunterladen nach</de>
+<en>Download to</en>
+<hu>Letöltés ide</hu>
+<it>Scarica in...</it>
+</Trl>
+<Trl id="Downloaded">
+<de>Heruntergeladen</de>
+<en>Downloaded</en>
+<hu>Letöltve</hu>
+<it>Download completato</it>
+</Trl>
+<Trl id="Downloading">
+<de>Am herunterladen</de>
+<en>Downloading</en>
+<hu>Letöltés</hu>
+<it>Download in corso</it>
+</Trl>
+<Trl id="Downloads">
+<de>Downloads</de>
+<en>Downloads</en>
+<hu>Letöltések</hu>
+<it>Download</it>
+</Trl>
+<Trl id="EMail">
+<de>E-Mail</de>
+<en>E-Mail</en>
+<hu>E-Mail</hu>
+<it>E-Mail</it>
+</Trl>
+<Trl id="Edit">
+<de>Ändern</de>
+<en>Edit</en>
+<hu>Szerkeszt</hu>
+<it>Modifica</it>
+</Trl>
+<Trl id="EditTheHublist">
+<de>Ändere die Hubliste</de>
+<en>Edit the hublist</en>
+<hu>Hublista szerkesztése</hu>
+<it>Modifica le hublist</it>
+</Trl>
+<Trl id="EnterAddressOfTheHublist">
+<de>Addresse der Hubliste eingeben</de>
+<en>Enter Address of the Hublist</en>
+<hu>Add meg a Hublista címét</hu>
+<it>Inserisci indirizzo dell'Hublist</it>
+</Trl>
+<Trl id="Equals">
+<de>gleich</de>
+<en>equals</en>
+<hu>egyenlõ</hu>
+<it>Uguale a</it>
+</Trl>
+<Trl id="Errors">
+<de>Fehler</de>
+<en>Errors</en>
+<hu>Hibák</hu>
+<it>Errori</it>
+</Trl>
+<Trl id="ExactSize">
+<de>Genaue Größe</de>
+<en>Exact size</en>
+<hu>Pontos Méret</hu>
+<it>Dimensione esatta</it>
+</Trl>
+<Trl id="ExecuteAfterDownload">
+<de>Ausführen nach dem Herunterladen</de>
+<en>Execute after download</en>
+<hu>Futtatás letöltés után</hu>
+<it>Esegui dopo il download</it>
+</Trl>
+<Trl id="ExternalWANIP">
+<de>Externe / WAN IP , frei lassen für automatisch Erkennung (momentan: %1$s)</de>
+<en>External / WAN IP , leave blank for autodetection (currently: %1$s)</en>
+<hu>Külsõ / WAN IP , hagyd üresen az automatikus felismeréshez (jelenleg: %1$s)</hu>
+<it>Indirizzo IP, lasciare in bianco per determinazione automatica (corrente: %1$s)</it>
+</Trl>
+<Trl id="FavHubProperties">
+<de>Lieblings Hub Einstellungen</de>
+<en>Favourite Hub Properties</en>
+<hu>Kedvenc Hubok beállításai</hu>
+<it>Proprietà hub preferiti</it>
+</Trl>
+<Trl id="FavoriteHubs">
+<de>Favorisierte Hubs</de>
+<en>Favourite Hubs</en>
+<hu>Kedvenc Hubok</hu>
+<it>Hub preferiti</it>
+</Trl>
+<Trl id="FavoriteUsers">
+<de>Favorisierte User</de>
+<en>Favourite Users</en>
+<hu>Kedvenc Felhasználók</hu>
+<it>User preferiti</it>
+</Trl>
+<Trl id="File">
+<de>Datei</de>
+<en>File</en>
+<hu>Fájl</hu>
+<it>File</it>
+</Trl>
+<Trl id="FileListMenu">
+<en>FileList Menu</en>
+<hu>Fájllista Menü</hu>
+<it>Menu FileList</it>
+</Trl>
+<Trl id="FileMen">
+<de>Datei</de>
+<en>File</en>
+<hu>Fájl</hu>
+<it>File</it>
+</Trl>
+<Trl id="FileType">
+<de>Datei typ</de>
+<en>File type</en>
+<hu>Fájl típusa</hu>
+<it>Tipo file</it>
+</Trl>
+<Trl id="FilelistRefreshAlreadyInProgress">
+<en>Filelist refresh already in progress</en>
+<hu>Fájllista frissítése már folyamatban</hu>
+<it>Aggiornamento lista file già in esecuzione</it>
+</Trl>
+<Trl id="Filename">
+<de>Dateiname</de>
+<en>Filename</en>
+<hu>Fájl név</hu>
+<it>Nome file</it>
+</Trl>
+<Trl id="Files">
+<de>Dateien</de>
+<en>Files</en>
+<hu>Fájlok</hu>
+<it>Files</it>
+</Trl>
+<Trl id="Find">
+<de>Finde</de>
+<en>Find</en>
+<hu>Keres</hu>
+<it>Cerca</it>
+</Trl>
+<Trl id="FinishedFilelistRefresh">
+<de>Dateilisten Aktualisierung beendet</de>
+<en>Finished filelist refresh</en>
+<hu>Fájllista frissítés befejezve</hu>
+<it>Aggiornamento lista file completato</it>
+</Trl>
+<Trl id="FinishedHashingXinY">
+<de>Hashen beendet von %1$s (%2$s - ETA: %3$s)</de>
+<en>Finished hashing %1$s (%2$s - ETA: %3$s)</en>
+<hu>Hashelés befejezve %1$s (%2$s - ETA: %3$s)</hu>
+<it>Hashing completo %1$s (%2$s - ETA: %3$s)</it>
+</Trl>
+<Trl id="ForceAttempt">
+<de>Erzwinge Versuch</de>
+<en>Force attempt</en>
+<hu>Erõltetett kísérlet</hu>
+<it>Forza Connessione</it>
+</Trl>
+<Trl id="GetFilelist">
+<de>Lade Dateiliste</de>
+<en>Get FileList</en>
+<hu>Fájlista Letöltése</hu>
+<it>Scarica Lista File</it>
+</Trl>
+<Trl id="GrantExtraSlot">
+<de>Extra Slot gewähren</de>
+<en>Grant extra slot</en>
+<hu>Extra Slot biztosítása</hu>
+<it>Concedi slot extra</it>
+</Trl>
+<Trl id="HasExtraSlotUntil">
+<de>Hat Extra Slot bis</de>
+<en>Has extra Slot until</en>
+<hu>Extra Slot biztosítva eddig</hu>
+<it>Ha Slot extra per..</it>
+</Trl>
+<Trl id="Help">
+<de>Hilfe</de>
+<en>Help</en>
+<hu>Súgó</hu>
+<it>Aiuto</it>
+</Trl>
+<Trl id="Hub">
+<de>Hub</de>
+<en>Hub</en>
+<hu>Hub</hu>
+<it>Hub</it>
+</Trl>
+<Trl id="HubAddedToFavorites">
+<de>Hub den Favoriten hinzugefügt</de>
+<en>Hub added to favorites</en>
+<hu>A Hub hozzáadva a kedvencekhez</hu>
+<it>Hub aggiunto ai preferiti</it>
+</Trl>
+<Trl id="HubExplaCommands">
+<en>Hub (""=for all, "op"=all hubs where op, url to specify hub)</en>
+<hu>Hub (""=az összes, "op"=az összes ahol op, url a hub megadásához)</hu>
+<it>Hub (""=in tutti, "op"=negli hub dove sono op, indirizzo per hub specifico)</it>
+</Trl>
+<Trl id="HubIsAlreadyFavorite">
+<de>Hub ist bereits bei den Favoriten</de>
+<en>Hub already exists as a favorite</en>
+<hu>A Hub már létezik a kedvencek közt</hu>
+<it>L'hub è già nei preferiti</it>
+</Trl>
+<Trl id="HubIsFull">
+<de>Hub teilt mit das es voll ist!</de>
+<en>Hub says: I am full!</en>
+<hu>Hub üzenete: Tele vagyok!</hu>
+<it>L'Hub ha detto: Sono pieno!</it>
+</Trl>
+<Trl id="HubMenu">
+<en>Hub Menu</en>
+<hu>Hub Menü</hu>
+<it>Hub Menu</it>
+</Trl>
+<Trl id="HubRequestedPassword">
+<de>Hub verlangt Passwort!
+ Sende ein Passwort in dem du: /pass &lt;password&gt;   tippst</de>
+<en>Hub requests password!
+ Send a password by typing: /pass &lt;password&gt;</en>
+<hu>A Hub jelszót kér!
+ Így küldd el a jelszót: /pass &lt;jelszó&gt;</hu>
+<it>L'hub ha richiesto una password!
+ Invia la password scrivendo: /pass &lt;password&gt;</it>
+</Trl>
+<Trl id="Hublist">
+<de>Hubliste</de>
+<en>Hublist</en>
+<hu>Hublista</hu>
+<it>Lista hub</it>
+</Trl>
+<Trl id="Hubs">
+<de>Hubs</de>
+<en>Hubs</en>
+<hu>Hubok</hu>
+<it>Hub</it>
+</Trl>
+<Trl id="IP">
+<de>IP</de>
+<en>IP</en>
+<hu>IP</hu>
+<it>IP</it>
+</Trl>
+<Trl id="Identification">
+<de>Identifikation (frei lassen für Standardwerte)</de>
+<en>Identification (leave blank for defaults)</en>
+<hu>Azonosítás (hagyd üresen az alapértelmezéshez)</hu>
+<it>Profilo (Lascia in bianco per default)</it>
+</Trl>
+<Trl id="Idle">
+<de>leerlauf</de>
+<en>Idle</en>
+<hu>Üresjárat</hu>
+<it>In attesa</it>
+</Trl>
+<Trl id="IncomingConnectionSettings">
+<de>Einstellungen für Einkommende Verbindungen</de>
+<en>Incoming connection settings</en>
+<hu>Bejövõ kapcsolatok beállítása</hu>
+<it>Impostazioni connessioni in arrivo</it>
+</Trl>
+<Trl id="IsFavoriteUser">
+<de>Ist ein Favorisierter User</de>
+<en>Is Favorite User</en>
+<hu>Kedvenc Felhasználó</hu>
+<it>È un user preferito</it>
+</Trl>
+<Trl id="LastChange">
+<de>Letzte Änderung</de>
+<en>Last change</en>
+<hu>Utolsó módosítás</hu>
+<it>Ultima modifica</it>
+</Trl>
+<Trl id="Limits">
+<de>Limits</de>
+<en>Limits</en>
+<hu>Korlátok</hu>
+<it>Limiti</it>
+</Trl>
+<Trl id="LineSpeed">
+<de>Leitungstempo (upload in MiBits/s)</de>
+<en>Line speed (upload in MiBits/s)</en>
+<hu>Feltöltési sebesség (MiBits/s-ban)</hu>
+<it>Velocità connessione (upload in MiBits/s)</it>
+</Trl>
+<Trl id="LoadHublist">
+<de>Lade Hubliste</de>
+<en>Load Hublist</en>
+<hu>Hublista betöltése</hu>
+<it>Scarica Hublist</it>
+</Trl>
+<Trl id="LogFeed">
+<de>Logge Feed</de>
+<en>Log Feed</en>
+<hu>Naplózás gördítése</hu>
+<it>Log Feed</it>
+</Trl>
+<Trl id="LogMainchat">
+<de>Logge Mainchat</de>
+<en>Log Mainchat</en>
+<hu>Beszélgetések Naplózása</hu>
+<it>Log Mainchat</it>
+</Trl>
+<Trl id="LogPM">
+<de>Logge Private Nachrichten</de>
+<en>Log Private Messages</en>
+<hu>Privát Beszélgetések Naplózása</hu>
+<it>Log Messagi privati</it>
+</Trl>
+<Trl id="LoggedIn">
+<de>Logged in</de>
+<en>Logged in</en>
+<hu>Bejelentkezve</hu>
+<it>Logged in</it>
+</Trl>
+<Trl id="LoginTimeout">
+<de>Login Timeout</de>
+<en>Login Timeout</en>
+<hu>Bejelentkezési Idõtúllépés</hu>
+<it>Login Timeout</it>
+</Trl>
+<Trl id="MatchQueue">
+<de>Queue Abgleichen</de>
+<en>Match queue</en>
+<hu>Találati sor</hu>
+<it>Confronta coda</it>
+</Trl>
+<Trl id="MatchedXFilesWithUserY">
+<de>%1$s Dateien abgeglichen mit %2$s</de>
+<en>Matched %1$s files with %2$s</en>
+<hu>Matched %1$s files with %2$s</hu>
+<it>Trovati %1$s file di %2$s</it>
+</Trl>
+<Trl id="MaximumSimultaneousDownloads">
+<de>Maximum simultane downloads (0 = unbegrenzt)</de>
+<en>Maximum simultaneous downloads (0 = infinite)</en>
+<hu>Maximális egyidejû letöltés (0 = végtelen)</hu>
+<it>Download simultanei massimi (0 = infiniti)</it>
+</Trl>
+<Trl id="MinimizeToTray">
+<de>Zum Tray minimieren</de>
+<en>Minimize to Tray</en>
+<hu>Kicsinyítés Télcára</hu>
+<it>Minimizza in Tray</it>
+</Trl>
+<Trl id="MoveDown">
+<de>Runter</de>
+<en>Move Down</en>
+<hu>Le</hu>
+<it>Sposta Giù</it>
+</Trl>
+<Trl id="MoveRename">
+<de>Verschieben/Umbenenen</de>
+<en>Move/Rename</en>
+<hu>Áthelyez/Átnevez</hu>
+<it>Sposta/Rinomina</it>
+</Trl>
+<Trl id="MoveUp">
+<de>Hoch</de>
+<en>Move Up</en>
+<hu>Fel</hu>
+<it>Sposta Su</it>
+</Trl>
+<Trl id="Name">
+<de>Name</de>
+<en>Name</en>
+<hu>Név</hu>
+<it>Nome</it>
+</Trl>
+<Trl id="NameUnderWhichTheOthersSeeTheDirectory">
+<de>Name unter welchem andere das Verzeichnis sehen</de>
+<en>Name under which the others see the directory</en>
+<hu>A többiek e név alatt fogják látni a Könyvtárat</hu>
+<it>Nome con il quale gli altri vedranno la cartella</it>
+</Trl>
+<Trl id="New">
+<de>Neu</de>
+<en>New</en>
+<hu>Új</hu>
+<it>Nuovo</it>
+</Trl>
+<Trl id="Next">
+<de>Nächstes</de>
+<en>Next</en>
+<hu>Következõ</hu>
+<it>Prossimo</it>
+</Trl>
+<Trl id="Nick">
+<de>Nick</de>
+<en>Nick</en>
+<hu>Becenév</hu>
+<it>Nick</it>
+</Trl>
+<Trl id="No">
+<de>Nein</de>
+<en>No</en>
+<hu>Nem</hu>
+<it>No</it>
+</Trl>
+<Trl id="NoUsers">
+<de>Keine User</de>
+<en>No users</en>
+<hu>Nincs felhasználó</hu>
+<it>Nessun user</it>
+</Trl>
+<Trl id="OK">
+<de>OK</de>
+<en>OK</en>
+<hu>OK</hu>
+<it>OK</it>
+</Trl>
+<Trl id="Online">
+<de>Online</de>
+<en>Online</en>
+<hu>Online</hu>
+<it>Online</it>
+</Trl>
+<Trl id="OnlyUsersWithFreeSlots">
+<de>Nur User mit freien Slots</de>
+<en>Only users with free slots</en>
+<hu>Csak szabad slot-tal rendelkezõ felhasználók</hu>
+<it>Solo user con slot liberi</it>
+</Trl>
+<Trl id="OnlyWhereIAmOp">
+<de>Nur wo ich OP bin</de>
+<en>Only where I'm OP</en>
+<hu>Csak ahol OP vagyok</hu>
+<it>Solo dove sono OP</it>
+</Trl>
+<Trl id="OpenFileList">
+<de>Öffne Dateiliste</de>
+<en>Open file list</en>
+<hu>Fájl lista megnyitása</hu>
+<it>Apri Liste File</it>
+</Trl>
+<Trl id="OpenOwnList">
+<de>Öffne eigene Dateiliste</de>
+<en>Open own list</en>
+<hu>Saját lista megnyitása</hu>
+<it>Apri propria Lista File</it>
+</Trl>
+<Trl id="Parameter">
+<en>Parameter</en>
+<hu>Paraméter</hu>
+<it>Parametri</it>
+</Trl>
+<Trl id="Password">
+<de>Passwort</de>
+<en>Password</en>
+<hu>Jelszó</hu>
+<it>Password</it>
+</Trl>
+<Trl id="Path">
+<de>Pfad</de>
+<en>Path</en>
+<hu>Útvonal</hu>
+<it>Percorso</it>
+</Trl>
+<Trl id="PersonalInformation">
+<de>Persönliche Information</de>
+<en>Personal Information</en>
+<hu>Személyes Információ</hu>
+<it>Informazioni personali</it>
+</Trl>
+<Trl id="PrimaryDownloadColour">
+<de>Primäre download Farbe</de>
+<en>Primary download colour</en>
+<hu>Elsõdleges letöltési szín</hu>
+<it>Colore Download primario</it>
+</Trl>
+<Trl id="PrimaryUploadColour">
+<de>Primäre upload Farbe</de>
+<en>Primary upload colour</en>
+<hu>Elsõdleges feltöltési szín</hu>
+<it>Colore Upload primario</it>
+</Trl>
+<Trl id="Priority">
+<de>Priorität</de>
+<en>Priority</en>
+<hu>Prioritás</hu>
+<it>Priorità</it>
+</Trl>
+<Trl id="Properties">
+<de>Eigenschaften</de>
+<en>Properties</en>
+<hu>Tulajdonságok</hu>
+<it>Proprietà</it>
+</Trl>
+<Trl id="PublicHubs">
+<de>Öffentliche Hubs</de>
+<en>Public Hubs</en>
+<hu>Publikus Hubok</hu>
+<it>Hub Pubblici</it>
+</Trl>
+<Trl id="PublicHubsList">
+<de>Öffentliche Hubliste</de>
+<en>Public Hubs list</en>
+<hu>Publikus Hubok listája</hu>
+<it>Lista Hub pubblici</it>
+</Trl>
+<Trl id="QuickConnect">
+<de>Schnell Verbinden</de>
+<en>Quick Connect</en>
+<hu>Kapcsolódás</hu>
+<it>Connessione Veloce</it>
+</Trl>
+<Trl id="Ratio">
+<de>Ratio</de>
+<en>Ratio</en>
+<hu>Arány</hu>
+<it>Media</it>
+</Trl>
+<Trl id="ReAddUserToFile">
+<de>User zur Datei wieder hinzufügen</de>
+<en>Re-add user to file</en>
+<hu>Felhasználó fájlhoz adása</hu>
+<it>RiAggiungi user al file</it>
+</Trl>
+<Trl id="Reconnecting">
+<de>Neuverbinden</de>
+<en>Reconnecting</en>
+<hu>Újrakapcsolódás</hu>
+<it>Riconnessione</it>
+</Trl>
+<Trl id="RedirectReceived">
+<de>Umleitungs Signal vom Hub erhalten nach %s</de>
+<en>Received redirect signal from hub to %s</en>
+<hu>Received redirect signal from hub to %s</hu>
+<it>Ricevuto dall'hub segnale di redirect verso %s</it>
+</Trl>
+<Trl id="RefreshFilelist">
+<de>Dateiliste erneuern</de>
+<en>Refresh file list</en>
+<hu>Fájl lista frissítése</hu>
+<it>Aggiorna Lista File</it>
+</Trl>
+<Trl id="Remove">
+<de>Entfernen</de>
+<en>Remove</en>
+<hu>Eltávolítás</hu>
+<it>Rimuovi</it>
+</Trl>
+<Trl id="RemoveFromFavorites">
+<de>Entferne von Favoriten</de>
+<en>Remove From Favourites</en>
+<hu>Eltávolítás a Kedvencekbõl</hu>
+<it>Rimuovi dai preferiti</it>
+</Trl>
+<Trl id="RemoveUserFromDQ">
+<de>Entferne User aus der Queue</de>
+<en>Remove user from queue</en>
+<hu>Felhasználó eltávolítása a sorból</hu>
+<it>Rimuovi user dalla coda</it>
+</Trl>
+<Trl id="RemoveUserFromFile">
+<de>Entferne User von der Datei</de>
+<en>Remove user from file</en>
+<hu>Felhasználó eltávolítása a fájlból</hu>
+<it>Rimuovi user da file</it>
+</Trl>
+<Trl id="Rename">
+<de>Umbenennen</de>
+<en>Rename</en>
+<hu>Átnevezés</hu>
+<it>Rinomina</it>
+</Trl>
+<Trl id="STA11HubFull">
+<de>Hub voll</de>
+<en>Hub full</en>
+<hu>A Hub tele van</hu>
+<it>Hub pieno</it>
+</Trl>
+<Trl id="STA12HubDisabled">
+<de>Hub gesperrt</de>
+<en>Hub disabled</en>
+<hu>Hub letiltva</hu>
+<it>Hub disabilitato</it>
+</Trl>
+<Trl id="STA21NickInvalid">
+<de>Nick ungültig</de>
+<en>Nick invalid</en>
+<hu>Érvénytelen becenév</hu>
+<it>Nick non valido</it>
+</Trl>
+<Trl id="STA22NickTaken">
+<de>Nick vergeben</de>
+<en>Nick taken</en>
+<hu>Becenév már használatban</hu>
+<it>Nick occupato</it>
+</Trl>
+<Trl id="STA23InvalidPassword">
+<de>Ungültiges Passwort</de>
+<en>Invalid Password</en>
+<hu>Érvénytelen jelszó</hu>
+<it>Password errata</it>
+</Trl>
+<Trl id="STA24CIDtaken">
+<de>CID vergeben</de>
+<en>CID taken</en>
+<hu>CID már használatban</hu>
+<it>CID occupato</it>
+</Trl>
+<Trl id="STA25AccessToCommandDenied">
+<de>Zugriff auf Kommando %s verweigert</de>
+<en>Access to command %s denied</en>
+<hu>A %s parancshoz való hozzáférés visszautasítva</hu>
+<it>Utilizzo del comando %s negato</it>
+</Trl>
+<Trl id="STA26RegisteredUsersOnly">
+<de>Nur Registrierte User</de>
+<en>Registered users only </en>
+<hu>Csak regisztrált felhasználók </hu>
+<it>Solo user registrati </it>
+</Trl>
+<Trl id="STA27InvalidPIDSupplied">
+<de>Ungültige PID gesendet</de>
+<en>Invalid PID supplied</en>
+<hu>Érvénytelen PID</hu>
+<it>Il PID fornito è errato</it>
+</Trl>
+<Trl id="STA31PermanentlyBanned">
+<de>Permanent gebannt</de>
+<en>Permanently banned</en>
+<hu>Véglegesen kitiltva</hu>
+<it>Bannato permanentemente</it>
+</Trl>
+<Trl id="STA32TemporarilyBanned">
+<de>Temporärer Bann. Dauer: %s</de>
+<en>Temporarily banned for: %s</en>
+<hu>Átmenetileg kitiltva, eddig: %s</hu>
+<it>Bannato per: %s</it>
+</Trl>
+<Trl id="STA41TransferProtocolUnsupported">
+<de>Transfer Protokoll nicht unterstützt</de>
+<en>Transfer protocol unsupported</en>
+<hu>Átviteli Protokol nem támogatott</hu>
+<it>Protocollo di trasferimento non supportato</it>
+</Trl>
+<Trl id="STA42DirectConnectionFailed">
+<de>Direkte Verbindung gescheitert</de>
+<en>Direct connection failed</en>
+<hu>Közvetlen kapcsolódás sikertelen</hu>
+<it>Connssione fallita</it>
+</Trl>
+<Trl id="STA43RequiredINFfieldBad">
+<de>Benötigtes INF Feld %s schlecht</de>
+<en>Required INF field %s bad</en>
+<hu>Required INF field %s bad</hu>
+<it>Campo INF richiesto %s errato</it>
+</Trl>
+<Trl id="STA43RequiredINFfieldMissing">
+<de>Benötigtes INF Feld %s fehlt</de>
+<en>Required INF field %s missing</en>
+<hu>Required INF field %s missing</hu>
+<it>Campo INF richiesto %s non trovato</it>
+</Trl>
+<Trl id="STA44InvalidState">
+<de>Falscher Zustand für %s Kommando</de>
+<en>Invalid state for %s command</en>
+<hu>Érvénytelen állapot a(z) %s parancshoz</hu>
+<it>Stato non valido per il comando %s</it>
+</Trl>
+<Trl id="STA45RequiredFeatureMissing">
+<de>Benötigtes Feature %s fehlt</de>
+<en>Required feature %s missing</en>
+<hu>A szükséges jellemzõ %s hiányzik</hu>
+<it>Feature richiesta %s non trovata</it>
+</Trl>
+<Trl id="STA46InvalidIPSupplied">
+<de>Ungültiger IP gesendet in INF du hast: %s</de>
+<en>Invalid IP supplied in INF you have: %s</en>
+<hu>Invalid IP supplied in INF you have: %s</hu>
+<it>Hai fornito un IP sbagliato, tu hai: %s</it>
+</Trl>
+<Trl id="STA47NoHashSupportOverlapHub">
+<de>Keine gemeinsame Hashfunktion zwischen Client und Hub</de>
+<en>No hash support overlap in SUP between client and hub</en>
+<hu>No hash support overlap in SUP between client and hub</hu>
+<it>No hash support overlap in SUP between client and hub</it>
+</Trl>
+<Trl id="STA51FileNotAvailable">
+<de>Datei nicht verfügbar</de>
+<en>File not available</en>
+<hu>A fájl nem elérhetõ</hu>
+<it>File non trovato</it>
+</Trl>
+<Trl id="STA52FilePartNotAvailable">
+<de>Dateiteil nicht verfügbar </de>
+<en>File part not available</en>
+<hu>A fájl szelet nem elérhetõ </hu>
+<it>File part non troavata</it>
+</Trl>
+<Trl id="STA53SlotsFull">
+<de>Slots besetzt</de>
+<en>Slots full </en>
+<hu>Minden slot használatban</hu>
+<it>Slot occupati</it>
+</Trl>
+<Trl id="STA54NoHashSupportOverlapClient">
+<de>Keine gemeinsame Hashfunktion zwischen den Clients</de>
+<en>No hash support overlap in SUP between clients</en>
+<hu>No hash support overlap in SUP between clients</hu>
+<it>No hash support overlap in SUP between clients</it>
+</Trl>
+<Trl id="Search">
+<de>Suche</de>
+<en>Search</en>
+<hu>Keresés</hu>
+<it>Cerca</it>
+</Trl>
+<Trl id="SearchFor">
+<de>Suche nach</de>
+<en>Search for</en>
+<hu>Keresés erre</hu>
+<it>Ricerca per</it>
+</Trl>
+<Trl id="SearchForAlternates">
+<de>Nach Alternativen suchen</de>
+<en>Search for alternates</en>
+<hu>Alternatívák keresése</hu>
+<it>Cerca fonti alternative</it>
+</Trl>
+<Trl id="SearchMenu">
+<en>Search Menu</en>
+<hu>Keresés Menü</hu>
+<it>Menu di ricerca</it>
+</Trl>
+<Trl id="SearchOptions">
+<de>Such optionen</de>
+<en>Search options</en>
+<hu>Keresési Opciók</hu>
+<it>Opzioni di ricerca</it>
+</Trl>
+<Trl id="SearchString">
+<de>Such String</de>
+<en>Search String</en>
+<hu>Keresendõ Szöveg</hu>
+<it>Stringa di ricerca</it>
+</Trl>
+<Trl id="SecondaryDownloadColour">
+<de>Sekundäre download Farbe</de>
+<en>Secondary download colour</en>
+<hu>Másodlagos letöltési szín</hu>
+<it>Colore Download secondario</it>
+</Trl>
+<Trl id="SecondaryUploadColour">
+<de>Sekundäre upload Farbe</de>
+<en>Secondary upload colour</en>
+<hu>Másodlagos Feltöltési szín</hu>
+<it>Colore Upload secondario</it>
+</Trl>
+<Trl id="SelectFont">
+<de>Schrift auswählen:</de>
+<en>Select a Font:</en>
+<hu>Válassz betûtípust:</hu>
+<it>Seleziona un carattere:</it>
+</Trl>
+<Trl id="SendOnceForEachUser">
+<en>Send once for each User</en>
+<hu>Küldés minden felhasználónak</hu>
+<it>Invia ad ogni user</it>
+</Trl>
+<Trl id="SendPrivateMessage">
+<de>Sende Private Nachricht</de>
+<en>Send private message</en>
+<hu>Privát Üzenet küldése</hu>
+<it>Invia un messaggio privato</it>
+</Trl>
+<Trl id="SendingPassword">
+<de>Sende Passwort</de>
+<en>Sending password</en>
+<hu>Jelszó küldése</hu>
+<it>Password inviata</it>
+</Trl>
+<Trl id="Separator">
+<en>Separator</en>
+<hu>Elválasztó</hu>
+<it>Separatore</it>
+</Trl>
+<Trl id="Server">
+<de>Server</de>
+<en>Server</en>
+<hu>Szerver</hu>
+<it>Server</it>
+</Trl>
+<Trl id="SetPriority">
+<de>Setze Priorität</de>
+<en>Set priority</en>
+<hu>Prioritás beállítása</hu>
+<it>Imposta priorità</it>
+</Trl>
+<Trl id="Settings">
+<de>Einstellungen</de>
+<en>Settings</en>
+<hu>Beállítások</hu>
+<it>Impostazioni</it>
+</Trl>
+<Trl id="ShareHiddenFiles">
+<de>Share versteckte Dateien</de>
+<en>Share hidden files</en>
+<hu>Rejtett fájlok megosztása</hu>
+<it>Condividi fle nascosti</it>
+</Trl>
+<Trl id="Shared">
+<de>Shared</de>
+<en>Shared</en>
+<hu>Megosztott</hu>
+<it>Condivisi</it>
+</Trl>
+<Trl id="SharedDirectorys">
+<de>Gesharte Verzeichnisse</de>
+<en>Shared directories</en>
+<hu>Megosztott könyvtárak</hu>
+<it>Cartelle Condivise</it>
+</Trl>
+<Trl id="Sharing">
+<de>Sharing</de>
+<en>Sharing</en>
+<hu>Megosztás</hu>
+<it>Condivisione</it>
+</Trl>
+<Trl id="ShowSidebar">
+<de>Zeige Seitenleiste</de>
+<en>Show Sidebar</en>
+<hu>Oldalsáv mutatása</hu>
+<it>Mostra Barra</it>
+</Trl>
+<Trl id="Size">
+<de>Größe</de>
+<en>Size</en>
+<hu>Méret</hu>
+<it>Dimensione</it>
+</Trl>
+<Trl id="Slots">
+<de>Slots</de>
+<en>Slots</en>
+<hu>Slotok</hu>
+<it>Slot</it>
+</Trl>
+<Trl id="Speed">
+<de>Tempo</de>
+<en>Speed</en>
+<hu>Sebesség</hu>
+<it>Velocità</it>
+</Trl>
+<Trl id="StartedRefreshingTheFilelist">
+<de>Dateilisten Aktualisierung gestartet</de>
+<en>Started refreshing the filelist</en>
+<hu>Fájllista frissítésének kezdése</hu>
+<it>Aggiornamento Lista File iniziato</it>
+</Trl>
+<Trl id="Status">
+<de>Status</de>
+<en>Status</en>
+<hu>Státusz</hu>
+<it>Stato</it>
+</Trl>
+<Trl id="SystemLog">
+<de>System Log</de>
+<en>System Log</en>
+<hu>Rendszer Napló</hu>
+<it>Log di Sistema</it>
+</Trl>
+<Trl id="TCPPort">
+<de>TCP Port</de>
+<en>TCP port</en>
+<hu>TCP port</hu>
+<it>Porta TCP</it>
+</Trl>
+<Trl id="TTHRoot">
+<de>TTH Root</de>
+<en>TTH Root</en>
+<hu>TTH Root</hu>
+<it>Radice TTH</it>
+</Trl>
+<Trl id="Tag">
+<de>Tag</de>
+<en>Tag</en>
+<hu>Aláírás</hu>
+<it>Tag</it>
+</Trl>
+<Trl id="Time">
+<de>Zeit</de>
+<en>Time</en>
+<hu>Idõ</hu>
+<it>Tempo</it>
+</Trl>
+<Trl id="TimeLastSeen">
+<de>Zuletzt gesehen</de>
+<en>Time last seen</en>
+<hu>Utoljára aktív</hu>
+<it>Ultima volta visto</it>
+</Trl>
+<Trl id="TimeLeft">
+<de>Zeit übrig</de>
+<en>Time left</en>
+<hu>Fennmaradó idõ</hu>
+<it>Tempo rimanente</it>
+</Trl>
+<Trl id="TotalSizeNoParm">
+<de>Gesamt Größe</de>
+<en>Total size</en>
+<hu>Teljes méret</hu>
+<it>Dimensione Totale</it>
+</Trl>
+<Trl id="TransferFinished">
+<de>Transfer beendet</de>
+<en>Transfer finished</en>
+<hu>Ávitel befejezve</hu>
+<it>Trasferimento completo</it>
+</Trl>
+<Trl id="Type">
+<de>Typ</de>
+<en>Type</en>
+<hu>Típus</hu>
+<it>Tipo</it>
+</Trl>
+<Trl id="UDPPort">
+<de>UDP Port</de>
+<en>UDP port</en>
+<hu>UDP port</hu>
+<it>Porta UDP</it>
+</Trl>
+<Trl id="UnfinishedDownloadsDirectory">
+<de>Ordner für unfertige Downloads(Änderung erzwingt Neustart)</de>
+<en>Unfinished downloads directory (Change forces restart)</en>
+<hu>Befejezetlen letöltések lönyvtára (Beállítás után a program újraindul)</hu>
+<it>Cartella download temporanei (La modifica richiede un riavvio)</it>
+</Trl>
+<Trl id="UploadSlots">
+<de>Upload Slots</de>
+<en>Upload slots</en>
+<hu>Feltöltési slotok</hu>
+<it>Upload slot</it>
+</Trl>
+<Trl id="UsePassiveMode">
+<de>Nutze Passiv Modus</de>
+<en>Use passive Mode</en>
+<hu>Passzív Mód használata</hu>
+<it>Usa modalità passiva</it>
+</Trl>
+<Trl id="User">
+<de>User</de>
+<en>User</en>
+<hu>Felhasználó</hu>
+<it>User</it>
+</Trl>
+<Trl id="UserCommand">
+<en>User Command</en>
+<hu>Felhasználói Parancs</hu>
+<it>User Command</it>
+</Trl>
+<Trl id="UserCommands">
+<en>User Commands</en>
+<hu>Felhasználói Parancsok</hu>
+<it>User Command</it>
+</Trl>
+<Trl id="UserConnected">
+<de>User verbunden</de>
+<en>User connected</en>
+<hu>Felhasználó Kapcsolódva</hu>
+<it>User connesso</it>
+</Trl>
+<Trl id="UserDescription">
+<de>User Beschreibung</de>
+<en>User Description</en>
+<hu>Felhasználó leírása</hu>
+<it>Descrizione</it>
+</Trl>
+<Trl id="UserDisconnected">
+<de>User getrennt</de>
+<en>User disconnected</en>
+<hu>Felhasználó lecsatlakozva</hu>
+<it>User disconnesso</it>
+</Trl>
+<Trl id="UserLeft">
+<de>User ging</de>
+<en>User left</en>
+<hu>Felhasználó elhagyta</hu>
+<it>User Offline</it>
+</Trl>
+<Trl id="UserMenu">
+<en>User Menu</en>
+<hu>Felhasználói Menü</hu>
+<it>User Menu</it>
+</Trl>
+<Trl id="UserOffline">
+<de>User offline</de>
+<en>User offline</en>
+<hu>Felhasználó offline</hu>
+<it>User offline</it>
+</Trl>
+<Trl id="UserOnline">
+<de>User online</de>
+<en>User online</en>
+<hu>Felhasználó online</hu>
+<it>User online</it>
+</Trl>
+<Trl id="Users">
+<de>Users</de>
+<en>Users</en>
+<hu>Felhasználók</hu>
+<it>User</it>
+</Trl>
+<Trl id="View">
+<de>Fenster</de>
+<en>View</en>
+<hu>Mutat</hu>
+<it>Visualizza</it>
+</Trl>
+<Trl id="VirtualName">
+<de>Virtueller Name</de>
+<en>Virtual Name</en>
+<hu>Virtuális Név</hu>
+<it>Nome virtuale</it>
+</Trl>
+<Trl id="WaitingForConnect">
+<de>Warte auf Verbindung</de>
+<en>Waiting for connect</en>
+<hu>Várakozás a kapcsolódásra</hu>
+<it>Connessione in corso</it>
+</Trl>
+<Trl id="XOfYUsersOnline">
+<de>%1$s von %2$s Users online</de>
+<en>%1$s of %2$s Users online</en>
+<hu>%1$s a(z) %2$s felhasználóból online</hu>
+<it>%1$s di %2$s User online</it>
+</Trl>
+<Trl id="Yes">
+<de>Ja</de>
+<en>Yes</en>
+<hu>Igen</hu>
+<it>Si</it>
+</Trl>
+</Plugin>
+<Plugin id="eu.jucy.notepad" name="notepad">
+<Trl id="Bundle-Name">
+<de>Notizblock Plug-in</de>
+<en>Notepad Plug-in</en>
+<it>Notepad Plug-in</it>
+</Trl>
+<Trl id="NotepadInput">
+<de>Notizblock</de>
+<en>Notepad</en>
+<it>Blocco Note</it>
+</Trl>
+<Trl id="command.description">
+<de>Öffnet Notizblock</de>
+<en>Opens Notepad</en>
+<it>Apre Blocco Note</it>
+</Trl>
+<Trl id="command.name">
+<de>Öffne Notizblock</de>
+<en>Open Notepad</en>
+<it>Apri Blocco Note</it>
+</Trl>
+<Trl id="editor.name">
+<de>Notizblock Editor</de>
+<en>Notepad Editor</en>
+<it>Blocco Note</it>
+</Trl>
+</Plugin>
+<Plugin id="eu.jucy.product1" name="product">
+<Trl id="aboutText">
+<de>
+
+Jucy
+Version: {0}
+
+Jucy ist ein Client für das DirectConnect Protokoll.
+
+Man kann Jucy benutzen um Freunde zu finden und Dateien mit ihnen auszutauschen.
+Beitragende:
+Programmierung:
+Quicksilver
+
+Übersetzung: 
+Andrea	(Italian) 
+exXxer	(Hungarian)
+
+Programm Icon und Splash Screen: 
+Fox
+
+
+Rechtlicher teil:
+"This product includes  software developed  by the 
+Apache Software Foundation  (http://www.apache.org/)." (log4j,bzip2 lib)
+
+"This product includes software developed by 
+SuperBonBon Industries (http://www.sbbi.net/)." (UPnP lib)
+
+Other included libs and stuff (licences included in the jar files):
+Sphlib  (BSD style licence)
+Some Icons from Nuvola theme for KDE (LGPL licence)
+HSQLDB  (BSD style licence)
+
+</de>
+<en>
+
+Jucy
+Version: {0}
+
+Jucy is a client for the DirectConnect protocol.
+
+You can use it to find friends and share files with them.
+Contributors:
+Coding:
+Quicksilver
+
+Translations: 
+Andrea	(Italian) 
+exXxer	(Hungarian)
+
+Application Icon and Splash Screen: 
+Fox
+
+
+Legal part:
+"This product includes  software developed  by the 
+Apache Software Foundation  (http://www.apache.org/)." (log4j,bzip2 lib)
+
+"This product includes software developed by 
+SuperBonBon Industries (http://www.sbbi.net/)." (UPnP lib)
+
+Other included libs and stuff (licences included in the jar files):
+Sphlib  (BSD style licence)
+Some Icons from Nuvola theme for KDE (LGPL licence)
+HSQLDB  (BSD style licence)
+
+</en>
+<it>
+	
+jucy by Quicksilver
+Version: {0}
+
+Jucy è un client per la rete DirectConnect.
+
+Puoi usarlo per trovare amici e condividere con loro i tuoi file.
+Collaboratori:
+
+Programmatori:
+Quicksilver
+
+Traduzioni: 
+Andrea	(Italiano) 
+exXxer	(Ungherese)
+
+Smiley e Splash Screen: 
+Fox
+
+
+Dettagli legali:
+"This product includes  software developed  by the 
+Apache Software Foundation  (http://www.apache.org/)." (log4j,bzip2 lib)
+
+"This product includes software developed by 
+SuperBonBon Industries (http://www.sbbi.net/)." (UPnP lib)
+	
+Altre librerie incluse (licenze incluse nei file jar):
+Sphlib  (BSD style licence)
+Alcune icone del tema Nuvola per KDE (LGPL licence)
+HSQLDB  (BSD style licence)
+
+</it>
+</Trl>
+</Plugin>
+<Plugin id="eu.jucy.ui.searchspy" name="searchspy">
+<Trl id="Average">
+<de>Suchen/s: %.2f</de>
+<en>Average/s: %.2f</en>
+<it>Media/s: %.2f</it>
+</Trl>
+<Trl id="Count">
+<de>Anzahl</de>
+<en>Count</en>
+<it>Numero</it>
+</Trl>
+<Trl id="Description">
+<de>Öffne Such Spion Fenster</de>
+<en>Open Search Spy Editor</en>
+<it>Apri Spia Ricerche</it>
+</Trl>
+<Trl id="HideTTHSearches">
+<de>TTH suchen nicht anzeigen</de>
+<en>Hide TTH searches</en>
+<it>Nascondi TTH</it>
+</Trl>
+<Trl id="HitRatio">
+<de>Treffer rate: %.3f</de>
+<en>Hit Ratio: %.3f</en>
+<it>Media Risultati: %.3f</it>
+</Trl>
+<Trl id="Hits">
+<de>Treffer</de>
+<en>Hits</en>
+<it>Risultati</it>
+</Trl>
+<Trl id="HitsFormatted">
+<de>Treffer: %d</de>
+<en>Hits: %d</en>
+<it>Risultati: %d</it>
+</Trl>
+<Trl id="SearchSpy">
+<de>Such Spion</de>
+<en>Search Spy</en>
+<it>Spia ricerche</it>
+</Trl>
+<Trl id="SearchString">
+<de>Such Begriff</de>
+<en>Search String</en>
+<it>Cerca stringa</it>
+</Trl>
+<Trl id="Time">
+<de>Zeit</de>
+<en>Time</en>
+<it>Ora</it>
+</Trl>
+<Trl id="Total">
+<de>Gesamt: %d</de>
+<en>Total: %d</en>
+<it>Totale: %d</it>
+</Trl>
+</Plugin>
+</Translation>

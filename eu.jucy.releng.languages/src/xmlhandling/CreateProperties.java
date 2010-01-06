@@ -22,7 +22,7 @@ public class CreateProperties {
 		
 		Translation trans = new Translation();
 		
-		File source = new File("translation/Translations.xml");
+		File source = new File("translation/lang.xml");
 		FileInputStream in = new FileInputStream(source);
 		trans.readXML(in);
 		in.close();
