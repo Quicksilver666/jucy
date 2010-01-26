@@ -17,9 +17,6 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -48,6 +45,7 @@ import eu.jucy.gui.texteditor.SendingWriteline;
 import eu.jucy.gui.texteditor.StyledTextViewer;
 import eu.jucy.gui.texteditor.UCTextEditor;
 import eu.jucy.gui.texteditor.SendingWriteline.UserSendingWriteline;
+import eu.jucy.gui.texteditor.StyledTextViewer.MyStyledText;
 import eu.jucy.gui.texteditor.hub.HubEditor;
 import eu.jucy.gui.texteditor.hub.HubEditorInput;
 import eu.jucy.language.LanguageKeys;
@@ -76,7 +74,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 	
 	private CLabel feedLabel;
 	private Text text;
-	private StyledText pmText;
+	private MyStyledText pmText;
 	
 	private LabelViewer labelViewer;
 	private StyledTextViewer textViewer;
@@ -92,17 +90,13 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 		gridLayout.horizontalSpacing = 2;
 		parent.setLayout(gridLayout);
 
-		pmText = new StyledText(parent, SWT.BORDER| SWT.V_SCROLL | SWT.READ_ONLY  | SWT.WRAP);
-		pmText.addModifyListener(new ModifyListener() { //scrolls down
-			public void modifyText(final ModifyEvent e) {
-				pmText.setSelection(pmText.getCharCount());
-			}
-		});
+		pmText = new MyStyledText(parent, SWT.BORDER| SWT.V_SCROLL | SWT.READ_ONLY  | SWT.WRAP);
 		pmText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	
 		Hub hub = (Hub)getHub();
 		textViewer = new StyledTextViewer(pmText,hub,true,getUser(), 
 				((PMEditorInput)getEditorInput()).getTime());
+		pmText.setViewer(textViewer);
 		
 		text = new Text(parent,  SWT.MULTI | SWT.BORDER);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -141,7 +135,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 	}
 	
 	public void dispose() {
-		textViewer.dispose();
+		//textViewer.dispose();
 		ApplicationWorkbenchWindowAdvisor.get().getPopulation()
 			.unregisterUserChangedListener(this, getUser().getUserid());
 		super.dispose();

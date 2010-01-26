@@ -1,36 +1,32 @@
 package eu.jucy.gui.texteditor.hub;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IPersistableElement;
+
+
+import eu.jucy.gui.UCEditorInput;
 
 
 import uc.FavHub;
 
 
-public class HubEditorInput implements IEditorInput {
+public class HubEditorInput extends UCEditorInput {
 	
-private FavHub favHub;
+	private final FavHub favHub;
 
 	public HubEditorInput(FavHub favHub){
 		super();
 		Assert.isNotNull(favHub);
 	
-		this.favHub=favHub;
+		this.favHub = favHub;
 
 	}
 
-	public boolean exists() {
-		return false;
-	}
+
 
 	public FavHub getFavHub(){
 		return favHub;
 	}
-	public ImageDescriptor getImageDescriptor() {
-		return null;
-	}
+
 
 	public String getName() {
 		String modified=getToolTipText();
@@ -42,25 +38,14 @@ private FavHub favHub;
 
 	}
 	
-	
-
-	public IPersistableElement getPersistable() {
-		return null;
-	}
 
 	public String getToolTipText() {
-		return (favHub.getHubname()!=null? favHub.getHubname(): "")
+		return (favHub.getHubname()!= null? favHub.getHubname(): "")
 				+(favHub.getHubaddy() != null ?"("+favHub.getHubaddy()+")":"" );
 	}
 
-	@SuppressWarnings("unchecked")
-	public Object getAdapter(Class adapter) {
-		return null;
-	}
 	
-	public boolean equals(Object obj){
-		if(super.equals(obj))
-			return true;
+	public boolean equals(Object obj) {
 		if(! (obj.getClass() == this.getClass()))
 			return false;
 		return ((HubEditorInput)obj).favHub.equals(favHub);
@@ -69,7 +54,5 @@ private FavHub favHub;
 	public int hashCode(){
 		return favHub.hashCode();
 	}
-
-
 
 }

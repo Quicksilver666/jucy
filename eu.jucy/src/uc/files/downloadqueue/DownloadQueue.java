@@ -324,14 +324,14 @@ public class DownloadQueue extends Observable<StatusObject> {
 			if (containsDQE(idf.getTTHRoot())) {
 				found.add(get(idf.getTTHRoot()).getTargetPath() );
 			}
-			try {
+		//	try {
 				File f = dcc.getFilelist().getFile(idf.getTTHRoot());
 				if (f != null) {
 					found.add(f);
 				}
-			} catch(FilelistNotReadyException fnre) {
-				logger.debug(fnre,fnre);
-			} 
+		//	} catch(FilelistNotReadyException fnre) {
+		//		logger.debug(fnre,fnre);
+		//	} 
 		//	for (File path : recommendedFolders) {
 		//		found.add(new File(path,downloadable.getName()));
 		//	}

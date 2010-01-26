@@ -219,6 +219,18 @@ public class FavHub implements Comparable<FavHub> {
 		return hubaddy;
 	}
 	
+	/**
+	 * 
+	 * @return hubaddy guaranteed to be with protocol prefix..
+	 */
+	public String getUnifiedHubaddy() {
+		if (hubaddy.contains("://")) {
+			return hubaddy;
+		} else {
+			return "dchub://"+hubaddy;
+		}
+	}
+	
 
 	/**
 	 * @param hubaddy the hubaddy to set

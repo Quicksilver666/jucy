@@ -12,10 +12,10 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Platform;
 
 import uc.IUser;
 
+import uc.crypto.HashValue;
 import uc.protocols.IProtocolCommand;
 
 public enum INFField {
@@ -40,7 +40,8 @@ public enum INFField {
 	CT, // client type .. user , OP , Bot..
 	AW, //1=Away, 2=Extended away, not interested in hub chat (hubs may skip sending broadcast type MSG commands to clients with this flag) 
 	SU, //Supports  	 Comma-separated list of feature FOURCC's. This notifies other clients of extended capabilities of the connecting client. 
-	RF  // URL of referrer (hub in case of redirect, web page) 
+	RF,  // URL of referrer (hub in case of redirect, web page) 
+	KP	//Keyprint
 	;
 	
 	private static final Set<String> Fields;
@@ -51,11 +52,9 @@ public enum INFField {
 		}
 	}
 		
-	private static Logger logger = LoggerFactory.make();
+	private static Logger logger = LoggerFactory.make(Level.DEBUG);
 	
-	static {
-		logger.setLevel(Platform.inDevelopmentMode()? Level.DEBUG: Level.INFO);
-	}
+
 	
 
 	
@@ -207,6 +206,12 @@ public enum INFField {
 			break; */
 		case VE:
 			return usr.getVersion();
+		case KP: 
+			HashValue hash = usr.getKeyPrint();
+			if (hash != null) {
+				return hash.magnetString().toUpperCase()+"/"+hash.toString();
+			}
+			break;
 		}
 		
 		return null;
@@ -232,6 +237,7 @@ public enum INFField {
 		case SS:
 		case US: return value.matches(IProtocolCommand.FILESIZE); 
 		case AW: return value.matches("[012]");
+		case KP: return value.matches(IProtocolCommand.HASH_WITH_TYPE);
 		
 		}
 		

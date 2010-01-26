@@ -10,7 +10,16 @@
 <div align="justify">
 <h1>Changelog</h1>
 <h2>Versions</h2> 
-<h3>V:0.81<!-- current --></h3>
+<h3>V:0.82<!-- current --></h3>
+- Fixed partial FileList downloads causing trouble with ApexDC++. (This time for real!) <br>
+- Added encrypted active search as a new feature. (ADCS spec enhancement proposal) <br>
+- Fixed closing no longer locking up UI thread. (Some OS asked the user to enforce close.)<br>
+- Selecting a transfer will now also reveal the user in the hubwindow. Doubleclick will show the folder of the corresponding file in Explorer.<br>
+- Copying text in hub/pm-window will again copy URIs to clipboard.<br>
+- Fixed some drawing issues with file transfers.<br>
+(- potentially fixed that 100% CPU usage bug.) <br> 
+<p>
+<h3>V:0.81<!-- git: 84794c718817bfdf0b2d707a7652629a570ce3fd --></h3>
 - Added possibility to show joins and parts of users and favusers in chat.<br> 
 - Downloading filelist from a file context will now automatically navigate to that file on finishing download.<br>
 - Made MacOsX tray icon grey scale.<br>

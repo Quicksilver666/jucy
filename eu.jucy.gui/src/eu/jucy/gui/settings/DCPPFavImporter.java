@@ -47,7 +47,7 @@ public class DCPPFavImporter {
   	</UserCommands>
 - 	<FavoriteDirs>
   		<Directory Name="Deutsche Filme">D:\Deutsche Filme\</Directory> 
-  		<Directory Name="UCDownloads">C:\Users\christian\Desktop\downloads\UCDownloads\</Directory> 
+  		<Directory Name="UCDownloads">C:\Users\quicksilver\Desktop\downloads\UCDownloads\</Directory> 
   	</FavoriteDirs>
 </Favorites>
 	 * 

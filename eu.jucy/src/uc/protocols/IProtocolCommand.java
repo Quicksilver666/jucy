@@ -48,6 +48,10 @@ public interface IProtocolCommand {
 	//192 Bit digest -> 39 chars in base32 though the last char has less possibilities only QYAI
 	public static final String TTH 	= TigerHashValue.TTHREGEX;
 	public static final String CID 	= TTH;
+	/**
+	 * hashvalue in base32 with some type prefix like sha256/ or TTH/
+	 */
+	public static final String HASH_WITH_TYPE = "(?:\\w+/[A-Z2-7]+)";
 	
 	public static final String COMPRESSION = "(?:(?: ZL1)|(?: BZ2)|(?:))";
 	

@@ -4,12 +4,15 @@ import helpers.GH;
 
 import java.io.IOException;
 import java.net.ProtocolException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.eclipse.core.runtime.Platform;
 
 
 
@@ -20,6 +23,7 @@ import uc.crypto.HashValue;
 import uc.listener.IUserChangedListener.UserChange;
 import uc.listener.IUserChangedListener.UserChangeEvent;
 import uc.protocols.ADCStatusMessage;
+import uc.protocols.AbstractConnection;
 import uc.protocols.ConnectionState;
 import uc.protocols.DCProtocol;
 
@@ -104,7 +108,7 @@ public class INF extends AbstractADCHubCommand {
 	}
 	
 	public static void sendINF(Hub hub, boolean forcenew) {
-		
+		DCClient dcc = hub.getDcc();
 		Map<INFField,String> last ;
 		synchronized (LastINF) {
 			last = LastINF.get(hub.getFavHub());
@@ -122,47 +126,48 @@ public class INF extends AbstractADCHubCommand {
 			User self = hub.getSelf();
 			//BINF 7KJB IDPUK62XDM5GLHOJ4NZ6KCFUGPEW5B3FKC4HMKRSA PDEZROSKSJ54SNWZFEIECDFAH5IGJRYMM5SZ2RWHQ 
 			//NIQuicksilver SL4 SS695217057756 SF9712 HN1 HR0 HO0 VE++\s0.704 US5242 SUADC0
-			List<INFField> fields = Arrays.asList(INFField.ID,INFField.PD,
+			List<INFField> fields = new ArrayList<INFField>(Arrays.asList(INFField.ID,INFField.PD,
 										INFField.NI,INFField.SL , 
 										INFField.SS,INFField.SF ,INFField.HN,INFField.HR,
-										INFField.HO, INFField.VE,INFField.SU,INFField.US, INFField.U4) ;
+										INFField.HO, INFField.VE,INFField.SU,INFField.US));
+			
+			if (dcc.isActive()) {
+				fields.add(INFField.U4);
+			}
+			if (AbstractConnection.getFingerPrint() != null) {
+				fields.add(INFField.KP);
+			}
 
 			
 			for (INFField f: fields ) { //  currently
 				next.put(f,  f.getProperty(self));
 			}
-			if (forcenew ) { //on first connect we also add I4 so we get our IP set from hub
-				boolean ipv4= DCClient.get().isIPv4Used();
+			if (forcenew && dcc.isActive()) { //on first connect we also add I4 so we get our IP set from hub if active
+				boolean ipv4 = dcc.isIPv4Used();
 				INFField which = ipv4? INFField.I4: INFField.I6;
 				String address;
-				if (DCClient.get().getConnectionDeterminator().isExternalIPSetByHand()) {
-					address = DCClient.get().getConnectionDeterminator().getPublicIP().getHostAddress();
+				if (dcc.getConnectionDeterminator().isExternalIPSetByHand()) {
+					address = dcc.getConnectionDeterminator().getPublicIP().getHostAddress();
 				} else {
 					address = ipv4?  "0.0.0.0":"::0";
 				}
 				
 				next.put(which, address );
-			}// else {
-				//if not the first.. remove ID and PD if present
-			//	next.remove( INFField.ID );
-			//	next.remove( INFField.PD );
-			//}
+			}
 			
-			
-				next.entrySet().removeAll(last.entrySet()); //remove all duplicate info
-				for (Entry<INFField,String> e :next.entrySet()) {//add to last all new Info
-					last.put(e.getKey(), e.getValue());
-				}
-			
+			next.entrySet().removeAll(last.entrySet()); //remove all duplicate info
+			for (Entry<INFField,String> e :next.entrySet()) {//add to last all new Info
+				last.put(e.getKey(), e.getValue());
+			}
 			
 			if (!next.isEmpty()) {
 				String inf = "BINF "+SIDToStr(self.getSid());
+				inf +=  ReverseINFMap( next);
 				
-				for (Entry<INFField,String> e: next.entrySet()) {
-					inf+= " "+e.getKey().name()+ doReplaces(e.getValue());
+				hub.sendUnmodifiedRaw(inf + "\n");
+				if (Platform.inDevelopmentMode()) {
+					logger.info("INF: "+inf);
 				}
-			//	logger.info(inf);
-				hub.sendUnmodifiedRaw(inf+"\n");
 			}
 		}
 	}

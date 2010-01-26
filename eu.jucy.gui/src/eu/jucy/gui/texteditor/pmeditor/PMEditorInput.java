@@ -3,17 +3,15 @@ package eu.jucy.gui.texteditor.pmeditor;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IPersistableElement;
 
+import eu.jucy.gui.UCEditorInput;
 import eu.jucy.gui.texteditor.StyledTextViewer;
 
 import uc.IUser;
 import uc.database.DBLogger;
 import uc.database.ILogEntry;
 
-public class PMEditorInput implements IEditorInput {
+public class PMEditorInput extends UCEditorInput {
 
 	private final IUser other;	
 
@@ -51,13 +49,8 @@ public class PMEditorInput implements IEditorInput {
 		}
 	}
 	
-	public boolean exists() {
-		return false;
-	}
 
-	public ImageDescriptor getImageDescriptor() {
-		return null;
-	}
+
 
 	public String getName() {
 		return other.getNick();
@@ -68,18 +61,11 @@ public class PMEditorInput implements IEditorInput {
 	}
 
 
-	public IPersistableElement getPersistable() {
-		return null;
-	}
-
 	public String getToolTipText() {
 		return other.getNick()+(other.getHub() != null?" - "+ other.getHub().getName():"");
 	}
 
-	@SuppressWarnings("unchecked")
-	public Object getAdapter(Class adapter) {
-		return null;
-	}
+
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

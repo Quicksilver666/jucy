@@ -2,6 +2,7 @@ package eu.jucy.gui.texteditor;
 
 import helpers.GH;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -94,7 +95,7 @@ public class CommandInterpreter {
 	
 	private static enum Command {
 		
-		AWAY,BACK,UC,REFRESH,ME,PM,SEARCH,SLOTS,REBUILD,PRUNEHASHES,JOIN,CLEAR,TS,CLOSE,GETLIST,FAVORITES,FAV,PASS,HELP,SHOWJOINS,SHOWFAVJOINS;
+		AWAY,BACK,UC,REFRESH,ME,PM,SEARCH,SLOTS,REBUILD,PRUNEHASHES,JOIN,CLEAR,TS,CLOSE,GETLIST,FAVORITES,FAV,PASS,HELP,SHOWJOINS,SHOWFAVJOINS,FILELISTTEST;
 		
 	
 		Command() {}
@@ -244,6 +245,14 @@ public class CommandInterpreter {
 				break;
 			case BACK:
 				ApplicationWorkbenchWindowAdvisor.get().setAway(false);
+				break;
+			case FILELISTTEST:
+				byte[] b = ApplicationWorkbenchWindowAdvisor.get().getOwnFileList().writeFileList(GetFirstWord(line).trim(), false);
+				try {
+					logger.info(new String(b,"utf-8"));
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
 				break;
 			case HELP:
 				hub.statusMessage("/away <msg>, /me <msg>, /back, /refresh, /slots #, /uc, /rebuild, /pruneHashes, /join <hub-ip>,"

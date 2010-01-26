@@ -28,7 +28,7 @@ public class AutomaticSearchForAlternatives implements Runnable, ISearchResultLi
 	
 
 	private final Set<HashValue> alreadySearched = new HashSet<HashValue>();
-	private static final int SEARCHINTERVAL = 15 * 60 ; 
+	private static final int SEARCHINTERVAL = PI.getInt(PI.autoSearchInterval) * 60 ; 
 	
 	private ScheduledFuture<?> task = null;
 	

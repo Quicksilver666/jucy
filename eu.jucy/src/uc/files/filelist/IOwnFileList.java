@@ -30,9 +30,9 @@ public interface IOwnFileList {
 	 * Get a java.io.File from a TTH
 	 * @param tth - the hashvalue of the file
 	 * @return the path to the local filesystem holding the file , null if not found
-	 * @throws FilelistNotReadyException if the FileList is still being initialised
+	 * 
 	 */
-	File getFile(HashValue tth) throws FilelistNotReadyException;
+	File getFile(HashValue tth);
 
 	/**
 	 * Get a java.io.file from a filelist File

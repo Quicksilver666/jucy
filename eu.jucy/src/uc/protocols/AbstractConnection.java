@@ -39,7 +39,8 @@ import org.apache.log4j.Logger;
 
 
 import uc.PI;
-import uc.crypto.KeyGenerator;
+import uc.crypto.CertGenerator;
+import uc.crypto.HashValue;
 
 
 /**
@@ -64,18 +65,31 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 	
 	static {
 		boolean[] bP = new boolean[]{false}; 
-		TLS = loadTLS(bP);
+		HashValue[] fPP = new HashValue[]{null};
+		TLS = loadTLS(bP,fPP);
 		tlsInitialised = bP[0];
+		fingerPrint= fPP[0];
 	}
 	
 	private static final boolean tlsInitialised;
+	private static final HashValue fingerPrint;
 	
+	
+	public static HashValue getFingerPrint() {
+		return fingerPrint;
+	}
+
+
+
+
 	public static boolean isTLSInitialized() {
 		return tlsInitialised;
 	}
 	
+	
+	
 
-	private static SSLContext loadTLS(boolean[] tlsPointer) {
+	private static SSLContext loadTLS(boolean[] tlsPointer,HashValue[] fingerPrintPointer) {
 		SSLContext tlsinit = null;
 		try {
 			TrustManager[] trustAllCerts = new TrustManager[]{
@@ -92,7 +106,7 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 			
 			
 			tlsinit = SSLContext.getInstance("TLSv1");
-			KeyManager[] managers = PI.getBoolean(PI.allowTLS)? KeyGenerator.loadManager():null;
+			KeyManager[] managers = PI.getBoolean(PI.allowTLS)? CertGenerator.loadManager(fingerPrintPointer):null;
 			tlsinit.init(managers,trustAllCerts , null);
 			
 			tlsPointer[0]= managers != null && managers.length > 0 ;

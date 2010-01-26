@@ -60,7 +60,7 @@ import uc.DCClient;
 import uc.FavHub;
 import uc.IHubCreationListener;
 import uc.PI;
-import uc.crypto.IHashEngine.HashedListener;
+import uc.crypto.IHashEngine.IHashedListener;
 import uihelpers.SUIJob;
 
 
@@ -72,6 +72,27 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 
 	private static DCClient dcc;
 	private static Thread uiThread;
+	private static volatile Job shutdownJob;
+	
+	public static void waitForShutdownJob() {
+		if (Thread.currentThread() ==  uiThread) {
+			Display display = Display.getCurrent();
+			while (shutdownJob != null) {
+				if (!display.readAndDispatch ()) display.sleep ();
+			}
+		} else {
+			if (shutdownJob != null) {
+				try {
+					shutdownJob.join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private IHashedListener hashedListener;
+	private IHubCreationListener hubCreationListener;
 	
 	/**
 	 * may only be called from ui thread
@@ -162,14 +183,34 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	UIThreadDeadLockChecker.start();
     }
     
-    private void registerListeners(final IWorkbenchWindow window) {
-    	dcc.getHashEngine().registerHashedListener(new HashedListener() {
+    
+    
+    @Override
+	public void postWindowClose() {
+		dcc.unregister(hubCreationListener);
+		dcc.getHashEngine().unregisterHashedListener(hashedListener);
+		shutdownJob = new Job("Shutdown") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				dcc.stop(true);
+				shutdownJob = null;
+				return Status.OK_STATUS;
+			}
+		};
+		shutdownJob.schedule();
+		
+		super.postWindowClose();
+	}
+
+	private void registerListeners(final IWorkbenchWindow window) {
+    	hashedListener = new IHashedListener() {
 			public void hashed(File f, long duration,long remainingSize) {
 				logger.info(new TimeToken(duration,f,remainingSize));
 			}
-    	});
+    	};
+    	dcc.getHashEngine().registerHashedListener(hashedListener);
     	
-    	dcc.register(new IHubCreationListener() {
+    	hubCreationListener = new IHubCreationListener() {
 			public void hubCreated(final FavHub fh, boolean showInUI, final Runnable callback) {
 				if (showInUI) {
 					new SUIJob() {
@@ -186,7 +227,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 				}
 			}
     		
-    	});
+    	};
+    	
+    	dcc.register(hubCreationListener);
     	
     	//listener for setting topic string on the top of the window
     	final ITopicChangedListener listener = new ITopicChangedListener() {
@@ -230,8 +273,6 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 			public void partOpened(IWorkbenchPart part) {}
     		
     	});
-    	
-    	
     }
     
     private TrayItem trayItem;
@@ -291,6 +332,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     		}
     	});
     }
+    
     
     
     

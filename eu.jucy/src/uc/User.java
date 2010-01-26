@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import logger.LoggerFactory;
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Platform;
 
 import uc.crypto.HashValue;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
@@ -36,6 +37,15 @@ import uc.protocols.hub.INFField;
 public class User implements IUser , IHasUser {
 
 	private static Logger logger = LoggerFactory.make();
+	
+	/**
+	 * known ADC support strings
+	 */
+	public static final String 	ADCS_SUPPORT = "ADC0",	
+								ADCS_UDP	= "SUD0" , //SUDP -> SecureUDP
+								TCP4 = "TCP4",UDP4 = "UDP4",TCP6 = "TCP6",UDP6 = "UDP6",
+								KEYP = "KEY0";
+	
 
 	private static final int SID_NOT_SET = -1; 
 	
@@ -115,6 +125,11 @@ public class User implements IUser , IHasUser {
 	 */
 	private HashValue cid; 
 	private int numberOfSharedFiles;
+	
+	/**
+	 * see KEYP extension
+	 */
+	private HashValue keyPrint;
 	
 	/**
 	 * 
@@ -272,6 +287,15 @@ public class User implements IUser , IHasUser {
 			case VE:
 				version = val.intern();
 				break;
+			case KP:
+				try {
+					keyPrint = HashValue.createHash(val);
+				} catch(IllegalArgumentException iae) {
+					if (Platform.inDevelopmentMode()) {
+						logger.warn("hash could not be parsed: "+val+"  "+iae);
+					}
+				}
+				break;
 			}
 		} else {
 			 deletePropery(inf);
@@ -353,6 +377,9 @@ public class User implements IUser , IHasUser {
 			break;
 		case VE:
 			version = "";
+			break;
+		case KP:
+			keyPrint = null;
 			break;
 		}
 	}
@@ -538,7 +565,11 @@ public class User implements IUser , IHasUser {
 	 */
 	public String getConnection() {
 		if (GH.isEmpty(connection)) {
-			return SizeEnum.toSpeedString(getUs());
+			if (getUs() == 0) {
+				return "";
+			} else {
+				return SizeEnum.toShortSpeedString(getUs());
+			}
 		} else {
 			return connection;
 		}
@@ -1179,8 +1210,12 @@ public class User implements IUser , IHasUser {
 	 * checks whether the user has support for encryption
 	 * @return true if Encryption is supported..
 	 */
-	public boolean hasSupportFoEncryption() {
-		return supports.contains("ADC0") || testFlag(FLAG_ENC);
+	public boolean hasSupportForEncryption() {
+		return supports.contains(ADCS_SUPPORT) || testFlag(FLAG_ENC);
+	}
+	
+	public boolean hasSupportForUDPEncryption() {
+		return supports.contains(ADCS_UDP);
 	}
 
 	public int getUdpPort() {
@@ -1248,6 +1283,10 @@ public class User implements IUser , IHasUser {
 	 */
 	public HashValue getPD() {
 		return null;
+	}
+	
+	public HashValue getKeyPrint() {
+		return keyPrint;
 	}
 	
 	/**

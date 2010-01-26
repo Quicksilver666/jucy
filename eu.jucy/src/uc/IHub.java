@@ -119,4 +119,9 @@ public interface IHub {
 	  * @return true if the hub is an nmdc hub.. false for adc..
 	  */
 	boolean isNMDC();
+	
+	/**
+	 * @return time of last login
+	 */
+	long getLastLogin();
 }

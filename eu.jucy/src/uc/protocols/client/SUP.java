@@ -65,7 +65,7 @@ public class SUP extends AbstractADCClientProtocolCommand {
 		
 		IUser usr = client.getSelf();
 		if (usr != null && !client.isIncoming()) { //send a STA about the referrer 
-			String hubaddress = usr.getHub().getFavHub().getHubaddy();
+			String hubaddress = usr.getHub().getFavHub().getUnifiedHubaddy();
 			ADCStatusMessage adcm = new ADCStatusMessage("",0,0,Flag.RF,hubaddress);
 			STA.sendSTA(client, adcm);
 		}

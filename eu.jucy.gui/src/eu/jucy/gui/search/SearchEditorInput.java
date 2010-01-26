@@ -1,17 +1,13 @@
 package eu.jucy.gui.search;
 
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IPersistableElement;
 
 import uc.crypto.HashValue;
 
 import eu.jucy.gui.Lang;
+import eu.jucy.gui.UCEditorInput;
 
 
-
-
-public class SearchEditorInput implements IEditorInput {
+public class SearchEditorInput extends UCEditorInput {
 
 	private final HashValue initialsearch;
 	
@@ -33,33 +29,10 @@ public class SearchEditorInput implements IEditorInput {
 		this.initialsearch = null;
 		this.alternate = initialSearch;
 	}
-	
-	public boolean exists() {
-		return false;
-	}
-
-	public ImageDescriptor getImageDescriptor() {
-		return null;
-	}
 
 	public String getName() {
 		return Lang.Search;
 	}
-
-	public IPersistableElement getPersistable() {
-		return null;
-	}
-
-	public String getToolTipText() {
-		return getName();
-	}
-
-	@SuppressWarnings("unchecked")
-	public Object getAdapter(Class adapter) {
-		return null;
-	}
-
-
 
 	public HashValue getInitialsearch() {
 		return initialsearch;
@@ -67,7 +40,6 @@ public class SearchEditorInput implements IEditorInput {
 	public String getAlternate() {
 		return alternate;
 	}
-	
-	
+
 
 }

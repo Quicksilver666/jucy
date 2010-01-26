@@ -1,6 +1,7 @@
 package uc.protocols.hub;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,6 +17,7 @@ import org.apache.log4j.Logger;
 
 
 import uc.DCClient;
+import uc.User;
 import uc.crypto.HashValue;
 import uc.files.filelist.OwnFileList.SearchParameter;
 import uc.files.search.ComparisonEnum;
@@ -87,11 +89,12 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 			keys.remove(".");
 			
 			passive = m.group(1).startsWith("Hub:");
-			Object searcher = null;
+			User searcherUsr = null;
+			InetSocketAddress searcherIp = null;
 			if (passive) {
-				searcher = hub.getUserByNick(m.group(1).substring(4));
+				searcherUsr = hub.getUserByNick(m.group(1).substring(4));
 			} else {
-				searcher = ConnectionProtocol.inetFromString(m.group(1), 412);
+				searcherIp = ConnectionProtocol.inetFromString(m.group(1), 412);
 			}
 			
 			long minSize = sizerestricted && !maxsize ? size : 0 ;//  (maxsize?   0  :	size	   ) : 		0; 
@@ -100,7 +103,7 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 			SearchParameter sp = new SearchParameter(keys,Collections.<String>emptySet(),minSize,
 					maxSize,-1,searchType.getEndings(),searchType.equals(SearchType.Folder));
 			
-			hub.searchReceived(sp, passive, searcher,null);
+			hub.searchReceived(sp, passive, searcherUsr,searcherIp,null);
 			
 			
 		} else if ((m = tthSearch.matcher(command)).matches()) {
@@ -108,14 +111,15 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 			
 			passive = m.group(1).startsWith("Hub:");
 			
-			Object searcher = null;
+			User searcherUsr = null;
+			InetSocketAddress searcherIp = null;
 			if (passive) {
-				searcher = hub.getUserByNick(m.group(1).substring(4));
+				searcherUsr = hub.getUserByNick(m.group(1).substring(4));
 			} else {
-				searcher = ConnectionProtocol.inetFromString(m.group(1), 412);
+				searcherIp = ConnectionProtocol.inetFromString(m.group(1), 412);
 			}
 			
-			hub.searchReceived(tth, passive, searcher,null);
+			hub.searchReceived(tth, passive, searcherUsr,searcherIp,null);
 			
 			
 		} else {

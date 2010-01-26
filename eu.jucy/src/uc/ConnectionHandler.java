@@ -329,17 +329,18 @@ public class ConnectionHandler extends Observable<StatusObject>
 	}
 	
 	/**
-	 * TODO fix this... user determination should be done by token not by CID
+	 *  user determination should be done by token not by CID
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public ExpectedInfo getUserExpectedToConnect(HashValue id) {
+	public ExpectedInfo getUserExpectedToConnect(HashValue cid,String token) {
 		synchronized(expectedToConnect) {
 			for (ExpectedInfo ei : expectedToConnect) {
-				IUser usr = ei.getUser();
-				if (id.equals(usr.getCID())) {
-					return ei;
+				if (token != null && token.equals(ei.token)) {
+					if (cid == null || cid.equals(ei.user.getCID())) {
+						return ei;
+					}
 				}
 			}
 		}
@@ -354,7 +355,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 	 * and opens a Socket to the appropriate address
 	 */
 	public void ctmReceived(IUser self , InetSocketAddress isa,IUser other,CPType protocol,String token) {
-			ClientProtocol ctcp = new ClientProtocol( isa ,this , self,
+			ClientProtocol ctcp = new ClientProtocol( isa ,this , self,other,
 					protocol,token , protocol.isEncrypted());
 			clientProtocolCreated(ctcp);
 		

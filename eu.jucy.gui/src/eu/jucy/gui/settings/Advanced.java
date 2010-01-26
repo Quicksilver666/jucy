@@ -1,6 +1,7 @@
 package eu.jucy.gui.settings;
 
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 
@@ -51,6 +52,17 @@ public class Advanced extends UCPrefpage {
 				getFieldEditorParent());
 		minimumSegmentSize.setValidRange(5, Integer.MAX_VALUE); 
 		addField(minimumSegmentSize);
+		
+		IntegerFieldEditor autoSearchInterval= new IntegerFieldEditor(PI.autoSearchInterval,
+				"Interval for Automatic search for alternatives (in Minutes)",
+				getFieldEditorParent());
+		autoSearchInterval.setValidRange(1, Integer.MAX_VALUE/600); 
+		addField(autoSearchInterval);
+		
+		BooleanFieldEditor fullTextSearch = new BooleanFieldEditor(PI.fullTextSearch, 
+				"Allow full text search", 
+				getFieldEditorParent());
+		addField(fullTextSearch);
 		
 	}
 

@@ -287,9 +287,9 @@ public class FileTransferInformation  {
 			switch(t) {
 			case FILE:
 			case TTHL:
-				try {
+			//	try {
 					f = DCClient.get().getFilelist().getFile(getHashValue());
-				} catch (FilelistNotReadyException fnre) {}
+			//	} catch (FilelistNotReadyException fnre) {}
 			}
 		} else if (isDownload()) {
 			f = dqe.getTargetPath();

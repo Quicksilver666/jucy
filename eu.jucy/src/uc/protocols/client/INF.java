@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.net.ProtocolException;
 import java.util.Map;
 
-import uc.DCClient;
-import uc.User;
+import uc.IUser;
+import uc.ConnectionHandler.ExpectedInfo;
 import uc.crypto.HashValue;
 import uc.protocols.ADCStatusMessage;
 import uc.protocols.hub.Flag;
@@ -23,22 +23,30 @@ public class INF extends AbstractADCClientProtocolCommand {
 		Map<INFField,String> fields = INFMap(matcher.group(1));
 
 		HashValue cid = null; 
-		User other = null;
+		IUser other = null;
+		
 		if (fields.containsKey(INFField.ID)) {
 			cid		= HashValue.createHash(fields.get(INFField.ID));
-			other	= getDCC().getUserForCID(cid);
-		} else {
-			
-			STA.sendSTA(client, new ADCStatusMessage("No ID field",
-					ADCStatusMessage.FATAL,
-					ADCStatusMessage.ProtocolRequiredINFfieldBadMissing,
-					Flag.FM,INFField.ID.name()));
-			return;
+		}
+		String token = fields.get(INFField.TO);
+		if (token != null && client.isIncoming()) {
+			ExpectedInfo ei = client.getCh().getUserExpectedToConnect(cid, token);
+			if (ei != null) {
+				other	= ei.getUser(); 
+			}
 		}
 		
-		String token = fields.get(INFField.TO);
-		
-		 
+		if (other == null) { 
+			if (cid != null) {
+				other = getDCC().getUserForCID(cid);
+			} else {
+				STA.sendSTA(client, new ADCStatusMessage("No ID field",
+						ADCStatusMessage.FATAL,
+						ADCStatusMessage.ProtocolRequiredINFfieldBadMissing,
+						Flag.FM,INFField.ID.name()));
+				return;
+			}
+		}
 		
 		if (other == null) {
 			STA.sendSTA(client, new ADCStatusMessage("User unknown",
@@ -73,7 +81,7 @@ public class INF extends AbstractADCClientProtocolCommand {
 	
 	public static void sendINFIncoming(ClientProtocol cp) {
 		//CINF IDAFVC6C65R4ZLTP7UYDDK6QJPQHUZLAJPSZSG3DQ  no TOKEN info in incoming
-		cp.sendRaw("CINF ID"+DCClient.get().getPID().hashOfHash()+"\n");
+		cp.sendRaw("CINF ID"+ cp.getCh().getDCC().getPID().hashOfHash()+"\n");
 	}
 	
 

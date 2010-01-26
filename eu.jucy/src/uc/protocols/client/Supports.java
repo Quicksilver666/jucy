@@ -4,13 +4,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
 
-import uc.FavHub;
-import uc.IUser;
 
 public class Supports  extends AbstractNMDCClientProtocolCommand  {
 
-	private static final String Supports = "$Supports MiniSlots XmlBZList ADCGet TTHL TTHF ZLIG"; //+ "|";
+	private static final String SUPPORTS = "$Supports MiniSlots XmlBZList ADCGet TTHL TTHF ZLIG |"; //+ "|";
 	
+//	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
 	
 	public Supports(ClientProtocol client) {
 		super(client);
@@ -19,6 +18,7 @@ public class Supports  extends AbstractNMDCClientProtocolCommand  {
 
 	@Override
 	public void handle(String command) throws IOException {
+		
 		//just grab rest of the support string.. and trim it..
 		Set<String> supps = client.getOthersSupports(); 
 		
@@ -30,14 +30,14 @@ public class Supports  extends AbstractNMDCClientProtocolCommand  {
 
 	
 	public static void sendSupports(ClientProtocol client) throws IOException {
-		String supports = Supports;
-		IUser self = client.getSelf();
-		if (self != null && !client.isIncoming()) {
-			FavHub fh = self.getHub().getFavHub();
-			String s = fh.getHubaddy();
-			supports += " Ref=" + s;
-		}
-		client.sendRaw(supports + " |");
+//		String supports = Supports;
+//		IUser self = client.getSelf();
+//		if (self != null && !client.isIncoming()) {
+//			FavHub fh = self.getHub().getFavHub();
+//			String s = fh.getHubaddy();
+//			supports += " Ref=" + s;
+//		}
+		client.sendRaw(SUPPORTS);
 
 		
 		client.increaseLoginLevel();

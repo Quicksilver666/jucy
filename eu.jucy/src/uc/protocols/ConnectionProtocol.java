@@ -85,6 +85,11 @@ public abstract class ConnectionProtocol {
 	 */
 	protected volatile ConnectionState state = ConnectionState.CONNECTING ; 
 
+	private volatile long lastLogin;
+
+
+
+
 
 	private final int[] performancePrefs;
 	
@@ -184,6 +189,7 @@ public abstract class ConnectionProtocol {
 			return;
 		}
 		loginDone = true;
+		lastLogin = System.currentTimeMillis();
 		setState(ConnectionState.LOGGEDIN);
 	}
 
@@ -226,11 +232,11 @@ public abstract class ConnectionProtocol {
 	}
 	
 	protected void onUnexpectedCommandReceived(String command) {
-		logger.debug("Unexpected command received: "+command);  
+		logger.debug("Unexpected command received: "+command+"   in "+connection.getInetSocketAddress());  
 	}
 	
 	protected void onMalformedCommandReceived(String command) {
-		logger.debug("Malformed Command received: "+command); 
+		logger.debug("Malformed Command received: "+command+"   in "+connection.getInetSocketAddress()); 
 	}
 	
 	/**
@@ -398,7 +404,9 @@ public abstract class ConnectionProtocol {
 		return loginDone;
 	}
 
-	
+	public long getLastLogin() {
+		return lastLogin;
+	}
 }
 
 

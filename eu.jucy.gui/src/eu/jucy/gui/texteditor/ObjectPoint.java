@@ -25,10 +25,11 @@ public class ObjectPoint<V> {
 	 * @param ranges
 	 * @return
 	 */
-	public static ObjectPoint<Image> create(int x,int length,Image img,List<StyleRange> ranges) {
+	public static ObjectPoint<Image> create(int x,int length,String replacementText,Image img,List<StyleRange> ranges) {
 		ObjectPoint<Image> ip = new ObjectPoint<Image>();
 		ip.x = x;
 		ip.length = length;
+		ip.replacementText = replacementText;
 		ip.obj = img;
 		StyleRange style = new StyleRange(x,length,null,null);
 		Rectangle rect = img.getBounds();
@@ -36,8 +37,6 @@ public class ObjectPoint<V> {
 		ranges.add(style);
 		return ip;
 	}
-	
-//	public static final int MARGIN = 5;
 	
 	/**
 	 * create a StylePoint and add the matching StyleRange
@@ -49,10 +48,11 @@ public class ObjectPoint<V> {
 	 * @param ranges
 	 * @return
 	 */
-	public static ObjectPoint<Control> create(int x,float ascentPerc,Control control,List<StyleRange> ranges) {
+	public static ObjectPoint<Control> create(int x,String replacementText,float ascentPerc,Control control,List<StyleRange> ranges) {
 		ObjectPoint<Control> ip = new ObjectPoint<Control>();
 		ip.x = x;
 		ip.length = 1;
+		ip.replacementText = replacementText;
 		ip.obj = control;
 		StyleRange style = new StyleRange(x,1,null,null);
 		control.pack();
@@ -71,12 +71,27 @@ public class ObjectPoint<V> {
 	}
 	
 	
+//	public static ObjectPoint<Runnable> createRunnablePoint(int x,int length,Runnable runnable,Color foreground,Color background,Font font,List<StyleRange> ranges) {
+//		ObjectPoint<Runnable> ip = new ObjectPoint<Runnable>();
+//		ip.x = x;
+//		ip.length = length;
+//		ip.obj = runnable;
+//		StyleRange style = new StyleRange(x,length,foreground,background);
+//		style.underline = true;
+//		style.font = font;
+//		ranges.add(style);
+//		return ip;
+//	}
+	
+	
 	/**
 	 * position in the text
 	 */
 	public int x;
 	
 	public int length;
+	
+	public String replacementText;
 	
 //	public int ascent;
 	

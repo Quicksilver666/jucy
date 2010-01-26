@@ -11,11 +11,13 @@ package uc;
 
 
 import helpers.GH;
+import helpers.SizeEnum;
 import helpers.Version;
 
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.WeakReference;
+import java.net.Inet4Address;
 
 
 
@@ -96,33 +98,42 @@ import uc.protocols.hub.Hub;
 
 
 /** 
- *
+ * TODO might be nice to have different model for connections..
+ * i.e. instead of getting a stream from unblockign connection and read from it with a thread
+ * -> set a ammount of bytes to be read max .. do unpacking in aconnection...
+ * -> does that work together with limiter? uploadlimiter maybe  but downloadlimiter?
  *
  *  TODO internationalisation in hublisteditor
  *
  * Presentation of magnet -> save as button .. or play button could be added / may be a view button also..
- * 
+ 
  * 
  * My Personal Bugtracker:
  * 
+ * 
+ * TODO remove change Lang.LineSpeed to accomodate for now different display of speeds..
  *  
- *  TODO show joins/parts   + show joins parts of favs
+ *  TODO join/part colouring
  *  
  *  TODO may be think about torrent support in dc client -> starting torrents downloaded..
  *  
+
+ It's just a draft spec, so, well.… yeah.
+[20:10]<Ophite1> having BINF … KPsha256:BLEHBLEHBLEHBLEHBLEHBELHBELHBELHBE
+[20:11]<Ophite1> would be about right for a client (payload of KP being <hash>:<base32encoded-hash value of certificate fingerprint>)
+[20:11]<Ophite1> and in hub url, URL parameter ?kp=<hash>:<base32encoded-hash value of certificate fingerprint>
+[20:11]<Ophite1> (or of course possibly ;kp= or &kp= if it isn’t the first parameter in the URL)
+[20:12]<Ophite1> while you _could_ use tth I wouldn’t if I were you because it’s likely to be inconvenient to implement, and you’re better off using sha256.
+ 
+ <Ophite1> Quicksilver: Standard on signature generation is I think part of PKCS#5.
+[22:12]<Ophite1> Fingerprints are specified; you should be able to get access to the fingerprints from the same crypto library that implements TLS.
  *  
- *  TODO implement some game.. i.e. Battleship or chess that could be played against other user..
+ * TODO implement some game.. i.e. Battleship or chess that could be played against other user..
  *  
  * TODO .. people with slot not Properly removed in SlotManager from slotqueue may cause not all slots filled up..
  * 
- * 
- *  TODO http://www.adcportal.com/wiki/index.php/UCMD   usercommand escapes 
- *  or usercommand in general seems not to work too well in ADC ..
- *  double escapes of spaces in line:Reason .. also some stuff not being seen at all..
- *  TODO NMDC/ADC issue with line escapeing what ever comes out of the line:Reason box
+ * TODO UDP encryption change -> encrypt AES/ECB/PKCS5Padding with IV  then append Mesage with AES/CBC/PKCS5Padding
  *  
- *  
- * 
  * 
  * TODO after finished downloading file .. may be check if should be hashed and immediately shared..
  *
@@ -247,6 +258,7 @@ public final class DCClient {
 	
 	private final User fileListSelf; //the self that holds our own FileList
 
+	private final Object synchPID = new Object();
 	private HashValue pid; 
 	
 	/**
@@ -435,7 +447,7 @@ public final class DCClient {
 				logger.debug("pref changed: "+pref);
 				if (pref.equals(PI.eMail) || 
 						pref.equals(PI.description) || 
-						pref.equals(PI.connection)||
+						pref.equals(PI.connectionNew)||
 						pref.equals(PI.passive) ||
 						pref.equals(PI.uploadLimit) ||
 						pref.startsWith("socksProxy")) {
@@ -464,6 +476,7 @@ public final class DCClient {
     public void search(FileSearch search, Set<IHub> hubsToSearch) {
     	if (!hubsToSearch.isEmpty()) {
 	    	connectionDeterminator.searchStarted(search); 
+	    	udphandler.addTokenExpected(search.getToken());
     		for (IHub hub:hubsToSearch) {
 	    		hub.search(search);
 	    	}
@@ -570,7 +583,9 @@ public final class DCClient {
         	}
     		PI.put(PI.uUID, createUUID().toString());
     	}
-    	pid = HashValue.createHash(PI.get(PI.uUID));
+    	synchronized (synchPID) {
+    		pid = HashValue.createHash(PI.get(PI.uUID));
+    	}
     	
     	monitor.worked(1);
     	
@@ -642,8 +657,10 @@ public final class DCClient {
      * 
      * @return the PID of the client 
      */
-    public synchronized HashValue getPID() {
-    	return pid;
+    public HashValue getPID() {
+    	synchronized(synchPID) {
+    		return pid;
+    	}
     }
     
     /**
@@ -710,11 +727,11 @@ public final class DCClient {
      * on index 2 - OP hubs 
      */
     public int[] getNumberOfHubs(boolean countChatOnly) {
-    	int normal = 0,registered =0, ophub = 0;
+    	int normal = 0,registered = 0, ophub = 0;
     
     	for (Hub hub:hubs.values()) {
     		if (hub.getState() == ConnectionState.LOGGEDIN && 
-    				(countChatOnly || !hub.getFavHub().isChatOnly()) ) {
+    				(countChatOnly || !hub.getFavHub().isChatOnly())) {
     			
 	    		if (hub.isOpHub()) {
 	    			ophub++;
@@ -734,7 +751,7 @@ public final class DCClient {
      * i.e. 0.02 or 50  
      */
     public String getConnection() {
-    	return PI.get(PI.connection); 
+    	return SizeEnum.toShortSpeedString(PI.getLong(PI.connectionNew));
     }
     
 
@@ -742,7 +759,6 @@ public final class DCClient {
     public Mode getMode() {
     	return isActive() ? Mode.ACTIVE : 
     					(Socks.isEnabled()? Mode.SOCKS:Mode.PASSIVE) ; 
-    
     }
     
 	/**
@@ -844,6 +860,10 @@ public final class DCClient {
     	searchListeners.remove(sirl);	
     }
     
+    public int searchListenersRegistered() {
+    	return searchListeners.size();
+    }
+    
 
     public void register(IInfoChanged iic) {
     	changedInfo.addIfAbsent(iic);
@@ -880,7 +900,7 @@ public final class DCClient {
     	synchronized(hubs){
     		for (Hub hub : hubs.values()) {
     			if (hub.isNMDC()) {
-    				User usr= hub.getUserByNick(nick);
+    				User usr = hub.getUserByNick(nick);
     				if (usr != null) {
     					return usr;
     				}
@@ -890,7 +910,7 @@ public final class DCClient {
     	return null;
     }
     
-    public User getUserForCID(HashValue cid) {
+    public IUser getUserForCID(HashValue cid) {
     	synchronized(hubs){
     		for (Hub hub : hubs.values()) {
     			if (!hub.isNMDC()) {
@@ -903,6 +923,21 @@ public final class DCClient {
     	}
     	
     	return null;
+    }
+    
+    public List<IUser> getUsersForCID(HashValue cid) {
+    	List<IUser> users = new ArrayList<IUser>();
+    	synchronized(hubs){
+    		for (Hub hub : hubs.values()) {
+    			if (!hub.isNMDC()) {
+	    			User usr = hub.getUserByCID(cid);
+	    			if (usr != null) {
+	    				users.add(usr);
+	    			}
+    			}
+    		}
+    	}
+    	return users;
     }
 
     
@@ -973,71 +1008,7 @@ public final class DCClient {
     	return null;
     }
     
-    
-    
-    
-    /*
-     * with this function an upload can request a slot
-     * 
-     * @param usr - the user that wants something from us
-     * @param type - what we want to upload..
-     * @param f if its a file the file is provided
-     * @return a slot if available  null if none
-     * 
-     *
-    public Slot getSlot(User usr ,TransferType type,File f)  {
-    	
-    	synchronized(slotsSynch) {
-	    	if (usr.getUpload() != null) {
-	    		logger.debug(usr.getNick()+" tried getting upload even if he already had an upload running");
-	    		return null; //no slot for that user
-	    	}
-	    	if (currentExtraSlots.size() >= MaxTransfers && !usr.isOp()) { //TOO many uploads running.. no slots anymore. To prevent DoS 
-	    		return null; 
-	    	}
-	    		
-	    	try {
-		    	switch(type) {
-		    	case TTHL:
-		    	case FILELIST:
-					Slot extra = new Slot(false);
-					currentExtraSlots.add(extra);
-					return extra;
-		    	case FILE:
-		    		if (currentSlots.size() < getTotalSlots()) {
-		    			Slot normal = new Slot(true);
-		    			currentSlots.add(normal);
-		    			return normal;
-		    		} else if (usr.hasCurrentlyAutogrant() || f.length() <= MinislotSize) {
-		    			Slot autogrant = new Slot(false);
-		    			currentSlots.add(autogrant);
-		    			currentExtraSlots.add(autogrant);
-		    			return autogrant;
-		    		} else {
-		    			return null;
-		    		}
-		    	}
-	    	} finally {
-	    		notifyChangedInfo(InfoChange.CurrentSlots);
-	    	}
-    	}
-    	throw new IllegalStateException("no known TransferType was set");    		
-    } */
-    
-    /*
-     * returns a slot after use to the client so someone else can reuse it..
-     * 
-     * @param slot - the slot that is returned..
-     *
-    public void returnSlot(Slot slot) {
-    	synchronized(slotsSynch) {
-    		currentSlots.remove(slot);
-    		currentExtraSlots.remove(slot);
-    		notifyChangedInfo(InfoChange.CurrentSlots);
-    	}
-    } */
-    
-    
+ 
     public void register(IHubCreationListener hubl) {
     	hublisteners.addIfAbsent(hubl);
     }
@@ -1088,8 +1059,6 @@ public final class DCClient {
 		return ch;
 	}
 
-
-
 	public IDatabase getDatabase() {
 		return database;
 	}
@@ -1106,7 +1075,7 @@ public final class DCClient {
 	
 	/**
 	 * 
-	 * @return value= totalslots - currently in use slots.
+	 * @return value= total slots - currently in use slots.
 	 * so it returns the value usually sent in search messages.  
 	 */
 	public int getCurrentSlots() {
@@ -1184,7 +1153,7 @@ public final class DCClient {
 	 * @return true
 	 */
 	public boolean isIPv4Used() {
-		return true;
+		return connectionDeterminator.getPublicIP() instanceof Inet4Address;
 	}
 
 

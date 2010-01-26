@@ -1,20 +1,17 @@
 package eu.jucy.gui.logeditor;
 
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IPersistableElement;
-
 import uc.IHub;
 
 
 import eu.jucy.gui.Lang;
+import eu.jucy.gui.UCEditorInput;
 import eu.jucy.gui.texteditor.LabelViewer;
 
 
-public class LogEditorInput implements IEditorInput {
+public class LogEditorInput extends UCEditorInput {
 
-private final LabelViewer source;
-private final IHub hub;
+	private final LabelViewer source;
+	private final IHub hub;
 	
 	/**
 	 * null for the default logeditor
@@ -31,14 +28,6 @@ private final IHub hub;
 	}
 	
 	
-	public boolean exists() {
-		return false;
-	}
-
-	
-	public ImageDescriptor getImageDescriptor() {
-		return null;
-	}
 
 	
 	public String getName() {
@@ -49,23 +38,6 @@ private final IHub hub;
 		}
 	}
 
-	
-	public IPersistableElement getPersistable() {
-		return null;
-	}
-
-	
-	public String getToolTipText() {
-		return getName();
-	}
-
-	@SuppressWarnings("unchecked")
-	
-	public Object getAdapter(Class adapter) {
-		return null;
-	}
-
-	
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

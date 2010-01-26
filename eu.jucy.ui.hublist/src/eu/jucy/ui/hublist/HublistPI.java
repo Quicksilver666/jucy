@@ -17,6 +17,7 @@ public class HublistPI extends AbstractPreferenceInitializer {
 	
 	
 	public static final String defaultHublists =
+	
 		//	"http://dchublist.com/hublist.xml.bz2;"+
 		//		"http://www.dc-resources.com/downloads/hublist.config.bz2;"+
 		//		"http://www.hublist.org/PublicHubList.xml.bz2;"+
@@ -24,6 +25,7 @@ public class HublistPI extends AbstractPreferenceInitializer {
 				"http://myhublist.com/hublist.xml.bz2;" +
 			//	"http://hublist.hubtracker.com/hublist.xml.bz2;" + //former: http://hublist.hubtracker.com/hublist.xml.bz2 
 				"http://dchublist.com/hublist.xml.bz2;" +
+				"http://adc.dchublist.com/hublist.xml.bz2;"+
 		//		"http://adchublist.com/hublist.xml.bz2;" +
 				//"http://www.hublist.org/PublicHubList.xml.bz2;" + --> offline forever?
 			

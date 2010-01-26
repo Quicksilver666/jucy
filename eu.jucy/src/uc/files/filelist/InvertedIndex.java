@@ -2,20 +2,9 @@ package uc.files.filelist;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,10 +29,10 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
-import helpers.GH;
 import helpers.IFilter;
 import helpers.ISearchMap;
 import helpers.ISubstringMapping2;
+
 
 public class InvertedIndex<V> implements ISearchMap<V> {
 
@@ -122,18 +111,11 @@ public class InvertedIndex<V> implements ISearchMap<V> {
 				logger.error("Problem creating the FileListindex: "+e,e);
 			}
 		}
-		List<String> searches = new ArrayList<String>();
 		
-		for (String s:searchStrings) {
-			String normS = searchToQueryString(s); // QueryParser.escape(s.trim());
-			if (!GH.isEmpty(normS) && !searches.contains(normS)) {
-				searches.add(normS);
-			}
-		}
 		
 		Set<V> current = null;
 		//do the searches..
-		for (String s:searches) {
+		for (String s: searchToQueryStrings(searchStrings)) {
 			Set<V> found = getMatching(s);
 			found = filter.mapItems(found);
 			if (current != null) {
@@ -157,13 +139,14 @@ public class InvertedIndex<V> implements ISearchMap<V> {
 			current = Collections.<V>emptySet();
 		}
 		//remove all excludes ...
-		for (String exclude : excludes) {
+		for (String exclude : searchToQueryStrings(excludes)) {
 			Set<V> found = getMatching(exclude);
 			found = filter.mapItems(found);
 			current.removeAll(found);
 		}
 		
 		return current;
+		
 	}
 	
 	private Set<V> getMatching(String querystr) {
@@ -192,16 +175,20 @@ public class InvertedIndex<V> implements ISearchMap<V> {
 		return res;
 	}
 	
-	private static String searchToQueryString(String searchstr) {
-		searchstr = searchstr.trim();
-		while (searchstr.startsWith("*")) {
-			searchstr = searchstr.substring(1); 
-		}
-		if (searchstr.length() <= 2) {
-			return "";
+	
+	
+	private static List<String> searchToQueryStrings(Collection<String> searchstrings) {
+		List<String> queryStrings = new ArrayList<String>();
+		for (String searchstr: searchstrings) {
+			for (String s: searchstr.split("\\W")) {
+				if (s.length() > 2) {
+					queryStrings.add( s+"*"  );
+				}
+			}
+			
 		}
 		
-		return QueryParser.escape(searchstr)+"*";
+		return queryStrings;
 	}
 
 }

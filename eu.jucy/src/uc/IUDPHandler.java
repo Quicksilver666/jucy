@@ -2,11 +2,9 @@ package uc;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.Set;
 
 import uc.UDPhandler.PacketReceiver;
-import uc.files.search.SearchResult;
-import uc.protocols.hub.Hub;
+
 
 public interface IUDPHandler {
 
@@ -18,9 +16,11 @@ public interface IUDPHandler {
 	 * 
 	 * @param srs - a set of search results
 	 * @param target - where to send it
+	 * 
+	 * @deprecated logic for this should be in hub
 	 */
-	void sendSearchResultsBack(Set<SearchResult> srs, Hub hub,
-			InetSocketAddress target);
+//	void sendSearchResultsBack(Set<SearchResult> srs, Hub hub,
+//			InetSocketAddress target);
 
 	/**
 	 * just sends  a packet with hte datagram channel .. without throwing an exception
@@ -50,4 +50,9 @@ public interface IUDPHandler {
 
 	int getPort();
 
+	/**
+	 * adds token to handler used for decryption purposes..
+	 * @param token
+	 */
+	void addTokenExpected(String token);
 }

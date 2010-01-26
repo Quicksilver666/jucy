@@ -12,7 +12,7 @@ import org.eclipse.ui.ISources;
  * http://www.vogella.de/articles/EclipseCommands/article.html
  * 
  * 
- * @author christian
+ * @author Quicksilver
  *
  */
 public class RedirectReceivedProvider extends AbstractSourceProvider {
@@ -29,7 +29,8 @@ public class RedirectReceivedProvider extends AbstractSourceProvider {
 	public void dispose() {}
 	
 
-	@SuppressWarnings("unchecked")
+
+	@SuppressWarnings("rawtypes")
 	public Map getCurrentState() {
 		Map<Object,Object> map = new HashMap<Object,Object>(1);
 		String value = enabled ? ENABLED : DISENABLED;

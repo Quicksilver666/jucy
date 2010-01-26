@@ -58,12 +58,12 @@ public class DQProgressPainter implements Listener {
 		Object o = ti.getData();
 	
 		if (o instanceof AbstractDownloadQueueEntry) {
-			drawADQE((AbstractDownloadQueueEntry)o,ti.getParent(),event.gc,null);
+			drawADQE((AbstractDownloadQueueEntry)o,ti.getParent(),event.gc,event,null);
 		}
 			
 	}
 	
-	public static void drawADQE(AbstractDownloadQueueEntry adqe,Control c,GC gc,IFileTransfer markSpecial) {
+	public static void drawADQE(AbstractDownloadQueueEntry adqe,Control c,GC gc,Event event,IFileTransfer markSpecial) {
 		String s;
 		if ( adqe instanceof FileDQE) {
 			FileDQE fdqe = (FileDQE)adqe;
@@ -71,7 +71,7 @@ public class DQProgressPainter implements Listener {
 			Device display = gc.getDevice();
 
 			
-			Rectangle rect = gc.getClipping();
+			Rectangle rect = new Rectangle(event.x,event.y,Math.max(gc.getClipping().width,event.width),event.height);//gc.getClipping();
 			int numberOfBlocks = fdqe.getNrOfBlocks();
 			for (int i = 0; i < numberOfBlocks;i++) {
 				Block b = fdqe.getBlock(i);
@@ -135,7 +135,7 @@ public class DQProgressPainter implements Listener {
 			
 		} else {
 			s = col.getText(adqe);
-			UCProgressPainter.drawString(s,c,gc);
+			UCProgressPainter.drawString(s,c,gc,event);
 		}
 	}
 

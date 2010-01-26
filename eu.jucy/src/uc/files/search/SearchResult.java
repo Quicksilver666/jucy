@@ -6,6 +6,7 @@ import helpers.StatusObject.ChangeType;
 
 import org.eclipse.core.runtime.Assert;
 
+import uc.IUser;
 import uc.User;
 import uc.crypto.HashValue;
 import uc.files.AbstractDownloadable.AbstractDownloadableFile;
@@ -26,7 +27,7 @@ public class SearchResult extends AbstractDownloadableFile implements ISearchRes
 	
 	private final String path;
 	private final HashValue tthRoot;
-	private final User usr; //the one that has sent/sends the sr
+	private final IUser usr; //the one that has sent/sends the sr
 	private final long size;
 	private final int availabelSlots;
 	private final int totalSlots;
@@ -56,7 +57,7 @@ public class SearchResult extends AbstractDownloadableFile implements ISearchRes
 	 * @param totalslots - how many slots the user has in total
 	 * @param boolean file  true if a file false  if a 
 	 */
-	public static ISearchResult create(String path,HashValue tthRoot, User usr,long size,int availabelslots,int totalslots, boolean file,String token) {
+	public static ISearchResult create(String path,HashValue tthRoot, IUser usr,long size,int availabelslots,int totalslots, boolean file,String token) {
 		SearchResult sr =  new SearchResult(path,tthRoot, usr,size,availabelslots,totalslots, file, token);
 		if (file) {
 			return sr;
@@ -76,7 +77,7 @@ public class SearchResult extends AbstractDownloadableFile implements ISearchRes
 	 * @param totalslots - how many slots the user has in total
 	 * @param boolean file  true if a file false  if a 
 	 */
-	private SearchResult(String path,HashValue tthRoot, User usr,long size,int availabelslots,int totalslots, boolean file,String token) {
+	private SearchResult(String path,HashValue tthRoot, IUser usr,long size,int availabelslots,int totalslots, boolean file,String token) {
 		this.path		=	path;
 		this.tthRoot	=	tthRoot;
 		this.usr		=	usr;
@@ -159,7 +160,7 @@ public class SearchResult extends AbstractDownloadableFile implements ISearchRes
 	/**
 	 * @return the usr
 	 */
-	public User getUser() {
+	public IUser getUser() {
 		return usr;
 	}
 	
@@ -182,7 +183,7 @@ public class SearchResult extends AbstractDownloadableFile implements ISearchRes
 		}
 
 		@Override
-		public User getUser() {
+		public IUser getUser() {
 			return sr.getUser();
 		}
 
@@ -194,6 +195,12 @@ public class SearchResult extends AbstractDownloadableFile implements ISearchRes
 		public int getTotalSlots() {
 			return sr.getTotalSlots();
 		}
+
+		public String getToken() {
+			return sr.getToken();
+		}
+		
+		
 		
 	}
 

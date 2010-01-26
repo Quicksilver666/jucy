@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -43,9 +42,8 @@ import uc.DCClient.Initializer;
 import uc.FavFolders.SharedDir;
 import uc.IUser.Mode;
 import uc.crypto.BloomFilter;
-import uc.crypto.IHashEngine.HashedListener;
+import uc.crypto.IHashEngine.IHashedListener;
 import uc.files.filelist.FileListFile;
-import uc.files.search.SearchResult;
 import uc.protocols.AbstractADCCommand;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.ConnectionState;
@@ -106,8 +104,9 @@ public class AdcHubTest {
 			protected IUDPHandler createUDPHandler(DCClient dcc) {
 				return new UDPhandler(dcc) {
 					@Override
-					public void sendSearchResultsBack(Set<SearchResult> srs,Hub hub, InetSocketAddress target) {
-						searchRSSent.release(srs.size());
+					public void sendPacket(ByteBuffer packet,
+							InetSocketAddress target) {
+						searchRSSent.release();
 					}
 				};
 			}
@@ -418,7 +417,7 @@ public class AdcHubTest {
 		SharedDir sd = new SharedDir("shared",sharedStuff);
 		
 		//final Semaphore waitHashingFinished = new Semaphore(0);
-		dcc.getHashEngine().registerHashedListener(new HashedListener() {
+		dcc.getHashEngine().registerHashedListener(new IHashedListener() {
 			int count = sharedFiles.size();
 			public void hashed(File f, long duration, long remainingSize) {
 				if (--count == 0) {

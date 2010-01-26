@@ -1,5 +1,6 @@
 package eu.jucy.gui;
 
+import helpers.GH;
 import helpers.SizeEnum;
 
 import java.net.InetAddress;
@@ -264,6 +265,18 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 		public String getText(IUser x) {
 			return x.getConnection();
 		}
+
+
+		@Override
+		public Comparator<IUser> getComparator() {
+			return new Comparator<IUser>() {
+				public int compare(IUser o1, IUser o2) {
+					return GH.compareTo(o1.getUs(),o2.getUs()) ;
+				}
+			};
+		}
+		
+		
 	}
 	
 	public static class Email extends UserColumns {

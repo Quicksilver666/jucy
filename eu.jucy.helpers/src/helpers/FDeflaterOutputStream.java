@@ -2,36 +2,49 @@ package helpers;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
 
-public class FDeflaterOutputStream extends DeflaterOutputStream {
+import com.jcraft.jzlib.JZlib;
+import com.jcraft.jzlib.ZOutputStream;
 
-	public FDeflaterOutputStream(OutputStream out) {
-		super(out);
+public class FDeflaterOutputStream extends ZOutputStream {
+
+	public FDeflaterOutputStream(OutputStream out,boolean fastEncryption) {
+		super(out, fastEncryption? JZlib.Z_BEST_SPEED: JZlib.Z_BEST_COMPRESSION);
 	}
 
-	public FDeflaterOutputStream(OutputStream out, Deflater def) {
-		super(out, def);
-	}
-
-	public FDeflaterOutputStream(OutputStream out, Deflater def, int size) {
-		super(out, def, size);
-	}
+	
 
 	@Override
 	public void finish() throws IOException {
-		if (!def.finished()) {
-		    def.finish();
-		    int i = 0;
-		    while (!def.finished()) {
-		    	deflate();
-		    	if (++i > 1000) {
-		    		throw new IOException(); 
-		    	}
-		    }
+		try {
+			super.finish();
+		} catch (RuntimeException re) {
+			throw new IOException();
 		}
 	}
+
+
+
+	@Override
+	public void close() throws IOException {
+		try {
+			super.close();
+		} catch (RuntimeException re) {
+			throw new IOException();
+		}
+	}
+
+
+
+	@Override
+	public void write(byte[] b, int off, int len) throws IOException {
+		try {
+			super.write(b, off, len);
+		} catch (RuntimeException re) {
+			throw new IOException();
+		}
+	}
+	
 	
 	
 	

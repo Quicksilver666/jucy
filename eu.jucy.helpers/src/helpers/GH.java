@@ -335,6 +335,9 @@ public final class GH {
 	public static int compareTo(int a , int b) {
 		return (a < b ? -1 : (a==b ? 0 : 1));
 	}
+	public static int compareTo(long a , long b) {
+		return (a<b ? -1 : (a==b ? 0 : 1));
+	}
 	
 	public static int compareTo(byte a , byte b) {
 		return (a < b ? -1 : (a==b ? 0 : 1));
@@ -414,5 +417,49 @@ public final class GH {
 		}
 		
 		return count;
+	}
+	
+	/**
+	 * 
+	 * @param input
+	 * @param start
+	 * @param length
+	 * @return array of size length containing all bytes from start 
+	 */
+	public static byte[] subarray(byte[] input,int start,int length) {
+		byte[] ret = new byte[length];
+		System.arraycopy(input, start, ret, 0, length);
+		return ret;
+	}
+	
+	/**
+	 * tries to give a measure of distance ... 
+	 * the higher the distance the further the strings are away from each other..
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static int distance(String a, String b) {
+		int lengthDist = Math.abs(a.length()-b.length());
+		
+		int dist = 0;
+		int lastHit = 0;
+		for (int i=0; i < a.length();i++) {
+			int posB = b.indexOf(a.charAt(i));
+			if (posB != -1) {
+				boolean fullHit = b.length() > lastHit+1 && b.charAt(lastHit+1) == a.charAt(i);
+				if (fullHit) {
+					lastHit = lastHit+1;
+					dist-=1;
+				} else {
+					lastHit = posB; //dist+= 0; -> no distance change here..
+				}
+			} else {
+				dist++;
+			}
+		}
+		
+		return lengthDist+dist;
 	}
 }

@@ -65,11 +65,11 @@ public abstract class DownloadableColumn extends ColumnDescriptor<IDownloadable>
 			if (ApplicationWorkbenchWindowAdvisor.get().getDownloadQueue().containsDQE(file.getTTHRoot())) {
 				return fileInDownloadCol;
 			}
-			try {
+		//	try {
 				if (ApplicationWorkbenchWindowAdvisor.get().getFilelist().getFile(file.getTTHRoot()) != null) {
 					return fileInShareCol;
 				}
-			} catch (FilelistNotReadyException fnre) {}
+		//	} catch (FilelistNotReadyException fnre) {}
 			if (file.nrOfUsers() > 1) {
 				return fileMultiUserCol;
 			}

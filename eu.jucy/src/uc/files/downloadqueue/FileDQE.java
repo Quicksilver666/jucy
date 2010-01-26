@@ -349,9 +349,7 @@ public class FileDQE extends AbstractFileDQE {
 			logger.debug("in FileDQE.blockValidated() and finished");
 			finished = new Date(); //we set the time when this FileDQE was finished..
 
-			//finalise the DQE
 			if (storeToDestination()) {
-				//then do finalising tasks..
 				executeDoAfterDownload();
 
 				//remove.. from the queue

@@ -336,10 +336,14 @@ public class TableViewerAdministrator<T> {
 			return new Comparator<X>() {
 				
 				public int compare(X o1, X o2) {
-					if (o1 == null || o2 == null) {
+					String t1 = null,t2;
+					if (o1 == null || o2 == null || (t1=getText(o1))==null || (t2=getText(o2))==null ) {
+						if (o1 != null && t1 == null && Platform.inDevelopmentMode()) {
+							System.err.println(o1);
+						}
 						return 0;
 					}
-					return getText(o1).compareTo(getText(o2));
+					return t1.compareTo(t2);
 				}
 				
 			};
@@ -362,13 +366,13 @@ public class TableViewerAdministrator<T> {
 		 */
 		@SuppressWarnings("unchecked")
 		public final ViewerComparator getComparator(boolean inverted) {
-			final Comparator comparator = inverted ? getReverseComparator():getComparator();
+			final Comparator<X> comparator = inverted ? getReverseComparator():getComparator();
 			if (comparator == null) {
 				return null;
 			}
 			return new ViewerComparator() {
 				public int compare(Viewer viewer, Object e1, Object e2) {
-					return comparator.compare(e1, e2);
+					return comparator.compare((X) e1, (X)e2);
 				}
 			};
 			

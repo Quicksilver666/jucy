@@ -7,6 +7,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SocketChannel;
 
+import uc.crypto.HashValue;
+
 public interface IConnection extends Closeable {
 
 	/**
@@ -107,5 +109,10 @@ public interface IConnection extends Closeable {
 	void refreshCharsetCoders();
 
 	boolean usesEncryption();
+	
+	
+	void setFingerPrint(HashValue hash);
+	
+
 
 }

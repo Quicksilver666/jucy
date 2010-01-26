@@ -81,12 +81,23 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		LoggerFactory.clearErrorLog();
 	}
 	
+	
+
+	@Override
+	public boolean preShutdown() {
+		
+		
+		return super.preShutdown();
+	}
 
 	@Override
 	public void postShutdown() {
-		ApplicationWorkbenchWindowAdvisor.get().stop(true);
+		ApplicationWorkbenchWindowAdvisor.waitForShutdownJob();
+	//	ApplicationWorkbenchWindowAdvisor.get().stop(true);
 		myAdvisor.disposeTray();
 		super.postShutdown();
 	}
+	
+	
 	
 }

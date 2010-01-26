@@ -8,6 +8,7 @@ import helpers.PreferenceChangedAdapter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,10 +47,12 @@ import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
 import eu.jucy.gui.GUIPI;
+import eu.jucy.gui.GuiHelpers;
 
 
 
@@ -94,8 +97,8 @@ public class StyledTextViewer {
 	
 	private final SortedMap<Integer,ObjectPoint<? extends Object>> allPointsByX = new TreeMap<Integer,ObjectPoint<? extends Object>>();
 	
-	public StyledTextViewer(StyledText styledtext,IHub hub, boolean pm,IUser usr) {
-		this(styledtext,hub,pm,usr,Long.MAX_VALUE);
+	public StyledTextViewer(StyledText styledtext,IHub hub, boolean pm) {
+		this(styledtext,hub,pm,null,Long.MAX_VALUE);
 	}
 	
 	
@@ -222,6 +225,20 @@ public class StyledTextViewer {
 		
 	}
 	
+	public void copyToClipboard() {
+		Point p = text.getSelection();
+		String t = text.getSelectionText();
+		int addToPos = 0;
+		for (Map.Entry<Integer,ObjectPoint<? extends Object>> e: allPointsByX.subMap(Integer.valueOf(p.x), Integer.valueOf(p.y)).entrySet()) {
+			String replacement = e.getValue().replacementText;
+			int startOfReplacement= e.getKey()-p.x +addToPos;
+			t = t.substring(0,startOfReplacement)+replacement+t.substring(startOfReplacement+e.getValue().length);
+			addToPos += replacement.length() - e.getValue().length;
+		}
+		
+		GuiHelpers.copyTextToClipboard(t);
+	}
+	
 	private void loadOldMessages(long loadBefore) {
 		if (pm) {
 			DBLogger entity = new DBLogger(usr);
@@ -258,30 +275,55 @@ public class StyledTextViewer {
 		}
 	}
 	
-	ObjectPoint<Image> addImage(Image image,int offset,int length) {
+	
+//	/**
+//	 * 
+//	 * @param image
+//	 * @param offset
+//	 * @param length
+//	 * @return
+//	 * 
+//	 * @deprecated
+//	 */
+//	ObjectPoint<Image> addImage(Image image,int offset,int length) {
+//		List<StyleRange> ranges = new ArrayList<StyleRange>();
+//		ObjectPoint<Image> ip = ObjectPoint.create(offset, length,"", image, ranges);
+//		
+//		if (allPointsByX.remove(Integer.valueOf(offset)) != null) {
+//			imagePoints.remove(ip);
+//		}
+//		imagePoints.add(ip);
+//		allPointsByX.put(Integer.valueOf(offset), ip);
+//		for (StyleRange range:ranges) {
+//			text.setStyleRange(range);
+//		}
+//		return ip;
+//	}
+	
+	
+	
+	/**
+	 * 
+	 * @param control
+	 * @param offset
+	 * @param ascentPerc
+	 * @return
+	 */
+	ObjectPoint<Control> addControl(Control control, int offset,String replacementText,float ascentPerc) {
 		List<StyleRange> ranges = new ArrayList<StyleRange>();
-		ObjectPoint<Image> ip = ObjectPoint.create(offset, length, image, ranges);
+		ObjectPoint<Control> op = ObjectPoint.create(offset,replacementText, ascentPerc, control, ranges);
 		
-		if (allPointsByX.remove(Integer.valueOf(offset)) != null) {
-			imagePoints.remove(ip);
-		}
-		imagePoints.add(ip);
-		allPointsByX.put(Integer.valueOf(offset), ip);
+		addControlPoint(op);
+		
 		for (StyleRange range:ranges) {
 			text.setStyleRange(range);
 		}
-		return ip;
-	}
-	
-	
-	
+		return op;
+	 }
 	
 	@SuppressWarnings("unchecked")
-	ObjectPoint<Control> addControl(Control control, int offset,float ascentPerc) {
-		List<StyleRange> ranges = new ArrayList<StyleRange>();
-		ObjectPoint<Control> op = ObjectPoint.create(offset, ascentPerc, control, ranges);
-		
-		ObjectPoint<Control> old = (ObjectPoint<Control>)allPointsByX.remove(Integer.valueOf(offset));
+	private void addControlPoint(ObjectPoint<Control> op) {
+		ObjectPoint<Control> old = (ObjectPoint<Control>)allPointsByX.remove(Integer.valueOf(op.x));
 		if (old != null) {
 			controlPoints.remove(old);
 			old.obj.dispose();
@@ -289,12 +331,31 @@ public class StyledTextViewer {
 		
 		controlPoints.add(op);
 		allPointsByX.put(Integer.valueOf(op.x), op);
-		
-		for (StyleRange range:ranges) {
-			text.setStyleRange(range);
+	}
+	
+	private void addImagePoint(ObjectPoint<Image> ip) {
+
+		if (allPointsByX.remove(Integer.valueOf(ip.x)) != null) {
+			imagePoints.remove(ip);
 		}
-		return op;
-	 }
+		imagePoints.add(ip);
+		allPointsByX.put(Integer.valueOf(ip.x), ip);
+	}
+	
+//	ObjectPoint<Runnable> addRunnable(Runnable runnable,int offset,int length,Color foreground,Color background,Font font) {
+//		List<StyleRange> ranges = new ArrayList<StyleRange>();
+//		ObjectPoint<Runnable> rp = ObjectPoint.createRunnablePoint(offset, length, runnable, foreground,background,font, ranges);
+//		
+//		if (allPointsByX.remove(Integer.valueOf(offset)) != null) {
+//			clickablePoints.remove(rp);
+//		}
+//		clickablePoints.add(rp);
+//		allPointsByX.put(Integer.valueOf(offset), rp);
+//		for (StyleRange range:ranges) {
+//			text.setStyleRange(range);
+//		}
+//		return rp;
+//	}
 
 	
 	
@@ -331,7 +392,7 @@ public class StyledTextViewer {
 			allIds.add(fullid);
 			if (GUIPI.getBoolean(fullid)) {
 				try {
-					modificators.add( (ITextModificator)element.createExecutableExtension("class"));
+					modificators.add(0, (ITextModificator)element.createExecutableExtension("class"));
 				} catch (CoreException e) {
 					logger.error("Can't load TextModificator "+id,e);
 				} 
@@ -345,7 +406,6 @@ public class StyledTextViewer {
 				new SUIJob() {
 					@Override
 					public void run() {
-
 						refreshSettings();
 						refresh();
 					}
@@ -381,12 +441,14 @@ public class StyledTextViewer {
 	
 	private void appendMessage(Message m) {
 		if (!text.isDisposed()) {
-			int start = text.getCharCount();
-			String message = m.toString();
-			if (!GH.isEmpty(message)) {
-				text.append(message);
-				m.setStyleRanges(start, message);
-			}
+			m.append(text, this);
+			
+//			int start = text.getCharCount();
+//			String message = m.toString();
+//			if (!GH.isEmpty(message)) {
+//				text.append(message);
+//				m.setStyleRanges(start, message);
+//			}
 		}
 	}
 	
@@ -408,61 +470,94 @@ public class StyledTextViewer {
 	
 	
 	public class Message {
-
-
 		protected final String message;
 		private final IUser usr;
 		private final Date received;
 		
 		private Message(String message,IUser usr,Date received) {
-			this.message = message;
+			this.message = "\n"+message.replace("\n<", "\n- <").replace("\n[", "\n- [");
 			this.usr = usr;
 			this.received = received;
 		}
 		private Message(String message,Date received) {
-			this.message = message;
-			this.usr = null;
-			this.received = received;
+			this(message,null,received);
 		}
 		
-		
-		public String toString() {
-			String message = this.message;
+		public void append(StyledText text,StyledTextViewer stv) {
+			List<TextReplacement> replacements = new ArrayList<TextReplacement>();
+			
 			for (ITextModificator mod: modificators) {
-				message = mod.modifyMessage(message, this, pm);
-				if (message == null) {
-					break;
-				}
+				mod.getMessageModifications(this, pm, replacements);
 			}
-			if (message == null) {
-				return ""; //ignore message..
-			}
-			
-			return "\n"+message.replace("\n<", "\n- <").replace("\n[", "\n- [");  //replace helps showing the difference with pasted text..
-		}
-		
-		/**
-		 * currently only checks for URLs may be more later..
-		 * @param start - start of the message in the text
-		 * @return all Styled texts that should be applied
-		 */
-		protected void setStyleRanges(int start,String renderedMessage) {
-			//String s	= renderedMessage; //the result of toString();
-			
+			Collections.sort(replacements);
+			String renderedMessage = message;
+			int startOfMessage = text.getCharCount();
+			int addPos = 0;
 			List<StyleRange> ranges = new ArrayList<StyleRange>();
-			List<ObjectPoint<Image>> images = new ArrayList<ObjectPoint<Image>>();
-			for (ITextModificator mod:modificators) {
-				mod.getStyleRange(renderedMessage, start, this,ranges,images);
+			List<ObjectPoint<Image>> imagePoints = new ArrayList<ObjectPoint<Image>>();
+			List<ObjectPoint<Control>> controlPoints = new ArrayList<ObjectPoint<Control>>();
+			for (TextReplacement tr: replacements) {
+				renderedMessage = 	renderedMessage.substring(0, tr.position+addPos)
+									+ tr.replacement
+									+ renderedMessage.substring(tr.position+tr.lengthToReplace+addPos);
+				
+				tr.apply(text, ranges, imagePoints, controlPoints, startOfMessage + addPos+tr.position , this);
+				addPos += tr.replacement.length()- tr.lengthToReplace; 
 			}
 			
-			imagePoints.addAll(images);
-			for (ObjectPoint<Image> op:images) {
-				allPointsByX.put(Integer.valueOf(op.x), op);
+			text.append(renderedMessage);
+			
+			for (ObjectPoint<Image> ip:imagePoints) {
+				stv.addImagePoint(ip);
 			}
+			for (ObjectPoint<Control> cp:controlPoints) {
+				stv.addControlPoint(cp);
+			}
+			
 			for (StyleRange range:ranges) {
 				text.setStyleRange(range);
 			}
 		}
+		
+		
+		public String toString() {
+//			String message = this.message;
+//			for (ITextModificator mod: modificators) {
+//				message = mod.modifyMessage(message, this, pm);
+//				if (message == null) {
+//					break;
+//				}
+//			}
+			if (message == null) {
+				return ""; //ignore message..
+			}
+			
+			return message; // "\n"+message.replace("\n<", "\n- <").replace("\n[", "\n- [");  //replace helps showing the difference with pasted text..
+		}
+		
+		//public void setMessage(Styled)
+		
+//		/**
+//		 * currently only checks for URLs may be more later..
+//		 * @param start - start of the message in the text
+//		 * @return all Styled texts that should be applied
+//		 */
+//		protected void setStyleRanges(int start,String renderedMessage) {
+//			
+//			List<StyleRange> ranges = new ArrayList<StyleRange>();
+//			List<ObjectPoint<Image>> images = new ArrayList<ObjectPoint<Image>>();
+//			for (ITextModificator mod:modificators) {
+//				mod.getStyleRange(renderedMessage, start, this,ranges,images);
+//			}
+//			
+//			imagePoints.addAll(images);
+//			for (ObjectPoint<Image> op:images) {
+//				allPointsByX.put(Integer.valueOf(op.x), op);
+//			}
+//			for (StyleRange range:ranges) {
+//				text.setStyleRange(range);
+//			}
+//		}
 		
 		public String getMessage() {
 			return message;
@@ -486,25 +581,157 @@ public class StyledTextViewer {
 			super(message,received);
 		}
 		
-		
-		
+
 		@Override
 		public String toString() {
-			String message = sdf.format(getReceived()) +this.message;
-			return "\n"+message.replace("\n<", "\n- <").replace("\n[", "\n- [");
+			return "\n"+sdf.format(getReceived()) +this.message.substring(1);
 		}
 
-
-
-		protected void setStyleRanges(int start,String renderedMessage) {
+		public void append(StyledText text,StyledTextViewer stv) {
+			int start = text.getCharCount();
+			String renderedMessage = toString();
+			text.append(renderedMessage);
 			StyleRange sr = new StyleRange();
 			sr.start = start;
 			sr.length = renderedMessage.length();
 			sr.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
 			text.setStyleRange(sr);
 		}
+//
+//		protected void setStyleRanges(int start,String renderedMessage) {
+//			StyleRange sr = new StyleRange();
+//			sr.start = start;
+//			sr.length = renderedMessage.length();
+//			sr.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
+//			text.setStyleRange(sr);
+//		}
+	}
+	
+
+	
+	public static class TextReplacement implements Comparable<TextReplacement> {
+		/**
+		 * position relative to message
+		 */
+		protected final int position;
+		protected final int lengthToReplace;
+		protected final String replacement;
+		
+		public TextReplacement(int position, int lengthToReplace,String replacement) {
+			this.position = position;
+			this.lengthToReplace = lengthToReplace;
+			this.replacement = replacement;
+		}
+		
+		
+		public void apply(StyledText st,List<StyleRange> toAdd,List<ObjectPoint<Image>> imagePoints,List<ObjectPoint<Control>> controlPoints ,int positionInText,Message message) {
+			addStyle(toAdd,positionInText,message);
+		}
+		
+		/**
+		 * 
+		 * @param toAdd where styleranges created should be added
+		 * @param positionInText - position of the replacement relative to beginning of text
+		 * @param message  the original message
+		 */
+		protected void addStyle(List<StyleRange> toAdd,int positionInText,Message message) {}
+
+		
+		public int compareTo(TextReplacement o) {
+			return GH.compareTo(position, o.position);
+		}
+		
+		
+	}
+	
+	public static abstract class ObjectReplacement extends TextReplacement {
+		private static final String OBJTEXT = "\uFFFC";
+		protected final String replacedText;
+		
+		public ObjectReplacement(int position, String textToReplace) {
+			super(position, textToReplace.length(), OBJTEXT);
+			this.replacedText = textToReplace;
+		}
+	}
+	
+	public static class ImageReplacement extends ObjectReplacement {
+		
+		private final Image img;
+		
+		public ImageReplacement(int position, String textToReplace, Image img) {
+			super(position, textToReplace);
+			this.img = img;
+		}
+		
+		@Override
+		public void apply(StyledText st,List<StyleRange> toAdd,List<ObjectPoint<Image>> imagePoints,List<ObjectPoint<Control>> controlPoints ,int positionInText,Message message) {
+			ObjectPoint<Image> ip = ObjectPoint.create(positionInText, 1,replacedText, img, toAdd);
+			imagePoints.add(ip);
+		}
+	}
+	
+	public static abstract class ControlReplacement extends ObjectReplacement {
+		
+		public ControlReplacement(int position, String textToReplace) {
+			super(position, textToReplace);
+		}
+		
+		@Override
+		public void apply(StyledText st,List<StyleRange> toAdd,List<ObjectPoint<Image>> imagePoints,List<ObjectPoint<Control>> controlPoints ,int positionInText,Message message) {
+			float[] ascent = new float[] {2f/3f};
+			Control c = createControl(st,ascent);
+			ObjectPoint<Control> op = ObjectPoint.create(positionInText,replacedText, ascent[0], c, toAdd);
+			controlPoints.add(op);
+		}
+		
+		/**
+		 * 
+		 * @param createOn - the text widget to create the control on
+		 * @param ascentPercent - length one array -> used as pointer to percentage of ascent the control should have
+		 * @return control created on
+		 */
+		public abstract Control createControl(StyledText createOn,float[] ascentPercent);
 	}
 	
 	
+	public static class MyStyledText extends StyledText {
+
+		private StyledTextViewer viewer;
+		
+		public MyStyledText(Composite parent, int style) {
+			super(parent, style);
+		}
+
+		public void setViewer(StyledTextViewer viewer) {
+			this.viewer = viewer;
+		}
+
+		@Override
+		public void copy() {
+			if (viewer != null) {
+				viewer.copyToClipboard();
+			} else {
+				super.copy();
+			}
+		}
+		
+		
+
+		@Override
+		public void copy(int clipboardType) {
+			if (viewer != null) {
+				viewer.copyToClipboard();
+			} else {
+				super.copy(clipboardType);
+			}
+		}
+
+		@Override
+		protected void checkSubclass() {}
+		
+		
+		
+		
+	}
 
 }

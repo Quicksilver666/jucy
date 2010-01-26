@@ -255,7 +255,7 @@ public class FileList implements Iterable<IFileListItem> {
 			atts.addAttribute("", "", "Version", "CDATA", "1");
 			atts.addAttribute("", "", "CID", "CDATA", cid);
 			atts.addAttribute("", "", "Base", "CDATA", path);
-			atts.addAttribute("", "", "Generator", "CDATA", uc.DCClient.LONGVERSION);
+			atts.addAttribute("", "", "Generator", "CDATA", generator);
 		
 			hd.startElement("", "", "FileListing", atts);
 			
@@ -497,7 +497,7 @@ public class FileList implements Iterable<IFileListItem> {
 		return usr.equals(f.usr) && root.deepEquals(f.root);
 	}
 	
-	
+
 	
 
 }

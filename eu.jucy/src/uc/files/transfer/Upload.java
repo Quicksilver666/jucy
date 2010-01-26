@@ -24,15 +24,19 @@ import uc.protocols.client.ClientProtocol;
 
 public class Upload extends AbstractFileTransfer {
 
-	private static final int DRAINTIME = 5;
-	private static Semaphore uploads = new Semaphore(Integer.MAX_VALUE);
+	private static final int DRAINTIME = 20;
+	private static final int UPDATES_PER_SECOND = 10;
+	private static Semaphore globalUploads = new Semaphore(1);
 	private static volatile int maxSpeed;
+	
+//	private static final List<Upload> runningUploads = new CopyOnWriteArrayList<Upload>();
+//	private final Semaphore localUpload = new Semaphore(1,false);
 	
 	
 	private static void update() {
 		maxSpeed = PI.getInt(PI.uploadLimit);
 		if (maxSpeed <= 0) {
-			maxSpeed = Integer.MAX_VALUE /DRAINTIME ;
+			maxSpeed = Integer.MAX_VALUE / DRAINTIME; 
 		}
 	}
 	
@@ -48,14 +52,34 @@ public class Upload extends AbstractFileTransfer {
 		
 		DCClient.getScheduler().scheduleAtFixedRate(new Runnable() {		
 			private int i = 0;
+			private int overDue = 0;
 			public void run() {
 				if (++i % DRAINTIME == 0 ) {
-					uploads.drainPermits();
+					globalUploads.drainPermits();
+//					for (Upload up:runningUploads) {
+//						int k = up.localUpload.drainPermits();
+//						overDue+=k;
+//					}
 				}
-				uploads.release(maxSpeed);
+				int releaseGlobal = maxSpeed+overDue;
+				int globalDiv = UPDATES_PER_SECOND;
+				globalUploads.release(releaseGlobal / globalDiv);
+				
+			
+//				int release = maxSpeed/2;
+//				int localdiv = runningUploads.size() * UPDATES_PER_SECOND ;
+//				
+//				
+//				
+//				for (Upload up:runningUploads) {
+//					up.localUpload.release(release/localdiv);
+//				}
+				
+				overDue = releaseGlobal % globalDiv; //+ release % localdiv;	
+				
 			}
 				
-		},1,1,TimeUnit.SECONDS);
+		},1000/UPDATES_PER_SECOND,1000/UPDATES_PER_SECOND,TimeUnit.MILLISECONDS);
 		
 	}
 	
@@ -101,6 +125,7 @@ public class Upload extends AbstractFileTransfer {
 	
 		ReadableByteChannel source = fileInterval.getReadableChannel();
 		
+	
 		ByteBuffer bb = ByteBuffer.allocate(1024);
 		bb.clear();
 		
@@ -108,7 +133,7 @@ public class Upload extends AbstractFileTransfer {
 	//	fireListeners(TransferChange.STARTED);
 		int written;
 		int toAcquire = 0;
-		
+//		runningUploads.add(this);
 		try {
 			while ( source.read(bb) >= 0 || bb.position() != 0) { 
 				bb.flip();
@@ -120,13 +145,18 @@ public class Upload extends AbstractFileTransfer {
 					
 				
 				toAcquire += written;
-				uploads.acquireUninterruptibly(toAcquire / 1024);
+				
+			//	if (!localUpload.tryAcquire(toAcquire/1024)) {
+				globalUploads.acquireUninterruptibly(toAcquire/1024);
+			//	}
+				
 				toAcquire %= 1024 ;
 				
 				bb.compact();
 			}
 
 		} finally {
+		//	runningUploads.remove(this);
 			GH.close(source); //target is no longer closed.. but must be flushed somehow..
 			fw.finnish();			//flush ..
 			

@@ -4,7 +4,8 @@ Bundle-Name: Helpers Plug-in
 Bundle-SymbolicName: eu.jucy.helpers;singleton:=true
 Bundle-Version: 1.1.5
 Bundle-Localization: helpers
-Export-Package: helpers,
+Export-Package: com.jcraft.jzlib,
+ helpers,
  missing16api,
  uihelpers
 Require-Bundle: org.eclipse.ui,

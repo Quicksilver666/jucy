@@ -11,6 +11,8 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,8 +24,11 @@ import java.util.regex.Matcher;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
+import javax.security.cert.CertificateEncodingException;
+import javax.security.cert.X509Certificate;
 
 
 import org.apache.log4j.Logger;
@@ -32,6 +37,8 @@ import org.eclipse.core.runtime.Platform;
 
 import logger.LoggerFactory;
 import uc.DCClient;
+import uc.crypto.BASE32Encoder;
+import uc.crypto.HashValue;
 import uc.protocols.MultiStandardConnection.IUnblocking;
 
 /**
@@ -54,6 +61,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	private final boolean serverSide;
 	
 	private volatile SSLEngine engine;
+	private volatile HashValue fingerPrint;
 	private volatile boolean connectSent = false;
 	
 	private volatile boolean disconnectSent = false;
@@ -97,12 +105,12 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	/**
 	 * used for client as well as server mode.
 	 */
-	public UnblockingConnection(SocketChannel soChan, ConnectionProtocol connectionProt,boolean encryption, boolean serverSide) {
+	public UnblockingConnection(SocketChannel soChan, ConnectionProtocol connectionProt,boolean encryption, boolean serverSide,HashValue fingerPrint) {
 		super(connectionProt);
 		this.encryption = encryption;
 		this.serverSide = serverSide;
 		this.target = soChan;
-	
+		this.fingerPrint = fingerPrint;
 	}
 	
 	
@@ -112,14 +120,14 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 * @param addy
 	 * @param connectionProt
 	 * @param encryption
-	 * @param allowDH - can forbid DH keys due to problems with DH and other clients... especialyl apex..
+	 * @param allowDH - can forbid DH keys due to problems with DH and other clients... especially apex..
 	 */
-	public UnblockingConnection(String addy, ConnectionProtocol connectionProt,boolean encryption) {
+	public UnblockingConnection(String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
 		super(connectionProt);
 		this.encryption = encryption;
 		this.target = addy;
 		serverSide = false;
-
+		this.fingerPrint = fingerPrint;
 	}
 	
 	public void start() { //todo ... if Proxy in use start connect should be in seperate thread..
@@ -131,11 +139,12 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			reset((InetSocketAddress)target);
 		}
 	}
-	public UnblockingConnection(InetSocketAddress isa, ConnectionProtocol connectionProt,boolean encryption){
+	public UnblockingConnection(InetSocketAddress isa, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint){
 		super(connectionProt);
 		this.target = isa;
 		this.encryption = encryption;
 		this.serverSide = false;
+		this.fingerPrint = fingerPrint;
 	} 
 	
 	/**
@@ -269,7 +278,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		}
 		
 		int numBytesRead = sochan.read(byteBuffer);
-		logger.debug("read "+numBytesRead);
+	//	logger.debug("read "+numBytesRead);
 	//	if (encryption) {
 	//		logger.debug("read "+numBytesRead);
 	//	}
@@ -325,10 +334,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 						try {
 							if (cp.getState() == ConnectionState.CONNECTING) {
 								cp.onConnect();
-							} else {
-								if (Platform.inDevelopmentMode() && cp.getState() != ConnectionState.DESTROYED) {//TODO remove here .. only debug
-									logger.warn("bad connection state: "+cp.getState()+"  "+cp.getClass().getSimpleName());
-								}
+							} else if (Platform.inDevelopmentMode() && cp.getState() != ConnectionState.DESTROYED) {//TODO remove here .. only debug
+								 logger.warn("bad connection state: "+cp.getState()+"  "+cp.getClass().getSimpleName());
 							}
 			
 						} catch (IOException ioe) {
@@ -349,6 +356,34 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		switch (status) {
 		case FINISHED:
 		case NOT_HANDSHAKING:
+			
+		//	X509Certificate.getInstance(new byte[]{}).getPublicKey().getEncoded()
+			boolean tryValidation = fingerPrint != null && !connectSent;
+			if (tryValidation ) {
+				X509Certificate cert = null;
+				SSLSession ssle = engine.getSession();
+				try {
+				//	for (Certificate cert: ssle.getPeerCertificates()) {
+					cert =  ssle.getPeerCertificateChain()[0];
+					MessageDigest md = MessageDigest.getInstance( "sha-256" );
+					byte[] fp = md.digest(cert.getEncoded());
+					if (fingerPrint != null) {
+						HashValue hash = HashValue.createHash(cert.getEncoded(), fingerPrint.magnetString());
+						logger.info("fingerprint correct: "+ hash.equals(fingerPrint));
+					}
+						
+					logger.info(getInetSocketAddress()+" "+ssle.getPeerCertificates().length+"  "+BASE32Encoder.encode(fp)+"\n"+cert.toString());
+				//	}
+				} catch (SSLPeerUnverifiedException e) {
+					logger.error(getInetSocketAddress()+ " did not present a valid certificate.");
+					return;
+				} catch (NoSuchAlgorithmException e) {
+					logger.warn(e,e);
+				} catch (CertificateEncodingException e) {
+					logger.warn(e,e);
+				}
+				
+			}
 			signalOnConnect();
 			break;
 		case NEED_WRAP:
@@ -598,8 +633,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 						engine.setUseClientMode(!serverSide);
 						
 						if (serverSide) {
-							engine.setNeedClientAuth(false);
-							engine.setWantClientAuth(false);
+							engine.setNeedClientAuth(fingerPrint != null);
+							engine.setWantClientAuth(fingerPrint != null);
 							engine.setEnableSessionCreation(true);
 						}
 	
@@ -707,6 +742,14 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			
 	}
 	
+	
+	
+
+	public void setFingerPrint(HashValue hash) {
+		this.fingerPrint = hash;
+	}
+
+
 
 	@Override
 	public void close() {
@@ -720,7 +763,6 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 						engine.closeOutbound();
 						send(ByteBuffer.allocate(0)); //used for wrapping remaining data..
 						flush(250);
-						
 					}
 				
 					GH.close(key.channel());
@@ -894,6 +936,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		}
 		
 	}
+	
+	
 	
 	
 }

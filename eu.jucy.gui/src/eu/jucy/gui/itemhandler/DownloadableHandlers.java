@@ -241,6 +241,27 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 		}
 	}
 	
+	public static class OpenDirectoryOfDownloadableHandler extends DownloadableHandlers {
+		@Override
+		protected void run(List<IDownloadable> files,ExecutionEvent event) {
+			IDownloadableFile idf = (IDownloadableFile)files.get(0);
+			DCClient dcc = ApplicationWorkbenchWindowAdvisor.get();
+			File folderToShow = null;
+			AbstractDownloadQueueEntry adqe = dcc.getDownloadQueue().get(idf.getTTHRoot());
+			if (adqe != null && adqe.getTargetPath() != null) {
+				folderToShow = adqe.getTargetPath().getParentFile();
+			} else {
+				File flf = dcc.getFilelist().getFile(idf.getTTHRoot());
+				if (flf != null) {
+					folderToShow = flf.getParentFile();
+				}
+			}
+			if (folderToShow != null) {
+				Program.launch(folderToShow.getPath());
+			}
+		}
+	}
+	
 	public static class CopyTTHToClipboardHandler extends DownloadableHandlers {
 
 

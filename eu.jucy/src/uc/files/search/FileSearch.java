@@ -4,6 +4,7 @@ package uc.files.search;
 
 import helpers.StatusObject.ChangeType;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.runtime.Assert;
 
+import uc.crypto.BASE32Encoder;
 import uc.crypto.HashValue;
 import uc.files.MultiUserAbstractDownloadable;
 import uc.files.IDownloadable.IDownloadableFile;
@@ -101,7 +103,7 @@ public class FileSearch implements ISearchResultListener {
 	 * @param comparisonEnum - if there is a size restriction ... if size == -1 --> comparison = null
 	 * @param size
 	 */
-	public FileSearch(String searchstring , SearchType searchType, ComparisonEnum comparisonEnum, long size,String token) {
+	public FileSearch(String searchstring , SearchType searchType, ComparisonEnum comparisonEnum, long size) {
 		this.searchString = searchstring;
 		this.searchType = searchType;
 		this.comparisonEnum = comparisonEnum;
@@ -109,7 +111,11 @@ public class FileSearch implements ISearchResultListener {
 		Assert.isTrue(comparisonEnum != null || size == -1);
 		
 		this.size = size;
-		this.token = token;
+		
+		SecureRandom rand = new SecureRandom();
+		byte[] randBytes = new byte[16];
+		rand.nextBytes(randBytes);
+		this.token = BASE32Encoder.encode(randBytes);
 		startOfSearch = System.currentTimeMillis();
 	}
 	
@@ -118,7 +124,7 @@ public class FileSearch implements ISearchResultListener {
 	 * @param tth -the tth root to search for..
 	 */
 	public FileSearch(HashValue tth) {
-		this(tth.toString(),SearchType.TTH,null,-1,"auto");
+		this(tth.toString(),SearchType.TTH,null,-1);
 	}
 	
 	/**
@@ -168,12 +174,17 @@ public class FileSearch implements ISearchResultListener {
 	 * @return if the SearchResult matches this search
 	 */
 	private boolean matches(ISearchResult sr) {
+		if (sr.getToken() != null) {
+			return sr.getToken().equals(token);
+		}
+		
 		if (System.currentTimeMillis() - startOfSearch > MAX_SEARCH_TIME ) {
 			return false;
 		}
 		if (sr.isFile() && sr.getTTHRoot().toString().equals(getSearchString())) {
 			return true;
 		}
+		
 		
 		String path = sr.getPath();
 		String[] words= getSearchString().split(" ");

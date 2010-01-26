@@ -25,11 +25,11 @@ public class FakeHashEngine implements IHashEngine {
 		throw new IllegalStateException("Called method in FakeHashEngine");
 	}
 
-	public void registerHashedListener(HashedListener listener) {
+	public void registerHashedListener(IHashedListener listener) {
 		throw new IllegalStateException("Called method in FakeHashEngine");
 	}
 
-	public void unregisterHashedListener(HashedListener listener) {
+	public void unregisterHashedListener(IHashedListener listener) {
 		throw new IllegalStateException("Called method in FakeHashEngine");
 	}
 

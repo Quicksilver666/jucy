@@ -56,7 +56,7 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 
 	private static Logger logger = LoggerFactory.make(Level.DEBUG);
 	
-
+	private static final Pattern FLOATNUMBER = Pattern.compile("\\d+\\.?\\d*");
 	
 	private final Pattern description = Pattern.compile("^.*,M\\:([AP5]),H:(\\d+)/(\\d+)/(\\d+)\\,S:(\\d+).*$");
 	
@@ -109,7 +109,12 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 					
 			current.setTag(tag);
 
-			current.setConnection(m.group(3).intern());
+			String connection = m.group(3);
+			if (FLOATNUMBER.matcher(connection).matches()) {
+				current.setProperty(INFField.US, ""+((long)(Float.parseFloat(connection)*1000000L/8 ))) ;
+			} else {
+				current.setConnection(connection.intern());
+			}
 			
 			byte flag = m.group(4).getBytes()[0]; 
 			current.setFlag(flag);

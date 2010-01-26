@@ -12,6 +12,7 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 
+import uc.DCClient;
 import uc.UDPhandler.PacketReceiver;
 import uc.protocols.hub.RES;
 import uc.protocols.hub.SR;
@@ -21,8 +22,15 @@ public abstract class DCPacketReceiver implements PacketReceiver {
 	private static final Logger logger = LoggerFactory.make();
 	
 	private final CharsetDecoder 	decoder;
+	protected final DCClient dcc;
 	
-	public DCPacketReceiver(Charset cs) {
+	private final byte one,two,three;
+	
+	public DCPacketReceiver(DCClient dcc,Charset cs,char one,char two, char three) {
+		this.dcc = dcc;
+		this.one = (byte)one;
+		this.two = (byte)two;
+		this.three = (byte)three;
 		decoder		= cs.newDecoder();
 		decoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
 		decoder.onMalformedInput(CodingErrorAction.REPLACE);
@@ -41,27 +49,36 @@ public abstract class DCPacketReceiver implements PacketReceiver {
 	protected abstract void received(InetSocketAddress from, ByteBuffer packet, CharBuffer contents);
 	
 	
+	
+	
+	public boolean matches(byte one, byte two, byte three) {
+		return this.one == one && this.two == two && this.three == three;
+	}
+
+
+
+
 	public static class NMDCReceiver extends DCPacketReceiver {
 
-		public NMDCReceiver() {
-			super(DCProtocol.NMDCCHARSET);
+		public NMDCReceiver(DCClient dcc) {
+			super(dcc,DCProtocol.NMDCCHARSET,'S','R',' ');
 		}
 
 		@Override
 		protected void received(InetSocketAddress from, ByteBuffer packet,CharBuffer contents) {
-    		SR.receivedNMDCSR(from, contents,packet);
+    		SR.receivedNMDCSR(from, contents,packet,dcc);
 		}
 	}
 	
 	public static class ADCReceiver extends DCPacketReceiver {
 
-		public ADCReceiver() {
-			super(DCProtocol.ADCCHARSET);
+		public ADCReceiver(DCClient dcc) {
+			super(dcc,DCProtocol.ADCCHARSET,'R','E','S');
 		}
 
 		@Override
 		protected void received(InetSocketAddress from, ByteBuffer packet,CharBuffer contents) { 
-    		RES.receivedADCRES(from, contents);
+    		RES.receivedADCRES(from, contents,dcc);
 		}
 	}
 	

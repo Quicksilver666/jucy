@@ -139,7 +139,7 @@ public class Command  {
 				return true;
 			}
 			
-			String hubaddy =hub.getFavHub().getHubaddy().toLowerCase();
+			String hubaddy = hub.getFavHub().getHubaddy().toLowerCase();
 			if (this.hub.equals("op")) {
 				return hub.getSelf().isOp();
 			} else {

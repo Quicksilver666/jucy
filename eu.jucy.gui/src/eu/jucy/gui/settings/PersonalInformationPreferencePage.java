@@ -62,26 +62,30 @@ public class PersonalInformationPreferencePage extends
 	
 		};
 		addField(description);
+		int[] speeds= new int[] {64,96,128,256,512,768,1000,
+				1500,2000,2500,4000,5000,10000,25000,50000,100000}; 
 		
-		String[][] pairs = new String[][]{
-				{"0.005", "0.005"}, 
-				{"0.01", "0.01"} ,
-				{"0.02", "0.02"},
-				{"0.05", "0.05"},
-				{"0.1", "0.1"} ,
-				{"0.2", "0.2"},
-				{"0.5", "0.5"},
-				{"1", "1"} ,
-				{"2", "2"},
-				{"5", "5"},
-				{"10", "10"} ,
-				{"20", "20"},
-				{"50", "50"},
-				{"100", "100"}};
+		String[][] pairs2 = new String[speeds.length][2];
 		
-		ComboFieldEditor lineSpeed = new ComboFieldEditor(PI.connection,				
+		for (int i=0 ; i < speeds.length; i++) {
+			if (speeds[i] > 1000) {
+				String s ;
+				if ((speeds[i]*1000/(1024*1024*8)) >= 1 ) {
+					s = (speeds[i]*1000/(1024*1024*8))+"MiB/s)";
+				} else {
+					s = (speeds[i]*1000/(1024*8))+"KiB/s)";
+				}
+				pairs2[i][0] = (speeds[i]/1000)+(speeds[i]%1000 != 0 ?".5":"" ) +"Mbps ("+ s;
+			} else {
+				pairs2[i][0] = speeds[i]+"kbps ("+ (speeds[i]*1000/ (1024*8))+"KiB/s)";
+			}
+			pairs2[i][1] = ""+ speeds[i] * 1000/8;
+		}
+		
+		
+		ComboFieldEditor lineSpeed = new ComboFieldEditor(PI.connectionNew,				
 				Lang.LineSpeed,
-				pairs,
+				pairs2,
 				getFieldEditorParent());
 		
 		addField(lineSpeed);
@@ -90,9 +94,10 @@ public class PersonalInformationPreferencePage extends
 				Lang.DefaultAwayMessage,
 				getFieldEditorParent());
 		addField(defaultAFKMessage);
-		
-		
+
 	}
+	
+
 
 
 }

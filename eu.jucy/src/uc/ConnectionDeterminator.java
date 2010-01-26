@@ -416,11 +416,11 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
     		List<String> urls =  new ArrayList<String>(Arrays.asList(
     				"http://checkip.dyndns.org:8245/",
     				"http://www.ipchicken.com/", 
-    				"http://www.myip.dk/",
-    				"http://www.ip-adress.com/wie_ist_meine_ip/",
+    			//	"http://www.myip.dk/",
+    				"http://www.ip-adress.com/ip_lokalisieren/",
     				"http://www.myip.ch/",
-    				"http://www.cmyip.com/",
-    				"http://www.showmyip.com/",
+    			//	"http://www.cmyip.com/",  TODO test again .. seems offline
+    			//	"http://www.showmyip.com/",
     				"http://ipswift.com/"
     				)); 
     		Collections.shuffle(urls);

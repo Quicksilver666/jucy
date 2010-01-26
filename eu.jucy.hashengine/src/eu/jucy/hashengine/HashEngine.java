@@ -66,8 +66,8 @@ public class HashEngine implements IHashEngine {
 	
 	private volatile long sizeLeftForHashing = 0;
 	
-	private Set<HashedListener> listeners = 
-		Collections.synchronizedSet(new HashSet<HashedListener>());
+	private Set<IHashedListener> listeners = 
+		Collections.synchronizedSet(new HashSet<IHashedListener>());
 	
 
 
@@ -134,7 +134,7 @@ public class HashEngine implements IHashEngine {
 			if (!filesToBeHashed.contains(hfj) && !hfj.equals(currentlyHashed)) {
 				filesForHashing.offer(hfj);
 				filesToBeHashed.add(hfj);
-				sizeLeftForHashing+= f.length();
+				sizeLeftForHashing += f.length();
 			}
 		}
 	}
@@ -182,12 +182,12 @@ public class HashEngine implements IHashEngine {
 	}
 
 	
-	public void registerHashedListener(HashedListener listener) {
+	public void registerHashedListener(IHashedListener listener) {
 		listeners.add(listener);		
 	}
 
 
-	public void unregisterHashedListener(HashedListener listener) {
+	public void unregisterHashedListener(IHashedListener listener) {
 		listeners.remove(listener);
 	}
 	
@@ -297,7 +297,7 @@ public class HashEngine implements IHashEngine {
 				Date after = new Date();
 				
 				synchronized(listeners) {
-					for (HashedListener listener: listeners) {
+					for (IHashedListener listener: listeners) {
 						listener.hashed(file, after.getTime()- before.getTime(),sizeLeftForHashing-file.length());
 					}
 				}	

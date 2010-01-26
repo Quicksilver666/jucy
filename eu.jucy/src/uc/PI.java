@@ -31,9 +31,7 @@ public class PI extends AbstractPreferenceInitializer {
 
 
 
-
-
-	public static final String PLUGIN_ID= "eu.jucy";
+	public static final String PLUGIN_ID = "eu.jucy";
 
 	public PI() {
 	}
@@ -54,7 +52,8 @@ public class PI extends AbstractPreferenceInitializer {
 	
 	allowTLS			=	"allowTLS",
 	description			=	"Description", //default userdescription
-	connection			=	"Connection", //what connection IE 0.2 or 20 MBit
+//	connection			=	"Connection", //what connection IE 0.2 or 20 MBit
+	connectionNew		=	"Connection2", //connection in Byte/s
 	udpPort				=	"UDPPort",
 	slots				=	"Slots",
 	nick				=	"Nick",
@@ -70,6 +69,7 @@ public class PI extends AbstractPreferenceInitializer {
 	uploadLimit			=	"UploadLimit",
 	autoFollowRedirect	= 	"autoFollowRedirect",
 	autoSearchForAlternates = "autoSearchForAlternates",
+	autoSearchInterval	=	"autoSearchInterval",
 	
 	//ProxyStuff
 	socksProxyEnabled	=	"socksProxyEnabled",
@@ -164,7 +164,8 @@ public class PI extends AbstractPreferenceInitializer {
 		IEclipsePreferences defaults = new DefaultScope().getNode(PI.PLUGIN_ID);
 		
 		defaults.put(description, "");
-		defaults.put(connection, "0.02");
+	//	defaults.put(connection, "0.02");
+		defaults.put(connectionNew, ""+(1024*64));
 
 		String homedir = new File(Platform.getInstanceLocation().getURL().getFile()).getPath();
 		defaults.put(storagePath, homedir);
@@ -225,7 +226,9 @@ public class PI extends AbstractPreferenceInitializer {
 		defaults.putInt(maxHashSpeed, 0);
 		
 		defaults.putBoolean(autoFollowRedirect, true);
+		
 		defaults.putBoolean(autoSearchForAlternates, true);
+		defaults.putInt(autoSearchInterval, 15);
 		
 		defaults.putBoolean(socksProxyEnabled, false);
 		defaults.put(socksProxyHost, "");

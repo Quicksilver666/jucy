@@ -11,4 +11,6 @@ public interface ISearchResult extends IDownloadable {
 	int getAvailabelSlots();
 	int getTotalSlots();
 	
+	String getToken();
+	
 }

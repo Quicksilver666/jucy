@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import logger.LoggerFactory;
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Platform;
 
 import uc.DCClient;
 import uc.IUser;
@@ -191,21 +192,14 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 			synchronized(sync) {
 				usr.addDQE(this); 
 				logger.debug("2addding User to DQE:"+usr.getNick()+"  "+getClass().getSimpleName());
-				//DQEDAO dqedoa = DQEDAO.get(this);
 				addUserSuper(usr);
-//				if (this instanceof AbstractFileDQE) {
-//					logger.debug("3addding User to DQE:"+usr.getNick()+"  "+getClass().getSimpleName());
-//					dq.getDatabase().addUserToDQE(usr,get);
-//				}
 			}
 			dq.notifyObservers(new StatusObject(this,ChangeType.CHANGED));
 			
 		}
 	}
 	
-	protected void addUserSuper(IUser usr) {
-		
-	}
+	protected void addUserSuper(IUser usr) {}
 	
 	/**
 	 * removes a user from this dqe
@@ -464,14 +458,16 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		
 		logger.debug("renameing "+source+" to "+dest);
 		boolean renameWorked = source.renameTo(dest);
-
-		if (!renameWorked) { 
-		//	if (GetPartition(dest).getFreeSpace() < source.length()) {
-		//		long src= source.length();
-		//		long dst = dest.getFreeSpace();
-		//		throw new IOException("not enough space available for file: "+ dest.getName()+" "+src+" "+dst);
-		//	}
+		if (Platform.inDevelopmentMode() && source.toString().charAt(0) == dest.toString().charAt(0)) {
+			if (!renameWorked) {
+				GH.sleep(2000);
+				renameWorked = source.renameTo(dest);
+				logger.info("2 tries:");
+			}
 			
+			logger.info("Rename "+(renameWorked? "worked":"failed")+":\n"+source+" to\n"+dest);
+		}
+		if (!renameWorked) { 
 			//rename didn't work .. so open the channels and copy
 			FileInputStream in = null;
 			FileChannel sourcec = null; 

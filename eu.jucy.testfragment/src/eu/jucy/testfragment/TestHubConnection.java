@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import logger.LoggerFactory;
 
 
+import uc.crypto.HashValue;
 import uc.protocols.Compression;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.IConnection;
@@ -202,6 +203,10 @@ public class TestHubConnection implements IConnection {
 
 	public boolean removeIgnore(Object o) {
 		return ignoredPrefixes.remove(o);
+	}
+
+	public void setFingerPrint(HashValue hash) {
+		// TODO Auto-generated method stub
 	}
 	
 	

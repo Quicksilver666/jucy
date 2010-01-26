@@ -8,13 +8,13 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
 
 import uc.IHub;
 import uc.IUser;
 import uihelpers.SUIJob;
 import eu.jucy.gui.GUIPI;
 import eu.jucy.gui.texteditor.StyledTextViewer.Message;
+import eu.jucy.gui.texteditor.StyledTextViewer.TextReplacement;
 
 public class NickColourerTextModificator implements ITextModificator {
 
@@ -74,36 +74,36 @@ public class NickColourerTextModificator implements ITextModificator {
 	public NickColourerTextModificator() {
 	}
 
-
-
-	public void getStyleRange(String message, int startpos, Message original,
-			List<StyleRange> ranges, List<ObjectPoint<Image>> images) {
-		IUser usr = original.getUsr();
-		if (usr != null) {
-			int nickstart = message.indexOf('<')+1+startpos;
-			int length = usr.getNick().length();
-			StyleRange sr = null;
-			if (usr.getHub().getSelf().equals(usr)) {
-				sr = getStyleRange(ownNickCol,ownNickFont,nickstart,length);
-			} else if (usr.isFavUser()) {
-				sr = getStyleRange(favNickCol,favNickFont,nickstart,length);
-			} else if (usr.isOp()) {
-				sr = getStyleRange(opNickCol,opNickFont,nickstart,length);
-			} else {
-				sr = getStyleRange(normalNickCol,normalNickFont,nickstart,length);
-			}
-			if (sr != null) {
-				ranges.add(sr);
-			}
-			int currentpos = message.indexOf('>')+1;
-			String ownNick = usr.getHub().getSelf().getNick();
-			while (-1 != (currentpos = message.indexOf(ownNick, currentpos)) ) {
-				StyleRange sr2 = getStyleRange(ownNickCol,ownNickFont,currentpos+startpos,ownNick.length());
-				ranges.add(sr2);
-				currentpos+= ownNick.length();
-			}
-		}
-	}
+//
+//
+//	public void getStyleRange(String message, int startpos, Message original,
+//			List<StyleRange> ranges, List<ObjectPoint<Image>> images) {
+//		IUser usr = original.getUsr();
+//		if (usr != null) {
+//			int nickstart = message.indexOf('<')+1+startpos;
+//			int length = usr.getNick().length();
+//			StyleRange sr = null;
+//			if (usr.getHub().getSelf().equals(usr)) {
+//				sr = getStyleRange(ownNickCol,ownNickFont,nickstart,length);
+//			} else if (usr.isFavUser()) {
+//				sr = getStyleRange(favNickCol,favNickFont,nickstart,length);
+//			} else if (usr.isOp()) {
+//				sr = getStyleRange(opNickCol,opNickFont,nickstart,length);
+//			} else {
+//				sr = getStyleRange(normalNickCol,normalNickFont,nickstart,length);
+//			}
+//			if (sr != null) {
+//				ranges.add(sr);
+//			}
+//			int currentpos = message.indexOf('>')+1;
+//			String ownNick = usr.getHub().getSelf().getNick();
+//			while (-1 != (currentpos = message.indexOf(ownNick, currentpos)) ) {
+//				StyleRange sr2 = getStyleRange(ownNickCol,ownNickFont,currentpos+startpos,ownNick.length());
+//				ranges.add(sr2);
+//				currentpos+= ownNick.length();
+//			}
+//		}
+//	}
 	
 	
 	/**
@@ -155,8 +155,57 @@ public class NickColourerTextModificator implements ITextModificator {
 
 	public void init(StyledText st,StyledTextViewer viewer, IHub hub) {}
 
-	public String modifyMessage(String message, Message original, boolean pm) {
-		return message;
+//	public String modifyMessage(String message, Message original, boolean pm) {
+//		return message;
+//	}
+
+	public void getMessageModifications(Message original, boolean pm,List<TextReplacement> replacement) {
+		String message = original.getMessage();
+		IUser usr = original.getUsr();
+		if (usr != null) {
+			int nickstart = message.indexOf('<')+1;
+			int length = usr.getNick().length();
+			replacement.add(new TextReplacement(nickstart, length, usr.getNick()) {
+				@Override
+				public void addStyle(List<StyleRange> ranges, int addPosition,Message message) {
+					super.addStyle(ranges, addPosition,message);
+					int nickstart = addPosition;
+					int length = this.lengthToReplace;
+					StyleRange sr = null;
+					IUser usr = message.getUsr();
+					if ( usr.getHub().getSelf().equals(usr)) {
+						sr = getStyleRange(ownNickCol,ownNickFont,nickstart,length);
+					} else if (usr.isFavUser()) {
+						sr = getStyleRange(favNickCol,favNickFont,nickstart,length);
+					} else if (usr.isOp()) {
+						sr = getStyleRange(opNickCol,opNickFont,nickstart,length);
+					} else {
+						sr = getStyleRange(normalNickCol,normalNickFont,nickstart,length);
+					}
+					if (sr != null) {
+						ranges.add(sr);
+					}
+				}
+				
+			});
+			
+
+			int currentpos = message.indexOf('>')+1;
+			String ownNick = usr.getHub().getSelf().getNick();
+			while (-1 != (currentpos = message.indexOf(ownNick, currentpos)) ) {
+				replacement.add(new TextReplacement(currentpos, ownNick.length(), ownNick) {
+					@Override
+					public void addStyle(List<StyleRange> ranges, int addPosition,Message message) {
+						super.addStyle(ranges, addPosition,message);
+						StyleRange sr2 = getStyleRange(ownNickCol,ownNickFont,addPosition,this.lengthToReplace);
+						ranges.add(sr2);
+					}
+				});
+				currentpos+= ownNick.length();
+			}
+		}
 	}
+	
+	
 
 }

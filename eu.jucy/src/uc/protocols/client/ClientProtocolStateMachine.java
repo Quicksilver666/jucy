@@ -194,12 +194,12 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 
 	public synchronized void run() {
 		DCClient dcc = ch.getDCC();
-		if (getState() == CPSMState.WAITING_FOR_CONNECT && dcc.isActive()) { 
+		if (getState() == CPSMState.WAITING_FOR_CONNECT && dcc.isActive() ) { 
 			//if this is called in waiting for connect it means no 
 			//successful connection was created..
 			//TODO may be wrong if an upload was running..
 			dcc.getConnectionDeterminator().connectionTimedOut(user,
-					user.hasSupportFoEncryption() && dcc.currentlyTLSSupport());
+					user.hasSupportForEncryption() && dcc.currentlyTLSSupport());
 		}
 
 		logger.debug("StateMachine. executing sleeptask: "+all.size());
@@ -222,7 +222,7 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 			IHub othershub = user.getHub();
 			if (othershub != null && user.isOnline()) {
 				boolean nmdc = othershub.isNMDC();
-				boolean encryption = user.hasSupportFoEncryption() && 
+				boolean encryption = user.hasSupportForEncryption() && 
 				dcc.currentlyTLSSupport();
 
 				CPType protocol = CPType.get(encryption, nmdc); 

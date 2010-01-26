@@ -73,15 +73,6 @@ public class MultiUserAbstractDownloadable extends AbstractDownloadableFile impl
 		return files.get(0).getSize();
 	}
 
-	/*@Override
-	public AbstractDownloadQueueEntry download(File target) {
-		AbstractDownloadQueueEntry adqe =  super.download(target);
-		for (IDownloadableFile f: files) {
-			f.download(target);
-		}
-		return adqe;
-	} */
-
 	
 
 	public int getAvailabelSlots() {
@@ -112,6 +103,10 @@ public class MultiUserAbstractDownloadable extends AbstractDownloadableFile impl
 
 	public List<IDownloadableFile> getFiles() {
 		return files;
+	}
+
+	public String getToken() {
+		return null;
 	}
 	
 	

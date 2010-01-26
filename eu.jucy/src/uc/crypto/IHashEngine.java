@@ -40,14 +40,14 @@ public interface IHashEngine {
 	 * operations .. this is used by the UI to fill the StatusBar
 	 * @param listener
 	 */
-	void registerHashedListener(HashedListener listener);
+	void registerHashedListener(IHashedListener listener);
 	
 	/**
 	 * registers  listener to be notified on all completed hashFile
 	 * operations .. this is used by the UI to fill the StatusBar
 	 * @param listener
 	 */
-	void unregisterHashedListener(HashedListener listener);
+	void unregisterHashedListener(IHashedListener listener);
 
 	
 	/**
@@ -118,7 +118,7 @@ public interface IHashEngine {
 	 * @author Quicksilver
 	 *
 	 */
-	public static interface HashedListener {
+	public static interface IHashedListener {
 		/**
 		* notifies what file was hashed what time was needed
 		* and the nr of parallel hash operation that are running in parallel

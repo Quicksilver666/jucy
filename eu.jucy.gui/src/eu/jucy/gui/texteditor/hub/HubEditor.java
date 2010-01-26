@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -35,7 +36,6 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.ModifyEvent;
@@ -53,7 +53,10 @@ import org.eclipse.swt.widgets.Text;
 
 
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 
 
 import org.eclipse.ui.menus.CommandContributionItem;
@@ -72,6 +75,7 @@ import eu.jucy.gui.UserColumns.Email;
 import eu.jucy.gui.UserColumns.Nick;
 import eu.jucy.gui.UserColumns.Shared;
 import eu.jucy.gui.UserColumns.Tag;
+import eu.jucy.gui.downloadsview.DownloadsView;
 import eu.jucy.gui.itemhandler.CommandDoubleClickListener;
 import eu.jucy.gui.itemhandler.UCContributionItem.HubContributionItem;
 import eu.jucy.gui.itemhandler.UserHandlers.GetFilelistHandler;
@@ -81,7 +85,9 @@ import eu.jucy.gui.texteditor.LabelViewer;
 import eu.jucy.gui.texteditor.StyledTextViewer;
 import eu.jucy.gui.texteditor.UCTextEditor;
 import eu.jucy.gui.texteditor.SendingWriteline.HubSendingWriteline;
+import eu.jucy.gui.texteditor.StyledTextViewer.MyStyledText;
 import eu.jucy.gui.texteditor.pmeditor.PMEditor;
+import eu.jucy.gui.transferview.TransfersView;
 import eu.jucy.language.LanguageKeys;
 
 
@@ -89,6 +95,7 @@ import eu.jucy.language.LanguageKeys;
 
 
 import uc.FavHub;
+import uc.IHasUser;
 import uc.IUser;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.ConnectionState;
@@ -156,15 +163,12 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	private DelayedUpdate<IUser> updater;
 	
 
+	private ISelectionListener transfersListener;
 
-
-	
-
-	
 	
 
 	
-	private StyledText hubText;
+	private MyStyledText hubText;
 	private TableViewer tableViewer;
 	private CLabel feedLabel;
 	private Text filterText;
@@ -191,7 +195,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		
 		
 		sashForm = new SashForm(parent, SWT.NONE);
-		hubText = new StyledText(sashForm, SWT.V_SCROLL | SWT.READ_ONLY  | SWT.WRAP);
+		hubText = new MyStyledText(sashForm, SWT.V_SCROLL | SWT.READ_ONLY  | SWT.WRAP);
 		
 		hubText.addControlListener(new ControlListener() {
 			public void controlMoved(ControlEvent e) {
@@ -202,7 +206,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 			 * therefore store size if it Users are visible
 			 */
 			public void controlResized(ControlEvent e) {
-				if (tableViewer.getControl().isVisible()) {
+				if (table.isVisible()) {
 					getInput().setWeights(sashForm.getWeights());
 				}
 			}
@@ -215,8 +219,9 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		tableViewer= new TableViewer(sashForm, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER );
 		table = tableViewer.getTable();
 		table.setHeaderVisible(true);
-		tableViewer.setUseHashlookup(true);
+	//	tableViewer.setUseHashlookup(true);
 		tableViewer.setContentProvider(new UserContentProvider());
+		
 		
 		List<ColumnDescriptor<IUser>> columns = new ArrayList<ColumnDescriptor<IUser>>();
 		columns.addAll(Arrays.asList(new Nick(),new Shared(),new Description(),new Tag(),new Connection(),new Email()));
@@ -302,12 +307,12 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 			int[] weights = sashForm.getWeights();
 			
 			public void widgetSelected(final SelectionEvent e) {
-				if (tableViewer.getControl().isVisible()){
-					tableViewer.getControl().setVisible(false);   //set usertable invisible
+				if (table.isVisible()){
+					table.setVisible(false);   //set usertable invisible
 					weights = sashForm.getWeights();                // store the weigths of the sashform
 					sashForm.setWeights(new int[] {300, 0 });     // make only HubTextpart visible.. 
 				} else {	
-					tableViewer.getControl().setVisible(true); //set visible
+					table.setVisible(true); //set visible
 					sashForm.setWeights(weights);                //and old weights
 					weights = null;
 				}
@@ -324,7 +329,8 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		this.hub = ApplicationWorkbenchWindowAdvisor.get().getHub(getInput(),false);   //here retrieve the hub  
 		
 		labelViewer = new LabelViewer(feedLabel,hub);
-		textViewer = new StyledTextViewer(hubText,hub,false,null);
+		textViewer = new StyledTextViewer(hubText,hub,false);
+		hubText.setViewer(textViewer);
 		
 		sendingWriteline = new HubSendingWriteline(writeline,getHub().getUserPrefix(),getHub(),this);
 		
@@ -343,7 +349,6 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		makeActions(); //create menu and actions
 		logger.debug("created HubEditor partControl");
 		
-	//	setTitleImage();
 		
 		setControlsForFontAndColour(hubText,tableViewer.getTable(),writeline,filterText );
 
@@ -382,16 +387,29 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		tableViewer.addDoubleClickListener(new CommandDoubleClickListener(GetFilelistHandler.COMMAND_ID));
 		
 		tus.addSelectionChangedListener(new ISelectionChangedListener() {
-
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection iss = (IStructuredSelection)event.getSelection();
 				if (iss.getFirstElement() instanceof IUser) {
 					tableViewer.setSelection(new StructuredSelection(iss.getFirstElement()), true);
-				}
-				
+				}	
 			}
-			
 		});
+		
+		transfersListener = new ISelectionListener() {
+			public void selectionChanged(IWorkbenchPart part,ISelection selection) {
+				if (selection instanceof IStructuredSelection && ((IStructuredSelection)selection).getFirstElement() instanceof IHasUser) {
+					IHasUser transfer = (IHasUser)((IStructuredSelection)selection).getFirstElement();
+					if (getHub().equals(transfer.getUser().getHub())) {
+						tableViewer.setSelection(new StructuredSelection(transfer.getUser()), true);
+					}
+				}
+			}
+		};
+		
+		ISelectionService sel = getSite().getWorkbenchWindow().getSelectionService();
+		sel.addPostSelectionListener(TransfersView.ID,transfersListener);
+		sel.addPostSelectionListener(DownloadsView.VIEW_ID, transfersListener);
+		
 	}
 	
 
@@ -441,10 +459,8 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		switch(uce.getType()) {
 		case CONNECTED:
 			updater.add(uce.getChanged());
-			if (ConnectionState.LOGGEDIN.equals(hub.getState())) {
-				if (getInput().isShowJoins() || (getInput().isShowFavJoins() && uce.getChanged().isFavUser())) {
-					statusMessage(String.format(Lang.UserJoins,uce.getChanged().getNick()), 0);
-				} 
+			if (shouldJoinPartBeShown(uce.getChanged())) {
+				statusMessage(String.format(Lang.UserJoins,uce.getChanged().getNick()), 0);
 			}
 			break;
 		case CHANGED:
@@ -453,13 +469,17 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		case DISCONNECTED:
 		case QUIT:
 			updater.remove(uce.getChanged());
-			if (ConnectionState.LOGGEDIN.equals(hub.getState())) {
-				if (getInput().isShowJoins() || (getInput().isShowFavJoins() && uce.getChanged().isFavUser())) {
-					statusMessage(String.format(Lang.UserParts,uce.getChanged().getNick()), 0);
-				} 
+			if (shouldJoinPartBeShown(uce.getChanged())){
+				statusMessage(String.format(Lang.UserParts,uce.getChanged().getNick()), 0); 
 			}
 			break;
 		}
+	}
+	
+	private boolean shouldJoinPartBeShown(IUser usr) {
+		return 	System.currentTimeMillis()- hub.getLastLogin() > 5000 &&  
+				ConnectionState.LOGGEDIN.equals(hub.getState()) &&
+				(getInput().isShowJoins() || (getInput().isShowFavJoins() && usr.isFavUser()));
 	}
 
 
@@ -679,7 +699,11 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		if (!anotherEditorIsOpenOnHub()) {
 			getHub().close();//disconnect and no reconnect;
 		}
-
+		if (transfersListener != null) {
+			ISelectionService sel= getSite().getWorkbenchWindow().getSelectionService();
+			sel.removePostSelectionListener(TransfersView.ID,transfersListener);
+			sel.removePostSelectionListener(DownloadsView.VIEW_ID, transfersListener);
+		}
 		
 		super.dispose();
 

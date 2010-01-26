@@ -24,7 +24,7 @@ import uc.protocols.IProtocolCommand;
  * represents a magnet Link
  * can be used to download things just with a link received in chat
  * 
- * @author christian
+ * @author Quicksilver
  *
  */
 public class MagnetLink extends AbstractDownloadableFile implements IDownloadableFile {

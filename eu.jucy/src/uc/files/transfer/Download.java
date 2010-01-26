@@ -23,7 +23,7 @@ import uc.protocols.client.ClientProtocol;
 
 public class Download extends AbstractFileTransfer {
 
-	private static final int DRAINTIME = 5;
+	private static final int DRAINTIME = 20;
 	private static Semaphore downloads = new Semaphore(Integer.MAX_VALUE);
 	private static volatile int maxSpeed;
 	
@@ -45,14 +45,16 @@ public class Download extends AbstractFileTransfer {
 		update();
 		DCClient.getScheduler().scheduleAtFixedRate(new Runnable() {		
 			private int i = 0;
+			private int overDue = 0;
 			public void run() {
 				if (++i % DRAINTIME == 0 ) {
 					downloads.drainPermits();
 				}
-				downloads.release(maxSpeed);
+				downloads.release((maxSpeed+overDue)/10);
+				overDue = (maxSpeed+overDue)%10;
 			}
-			
-		},1,1,TimeUnit.SECONDS);
+				
+		},1,100,TimeUnit.MILLISECONDS);
 	}
 	
 	

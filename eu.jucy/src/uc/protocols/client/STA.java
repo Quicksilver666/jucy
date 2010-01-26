@@ -7,16 +7,13 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Platform;
 
 import uc.protocols.ADCStatusMessage;
 
 public class STA extends AbstractADCClientProtocolCommand {
 
-	private static final Logger logger = LoggerFactory.make();
-	static {
-		logger.setLevel(Platform.inDevelopmentMode()? Level.DEBUG:Level.INFO);
-	}
+	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
+
 	
 	public STA(ClientProtocol client) {
 		super(client);
@@ -25,6 +22,7 @@ public class STA extends AbstractADCClientProtocolCommand {
 
 
 	public void handle(String command) throws ProtocolException, IOException {
+		logger.debug(command);
 		int severity = Integer.valueOf(matcher.group(1));
 		int errorCode = Integer.valueOf(matcher.group(2));
 		String message = revReplaces(matcher.group(3));

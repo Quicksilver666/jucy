@@ -55,7 +55,6 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import uc.PI;
 import uc.crypto.HashValue;
-import uc.files.filelist.OwnFileList.FilelistNotReadyException;
 
 public class TextIndexer {
 
@@ -155,17 +154,16 @@ public class TextIndexer {
 	
 	public static boolean matches(String filename,long filesize) {
 		String ending = GH.getFileEnding(filename).toLowerCase();
-		return SUPPORTED_ENDINGS.contains(ending) && filesize <= MAX_TOTALSIZE ;
+		return SUPPORTED_ENDINGS.contains(ending) && 0 < filesize && filesize <= MAX_TOTALSIZE  ;
 
 	}
 	
 	public synchronized void addPDFIfAbsent(File f,HashValue hashOfFile) throws IOException {
 		if (exists(hashOfFile)) {
-		//	logger.debug("File already present: "+f.getPath());
 			return;
 		}
 		if (!matches(f.getName(),f.length())) {
-			throw new IllegalArgumentException("Only text files allowed");
+			return;
 		}
 		
 		
@@ -297,11 +295,9 @@ public class TextIndexer {
 				logger.debug("Files total: "+pdfFiles.size());
 				for (FileListFile file: pdfFiles) {
 					File f = null;
-					try {
-						f = list.getFile(file.getTTHRoot());
-					} catch (FilelistNotReadyException e) {
-						throw new IllegalStateException(e);
-					}
+				
+					f = list.getFile(file.getTTHRoot());
+			
 
 					if (f != null) {
 						debugcurrent = file.getName() +"  "+file.getSize();

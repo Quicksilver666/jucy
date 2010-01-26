@@ -35,15 +35,12 @@ public enum SizeEnum {
 	
 		for (int i=0;i < endings.length; i++) {
 			if (a < 100000) {
-				if (a %100 <10 ) {
-					return a/100 +",0"+a %100+ " "+ endings[i];
-				} else {
-					return a/100 +","+a %100+ " "+ endings[i];
-				}
+				int x =(int) (a % 100);
+				return a/100 +","+ (x<10?"0":"") + x + " "+ endings[i];
 			}
-			a/=1024;
-		
+			a /= 1024;
 		}
+		
 		return "Too much";
 	}
 	
@@ -56,6 +53,21 @@ public enum SizeEnum {
 		for (int i=0;i < endings.length; i++) {
 			if (a < 100000) {
 				return a/100 +""+ endings[i].name().charAt(0);
+			}
+			a/=1024;
+		}
+		return "Too much";
+	}
+	
+	public static String getRoundedSize(long value){
+		if(value < 1024)
+			return value +""+B;
+		
+		long a = value*100/1024;
+	
+		for (int i=0;i < endings.length; i++) {
+			if (a < 100000) {
+				return a/100 +" "+ endings[i].name();
 			}
 			a/=1024;
 		}
@@ -91,24 +103,14 @@ public enum SizeEnum {
 			return "0 "+B;
 		}
 		String erg=" "+B;
-		long next=value;
+		long next = value;
 		int i;
-		while (true){
-			i= (int)(next%1000);
-			if (i >= 100) {
-				erg = i+erg;
-			} else {
-				if (i >=10) {
-					erg = (next>=1000? "0":"")   +i+erg; //next >= 1000 checks if this isn't the first line
-				} else {
-					erg=  (next>=1000? "00":"")+i+erg;	
-				}
-			}
+		while (next >= 1000){
+			i = (int)(next % 1000);
+			erg = "."+(i < 100 ? (i<10?"00":"0"):"")   +i+erg; 
 			next /= 1000;
-			if(next == 0)
-				break;
-			erg="."+erg;
 		}
+		erg = next+erg;
 
 		return erg;
 	}
@@ -126,6 +128,13 @@ public enum SizeEnum {
 		} else {
 			return SizeEnum.getReadableSize( (size*1000) / timeduration )+"/s";
 		}
+	}
+	
+	/**
+	 * size in KiB/MiB/s  given speed in Byte/s
+	 */
+	public static String toShortSpeedString(long speed) {
+		return SizeEnum.getRoundedSize(speed)+"/s";
 	}
 	
 	

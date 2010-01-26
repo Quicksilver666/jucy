@@ -34,6 +34,8 @@ import org.eclipse.swt.widgets.Table;
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GUIPI;
 import eu.jucy.gui.UCView;
+import eu.jucy.gui.itemhandler.CommandDoubleClickListener;
+import eu.jucy.gui.itemhandler.OpenDirectoryHandler;
 import eu.jucy.gui.transferview.TransferColumns.FilenameColumn;
 import eu.jucy.gui.transferview.TransferColumns.HubColumn;
 import eu.jucy.gui.transferview.TransferColumns.IPColumn;
@@ -67,12 +69,9 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 
 	public static final String ID = "eu.jucy.gui.Transfers";
 	
-
+	
 
 	private TableViewer tableViewer;
-//	private volatile boolean running = false;
-//	private final List<StatusObject> sobjects = 
-//		Collections.synchronizedList(new ArrayList<StatusObject>());
 	
 	private Table table;
 	
@@ -111,6 +110,7 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 
 		//makeActions();
 		createContextPopup(ID, tableViewer);
+		tableViewer.addDoubleClickListener(new CommandDoubleClickListener(OpenDirectoryHandler.ID));
 		
 		ConnectionHandler ch = ApplicationWorkbenchWindowAdvisor.get().getCh();
 		tableViewer.setInput(ch);
@@ -211,123 +211,6 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 		}
 	}
 		
-//		
-//		sobjects.add(arg);
-//		if (!running) {
-//			running = true;
-//			new SUIJob(table) {
-//				@Override
-//				public void run() {
-//					running = false;
-//					synchronized(sobjects) {
-//						for (StatusObject so: sobjects) {
-//							switch(so.getDetail()) {
-//							case ConnectionHandler.USER_IDENTIFIED_IN_CONNECTION:
-//								if (so.getDetailObject() != null) {
-//									tableViewer.remove(so.getDetailObject());
-//								}
-//								tableViewer.add(so.getValue());
-//								break;
-//							case ConnectionHandler.CONNECTION_CLOSED:
-//								tableViewer.remove(so.getValue());
-//								ClientProtocolStateMachine cpsm = (ClientProtocolStateMachine)so.getDetailObject();
-//								if (cpsm != null) {
-//									logger.debug("adding cpsm "+cpsm.isActive());
-//								}
-//								if (cpsm != null && cpsm.isActive()) { 
-//									logger.debug("adding cpsm1: "+cpsm.getUser());
-//									tableViewer.add(cpsm);
-//								}
-//								break;
-//								
-//							case ConnectionHandler.TRANSFER_STARTED:
-//								tableViewer.remove(so.getValue());
-//								tableViewer.add(so.getValue()); //do structural change.. sorting..
-//								((IFileTransfer)so.getDetailObject()).addObserver(transferListener);
-//								break;
-//							case ConnectionHandler.TRANSFER_FINISHED:
-//								tableViewer.remove(so.getValue());
-//								tableViewer.add(so.getValue()); //do structural change.. sorting..
-//								((IFileTransfer)so.getDetailObject()).deleteObserver(transferListener);
-//								break;
-//								
-//							case ConnectionHandler.STATEMACHINE_CREATED:
-//								logger.debug("adding cpsm2: "+((ClientProtocolStateMachine)so.getDetailObject()).getUser());
-//								tableViewer.add(so.getDetailObject());
-//								break;
-//							case ConnectionHandler.STATEMACHINE_CHANGED:
-//								tableViewer.refresh(so.getDetailObject());
-//								break;
-//							case ConnectionHandler.STATEMACHINE_DESTROYED:
-//								tableViewer.remove(so.getDetailObject());
-//								break;
-//							}
-//						}
-//						sobjects.clear();
-//					}
-//				}
-//			
-//			}.schedule();
-//		}
-//	}
-
-	
-/*	public void update(IObservable<StatusObject> o, StatusObject arg) {
-		sobjects.add(arg);
-		if (!running) {
-			running = true;
-			UIJob uij = new UIJob("ui") { 
-				
-				@Override
-				public IStatus runInUIThread(IProgressMonitor monitor) {
-					running = false;
-					
-					if (table.isDisposed()) {
-						return Status.OK_STATUS;
-					}
-					synchronized(sobjects) {
-						for (StatusObject so: sobjects) {
-							if (so.getValue() == null) {
-								tableViewer.refresh();
-							} else {
-								switch(so.getType()) {
-								case ADDED:
-									tableViewer.add(so.getValue());
-									logger.debug("added"+so.getValue().getClass().getSimpleName());
-									break;
-								case REMOVED:
-									tableViewer.remove(so.getValue());
-									break;
-								case CHANGED:
-									tableViewer.refresh(so.getValue());
-									if (so.getValue() instanceof ClientProtocol) {
-										tableViewer.remove(so.getValue());
-										tableViewer.add(so.getValue());
-										
-										ClientProtocol cp = (ClientProtocol)so.getValue();
-										AbstractFileTransfer ft = cp.getFileTransfer();
-										if (ft != null) {
-											ft.addObserver(new TransferListener(cp, ft)); 
-										} else {
-											if (Platform.inDevelopmentMode()) {
-												logger.warn("FT null: "+cp.getFti().getOther());
-											}
-										}
-									}
-									
-									break;
-								}
-							}
-						}
-						sobjects.clear();
-					}
-					return Status.OK_STATUS;
-				}	
-			};
-			uij.setSystem(true);
-			uij.schedule();
-		}
-	} */
 	
 	private final IObserver<TransferChange> transferListener = new IObserver<TransferChange>() {
 		public void update(final IObservable<TransferChange> o, TransferChange arg) {
@@ -346,59 +229,6 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 
 
 
-
-/*	private final class TransferListener implements IObserver<TransferChange>  {
-		private final ClientProtocol cp;
-		private final AbstractFileTransfer ft;
-
-		private TransferListener(ClientProtocol cp, AbstractFileTransfer ft) {
-			this.cp = cp;
-			this.ft = ft;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return getClass().equals(obj.getClass());
-		}
-
-		@Override
-		public int hashCode() {
-			return getClass().hashCode();
-		}
-
-		
-		
-		public void update(IObservable<TransferChange> o, TransferChange change) {
-			new SUIJob() {
-				@Override
-				public void run() { 
-					if (!table.isDisposed()) {
-						tableViewer.refresh(cp);
-					}
-				}
-			}.schedule();
-			
-			if (change == TransferChange.FINISHED) {
-				ft.deleteObserver(this);
-			}
-			
-		} */
-
-	/*	public void transferChanged(TransferChange change,IFileTransfer ift) {
-			new SUIJob() {
-				@Override
-				public void run() { 
-					if (!table.isDisposed()) {
-						tableViewer.refresh(cp);
-					}
-				}
-			}.schedule();
-			
-			if (change == TransferChange.FINISHED) {
-				ft.unregisterTransferListener(this);
-			}
-		} */
-	//}
 
 	/**
 	 * 

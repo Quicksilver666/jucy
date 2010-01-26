@@ -66,7 +66,7 @@ public class StatusComposite extends ContributionItem {
 		
 		Point px  = comp.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		if (GUIPI.getBoolean(GUIPI.connectionStatusContrib)) {
-			ConnectionStatus cs = new ConnectionStatus(comp,px.y -1); //px.y -1
+			ConnectionStatus cs = new ConnectionStatus(comp,px.y - 1); //px.y -1
 			cs.setLayoutData(new RowData(SWT.DEFAULT,SWT.DEFAULT));
 		}
 
@@ -96,10 +96,9 @@ public class StatusComposite extends ContributionItem {
 			GC gc = new GC(c);
 			int cWidth = gc.getFontMetrics().getAverageCharWidth();
 			gc.dispose();
-			rd.width = (int)(cWidth * sc.getNumberOfCharacters()*1.05d); // 5% security margin..
+			rd.width = (int)(cWidth * sc.getNumberOfCharacters()*1.1d); // 10% security margin..
 			c.setLayoutData(rd);
 		}
-		
 		
 		StatusLineLayoutData stl = new StatusLineLayoutData();
 		Point p = comp.computeSize(SWT.DEFAULT, SWT.DEFAULT);
@@ -107,9 +106,6 @@ public class StatusComposite extends ContributionItem {
 		stl.heightHint = p.y;
 		comp.setLayoutData(stl);
 		logger.debug("PX: "+px+"  P:"+p);
-
-	
-		
 	}
 
 }

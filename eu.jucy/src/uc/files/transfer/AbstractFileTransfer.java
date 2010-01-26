@@ -38,6 +38,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 
 	private static final Logger logger = LoggerFactory.make();
 	
+	
 
 	
 	private static CopyOnWriteArrayList<AbstractFileTransfer> active = 

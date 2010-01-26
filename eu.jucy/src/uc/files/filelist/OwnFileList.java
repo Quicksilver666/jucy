@@ -236,6 +236,8 @@ public class OwnFileList implements IOwnFileList  {
 			try {
 				FileList newFilelist  = new FileList(filelistSelf);
 				newFilelist.setGenerator(DCClient.LONGVERSION);
+				newFilelist.setCID(dcc.getPID().hashOfHash().toString());
+				
 				dcc.getHashEngine().clearFileJobs(); //if for example less files are shared this will help that no useless files are hashed
 				//the folder lookup and reverse folders
 				
@@ -397,7 +399,7 @@ public class OwnFileList implements IOwnFileList  {
 				}
 			});	
 		} else {
-			//logger.debug("adding file to filelist:"+file);
+			//logger.debug("adding file to FileList:"+file);
 			//we have a current hash.. so we can create the file with it
 			HashValue tthRoot = hashedFile.getTTHRoot();
 			if (tthRoot != null) {
@@ -465,14 +467,7 @@ public class OwnFileList implements IOwnFileList  {
 
 		logger.debug("Found nr: "+res);
 			
-		//cut the set down to max size if needed
-		if (res.size() > sp.maxResults) {
-			Iterator<IFileListItem> it = res.iterator();
-			while (it.hasNext() && res.size() > sp.maxResults) {
-				it.next();
-				it.remove();
-			}
-		}
+
 		
 		if (sp.keys.size() == 1 ) {
 			String searched = GH.getRandomElement(sp.keys); 
@@ -501,6 +496,15 @@ public class OwnFileList implements IOwnFileList  {
 				}
 			}
 		}
+		
+		//cut the set down to max size if needed
+		if (res.size() > sp.maxResults) {
+			Iterator<IFileListItem> it = res.iterator();
+			while (it.hasNext() && res.size() > sp.maxResults) {
+				it.next();
+				it.remove();
+			}
+		}
 
 		return res;
 	}
@@ -515,9 +519,9 @@ public class OwnFileList implements IOwnFileList  {
 	/* (non-Javadoc)
 	 * @see uc.files.filelist.IOwnFileList#getFile(uc.crypto.HashValue)
 	 */
-	public File getFile(HashValue tth) throws FilelistNotReadyException {
+	public File getFile(HashValue tth)  {
 		if (topFolders.isEmpty()) {
-			throw new FilelistNotReadyException();
+			throw new IllegalStateException("Filelist not ready");
 		}
 		FileListFile f = search(tth);
 		if (f != null) {
@@ -530,7 +534,7 @@ public class OwnFileList implements IOwnFileList  {
 	/* (non-Javadoc)
 	 * @see uc.files.filelist.IOwnFileList#getFile(uc.files.filelist.FileListFile)
 	 */
-	public File getFile(FileListFile file) throws FilelistNotReadyException{
+	public File getFile(FileListFile file)  {
 		if (file == null) {
 			throw new IllegalArgumentException("file may not be null");
 		}
@@ -542,7 +546,7 @@ public class OwnFileList implements IOwnFileList  {
 		}
 		
 		if (cur == null) {
-			throw new FilelistNotReadyException();
+			throw new IllegalStateException("Filelist not ready");
 		}
 		
 		return ((TopFolder)cur).getRealPath(file);

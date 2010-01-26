@@ -6,12 +6,12 @@ import helpers.PreferenceChangedAdapter;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Image;
+
 
 import eu.jucy.gui.GUIPI;
 import eu.jucy.gui.texteditor.StyledTextViewer.Message;
+import eu.jucy.gui.texteditor.StyledTextViewer.TextReplacement;
 
 import uc.IHub;
 import uihelpers.SUIJob;
@@ -51,11 +51,11 @@ public class DateStampTextModificator implements ITextModificator {
 	
 	
 	
-	
-	public void getStyleRange(String message, int startpos, Message original,
-			List<StyleRange> ranges, List<ObjectPoint<Image>> images) {
-
-	}
+//	
+//	public void getStyleRange(String message, int startpos, Message original,
+//			List<StyleRange> ranges, List<ObjectPoint<Image>> images) {
+//
+//	}
 
 
 
@@ -64,9 +64,16 @@ public class DateStampTextModificator implements ITextModificator {
 
 	
 	
-	public String modifyMessage(String message, Message original, boolean pm) {
-		return dateFormat.format(original.getReceived()) +message;
+//	public String modifyMessage(String message, Message original, boolean pm) {
+//		return dateFormat.format(original.getReceived()) +message;
+//	}
+	
+	public void getMessageModifications(Message original, boolean pm,List<TextReplacement> replacement) {
+		replacement.add(new TextReplacement(1, 0, dateFormat.format(original.getReceived())));
 	}
+
+
+
 
 	public void dispose() {}
 }

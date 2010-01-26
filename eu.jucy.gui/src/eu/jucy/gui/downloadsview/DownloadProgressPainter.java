@@ -62,7 +62,7 @@ public class DownloadProgressPainter implements Listener, ISelectionChangedListe
 		if (o instanceof ClientProtocol) {
 			IFileTransfer ft = ((ClientProtocol)o).getFileTransfer();
 			if (ft != null) {
-				UCProgressPainter.drawFileTransfer(ft , event.gc);
+				UCProgressPainter.drawFileTransfer(ft , event.gc,event);
 			}
 		} else if (o instanceof AbstractDownloadQueueEntry) {
 			
@@ -70,6 +70,7 @@ public class DownloadProgressPainter implements Listener, ISelectionChangedListe
 					(AbstractDownloadQueueEntry)o, 
 					ti.getParent(),
 					event.gc,
+					event,
 					o.equals(parentOfSlected)? selected:null);
 			
 		}

@@ -14,9 +14,6 @@ import uc.protocols.hub.Flag;
 import uc.protocols.hub.INFField;
 
 public abstract class AbstractADCCommand extends AbstractDCProtocolCommand implements IProtocolCommand {
-
-
-	
 	
 	
 	public static Map<INFField,String> INFMap(String attributes) {
@@ -32,6 +29,14 @@ public abstract class AbstractADCCommand extends AbstractDCProtocolCommand imple
 			}
 		}
 		return flagValue;
+	}
+	
+	public static String ReverseINFMap( Map<INFField,String> attributes) {
+		String inf = "";
+		for (Entry<INFField,String> e: attributes.entrySet()) {
+			inf += " "+ e.getKey().name() + doReplaces(e.getValue());
+		}
+		return inf;
 	}
 	
 	 

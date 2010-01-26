@@ -15,6 +15,7 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 
+
 import uc.DCClient;
 import uc.User;
 import uc.crypto.HashValue;
@@ -126,7 +127,7 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 						   Integer.parseInt(sr.group(3)),       //slots current
 						   Integer.parseInt(sr.group(4)),       //slots max
 						   false,null);
-				   DCClient.get().srReceived(searchResult);
+				   hub.getDcc().srReceived(searchResult);
 				
 			}
 		} else {
@@ -244,7 +245,7 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 	  * @param from - socket of the sender
 	  * @param cs - CharSsequence containing the packet
 	  */
-	public static void receivedNMDCSR(InetSocketAddress from, CharSequence cs ,ByteBuffer originalpacket) {
+	public static void receivedNMDCSR(InetSocketAddress from, CharSequence cs ,ByteBuffer originalpacket,DCClient dcc) {
     	for (String sr:  pipesplit.split(cs)) {
     		logger.debug("received sr via udp: "+sr);
     		try {
@@ -253,12 +254,12 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
     			if (sr.startsWith("$SR ") && -1 != secondspace && secondspace < braceOpen ) { 
     				String nick 	= sr.substring(4, secondspace );
     				String hubip	= sr.substring(braceOpen ,sr.length()-1);
-    				Hub hub = DCClient.get().hubForNickAndIP(nick,hubip);
+    				Hub hub = dcc.hubForNickAndIP(nick,hubip);
     				if (hub != null) {
     					if (hub.getCharset().equals(DCProtocol.NMDCCHARSET) || originalpacket == null ) {
     						hub.searchResultReceived(sr);
     					} else {
-    						receivedNMDCSR(from, hub.getCharset().decode(originalpacket) , null);
+    						receivedNMDCSR(from, hub.getCharset().decode(originalpacket) , null,dcc);
     					}
     					
     				}

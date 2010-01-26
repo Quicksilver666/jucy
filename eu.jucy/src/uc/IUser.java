@@ -228,9 +228,16 @@ public interface IUser  {
 	
 	/**
 	 * 
-	 * @return tre if the user can do encrypted connection protocols..
+	 * @return true if the user can do encrypted connection protocols..
 	 */
-	boolean hasSupportFoEncryption();
+	boolean hasSupportForEncryption();
+	
+	
+	/**
+	 * 
+	 * @return true if encryption for UDP may be applied...
+	 */
+	boolean hasSupportForUDPEncryption();
 
 	
 	/**
@@ -292,6 +299,11 @@ public interface IUser  {
 	 */
 	long sizeOfFilesInQueue();
 	
+	/**
+	 * 
+	 * @return KeyPrint sent with the user
+	 */
+	HashValue getKeyPrint();
 	
 	
 	public static enum Mode {

@@ -16,15 +16,13 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
 
-import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 
@@ -37,12 +35,13 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
 
 
-import uc.files.search.SearchResult;
+
+import uc.crypto.UDPEncryption;
 import uc.protocols.DCProtocol;
 import uc.protocols.Socks;
 import uc.protocols.DCPacketReceiver.ADCReceiver;
 import uc.protocols.DCPacketReceiver.NMDCReceiver;
-import uc.protocols.hub.Hub;
+
 
 /**
  *
@@ -61,7 +60,7 @@ public class UDPhandler implements IUDPHandler {
 									adcencoder;
 								
 	
-
+	private final CopyOnWriteArrayList<byte[]> keysActive = new CopyOnWriteArrayList<byte[]>();
 
 	/**
 	 * communication variable to signal port changed in the settings 
@@ -84,17 +83,12 @@ public class UDPhandler implements IUDPHandler {
     /** will handle the incoming Searches  UDP Port */
     public UDPhandler(DCClient dcc) {
     	this.dcc = dcc;
-    	
-    	Charset adc		= DCProtocol.ADCCHARSET;
-    	Charset nmdc	= DCProtocol.NMDCCHARSET;
-
-    	
-    	nmdcencoder		= nmdc.newEncoder();
+    	nmdcencoder		= DCProtocol.NMDCCHARSET.newEncoder();
     	nmdcencoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
     	nmdcencoder.onMalformedInput(CodingErrorAction.REPLACE);
 
 
-    	adcencoder		= adc.newEncoder();
+    	adcencoder		= DCProtocol.ADCCHARSET.newEncoder();
       	adcencoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
     	adcencoder.onMalformedInput(CodingErrorAction.REPLACE);
    
@@ -107,8 +101,8 @@ public class UDPhandler implements IUDPHandler {
 			}
     	};
     	
-		register((int)'$', new NMDCReceiver());
-		register((int)'U', new ADCReceiver());
+		register((int)'$', new NMDCReceiver(dcc));
+		register((int)'U', new ADCReceiver(dcc));
     }
     
     /**
@@ -137,7 +131,7 @@ public class UDPhandler implements IUDPHandler {
 			public void run() {
 				runUDP();
 			}
-    	},"UDPHandler");
+    	},"UDP-Handler");
     	udpThread.start();
     }
     
@@ -161,12 +155,11 @@ public class UDPhandler implements IUDPHandler {
     			port = PI.getInt(PI.udpPort);
     			open();
     			while (!portchanged && datagramChannel.isOpen()) {
-    				
     				packet.clear();
     				SocketAddress from = datagramChannel.receive(packet);
     				if (from instanceof InetSocketAddress) {
     					packet.flip();
-    					receivedPacket((InetSocketAddress)from, packet);
+    					receivedPacket((InetSocketAddress)from, packet,true);
     				} else {
     					logger.debug("not a InetSocketAddress received: "+from);
     				}
@@ -192,19 +185,28 @@ public class UDPhandler implements IUDPHandler {
      * 
      * @param from - address of sender 
      * @param packet - buffer containing the payload
+     * @param possiblyEncrypted - true if the packet might possibly be encrypted
      * @throws CharacterCodingException 
      */
-    private void receivedPacket(InetSocketAddress from, ByteBuffer packet)   {
+    private void receivedPacket(InetSocketAddress from, ByteBuffer packet,boolean possiblyEncrypted)   {
     	//charBuffer.clear();
     	dcc.getConnectionDeterminator().udpPacketReceived(from);//jay we received something..
  	
     	if (packet.hasRemaining()) {
     		PacketReceiver r = receivers[(int)(packet.get(0) & 0xff)];
-    		if (r != null) {
+    		
+    		if (r != null && r.matches(packet.get(1), packet.get(2), packet.get(3))) {
     			r.packetReceived(packet, from);
-    		} else {
-    			if (Platform.inDevelopmentMode()) {
-    				logger.warn("unknown PacketReceived: "+ new String(packet.array()));
+    		} else if (possiblyEncrypted) {
+    			byte[] encrypted = new byte[packet.remaining()];
+    			packet.get(encrypted);
+    			byte[] decrypted = UDPEncryption.decryptMessage(encrypted, keysActive);
+    			if (decrypted != null) {
+    				receivedPacket(from,ByteBuffer.wrap(decrypted),false);
+    			} else {
+	    			if (Platform.inDevelopmentMode()) {
+	    				logger.warn("unknown PacketReceived: "+ new String(packet.array())+"  "+possiblyEncrypted);
+	    			}
     			}
     		}
     	}
@@ -212,35 +214,33 @@ public class UDPhandler implements IUDPHandler {
 
 
     
-    /* (non-Javadoc)
-	 * @see uc.IUDPHandler#sendSearchResultsBack(java.util.Set, uc.protocols.hub.Hub, java.net.InetSocketAddress)
-	 */
-    public void sendSearchResultsBack(Set<SearchResult> srs,Hub hub ,InetSocketAddress target) {
-    	logger.debug("sending search results back");
-    	CharBuffer charBuffer = CharBuffer.allocate(UDPMAXPAYLOAD/4);
-    	try {
-    		for (SearchResult sr: srs) {
-    			String command = hub.getUDPSRPacket(sr); 
-    			charBuffer.put(command);
-    			charBuffer.flip();
-    			
-    			if (hub.isNMDC() && !hub.getCharset().equals(DCProtocol.NMDCCHARSET)) {
-    				sendPacket(hub.getCharset().encode(charBuffer),target); //use overridden charsets 
-    			} else {
-    				CharsetEncoder encoder = hub.isNMDC()? nmdcencoder:adcencoder;
-    				synchronized(encoder) {
-    					sendPacket(encoder.encode(charBuffer),target);
-    				}
-    			}
-    			
-
-    			charBuffer.clear();
-    		}
-    		
-    	} catch (CharacterCodingException cee) {
-    		logger.warn(cee,cee);
-    	}
-    }
+//    /* (non-Javadoc)
+//	 * @see uc.IUDPHandler#sendSearchResultsBack(java.util.Set, uc.protocols.hub.Hub, java.net.InetSocketAddress)
+//	 */
+//    public void sendSearchResultsBack(Set<SearchResult> srs,Hub hub ,InetSocketAddress target) {
+//    	logger.debug("sending search results back");
+//    	CharBuffer charBuffer = CharBuffer.allocate(UDPMAXPAYLOAD/4);
+//    	try {
+//    		for (SearchResult sr: srs) {
+//    			String command = hub.getUDPSRPacket(sr); 
+//    			charBuffer.put(command);
+//    			charBuffer.flip();
+//    			
+//    			if (hub.isNMDC() && !hub.getCharset().equals(DCProtocol.NMDCCHARSET)) {
+//    				sendPacket(hub.getCharset().encode(charBuffer),target); //use overridden charsets 
+//    			} else {
+//    				CharsetEncoder encoder = hub.isNMDC()? nmdcencoder:adcencoder;
+//    				synchronized(encoder) {
+//    					sendPacket(encoder.encode(charBuffer),target);
+//    				}
+//    			}
+//    			charBuffer.clear();
+//    		}
+//    		
+//    	} catch (CharacterCodingException cee) {
+//    		logger.warn(cee,cee);
+//    	}
+//    }
     
     /* (non-Javadoc)
 	 * @see uc.IUDPHandler#sendPacket(java.nio.ByteBuffer, java.net.InetSocketAddress)
@@ -249,7 +249,7 @@ public class UDPhandler implements IUDPHandler {
     	if (!Socks.isEnabled()) {
     		sendPacketIgnoreProxy(packet, target);
     	} else {
-    		//TODO ... UDP Relay... though not really needed..
+    		// ... UDP Relay... though not really needed..
     		 //as seems not to work and is common in DC++ client to not answer with udp..
     	}
     }
@@ -310,6 +310,20 @@ public class UDPhandler implements IUDPHandler {
 		return port;
 	}
 	
+	
+	/**
+	 * 
+	 * tokens must be told to UDP handler for decryption
+	 * @param token the token used..
+	 */
+	public void addTokenExpected(String token) {
+		byte[] key =  UDPEncryption.tokenStringToKey(token); 
+		keysActive.add(0,key);
+		if (keysActive.size() > 10) {
+			keysActive.remove(keysActive.size()-1);
+		}
+	}
+	
 
 	
 	public static interface PacketReceiver {
@@ -324,6 +338,17 @@ public class UDPhandler implements IUDPHandler {
 		 * 
 		 */
 		void packetReceived(ByteBuffer packet,InetSocketAddress source);
+		
+		/**
+		 * while byte zero is used to discriminate against messages .. -> this is further used for faster
+		 * check than with encryption..
+		 * gets byte 1,2 and 3 against the Handler
+		 * @param one
+		 * @param two
+		 * @param three
+		 * @return
+		 */
+		boolean matches(byte one,byte two,byte three);
 		
 	}
     

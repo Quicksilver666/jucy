@@ -27,10 +27,7 @@ import uihelpers.SUIJob;
 public class TotalTransferredLabel extends CLabel implements IObserver<StatusObject> , IStatusLineComp{
 
 
-	//public static final String UPID = "eu.jucy.gui.statusline.TotalUP";
-	//public static final String DOWNID = "eu.jucy.gui.statusline.TotalDO";
-	
-	//private static Font small =null;
+
 	
 	private final boolean upload;
 	//private CLabel cl;
@@ -49,33 +46,7 @@ public class TotalTransferredLabel extends CLabel implements IObserver<StatusObj
 		super.dispose();
 	}
 
-	/*@Override
-	public void fill(Composite parent) {
-		cl = new CLabel(parent,SWT.BORDER);
-		
-	 *	if (small == null) {
-			FontData standard = cl.getFont().getFontData()[0];
-			
-			small = new Font(null,new FontData(standard.getName(),7,SWT.NORMAL ));
-		}
-		cl.setFont(small); *
-		
-		UploadQueue.get(upload).deleteObserver(this);
-		UploadQueue.get(upload).addObserver(this);
-		cl.addDisposeListener(new DisposeListener() {
-		
-			public void widgetDisposed(DisposeEvent e) {
-				UploadQueue.get(upload).deleteObserver(TotalTransferredLabel.this);
-			}
-		});
-		StatusLineLayoutData data = new StatusLineLayoutData();
-		data.widthHint = 80;
-		cl.setLayoutData(data);
-		
-		setText();
-		
-		
-	}*/
+	
 	
 	
 
@@ -92,8 +63,6 @@ public class TotalTransferredLabel extends CLabel implements IObserver<StatusObj
 	public void setText() {
 		String text = upload? "U": "D";
 		text+=": "+ SizeEnum.getReadableSize(queue.getTotalSize());
-		
-	//	text = String.format("%-13s", text); //13
 		setText(text);
 	}
 

@@ -54,7 +54,9 @@ import eu.jucy.gui.GuiHelpers;
 import eu.jucy.gui.IImageKeys;
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.favhub.FavHubEditor;
+import eu.jucy.gui.texteditor.StyledTextViewer.ControlReplacement;
 import eu.jucy.gui.texteditor.StyledTextViewer.Message;
+import eu.jucy.gui.texteditor.StyledTextViewer.TextReplacement;
 
 
 
@@ -71,9 +73,12 @@ public class URLTextModificator implements ITextModificator {
 
 	private static final Logger logger =  LoggerFactory.make(Level.INFO);
 
-	private static final char URL_CHAR = '\uFFFC'; // (char)18;
+//	private static final char URL_CHAR = '\uFFFC';
 	
 	private static Image IMAGE_URL_ICON;
+	
+	private static char[] 	OPENING_DELIMTER = new char[]{'\"','<','(','{','[','\''},
+							CLOSING_DELIMITER = new char[]{'\"','>',')','}',']','\''};
 	
 	private static Image getImageURLIcon() {
 		if (IMAGE_URL_ICON == null) {
@@ -86,8 +91,8 @@ public class URLTextModificator implements ITextModificator {
 	
 	public static final String ID = "eu.jucy.gui.URLTextModificator";
 	
-	private static final String URLENDING = 
-		"[\\w\\p{L}\\-_]+(\\.[\\w\\p{L}\\-_]+)+([\\w\\p{L}\\-\\.,@?^=%&amp;:/~\\+#\\(\\)]*[\\w\\p{L}\\-\\@?^=%&amp;/~\\+#])?";
+	private static final String URLENDING = "\\w[\\S]*[\\S&&[^<>\"\\)]]"; 
+	//	"[\\w\\p{L}\\-_]+(\\.[\\w\\p{L}\\-_]+)+([\\w\\p{L}\\-\\.,@?^=%&amp;:/~\\+#\\(\\)]*[\\w\\p{L}\\-\\@?^=%&amp;/~\\+#])?";
 	private static final String URL = "(http|ftp|https):\\/\\/"+URLENDING;
 
 
@@ -104,7 +109,6 @@ public class URLTextModificator implements ITextModificator {
 	
 	private StyledText text;
 	private StyledTextViewer viewer;
-//	private MouseAdapter listener;
 	
 	
 
@@ -120,36 +124,126 @@ public class URLTextModificator implements ITextModificator {
 	
 	
 	
-	public void dispose() {
-//		if (!text.isDisposed()) {
-//			text.removeMouseListener(listener);
-//		}
-	}
+	public void dispose() {}
 	
 
-	public String modifyMessage(String message, Message original, boolean pm) {
-		if (message.indexOf(URL_CHAR) != -1 ) {
-			message = message.replace(URL_CHAR, ' '); //replace invalid chars..
-		}
-		
+//	public String modifyMessage(String message, Message original, boolean pm) {
+//		if (message.indexOf(URL_CHAR) != -1 ) {
+//			message = message.replace(URL_CHAR, ' '); //replace invalid chars..
+//		}
+//		
+//		Matcher m = ANY_URL.matcher(message);
+//		int minimumSearchpos = 0;
+//		while (minimumSearchpos < message.length() && m.find(minimumSearchpos)) {
+//			String uri = m.group();
+//			AbstractLinkType alt = getMatching(uri);
+//			
+//			int start = m.start();
+//			logger.debug("found image URI: "+uri+" "+uri.length() );
+//			message = message.substring(0, start)+URL_CHAR
+//					+(alt.hasImageAfterURI(uri)?" ":"")+message.substring(m.end());
+//			m = ANY_URL.matcher(message);
+//		
+//			minimumSearchpos = start+2;
+//		}
+//	
+//		return message;
+//	}
+	
+	
+	public void getMessageModifications(Message original, boolean pm,List<TextReplacement> replacement) {
+		String message = original.getMessage();
 		Matcher m = ANY_URL.matcher(message);
 		int minimumSearchpos = 0;
 		while (minimumSearchpos < message.length() && m.find(minimumSearchpos)) {
-			String uri = m.group();
+			int start = m.start();
+			String u = m.group();
+			for (int i=0; i < OPENING_DELIMTER.length;i++) {
+				if (message.charAt(start-1) == OPENING_DELIMTER[i] && u.charAt(u.length()-1) == CLOSING_DELIMITER[i]) {
+					u = u.substring(0,u.length()-1);
+					break;
+				}
+			}
+			final String uri = u;
+			
+			int end = start+uri.length();
 			AbstractLinkType alt = getMatching(uri);
 			
-			int start = m.start();
+			replacement.add(new ControlReplacement(start,uri) {
+				
+				@Override
+				public Control createControl(StyledText createOn,float[] ascent) {
+					AbstractLinkType alt = getMatching(this.replacedText);
+					String linkText = alt.getTextReplacement(this.replacedText);
+					
+					Link link = new Link(createOn, SWT.NONE);
+					link.setBackground( GUIPI.getColor(GUIPI.urlModCol));
+					link.setFont(GUIPI.getFont(GUIPI.urlModFont));
+					link.setData(this.replacedText);
+					link.setToolTipText(this.replacedText);
+					link.setText("<a>"+linkText+"</a>");
+					ascent[0]= 0.8f;
+					
+					Menu menu = new Menu(link);
+					MenuItem mi = new MenuItem(menu,SWT.PUSH);
+					mi.setData(this.replacedText);
+					mi.setText("Copy URI to Clipboard");
+					mi.addSelectionListener(adapter);
+					link.setMenu(menu);
+					
+					link.addListener (SWT.Selection, new Listener () {
+						public void handleEvent(Event event) {
+							logger.debug("Selection: " + event.text+ " "+event.widget.getData());
+							String uri = (String)event.widget.getData();
+							getMatching(uri).execute(uri);
+						}
+					});
+					
+					return link;
+				}
+			});
+			if (alt.hasImageAfterURI(uri)) {
+				replacement.add(new ControlReplacement(end,"") {
+					
+					public void apply(StyledText st,List<StyleRange> toAdd,List<ObjectPoint<Image>> imagePoints,List<ObjectPoint<Control>> controlPoints ,int positionInText,Message message) {
+						float[] ascent = new float[] {2f/3f};
+						Control c = createControl(st,ascent);
+						final ObjectPoint<Control> op = ObjectPoint.create(positionInText,replacedText, ascent[0], c, toAdd);
+						c.addMouseListener(new MouseAdapter() {
+							public void mouseDown(MouseEvent e) {
+								String uri = (String)e.widget.getData();
+								getMatching(uri).executeImageClick(uri,op,URLTextModificator.this);
+							}
+						});
+						controlPoints.add(op);
+						
+					}
+					@Override
+					public Control createControl(StyledText createOn,float[] ascent) {
+						AbstractLinkType alt = getMatching(uri);
+						Label lab = new Label(createOn,SWT.NONE);
+						Image img = alt.getImageAfterURI(uri);
+						lab.setImage(img);
+						lab.setData(uri);
+						ascent[0]=2f/3f;
+						
+						
+						return lab;
+					}
+					
+				});
+			}
+			
+			
+			
 			logger.debug("found image URI: "+uri+" "+uri.length() );
-			message = message.substring(0, start)+URL_CHAR
-					+(alt.hasImageAfterURI(uri)?" ":"")+message.substring(m.end());
-			m = ANY_URL.matcher(message);
 		
-			minimumSearchpos = start+2;
+			minimumSearchpos = end;
 		}
-	
-		return message;
+		
 	}
-	
+
+
 	private static final SelectionAdapter adapter = new SelectionAdapter() {
 		public void widgetSelected(SelectionEvent e) {
 			String uri = (String)e.widget.getData();
@@ -157,51 +251,51 @@ public class URLTextModificator implements ITextModificator {
 		}
 	};
 	
-	public void getStyleRange(String message, int start,
-			Message originalMessage, List<StyleRange> ranges, List<ObjectPoint<Image>> images) {
-		
-		Matcher m = ANY_URL.matcher(originalMessage.getMessage());
-		int messagePos = 0;
-		int charPos = 0;
-		while (m.find(messagePos)) {
-			String foundURI = m.group();
-			AbstractLinkType alt = getMatching(foundURI);
-			String linkText = alt.getTextReplacement(foundURI);
-			
-			int posOfURLChar = message.indexOf(URL_CHAR,charPos);
-			int posURI = posOfURLChar+start; // to full text..
-			Link link = new Link(text, SWT.NONE);
-			link.setBackground( GUIPI.getColor(GUIPI.urlModCol));
-			link.setFont(GUIPI.getFont(GUIPI.urlModFont));
-			link.setData(foundURI);
-			link.setToolTipText(foundURI);
-			link.setText("<a>"+linkText+"</a>");
-		
-			viewer.addControl(link,posURI, 0.8f); 
-			Menu menu = new Menu(link);
-			MenuItem mi = new MenuItem(menu,SWT.PUSH);
-			mi.setData(foundURI);
-			mi.setText("Copy URI to Clipboard");
-			mi.addSelectionListener(adapter);
-			link.setMenu(menu);
-			
-			link.addListener (SWT.Selection, new Listener () {
-				public void handleEvent(Event event) {
-					logger.debug("Selection: " + event.text+ " "+event.widget.getData());
-					String uri = (String)event.widget.getData();
-					getMatching(uri).execute(uri);
-				}
-			});
-			
-			if (alt.hasImageAfterURI(foundURI)) {
-				logger.debug("added image: "+foundURI);
-				addLabelImage(posURI+1,foundURI);
-			}
-			
-			messagePos = m.end();
-			charPos = posOfURLChar+1;
-		}
-	}
+//	public void getStyleRange(String message, int start,
+//			Message originalMessage, List<StyleRange> ranges, List<ObjectPoint<Image>> images) {
+//		
+//		Matcher m = ANY_URL.matcher(originalMessage.getMessage());
+//		int messagePos = 0;
+//		int charPos = 0;
+//		while (m.find(messagePos)) {
+//			String foundURI = m.group();
+//			AbstractLinkType alt = getMatching(foundURI);
+//			String linkText = alt.getTextReplacement(foundURI);
+//			
+//			int posOfURLChar = message.indexOf(URL_CHAR,charPos);
+//			int posURI = posOfURLChar+start; // to full text..
+//			Link link = new Link(text, SWT.NONE);
+//			link.setBackground( GUIPI.getColor(GUIPI.urlModCol));
+//			link.setFont(GUIPI.getFont(GUIPI.urlModFont));
+//			link.setData(foundURI);
+//			link.setToolTipText(foundURI);
+//			link.setText("<a>"+linkText+"</a>");
+//		
+//			viewer.addControl(link,posURI, 0.8f); 
+//			Menu menu = new Menu(link);
+//			MenuItem mi = new MenuItem(menu,SWT.PUSH);
+//			mi.setData(foundURI);
+//			mi.setText("Copy URI to Clipboard");
+//			mi.addSelectionListener(adapter);
+//			link.setMenu(menu);
+//			
+//			link.addListener (SWT.Selection, new Listener () {
+//				public void handleEvent(Event event) {
+//					logger.debug("Selection: " + event.text+ " "+event.widget.getData());
+//					String uri = (String)event.widget.getData();
+//					getMatching(uri).execute(uri);
+//				}
+//			});
+//			
+//			if (alt.hasImageAfterURI(foundURI)) {
+//				logger.debug("added image: "+foundURI);
+//				addLabelImage(posURI+1,foundURI);
+//			}
+//			
+//			messagePos = m.end();
+//			charPos = posOfURLChar+1;
+//		}
+//	}
 	
 	
 	void addLabelImage(int pos,String uri) {
@@ -210,7 +304,7 @@ public class URLTextModificator implements ITextModificator {
 		Image img = alt.getImageAfterURI(uri);
 		lab.setImage(img);
 		lab.setData(uri);
-		final ObjectPoint<Control> op =  viewer.addControl(lab, pos, 2f/3f);
+		final ObjectPoint<Control> op =  viewer.addControl(lab, pos,uri, 2f/3f);
 		lab.addMouseListener(new MouseAdapter() {
 			public void mouseDown(MouseEvent e) {
 				String uri = (String)e.widget.getData();
@@ -223,7 +317,7 @@ public class URLTextModificator implements ITextModificator {
 		Label lab = new Label(text,SWT.NONE);
 		lab.setImage(img);
 		lab.setData(uri);
-		final ObjectPoint<Control> op = viewer.addControl(lab, pos, 2f/3f);
+		final ObjectPoint<Control> op = viewer.addControl(lab, pos,uri, 2f/3f);
 		lab.addMouseListener(new MouseAdapter() {
 			public void mouseDown(MouseEvent e) {
 				String uri = (String)e.widget.getData();
@@ -369,22 +463,24 @@ public class URLTextModificator implements ITextModificator {
 			
 			if ((magnetLink = MagnetLink.parse(uri)) != null) {	
 				point.obj.setEnabled(false);
-				File target = new File(PI.getStoragePath(),magnetLink.getName());
+				File target = new File(PI.getTempPath(),magnetLink.getName());
 				if (target.isFile()) {
 					 openFile(target,uri,point,mod);
 				} else {
-					AbstractDownloadQueueEntry adqe = magnetLink.download();
-					adqe.addDoAfterDownload(new IDownloadFinished() {
-						public void finishedDownload(final File f) {
-							new SUIJob() {
-								@Override
-								public void run() {
-									openFile(f,uri,point,mod);
-									f.deleteOnExit();
-								}
-							}.schedule();
-						}
-					});
+					AbstractDownloadQueueEntry adqe = magnetLink.download(target);
+					if (adqe != null) {
+						adqe.addDoAfterDownload(new IDownloadFinished() {
+							public void finishedDownload(final File f) {
+								new SUIJob() {
+									@Override
+									public void run() {
+										openFile(f,uri,point,mod);
+										f.deleteOnExit();
+									}
+								}.schedule();
+							}
+						});
+					}
 				}
 				logger.info(String.format(Lang.AddedFileViaMagnet,magnetLink.getName()));
 			}

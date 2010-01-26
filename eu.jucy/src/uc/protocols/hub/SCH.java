@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import uc.DCClient;
 import uc.User;
 import uc.crypto.HashValue;
 import uc.crypto.TigerHashValue;
@@ -83,18 +82,24 @@ TRACE Hub.java Line:463
 		
 		if (flags.containsKey(Flag.TR)) {
 			HashValue hash = HashValue.createHash(flags.get(Flag.TR));
-			hub.searchReceived(hash, passive, passive?usr : ias, flags.get(Flag.TO));
+			hub.searchReceived(hash, passive, usr,  ias, flags.get(Flag.TO));
 		} else {
 			SearchParameter sp = new SearchParameter(
 					includes,excludes,minsize,maxsize,equalssize,endings, onlyDirectories);
 			
-			hub.searchReceived(sp,passive, passive? usr : ias, flags.get(Flag.TO));
+			hub.searchReceived(sp,passive, usr , ias, flags.get(Flag.TO));
 		}
 	}
 	
 	public static void sendSearch(Hub hub,FileSearch search) {
 		//BSCH KAZ4 TRTFMBXT6AFYHJJOGE4OPLFSEWTYJEFFYY6RDWNIA TOauto
-		String sch = "FSCH "+SIDToStr(hub.getSelf().getSid())+" +TCP"+(DCClient.get().isIPv4Used()?4:6);
+		String sch;
+		if (hub.getDcc().isActive()) {
+			sch = "BSCH "+SIDToStr(hub.getSelf().getSid());
+		} else {
+			sch = "FSCH "+SIDToStr(hub.getSelf().getSid())+" +"+(hub.getDcc().isIPv4Used()?User.TCP4:User.TCP6);
+		}
+			
 
 		String[] splits =  space.split(search.getSearchString());
 		for (String s: splits) {

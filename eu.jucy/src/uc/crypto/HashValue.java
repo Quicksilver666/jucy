@@ -27,7 +27,10 @@ public abstract class HashValue implements Comparable<HashValue> {
 	 * @return
 	 */
 	public static HashValue createHash(String base32value) {
-		if (base32value.startsWith("TTH/")) {
+		if (base32value.length() < 20) {
+			throw new IllegalStateException(); // too small for a hash
+		}
+		if (base32value.substring(0, 4).equalsIgnoreCase("TTH/")) {
 			base32value = base32value.substring(4);
 			return new TigerHashValue(base32value);
 		}
@@ -35,8 +38,27 @@ public abstract class HashValue implements Comparable<HashValue> {
 		if (base32value.length() == TigerHashValue.serializedDigestLength) {
 			return new TigerHashValue(base32value);
 		}
+		if (base32value.substring(0, 7).equalsIgnoreCase("sha256/")) {
+			base32value = base32value.substring(7);
+			return new SHA256HashValue(base32value);
+		}
 		
-		throw new IllegalStateException();
+		if (base32value.length() == SHA256HashValue.serializedDigestLength) {
+			return new SHA256HashValue(base32value);
+		}
+		
+		
+		throw new IllegalStateException("hash not parseable: len "+base32value.length());
+	}
+	
+	public static HashValue createHash(byte[] data,String alg) {
+		if (alg.equalsIgnoreCase("sha256") || alg.equalsIgnoreCase("sha-256")) {
+			return SHA256HashValue.hashData(data);
+		}
+		if (alg.equalsIgnoreCase("tiger") || alg.equalsIgnoreCase("tigr")) {
+			return Tiger.tigerOfBytes(data);
+		}
+		throw new IllegalStateException("unknown alg");
 	}
 	
 	public static boolean isHash(String base32Value) {
@@ -90,6 +112,7 @@ public abstract class HashValue implements Comparable<HashValue> {
 	 */
 	public abstract String magnetString();
 	
+
 	
 	/**
 	 * 

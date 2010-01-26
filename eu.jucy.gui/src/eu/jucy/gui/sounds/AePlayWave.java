@@ -28,7 +28,7 @@ import eu.jucy.gui.Application;
 public class AePlayWave implements Runnable {
  
 	/*public static void main(String[] args) {
-		new AePlayWave("C:\\Users\\christian\\Desktop\\downloads\\blip.wav").run();
+		new AePlayWave("C:\\Users\\quicksilver\\Desktop\\downloads\\blip.wav").run();
 	} */
 	
 	public static void playWav(String audioKey) {

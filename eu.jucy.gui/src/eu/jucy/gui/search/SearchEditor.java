@@ -529,7 +529,7 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 		cancel();
 		//create new search and register.. with the DCClient  then register this viewer with the search
 		current = new FileSearch(searchstring,fileTypeComboViewer.getSelected()
-				,minmaxsizeComboViewer.getSelected(),getSearchSize(),"man");
+				,minmaxsizeComboViewer.getSelected(),getSearchSize());
 		
 		ApplicationWorkbenchWindowAdvisor.get().register(current);
 		current.register(this);

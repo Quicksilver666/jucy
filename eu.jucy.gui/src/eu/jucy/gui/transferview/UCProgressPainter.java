@@ -79,10 +79,11 @@ public class UCProgressPainter implements Listener {
 		this.table = table;
 	}
 
-	public static void drawString(String message,Control c, GC gc){
+	public static void drawString(String message,Control c, GC gc,Event event) {
 		Color oldbackground = gc.getBackground();
 		Color oldforeground = gc.getForeground();
-		Rectangle rect = gc.getClipping();
+		
+		Rectangle rect = new Rectangle(event.x,event.y,Math.max(gc.getClipping().width,event.width),event.height);//gc.getClipping();
 		gc.setBackground(c.getBackground());
 		gc.setForeground(c.getForeground()); 
 		gc.fillRectangle(rect);
@@ -105,27 +106,34 @@ public class UCProgressPainter implements Listener {
 		
 		if (o instanceof ClientProtocol) {
 			ClientProtocol cp= (ClientProtocol)o;
+//			if (event.height != event.gc.getClipping().height && event.gc.getClipping().height != 0) {
+//				System.out.println("heigth: "+event.height+" "+event.gc.getClipping().height);
+//				System.out.println("width: "+event.width+" "+event.gc.getClipping().width);
+//				System.out.println("x: "+event.x+" "+event.gc.getClipping().x);
+//				System.out.println("y: "+event.y+" "+event.gc.getClipping().y);
+//				System.out.println(cp.getUser().getNick());
+//			}
 			switch (cp.getState()) {
 			case TRANSFERSTARTED:
 				IFileTransfer ft = cp.getFileTransfer();
 				if (ft != null) {
-					drawFileTransfer(ft,event.gc);
+					drawFileTransfer(ft,event.gc,event);
 				}
 				break;
 			case DESTROYED:
 			case CLOSED:
 				String reason = cp.getDisconnectReason();
-				drawString(reason != null? reason : "idle" ,table, event.gc);
+				drawString(reason != null? reason : "idle" ,table, event.gc,event);
 				break;
-
+				
 			case TRANSFERFINISHED:
-				drawString(ConnectionState.TRANSFERFINISHED.toString(),table,event.gc);
+				drawString(ConnectionState.TRANSFERFINISHED.toString(),table,event.gc,event);
 				break;
 			case LOGGEDIN: //LoggedIn is equivalent to connected in this context..
-				drawString(ConnectionState.CONNECTED.toString(),table,event.gc);
+				drawString(ConnectionState.CONNECTED.toString(),table,event.gc,event);
 				break;
 			default:
-				drawString(cp.getState().toString(),table,event.gc);
+				drawString(cp.getState().toString(),table,event.gc,event);
 				break;
 			}
 		} else if (o instanceof ClientProtocolStateMachine) {
@@ -143,15 +151,16 @@ public class UCProgressPainter implements Listener {
 				s += " ("+cpsm.getSleepCounter()+")";
 			}
 			
-			drawString(s,table,event.gc);
+			drawString(s,table,event.gc,event);
 			
 		}
 		
 	}
 	
-	public static void drawFileTransfer(IFileTransfer ft,GC gc) {
+	public static void drawFileTransfer(IFileTransfer ft,GC gc,Event event) {
 		
-		Rectangle rect = gc.getClipping();
+		Rectangle rect =  new Rectangle(event.x,event.y,Math.max(gc.getClipping().width,event.width),event.height); //  gc.getClipping();
+	
 		if (rect.height == 0  && rect.width == 0) {
 			return;
 		}
@@ -186,6 +195,7 @@ public class UCProgressPainter implements Listener {
 				GuiHelpers.toPercentString(current, length),
 				SizeEnum.toDurationString((System.currentTimeMillis()-ft.getStartTime().getTime())/1000 ));
 			
+		
 		/*	ft.getCompression().toTransferViewString()
 				+(downloading ? "Downloaded " : "Uploaded ")
 				+ SizeEnum.getReadableSize(current)
@@ -209,7 +219,8 @@ public class UCProgressPainter implements Listener {
 		gc.setBackground(downloading ? downloadColor2 :uploadColor2 );
 		gc.setForeground(downloading ? downloadColor :uploadColor);
 		//set Clipping so that we don't draw to much of the font
-		gc.setClipping( rect.x,  rect.y, divider ,rect.height);
+		Rectangle old = gc.getClipping();
+		gc.setClipping( old.x,  old.y, divider ,old.height);
 			
 
 		gc.fillGradientRectangle(rect.x,  rect.y, rect.width, rect.height, true);

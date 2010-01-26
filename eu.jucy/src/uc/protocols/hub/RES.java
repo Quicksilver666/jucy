@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 
-
 import uc.DCClient;
+import uc.IUser;
 import uc.User;
 import uc.crypto.HashValue;
 import uc.files.search.ISearchResult;
@@ -83,6 +85,8 @@ public class RES extends AbstractADCHubCommand {
 	
 	private static RES UDPRES = new RES(null);
 	
+	
+	
 	public RES(Hub hub) {
 		super(hub);  
 		String passive = getHeader();
@@ -90,49 +94,57 @@ public class RES extends AbstractADCHubCommand {
 		setPattern((hub != null?passive:active) +" (.*)",true);
 	}
 
+	private void handle(String command,DCClient dcc) throws ProtocolException, IOException {
+		List<IUser> users;
 
-	public void handle(String command) throws ProtocolException, IOException {
-		User usr = null;
 		Map<Flag,String> flags;
 		if (hub != null) {
-			usr = hub.getUserBySID(getOthersSID());
+			IUser usr = hub.getUserBySID(getOthersSID());
+			if (usr != null) {
+				users = Collections.singletonList(usr);
+			} else {
+				users = Collections.emptyList();
+			}
 			flags = getFlagMap(matcher.group(HeaderCapt+1));
 		} else {
 			HashValue cid = HashValue.createHash(matcher.group(1));
-			usr = hub.getDcc().getUserForCID(cid);
-			if (usr == null) {
-				logger.debug("Unknown user in RES "+cid);
-				return;
-			}
+			users = dcc.getUsersForCID(cid); 
 			flags = getFlagMap(matcher.group(2));
 		}
 		
 		//TR for tigerhash
-		if (usr != null && flags.containsKey(Flag.FN)) {
-			String path = flags.get(Flag.FN);
-			path = path.replace('/', File.separatorChar);
-			ISearchResult sr = null;
-			String token = flags.get(Flag.TO);
-			if (path.endsWith(File.separator)) { //folder
-				long size = flags.containsKey(Flag.SI) ? Long.valueOf(flags.get(Flag.SI)): -1 ;
-				int availableSlots = flags.containsKey(Flag.SL)?Integer.valueOf(flags.get(Flag.SL)): 0 ;
+		for (IUser usr:users) {
+			if (flags.containsKey(Flag.FN)) {
+				String path = flags.get(Flag.FN);
+				path = path.replace('/', File.separatorChar);
+				ISearchResult sr = null;
+				String token = flags.get(Flag.TO);
 				
-				
-				sr  = SearchResult.create(path, null, usr, size, availableSlots, usr.getSlots(), false,token);
-				
-			} else {
-				if (flags.containsKey(Flag.SI) && flags.containsKey(Flag.TR) ) {
-					long size = Long.valueOf(flags.get(Flag.SI));
+				if (path.endsWith(File.separator)) { //folder
+					long size = flags.containsKey(Flag.SI) ? Long.valueOf(flags.get(Flag.SI)): -1 ;
 					int availableSlots = flags.containsKey(Flag.SL)?Integer.valueOf(flags.get(Flag.SL)): 0 ;
-					HashValue hash = HashValue.createHash(flags.get(Flag.TR));
-					sr  = SearchResult.create(path,hash, usr, size, availableSlots, usr.getSlots(), true,token);
+					
+					
+					sr  = SearchResult.create(path, null, usr, size, availableSlots, usr.getSlots(), false,token);
+					
+				} else {
+					if (flags.containsKey(Flag.SI) && flags.containsKey(Flag.TR) ) {
+						long size = Long.valueOf(flags.get(Flag.SI));
+						int availableSlots = flags.containsKey(Flag.SL)?Integer.valueOf(flags.get(Flag.SL)): 0 ;
+						HashValue hash = HashValue.createHash(flags.get(Flag.TR));
+						sr  = SearchResult.create(path,hash, usr, size, availableSlots, usr.getSlots(), true,token);
+					}
+				}
+				
+				if (sr != null) {
+					 dcc.srReceived(sr); //hub may be null !!! 0.81 bug
 				}
 			}
-			
-			if (sr != null) {
-				DCClient.get().srReceived(sr);
-			}
 		}
+	}
+
+	public void handle(String command) throws ProtocolException, IOException {
+		handle(command,hub.getDcc());
 	}
 	
 	public static String getUDPRESString(SearchResult sr, Hub hub) {
@@ -174,7 +186,7 @@ public class RES extends AbstractADCHubCommand {
 		return s;
 	}
 	
-	public static void receivedADCRES(InetSocketAddress from, CharSequence cs ) {
+	public static void receivedADCRES(InetSocketAddress from, CharSequence cs,DCClient dcc ) {
 		int index;
 		String cur = cs.toString();
 		while (-1 != (index = cur.indexOf('\n'))) {
@@ -182,7 +194,7 @@ public class RES extends AbstractADCHubCommand {
 			cur = cur.substring(index+1);
 			if (UDPRES.matches(command)) {
 				try {
-					UDPRES.handle(command);
+					UDPRES.handle(command,dcc);
 				} catch (IOException ioe) {
 					logger.debug(ioe,ioe);
 				} catch(RuntimeException re) {

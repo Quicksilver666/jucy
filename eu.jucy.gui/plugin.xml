@@ -1841,6 +1841,15 @@
             </activeWhen>
          </handler>
          <handler
+               class="eu.jucy.gui.itemhandler.DownloadableHandlers$OpenDirectoryOfDownloadableHandler"
+               commandId="eu.jucy.uploadqueue.OpenDirectory">
+            <activeWhen>
+               <reference
+                     definitionId="eu.jucy.gui.downloadable.hasOneFile">
+               </reference>
+            </activeWhen>
+         </handler>
+         <handler
                class="eu.jucy.gui.itemhandler.TransfersHandlers$ForceAttempt"
                commandId="eu.jucy.gui.forceattempt">
             <activeWhen>

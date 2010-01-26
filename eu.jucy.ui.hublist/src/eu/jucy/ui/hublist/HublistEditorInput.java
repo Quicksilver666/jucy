@@ -1,43 +1,16 @@
 package eu.jucy.ui.hublist;
 
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IPersistableElement;
 
 import eu.jucy.gui.Lang;
+import eu.jucy.gui.UCEditorInput;
 
 
-public class HublistEditorInput implements IEditorInput {
-
-	
-	public boolean exists() {
-		return false;
-	}
-
-	
-	public ImageDescriptor getImageDescriptor() {
-		return null;
-	}
+public class HublistEditorInput extends UCEditorInput {
 
 	
 	public String getName() {
 		return Lang.PublicHubs;
 	}
 
-	
-	public IPersistableElement getPersistable() {
-		return null;
-	}
-
-	
-	public String getToolTipText() {
-		return getName();
-	}
-
-	@SuppressWarnings("unchecked")
-	
-	public Object getAdapter(Class adapter) {
-		return null;
-	}
 
 }

@@ -7,6 +7,7 @@ import uc.IUser;
 
 
 
+import uc.crypto.HashValue;
 import uc.files.IDownloadable;
 import uc.files.IHasDownloadable;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
@@ -153,7 +154,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 * incoming .. constructor 
 	 */
 	public ClientProtocol(SocketChannel sc, ConnectionHandler ch,boolean encryption) {
-		this((Object)sc,true,ch,null,null,null,encryption);
+		this((Object)sc,true,ch,null,null,null,null,encryption);
 	}
 	
 	/**
@@ -168,12 +169,12 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 * @param token
 	 * @param encryption
 	 */
-	public ClientProtocol(InetSocketAddress addy, ConnectionHandler ch,IUser self,
+	public ClientProtocol(InetSocketAddress addy, ConnectionHandler ch,IUser self,IUser other,
 			CPType protocol,String token,boolean encryption) {
-		this((Object)addy,false,ch,self,protocol,token,encryption);
+		this((Object)addy,false,ch,self,other,protocol,token,encryption);
 	}
 	
-	private ClientProtocol(Object addyOrSC ,boolean incoming, ConnectionHandler ch,IUser self,
+	private ClientProtocol(Object addyOrSC ,boolean incoming, ConnectionHandler ch,IUser self,IUser other,
 			CPType protocol,String token,boolean encryption) {
 		super(new int[]{0,0,1}); //we want bandwidth mostly C-C protocol..
 		this.ch = ch;
@@ -186,12 +187,13 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		this.token = token;
 		
 		Assert.isTrue(incoming || protocol.isNmdc() || token != null  , " token should not be null for ADC connections");
-
+		
+		HashValue fingerPrint = other != null? other.getKeyPrint(): null;
 
 		if (addyOrSC instanceof SocketChannel) {
-			connection = new UnblockingConnection((SocketChannel)addyOrSC, this,encryption,incoming);
+			connection = new UnblockingConnection((SocketChannel)addyOrSC, this,encryption,incoming,fingerPrint);
 		} else {
-			connection = new UnblockingConnection((InetSocketAddress)addyOrSC, this,encryption);
+			connection = new UnblockingConnection((InetSocketAddress)addyOrSC, this,encryption,fingerPrint);
 		}
 	}
 	
@@ -259,7 +261,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 * nothing and just wait for the other to send something
 	 */
 	public void onLogIn() throws IOException {
-		logger.debug("called OnLogIn");
+		logger.debug("called OnLogIn ");
 
 		if (getState() != ConnectionState.CONNECTED) {
 			logger.debug("current state: "+getState()); //no login -> we already disconnected..TODO -> move into superclass..
@@ -267,10 +269,10 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		}
 		super.onLogIn();
 		
-		
+
 		if (fti.isDownload()) { // Here call the connection handler to know what
 								// we want... if we want something..
-			logger.debug("in fti.isDownload() if");
+		//	logger.info("in fti.isDownload() if");
 			// register state machine.. so it gets notified when this connection closes  
 			cpsm = ch.getStateMachine(fti.getOther());
 			if (cpsm == null) {

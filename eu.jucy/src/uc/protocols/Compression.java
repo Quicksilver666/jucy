@@ -1,6 +1,7 @@
 package uc.protocols;
 
 import helpers.FDeflaterOutputStream;
+import helpers.FInflaterInputStream;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -12,20 +13,19 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
 
 
 import org.apache.tools.bzip2.CBZip2InputStream;
 import org.apache.tools.bzip2.CBZip2OutputStream;
+
+import com.jcraft.jzlib.ZInputStream;
 
 
 
 
 
 /**
- * Compression is a typesafe enum of all possible compressions supported.
+ * wrapper of all possible compressions supported.
  * 
  * 
  * @author Quicksilver
@@ -46,8 +46,6 @@ public enum Compression {
 		nmdcString = nmdcidentifier;
 	}
 	
-	//private static final Logger logger = LoggerFactory.make();
-	
 	/**
 	 * wraps a decompressing channel around rbc
 	 */
@@ -58,11 +56,10 @@ public enum Compression {
 			return new CompressionWrapper(rbc);
 		case ZLIB_FAST:	
 		case ZLIB_BEST:
-			Inflater inf = new Inflater();
 			
-			InflaterInputStream zis = new InflaterInputStream(
-					new BufferedInputStream( Channels.newInputStream(rbc)),inf);
-			return new CompressionWrapper(Channels.newChannel(zis),inf);
+			FInflaterInputStream zis =  new FInflaterInputStream(
+					new BufferedInputStream( Channels.newInputStream(rbc)));
+			return new CompressionWrapper(Channels.newChannel(zis),zis);
 		case BZ2:
 			return new CompressionWrapper(Channels.newChannel(new CBZip2InputStream( 
 					new BufferedInputStream( Channels.newInputStream(rbc)) )));  
@@ -80,7 +77,7 @@ public enum Compression {
 			return in;
 		case ZLIB_FAST:	
 		case ZLIB_BEST:
-			return new InflaterInputStream(in);
+			return new FInflaterInputStream(in);
 		case BZ2:
 			return new CBZip2InputStream(in);  
 		}
@@ -98,21 +95,21 @@ public enum Compression {
 	 */
 	public FinishWrapper wrapOutgoing(WritableByteChannel wbc) throws IOException {
 		FDeflaterOutputStream out = null;
-		Deflater def;
+	//	Deflater def;
 		switch(this){
 		case NONE:
 			return new FinishWrapper(wbc);
 		case ZLIB_FAST:
 			OutputStream os = new BufferedOutputStream(Channels.newOutputStream(wbc));
 			//out = new DeflaterOutputStream(os);
-			def = new Deflater(Deflater.BEST_SPEED);
-			out =  new FDeflaterOutputStream(os,def); //   new ZOutputStream( os ,JZlib.Z_BEST_SPEED) ;  //new Deflater(Deflater.BEST_SPEED) );
+		//	def = new Deflater(Deflater.BEST_SPEED);
+			out =  new FDeflaterOutputStream(os,true); //   new ZOutputStream( os ,JZlib.Z_BEST_SPEED) ;  //new Deflater(Deflater.BEST_SPEED) );
 			//return Channels.newChannel(new GZIPOutputStream( new BufferedOutputStream(Channels.newOutputStream(wbc))));
-			return  new FinishWrapper(Channels.newChannel(out),out,def);
+			return  new FinishWrapper(Channels.newChannel(out),out);
 		case ZLIB_BEST:
-			def = new Deflater(Deflater.BEST_COMPRESSION);
-			out = new FDeflaterOutputStream( new BufferedOutputStream(Channels.newOutputStream(wbc)),def);  //new Deflater(Deflater.BEST_COMPRESSION) );
-			return  new FinishWrapper(Channels.newChannel(out),out,def);
+	//		def = new Deflater(Deflater.BEST_COMPRESSION);
+			out = new FDeflaterOutputStream( new BufferedOutputStream(Channels.newOutputStream(wbc)),false);  //new Deflater(Deflater.BEST_COMPRESSION) );
+			return  new FinishWrapper(Channels.newChannel(out),out);
 		case BZ2:
 			return  new FinishWrapper(Channels.newChannel(new CBZip2OutputStream( new BufferedOutputStream(Channels.newOutputStream(wbc)))));  
 		}
@@ -182,12 +179,12 @@ public enum Compression {
 		private final WritableByteChannel chan;
 
 		private final FDeflaterOutputStream flush;
-		private final Deflater def;
+	//	private final Deflater def;
 		public FinishWrapper(WritableByteChannel chan) {
-			this(chan,null,null);
+			this(chan,null);
 		}
-		public FinishWrapper(WritableByteChannel chan, FDeflaterOutputStream flush,Deflater def) {
-			this.def = def;
+		public FinishWrapper(WritableByteChannel chan, FDeflaterOutputStream flush /*,Deflater def*/) {
+	//		this.def = def;
 			this.chan = chan;
 			this.flush = flush;
 		}
@@ -199,14 +196,15 @@ public enum Compression {
 		public void finnish() throws IOException {
 			if (flush != null) {
 				flush.finish();
-				flush.flush();
+			//	flush.flush();
 			}
+			
 		}
 		public long getCompIO() {
-			return def== null? 1 : def.getBytesWritten();
+			return flush== null? 1 : flush.getTotalOut(); //  .getBytesWritten();
 		}
 		public long getIO() {
-			return def== null? 1 : def.getBytesRead();
+			return flush == null? 1 : flush.getTotalIn();  //def.getBytesRead();
 		}
 		
 		
@@ -215,26 +213,31 @@ public enum Compression {
 	
 	public static class CompressionWrapper implements ICompIO {
 		
-		private final Inflater inf;
+		private final ZInputStream inf;
 		
 		private final ReadableByteChannel rbc;
 		
 		public CompressionWrapper(ReadableByteChannel rbc) {
 			this(rbc,null);
 		}
-
-		public CompressionWrapper(ReadableByteChannel rbc, Inflater inf) {
+		/**
+		 * 
+		 * @param rbc
+		 * @param inf
+		 * 
+		 */
+		public CompressionWrapper(ReadableByteChannel rbc, ZInputStream inf) {
 			this.inf = inf;
 			this.rbc = rbc;
 		}
 
 		
 		public long getCompIO() {
-			return inf == null? 1: inf.getBytesRead();
+			return inf == null? 1: inf.getTotalIn();
 		}
 
 		public long getIO() {
-			return inf == null? 1: inf.getBytesWritten();
+			return inf == null? 1: inf.getTotalOut(); // .getBytesWritten();
 		}
 		
 		public ReadableByteChannel getRbc() {

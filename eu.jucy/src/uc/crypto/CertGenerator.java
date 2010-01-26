@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintStream;
 import java.security.KeyStore;
+import java.security.cert.Certificate;
 
 
 import javax.net.ssl.KeyManager;
@@ -25,11 +26,11 @@ import uc.PI;
  * 
  * keytool -genkey -storepass 123456 -keystore storagename -keyalg RSA -dname "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown" -validity 999
  */
-public class KeyGenerator {
+public class CertGenerator {
 
 	private static final Logger logger = LoggerFactory.make(Level.DEBUG); 
 
-	
+
 	
 //	public static void main(String[] args) {
 //		
@@ -50,7 +51,7 @@ public class KeyGenerator {
 	
 	
     
-    public static KeyManager[] loadManager() {
+    public synchronized static KeyManager[] loadManager(HashValue[] fingerPrintPointer) {
     	FileInputStream fis = null;
 		try {
 			File f = new File(PI.getStoragePath()+File.separator+".keystore" );
@@ -58,7 +59,7 @@ public class KeyGenerator {
 				
 				logger.info("Creating Certificate...");
 				genKeypair(f,"RSA");
-				genKeypair(f,"DSA");
+			//	genKeypair(f,"DSA");
 				logger.info("Created Certificate");
 			} 
 			
@@ -71,6 +72,14 @@ public class KeyGenerator {
 			kmf.init(store, pass);
 			logger.info("Loaded Certificate");
 			KeyManager[] managers = kmf.getKeyManagers();
+			Certificate cert = store.getCertificate(aliasForAlg("RSA"));
+			if (cert != null) {
+				fingerPrintPointer[0] = SHA256HashValue.hashData(cert.getEncoded());
+				logger.debug("fingerPrint: "+fingerPrintPointer[0]);
+			} else {
+				logger.debug("got no Cert");
+			}
+			
 			logger.debug("Managers created: "+managers.length);
 			return managers;
 		} catch(RuntimeException re) {
@@ -101,7 +110,7 @@ public class KeyGenerator {
 		"-keyalg",
 		alg,  //"RSA" /"DSA"
 		"-alias",
-		"jucy-"+alg+"-key",
+		aliasForAlg(alg),
 		"-dname",
 		"CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown",
 		"-validity", 
@@ -125,5 +134,9 @@ public class KeyGenerator {
 		in.close(); */
 		ps.close();
 		p.waitFor();
+    }
+    
+    private static String aliasForAlg(String alg) {
+    	return "jucy-"+alg+"-key";
     }
 }
