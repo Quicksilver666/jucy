@@ -147,15 +147,8 @@ public abstract class DownloadQueueColumns extends ColumnDescriptor<AbstractDown
 
 		@Override
 		public String getText(AbstractDownloadQueueEntry dqe) {
-			String ret="";
-			for (IUser usr: dqe.getUsers()) {
-				ret+= ";"+usr.getNick();
-			}
-			if (GH.isEmpty(ret)) {
-				return "";
-			} else {
-				return ret.substring(1);
-			}
+			return GH.concat(dqe.getUsers(), ";", "");
+
 		}
 		
 	}

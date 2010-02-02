@@ -207,7 +207,11 @@ public class StyledTextViewer {
 						}
 					}
 				} catch (IllegalArgumentException iae) {
-					logger.info("iea: "+iae);
+					if (Platform.inDevelopmentMode()) {
+						logger.warn("iea: "+iae,iae);
+					} else {
+						logger.debug("iea: "+iae,iae);
+					}
 				}
 
 			}
@@ -648,8 +652,8 @@ public class StyledTextViewer {
 		private static final String OBJTEXT = "\uFFFC";
 		protected final String replacedText;
 		
-		public ObjectReplacement(int position, String textToReplace) {
-			super(position, textToReplace.length(), OBJTEXT);
+		public ObjectReplacement(int position, int length,String textToReplace) {
+			super(position, length, OBJTEXT);
 			this.replacedText = textToReplace;
 		}
 	}
@@ -659,7 +663,18 @@ public class StyledTextViewer {
 		private final Image img;
 		
 		public ImageReplacement(int position, String textToReplace, Image img) {
-			super(position, textToReplace);
+			this(position, textToReplace.length(),textToReplace,img);
+		}
+		
+		/**
+		 * here text to replace may defer
+		 * @param position
+		 * @param lengthToReplace
+		 * @param imageReplacementText
+		 * @param img
+		 */
+		public ImageReplacement(int position,int lengthToReplace,String imageReplacementText, Image img) {
+			super(position, lengthToReplace,imageReplacementText);
 			this.img = img;
 		}
 		
@@ -673,7 +688,7 @@ public class StyledTextViewer {
 	public static abstract class ControlReplacement extends ObjectReplacement {
 		
 		public ControlReplacement(int position, String textToReplace) {
-			super(position, textToReplace);
+			super(position, textToReplace.length(),textToReplace);
 		}
 		
 		@Override

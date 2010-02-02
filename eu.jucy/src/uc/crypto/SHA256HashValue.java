@@ -1,7 +1,6 @@
 package uc.crypto;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import helpers.GH;
 
 public class SHA256HashValue extends HashValue {
 
@@ -44,14 +43,7 @@ public class SHA256HashValue extends HashValue {
 	}
 	
 	public static SHA256HashValue hashData(byte[] data) {
-		MessageDigest md;
-		try {
-			md = MessageDigest.getInstance( "sha-256" );
-		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException(e);
-		}
-		byte[] raw = md.digest(data);
-		
+		byte[] raw = GH.getHash(data, "sha-256"); 
 		return new SHA256HashValue(raw);
 	}
 

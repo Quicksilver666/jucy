@@ -83,7 +83,8 @@ public class OwnFileList implements IOwnFileList  {
 	 * maps shared dirs to whether they were online the last time...
 	 * -> dirs that suddenly become unavailable must be cleared from the FileFist
 	 */
-	private Map<SharedDir,Boolean> lastOnlineDirs = new HashMap<SharedDir,Boolean>();
+	private final Map<SharedDir,Boolean> lastOnlineDirs = 
+		Collections.synchronizedMap(new HashMap<SharedDir,Boolean>());
 	
 	private final User filelistSelf;
 	/**
@@ -105,7 +106,7 @@ public class OwnFileList implements IOwnFileList  {
 	 */
 	private volatile boolean defersFromFilelistOnDisc = false;
 	
-
+	private final PreferenceChangedAdapter pca;
 	
 	public OwnFileList(User self,DCClient dcclient) {
 		dcc = dcclient;
@@ -120,7 +121,7 @@ public class OwnFileList implements IOwnFileList  {
 		}
 		pdfIndex = pdfI;
 		
-		new PreferenceChangedAdapter(PI.get(),PI.sharedDirs2) {
+		pca = new PreferenceChangedAdapter(PI.get(),PI.sharedDirs2) {
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
 				dcc.getSchedulerDir().schedule(new Runnable() {
@@ -146,9 +147,13 @@ public class OwnFileList implements IOwnFileList  {
 		for (TopFolder dir: topFolders) {
 			dirs.put(dir.getSharedDir(), dir.isOnline());
 		}
-		boolean ret = !dirs.equals(lastOnlineDirs);
-		lastOnlineDirs = dirs;
-		return ret;
+		if (dirs.equals(lastOnlineDirs)) {
+			return true;
+		} else {
+			lastOnlineDirs.clear();
+			lastOnlineDirs.putAll(dirs);
+			return false;
+		}
 	}
 	
 	/**
@@ -591,7 +596,8 @@ public class OwnFileList implements IOwnFileList  {
 		protected IStatus run(IProgressMonitor monitor) {
 			//before and after refresh GC is run as lots of long lived objects get free 
 			//that won't be garbage collected for quite a long time otherwise
-			//(before to make space for refresh and afterwards to get rid of long lived objects)
+			//(before to make space for refresh without enlarging heap
+			//and afterwards to get rid of long lived objects)
 			System.gc(); 
 			try {
 				refresh(monitor);
@@ -614,6 +620,7 @@ public class OwnFileList implements IOwnFileList  {
 		if (pdfIndex != null) {
 			pdfIndex.stop();
 		}
+		pca.dispose();
 	}
 	
 	public static class TopFolder extends FileListFolder {

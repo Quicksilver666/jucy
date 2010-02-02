@@ -61,7 +61,7 @@ public class SUP extends AbstractADCClientProtocolCommand {
 	public static void sendSUP(ClientProtocol client) {
 		client.addCommand(new INF(client));
 	
-		client.sendRaw(SUPPORTS);
+		client.sendUnmodifiedRaw(SUPPORTS);
 		
 		IUser usr = client.getSelf();
 		if (usr != null && !client.isIncoming()) { //send a STA about the referrer 

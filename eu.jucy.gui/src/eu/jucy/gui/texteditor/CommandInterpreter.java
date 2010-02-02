@@ -132,7 +132,7 @@ public class CommandInterpreter {
 								public void run() {
 									PMResult pmres = usr.sendPM(send, true, true);
 									if (pmres == PMResult.STORED) {
-										editor.storedPM(send, true);
+										editor.storedPM(usr,send, true);
 									}
 								}
 							});
@@ -181,7 +181,7 @@ public class CommandInterpreter {
 				if (usrByNick != null && splits.length == 3) {
 					PMResult pmres = usrByNick.sendPM(splits[2],false,true);
 					if (pmres == PMResult.STORED) {
-						editor.storedPM(splits[2], false);
+						editor.storedPM(usrByNick,splits[2], false);
 					}
 				}
 				

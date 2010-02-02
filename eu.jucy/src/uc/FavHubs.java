@@ -34,9 +34,11 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 	
 
 	
+	
 	@SuppressWarnings("serial")
 	private final Map<Integer,FavHub> favHubs = Collections.synchronizedMap(new HashMap<Integer,FavHub>() {
-		
+
+
 		/**
 		 * make sure new Order is set to the hub..
 		 */

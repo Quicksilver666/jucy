@@ -172,7 +172,8 @@ public abstract class AbstractWritableFileInterval extends AbstractFileInterval 
 		public WritableByteChannel getWriteChannel() throws IOException {
 			return new WritableByteChannel() {
 
-				private Block current = dqe.getBlock(startBlock);
+				private Block current = dqe.getBlock(currentBlock);
+				
 				private WritableByteChannel currentBlockChannel = null;
 				private int recursiveness = 0;
 				
@@ -199,8 +200,17 @@ public abstract class AbstractWritableFileInterval extends AbstractFileInterval 
 						currentBlockChannel.close();
 						currentBlockChannel = null;
 						
+						
 						currentBlock++;
 						current = dqe.getBlock(currentBlock);
+						
+//						if (current != null && current.isWritable()) { //current != null &&  removed null check... would be dereferenced before
+//							currentBlockChannel = current.getWriteChannel();
+//						} else {
+//							currentBlockChannel = null;
+//						}
+						
+						
 						
 					//	bytesWrittenInCurrentBlock = 0;
 						

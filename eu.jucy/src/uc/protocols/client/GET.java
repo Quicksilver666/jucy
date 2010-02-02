@@ -127,7 +127,7 @@ Note that GET can also be used by extensions for binary transfers between hub an
 				+ (fti.getType() == TransferType.FILELIST ? " RE1": "" ) 
 				+ "\n" ;
 
-			client.sendRaw(adcget);
+			client.sendUnmodifiedRaw(adcget);
 			//simple.send(adcget);
 			// Request all bytes from current position to end of file
 			logger.debug("read one adc command");

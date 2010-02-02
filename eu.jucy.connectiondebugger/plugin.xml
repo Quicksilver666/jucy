@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="true"
+            class="eu.jucy.connectiondebugger.DebuggerView"
+            icon="icons/debuggerview.16.gif"
+            id="eu.jucy.connectiondebugger.debuggerview"
+            name="Connection Debugger">
+      </view>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:view?before=eu.jucy.gui.views.seperator1">
+         <command
+               commandId="org.eclipse.ui.views.showView"
+               icon="icons/debuggerview.16.gif"
+               label="Connection Debugger"
+               style="push">
+            <parameter
+                  name="org.eclipse.ui.views.showView.viewId"
+                  value="eu.jucy.connectiondebugger.debuggerview">
+            </parameter>
+         </command>
+      </menuContribution>
+   </extension>
+  
+
+
+</plugin>

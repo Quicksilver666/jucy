@@ -1,6 +1,7 @@
 package eu.jucy.countries;
 
 import geoip.GEOIP;
+import helpers.GH;
 
 import java.util.List;
 
@@ -70,7 +71,13 @@ public class FlagsTextModificator implements ITextModificator {
 	public void getMessageModifications(Message original, boolean pm,List<TextReplacement> replacement) {
 		IUser user = original.getUsr();
 		if (user != null && user.getIp() != null) {
-			replacement.add(new ImageReplacement(1,"",FlagStorage.get().getFlag(user,false,true)));
+			String cc = GEOIP.get().getCountryCode(user.getIp());
+			if (!GH.isNullOrEmpty(cc)) {
+				cc = "["+cc+"]";
+			} else {
+				cc= "";
+			}
+			replacement.add(new ImageReplacement(1,0,cc,FlagStorage.get().getFlag(user,false,true)));
 		}
 	}
 	

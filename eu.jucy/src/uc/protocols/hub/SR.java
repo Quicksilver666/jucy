@@ -200,15 +200,18 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 	 * @param hub - the hub that will transmit to the user..
 	 */
 	public static void sendSR(Set<SearchResult> srs , User target, Hub hub) {
-		   String command = "";
+		  // String command = "";
+		   StringBuilder command = new StringBuilder();
 		   if (target != null) {
 			   for (SearchResult sr: srs) {
-				   command	+=	getPartialSRString(sr,hub)
-					   		+ FIVESEP + target.getNick() + "|";
+				   command.append(getPartialSRString(sr,hub));
+				   command.append(FIVESEP);
+				   command.append( target.getNick());
+				   command.append( '|');
 			   }
 		   }
 		   if (command.length() > 0) { // send the command if it is not empty..
-			  hub.sendUnmodifiedRaw(command);
+			  hub.sendUnmodifiedRaw(command.toString());
 		   }
 	}
 

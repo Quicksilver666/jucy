@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ParameterizedCommand;
-import org.eclipse.jface.resource.ImageRegistry;
 
 
 import org.eclipse.swt.dnd.Clipboard;
@@ -31,8 +30,7 @@ import logger.LoggerFactory;
 public final class GuiHelpers {
 	
 	private static final Logger logger = LoggerFactory.make();
-//	private static Display display;
-	
+
 
 	/**
 	 * never instantiated
@@ -40,10 +38,6 @@ public final class GuiHelpers {
 	 */
 	private GuiHelpers(){}
 
-
-	
-	//a registry used for icons of files
-	static ImageRegistry imageRegistry = null; 
 	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, d MMM HH:mm:ss");
 	
@@ -99,7 +93,7 @@ public final class GuiHelpers {
 		return count;
 	}
 
-	public static String GetLastXLines(String text, int lines) {
+	public static String getLastXLines(String text, int lines) {
 		while (getNumberOfLines(text) > lines) {
 			int i = text.indexOf('\n');
 			text = text.substring(i+1);

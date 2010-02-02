@@ -23,7 +23,7 @@ public class CTM extends AbstractADCHubCommand {
 	public static final List<String> SUPP = Arrays.asList(CPType.ADC.toString(),CPType.ADCS.toString());
 	
 	public CTM(Hub hub) {
-		super(hub);                        //   protocol    port       token
+		super(hub);              //   protocol    port       token
 		setPattern(getHeader()+" ("+ADCTEXT+") ("+PORT+") ("+ADCTEXT+")",true);
 	}
 
@@ -47,7 +47,7 @@ public class CTM extends AbstractADCHubCommand {
 			HashMap<Flag,String> flags = new HashMap<Flag,String>();
 			flags.put(Flag.TO, token);
 			flags.put(Flag.PR, protocol);
-			ADCStatusMessage adcsm= new ADCStatusMessage("Protocol Unsupported",
+			ADCStatusMessage adcsm= new ADCStatusMessage("Protocol Unsupported "+protocol,
 					ADCStatusMessage.RECOVERABLE,
 					ADCStatusMessage.ProtocolTransferProtocolUnsupported,flags);
 			STA.sendSTAtoUser(hub, other,adcsm);

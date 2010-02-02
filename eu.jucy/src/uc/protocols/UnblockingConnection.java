@@ -11,8 +11,8 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,8 +27,6 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
-import javax.security.cert.CertificateEncodingException;
-import javax.security.cert.X509Certificate;
 
 
 import org.apache.log4j.Logger;
@@ -37,7 +35,6 @@ import org.eclipse.core.runtime.Platform;
 
 import logger.LoggerFactory;
 import uc.DCClient;
-import uc.crypto.BASE32Encoder;
 import uc.crypto.HashValue;
 import uc.protocols.MultiStandardConnection.IUnblocking;
 
@@ -360,27 +357,31 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		//	X509Certificate.getInstance(new byte[]{}).getPublicKey().getEncoded()
 			boolean tryValidation = fingerPrint != null && !connectSent;
 			if (tryValidation ) {
-				X509Certificate cert = null;
+				Certificate cert = null;
 				SSLSession ssle = engine.getSession();
+				boolean correct = false;
 				try {
-				//	for (Certificate cert: ssle.getPeerCertificates()) {
-					cert =  ssle.getPeerCertificateChain()[0];
-					MessageDigest md = MessageDigest.getInstance( "sha-256" );
-					byte[] fp = md.digest(cert.getEncoded());
+					cert = ssle.getPeerCertificates()[0]; // ssle.getPeerCertificateChain()[0];
 					if (fingerPrint != null) {
-						HashValue hash = HashValue.createHash(cert.getEncoded(), fingerPrint.magnetString());
-						logger.info("fingerprint correct: "+ hash.equals(fingerPrint));
+						HashValue hash = HashValue.createHash( cert.getEncoded(), fingerPrint.magnetString());
+						correct = hash.equals(fingerPrint);
+//						logger.info("fingerprint correct: "+ correct +"  "+hash);
+//						logger.info("sha-1 fingerprint: "+ GH.getHex( GH.getHash(cert.getEncoded(),"SHA-1")));
+						if (!correct) {
+							logger.info("Bad Fingerprint found from "+getInetSocketAddress() 
+									+"\nFound: "+hash
+									+"\nExpected: "+fingerPrint);
+						}
 					}
-						
-					logger.info(getInetSocketAddress()+" "+ssle.getPeerCertificates().length+"  "+BASE32Encoder.encode(fp)+"\n"+cert.toString());
-				//	}
+					
 				} catch (SSLPeerUnverifiedException e) {
 					logger.error(getInetSocketAddress()+ " did not present a valid certificate.");
-					return;
-				} catch (NoSuchAlgorithmException e) {
-					logger.warn(e,e);
 				} catch (CertificateEncodingException e) {
 					logger.warn(e,e);
+				}
+				if (!correct) {
+					asynchClose();
+					return;
 				}
 				
 			}
@@ -411,6 +412,11 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		}
 	}
 	
+
+
+	  
+
+	
 	/*
 	 * 
 	 */
@@ -428,12 +434,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				varInBuffer.putBytes(decrypting);
 			} catch (Exception e) {  
 				addProblematic(e);
-				DCClient.execute(new Runnable() {
-					public void run() {
-						close();
-					}
-				});
-				
+				asynchClose();
 			} 
 			
 			byteBuffer.compact();
@@ -558,15 +559,14 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 					return;
 				}
 				stringbuffer.append(s);
-				
 			}
 			
 			synchronized(cp) {
-			logger.debug("processread("+stringbuffer.toString()+")");
+				//logger.debug("processread("+stringbuffer.toString()+")");
 				Matcher m = null;
 				while ((m = cp.getCommandRegexPattern().matcher(stringbuffer)).find()) {
 					String found = m.group(1);
-					logger.debug("command: "+found);
+				//	logger.debug("command: "+found);
 					if (!GH.isNullOrEmpty(found)) {
 						stringbuffer.delete(0, m.end());
 						try {
@@ -749,7 +749,13 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		this.fingerPrint = hash;
 	}
 
-
+	private void asynchClose() {
+		DCClient.execute(new Runnable() {
+			public void run() {
+				close();
+			}
+		});
+	}
 
 	@Override
 	public void close() {

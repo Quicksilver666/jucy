@@ -29,6 +29,6 @@ public class Error extends AbstractNMDCClientProtocolCommand {
 	}
 
 	public static void sendError(ClientProtocol cp,DisconnectReason reason) {
-		cp.sendRaw("$Error " + reason + "|");
+		cp.sendUnmodifiedRaw("$Error " + reason + "|");
 	}
 }

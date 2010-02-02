@@ -339,7 +339,7 @@ public class TableViewerAdministrator<T> {
 					String t1 = null,t2;
 					if (o1 == null || o2 == null || (t1=getText(o1))==null || (t2=getText(o2))==null ) {
 						if (o1 != null && t1 == null && Platform.inDevelopmentMode()) {
-							System.err.println(o1);
+							System.err.println("TableViewerAdministrator getComparator() failed: "+o1);
 						}
 						return 0;
 					}

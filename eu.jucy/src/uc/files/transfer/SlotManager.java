@@ -165,7 +165,7 @@ public class SlotManager implements ISlotManager {
 			} 
 			
 			ArrayList<WaitingUser> wus = new ArrayList<WaitingUser>(waitingQueue);
-			Collections.sort(wus,new WaitingUserComp());
+			Collections.sort(wus,WaitingUserComp);
 			waitingQueue.clear();
 			waitingQueue.addAll(wus);
 		}
@@ -260,7 +260,7 @@ public class SlotManager implements ISlotManager {
 	}
 
 	
-	private  class WaitingUser implements Comparable<WaitingUser> {
+	private static class WaitingUser implements Comparable<WaitingUser> {
 		private final IUser usr;
 		private final long waitingSince;
 		
@@ -325,7 +325,7 @@ public class SlotManager implements ISlotManager {
 		}
 	}
 	
-	private static class WaitingUserComp implements Comparator<WaitingUser> {
+	private static final Comparator<WaitingUser> WaitingUserComp = new  Comparator<WaitingUser>() {
 
 		public int compare(WaitingUser o1, WaitingUser o2) {
 			long a = /*o1 == null? Long.MAX_VALUE :  */o1.waitingSince;
@@ -333,7 +333,7 @@ public class SlotManager implements ISlotManager {
 			return Long.valueOf(a).compareTo(b);
 		}
 		
-	}
+	};
 
 	
 }

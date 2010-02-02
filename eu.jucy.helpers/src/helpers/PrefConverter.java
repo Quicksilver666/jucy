@@ -38,11 +38,11 @@ public final class PrefConverter {
     }
     
     public static String asString(String[] ar) {
-    	String finished = "";
+    	StringBuilder finished = new StringBuilder();
     	for (String s:ar) {
-    		finished += GH.replaces(s) +"\n";
+    		finished.append(GH.replaces(s)).append('\n'); 
     	}
-    	return finished;
+    	return finished.toString();
     }
     
     

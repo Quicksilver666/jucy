@@ -1,5 +1,7 @@
 package eu.jucy.hublist;
 
+import helpers.GH;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -58,9 +60,9 @@ public class HublistHub implements Iterable<String> {
 	}
 	
 	public String toString() {
-		String s="";
-		for (String val:attribs.values()) {
-			s+= val + ";";
+		String s = GH.concat(attribs.values(), ";", "");
+		if (!GH.isEmpty(s)) {
+			s+=";";
 		}
 		return s;
 	}

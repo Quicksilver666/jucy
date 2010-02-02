@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
-import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SocketChannel;
 
@@ -502,22 +501,14 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 * queues a raw message for sending to the client
 	 * @param message
 	 */
-	void sendRaw(final String message)  {
+	void sendUnmodifiedRaw(final String message)  {
+		super.sendRaw(message);
 		debugMessages.add("out: "+message);
-		try {	
-			connection.send(message);
-			logger.debug("sent raw: "+message);
-		} catch(IOException ioe) {
-			logger.warn(ioe,ioe); 
-		}
+		logger.debug("sent raw: "+message);
 	}
 	
-	void sendRaw(byte[] bytes) {
-		try {
-			connection.send(ByteBuffer.wrap(bytes));
-		} catch(IOException ioe) {
-			logger.warn(ioe+new String(bytes),ioe); 
-		}
+	void sendUnmodifiedRaw(byte[] bytes) {
+		super.sendRaw(bytes);
 	}
 	
 	/**

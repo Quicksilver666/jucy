@@ -2,6 +2,7 @@ package uc.crypto;
 
 import helpers.GH;
 
+
 import java.util.Arrays;
 
 
@@ -58,8 +59,11 @@ public abstract class HashValue implements Comparable<HashValue> {
 		if (alg.equalsIgnoreCase("tiger") || alg.equalsIgnoreCase("tigr")) {
 			return Tiger.tigerOfBytes(data);
 		}
+
 		throw new IllegalStateException("unknown alg");
 	}
+	
+	
 	
 	public static boolean isHash(String base32Value) {
 		return TigerHashValue.isTTH(base32Value);
@@ -127,10 +131,10 @@ public abstract class HashValue implements Comparable<HashValue> {
 	@Override
 	public int hashCode() {
 		return 
-			 hashValue[0]		| 
-			(hashValue[1] << 8)	|
-			(hashValue[2] << 16)| 
-			(hashValue[2] << 24) ;
+			 (hashValue[0] & 0xff)			| 
+			((hashValue[1] & 0xff) << 8)	|
+			((hashValue[2] & 0xff) << 16)	| 
+			((hashValue[3] & 0xff) << 24) ;
 	}
 	
 	/**

@@ -70,7 +70,7 @@ public class WrappedTabsPartPresentation extends StackPresentation {
 
 //	public static final String MENU_ID = "eu.jucy.presentation";
 	private final Map<Image,Image> correctlySizedImage = new HashMap<Image,Image>();
-	private final int CorrectSize = 22;
+	private static final int CorrectSize = 22;
 	
 	private static class DropLocation {
 		int insertionPosition = 0;

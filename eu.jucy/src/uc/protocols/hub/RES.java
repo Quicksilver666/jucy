@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Level;
+import org.eclipse.core.runtime.Platform;
+
 
 import uc.DCClient;
 import uc.IUser;
@@ -112,7 +115,7 @@ public class RES extends AbstractADCHubCommand {
 			flags = getFlagMap(matcher.group(2));
 		}
 		
-		//TR for tigerhash
+		//TR for tiger tree hash
 		for (IUser usr:users) {
 			if (flags.containsKey(Flag.FN)) {
 				String path = flags.get(Flag.FN);
@@ -127,17 +130,16 @@ public class RES extends AbstractADCHubCommand {
 					
 					sr  = SearchResult.create(path, null, usr, size, availableSlots, usr.getSlots(), false,token);
 					
-				} else {
-					if (flags.containsKey(Flag.SI) && flags.containsKey(Flag.TR) ) {
-						long size = Long.valueOf(flags.get(Flag.SI));
-						int availableSlots = flags.containsKey(Flag.SL)?Integer.valueOf(flags.get(Flag.SL)): 0 ;
-						HashValue hash = HashValue.createHash(flags.get(Flag.TR));
-						sr  = SearchResult.create(path,hash, usr, size, availableSlots, usr.getSlots(), true,token);
-					}
+				} else if (flags.containsKey(Flag.SI) && flags.containsKey(Flag.TR) ) {
+					long size = Long.valueOf(flags.get(Flag.SI));
+					int availableSlots = flags.containsKey(Flag.SL)?Integer.valueOf(flags.get(Flag.SL)): 0 ;
+					HashValue hash = HashValue.createHash(flags.get(Flag.TR));
+					sr  = SearchResult.create(path,hash, usr, size, availableSlots, usr.getSlots(), true,token);
+					
 				}
 				
 				if (sr != null) {
-					 dcc.srReceived(sr); //hub may be null !!! 0.81 bug
+					 dcc.srReceived(sr); 
 				}
 			}
 		}
@@ -196,9 +198,9 @@ public class RES extends AbstractADCHubCommand {
 				try {
 					UDPRES.handle(command,dcc);
 				} catch (IOException ioe) {
-					logger.debug(ioe,ioe);
+					logger.log(Platform.inDevelopmentMode()?Level.WARN:Level.DEBUG, ioe,ioe);
 				} catch(RuntimeException re) {
-					logger.debug(re, re);
+					logger.warn(re, re);
 				}
 			}
 		}

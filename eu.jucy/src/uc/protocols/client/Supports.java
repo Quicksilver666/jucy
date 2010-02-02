@@ -30,16 +30,7 @@ public class Supports  extends AbstractNMDCClientProtocolCommand  {
 
 	
 	public static void sendSupports(ClientProtocol client) throws IOException {
-//		String supports = Supports;
-//		IUser self = client.getSelf();
-//		if (self != null && !client.isIncoming()) {
-//			FavHub fh = self.getHub().getFavHub();
-//			String s = fh.getHubaddy();
-//			supports += " Ref=" + s;
-//		}
-		client.sendRaw(SUPPORTS);
-
-		
+		client.sendUnmodifiedRaw(SUPPORTS);
 		client.increaseLoginLevel();
 	}
 	

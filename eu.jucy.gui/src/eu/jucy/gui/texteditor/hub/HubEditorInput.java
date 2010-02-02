@@ -46,6 +46,7 @@ public class HubEditorInput extends UCEditorInput {
 
 	
 	public boolean equals(Object obj) {
+		if (obj == null) return false;
 		if(! (obj.getClass() == this.getClass()))
 			return false;
 		return ((HubEditorInput)obj).favHub.equals(favHub);

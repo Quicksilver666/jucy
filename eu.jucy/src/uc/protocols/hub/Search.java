@@ -103,7 +103,7 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 			SearchParameter sp = new SearchParameter(keys,Collections.<String>emptySet(),minSize,
 					maxSize,-1,searchType.getEndings(),searchType.equals(SearchType.Folder));
 			
-			hub.searchReceived(sp, passive, searcherUsr,searcherIp,null);
+			hub.searchReceived(sp, passive, searcherUsr,searcherIp,null,null);
 			
 			
 		} else if ((m = tthSearch.matcher(command)).matches()) {
@@ -119,7 +119,7 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 				searcherIp = ConnectionProtocol.inetFromString(m.group(1), 412);
 			}
 			
-			hub.searchReceived(tth, passive, searcherUsr,searcherIp,null);
+			hub.searchReceived(tth, passive, searcherUsr,searcherIp,null,null);
 			
 			
 		} else {
@@ -179,15 +179,16 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 
 
 		String[] words= DCProtocol.doReplaces(search.getSearchString()).split(" ");
-		String searchstring="";
+		StringBuilder searchstring= new StringBuilder();
 		for (String word: words) {  //remove all strings starting with -
 			if (!word.startsWith("-")) {
-				searchstring += word + "$";
+				searchstring.append(word).append('$');  
 			}
 		}
 		//if the search is too short we don't send it...
 		if (searchstring.length() > 3 ) {
-			searchstring = searchstring.substring(0, searchstring.length()-1); //cut away the last $ produced in loop above
+			searchstring.deleteCharAt(searchstring.length()-1);
+			//searchstring =  searchstring.substring(0, searchstring.length()-1); //cut away the last $ produced in loop above
 			//finish the command by adding the produced search pattern
 			command += (search.getSearchType() == SearchType.TTH ?  "TTH:":"");
 			command +=  searchstring+"|";

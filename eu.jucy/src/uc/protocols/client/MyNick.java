@@ -73,7 +73,7 @@ public class MyNick extends AbstractNMDCClientProtocolCommand {
 		myNickAndLock+="|";
 		
 		logger.debug(myNickAndLock);
-		client.sendRaw(myNickAndLock);
+		client.sendUnmodifiedRaw(myNickAndLock);
 		
 			
 

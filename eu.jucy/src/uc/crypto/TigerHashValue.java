@@ -8,11 +8,7 @@ public class TigerHashValue extends HashValue {
 	 */
 	public static final TigerHashValue ZEROBYTEHASH = new TigerHashValue("LWPNACQDBZRYXW3VHJVCJ64QBZNGHOHHHZWCLNQ");
 	
-	/**
-	 * HashValue used to identify self for OwnFileLists..
-	 */
-	public static final TigerHashValue SELFHASH =  new TigerHashValue("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"); 
-	
+
 	/**
 	 * a reqexp describing how a TTH in Base32 has to look
 	 */

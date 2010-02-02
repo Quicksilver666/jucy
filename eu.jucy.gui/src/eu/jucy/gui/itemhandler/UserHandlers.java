@@ -135,6 +135,7 @@ public abstract class UserHandlers extends AbstractHandler {
 
 				@Override
 				public boolean equals(Object obj) {
+					if (obj == null) return false;
 					return this.getClass().equals(obj.getClass());
 				}
 
@@ -185,6 +186,7 @@ public abstract class UserHandlers extends AbstractHandler {
 				
 				@Override
 				public boolean equals(Object obj) {
+					if (obj == null) return false;
 					return this.getClass().equals(obj.getClass());
 				}
 

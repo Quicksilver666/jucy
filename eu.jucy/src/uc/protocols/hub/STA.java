@@ -8,6 +8,8 @@ import java.net.InetAddress;
 import java.net.ProtocolException;
 import java.util.Map;
 
+import org.eclipse.core.runtime.Platform;
+
 
 import uc.IUser;
 import uc.protocols.ADCStatusMessage;
@@ -124,6 +126,9 @@ public class STA extends AbstractADCHubCommand {
 	public static void sendSTAtoUser(Hub hub,IUser target,ADCStatusMessage sm) {
 		hub.sendUnmodifiedRaw("DSTA "+SIDToStr(hub.getSelf().getSid())+" "+SIDToStr(target.getSid())+" "
 				+sm.toADCString()+"\n");
+		if (Platform.inDevelopmentMode()) {
+			logger.warn(sm.toString());
+		}
 	}
 	
 

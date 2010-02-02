@@ -89,7 +89,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	private final TCPState tcp = new TCPState(PI.inPort);
 	private final TCPState tls = new TCPState(PI.tlsPort);
 	
-	private class TCPState {
+	private static class TCPState {
 		
 		private final String setting;
 		public TCPState(String settingPort) {

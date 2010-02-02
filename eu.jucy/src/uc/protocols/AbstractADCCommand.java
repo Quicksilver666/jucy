@@ -1,7 +1,7 @@
 package uc.protocols;
 
 
-import helpers.GH;
+
 
 
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 
-import uc.User;
+
 import uc.protocols.hub.Flag;
 import uc.protocols.hub.INFField;
 
@@ -31,12 +31,14 @@ public abstract class AbstractADCCommand extends AbstractDCProtocolCommand imple
 		return flagValue;
 	}
 	
-	public static String ReverseINFMap( Map<INFField,String> attributes) {
-		String inf = "";
+	public static String reverseINFMap( Map<INFField,String> attributes) {
+		StringBuilder sb = new StringBuilder(); 
 		for (Entry<INFField,String> e: attributes.entrySet()) {
-			inf += " "+ e.getKey().name() + doReplaces(e.getValue());
+			sb.append(' ');
+			sb.append(e.getKey().name());
+			sb.append(doReplaces(e.getValue()));
 		}
-		return inf;
+		return sb.toString();
 	}
 	
 	 
@@ -49,23 +51,25 @@ public abstract class AbstractADCCommand extends AbstractDCProtocolCommand imple
 	 *  empty string if no flags.
 	 */
 	public static String getFlagString(Map<Flag,String> maps) {
-		String s = "";
+		StringBuilder sb = new StringBuilder(); 
 		for (Entry<Flag,String> e:maps.entrySet()) {
-			s += " "+ e.getKey().name()+doReplaces(e.getValue());
+			sb.append(' ');
+			sb.append(e.getKey().name());
+			sb.append(doReplaces(e.getValue()));
 		}
-		return s;
+		return sb.toString();
 	}
 	
-	public static String getINFString(User usr,INFField... fields ) {
-		String s = "";
-		for (INFField inff:fields) {
-			if (!GH.isEmpty(s)) {
-				s += " ";
-			}
-			s+=inff.name()+ doReplaces(inff.getProperty(usr));
-		}
-		return s;
-	}
+//	public static String getINFString(User usr,INFField... fields ) {
+//		String s = "";
+//		for (INFField inff:fields) {
+//			if (!GH.isEmpty(s)) {
+//				s += " ";
+//			}
+//			s+=inff.name()+ doReplaces(inff.getProperty(usr));
+//		}
+//		return s;
+//	}
 	
 
 	

@@ -63,7 +63,7 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 		
 		@Override
 		public Image getImage(X x) {
-			return Nick.GetUserImage(x.getUser());
+			return Nick.getUserImage(x.getUser());
 		}
 		
 	}
@@ -150,7 +150,7 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 				};
 		}
 		
-		public static Image GetUserImage(IUser usr) {
+		public static Image getUserImage(IUser usr) {
 			if (usr.isOnline()) {
 				if (usr.getModechar() == Mode.ACTIVE) {
 					if (usr.isOp()) {
@@ -175,7 +175,7 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 		}
 		@Override
 		public Image getImage(IUser cur) {
-			return GetUserImage(cur);
+			return getUserImage(cur);
 		}
 
 		@Override

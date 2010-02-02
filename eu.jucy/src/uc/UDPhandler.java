@@ -188,7 +188,7 @@ public class UDPhandler implements IUDPHandler {
      * @param possiblyEncrypted - true if the packet might possibly be encrypted
      * @throws CharacterCodingException 
      */
-    private void receivedPacket(InetSocketAddress from, ByteBuffer packet,boolean possiblyEncrypted)   {
+    protected void receivedPacket(InetSocketAddress from, ByteBuffer packet,boolean possiblyEncrypted)   {
     	//charBuffer.clear();
     	dcc.getConnectionDeterminator().udpPacketReceived(from);//jay we received something..
  	
@@ -197,7 +197,7 @@ public class UDPhandler implements IUDPHandler {
     		
     		if (r != null && r.matches(packet.get(1), packet.get(2), packet.get(3))) {
     			r.packetReceived(packet, from);
-    		} else if (possiblyEncrypted) {
+    		} else if (possiblyEncrypted && packet.remaining() > UDPEncryption.KEYLENGTH*2) {
     			byte[] encrypted = new byte[packet.remaining()];
     			packet.get(encrypted);
     			byte[] decrypted = UDPEncryption.decryptMessage(encrypted, keysActive);
@@ -316,8 +316,11 @@ public class UDPhandler implements IUDPHandler {
 	 * tokens must be told to UDP handler for decryption
 	 * @param token the token used..
 	 */
-	public void addTokenExpected(String token) {
-		byte[] key =  UDPEncryption.tokenStringToKey(token); 
+	public void addKeyExpected(byte[] key) {
+		if (key.length != UDPEncryption.KEYLENGTH) {
+			throw new IllegalArgumentException();
+		}
+		//byte[] key =  UDPEncryption.tokenStringToKey(token); 
 		keysActive.add(0,key);
 		if (keysActive.size() > 10) {
 			keysActive.remove(keysActive.size()-1);

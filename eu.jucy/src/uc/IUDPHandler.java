@@ -54,5 +54,5 @@ public interface IUDPHandler {
 	 * adds token to handler used for decryption purposes..
 	 * @param token
 	 */
-	void addTokenExpected(String token);
+	void addKeyExpected(byte[] key);
 }

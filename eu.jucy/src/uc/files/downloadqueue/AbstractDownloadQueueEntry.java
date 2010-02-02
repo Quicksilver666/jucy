@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 
 import logger.LoggerFactory;
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Platform;
 
 import uc.DCClient;
 import uc.IUser;
@@ -458,15 +457,7 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		
 		logger.debug("renameing "+source+" to "+dest);
 		boolean renameWorked = source.renameTo(dest);
-		if (Platform.inDevelopmentMode() && source.toString().charAt(0) == dest.toString().charAt(0)) {
-			if (!renameWorked) {
-				GH.sleep(2000);
-				renameWorked = source.renameTo(dest);
-				logger.info("2 tries:");
-			}
-			
-			logger.info("Rename "+(renameWorked? "worked":"failed")+":\n"+source+" to\n"+dest);
-		}
+
 		if (!renameWorked) { 
 			//rename didn't work .. so open the channels and copy
 			FileInputStream in = null;
@@ -475,8 +466,6 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 			try {
 				in = new FileInputStream(source);
 				sourcec = in.getChannel();
-			
-
 				destc = new RandomAccessFile(dest,"rw").getChannel();
 				
 				long left = source.length();
@@ -604,11 +593,10 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	
 	public int getNrOfOnlineUsers() {
 		int count = 0;
-		synchronized(users) {
-			for (IUser u:users) {
-				count += u.isOnline() ? 1 : 0 ; 
-			}
+		for (IUser u:users) {
+			count += u.isOnline() ? 1 : 0 ; 
 		}
+		
 		return count;
 	}
 

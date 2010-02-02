@@ -18,6 +18,7 @@ import eu.jucy.gui.Lang;
 
 public class ImportFromDCPPHandler extends AbstractHandler implements IHandler {
 
+	private static final String DCPP_DEFAULTPATH = "c:\\Programs\\DC++\\";
 	
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
@@ -25,7 +26,7 @@ public class ImportFromDCPPHandler extends AbstractHandler implements IHandler {
 		FileDialog fd = new FileDialog(window.getShell(),SWT.OPEN);
 		fd.setFilterExtensions(new String[]{"Favorites.xml"});
 		fd.setFileName("Favorites.xml");
-		File standardpath = new File("c:\\Programs\\DC++\\");
+		File standardpath = new File(DCPP_DEFAULTPATH);
 		if (standardpath.isDirectory()) {
 			fd.setFilterPath(standardpath.getPath());
 		}

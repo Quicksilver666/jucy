@@ -6,6 +6,8 @@ import java.io.IOException;
 
 
 
+
+
 public class Hello extends AbstractNMDCHubProtocolCommand {
 
 	private final boolean active;
@@ -52,11 +54,13 @@ public class Hello extends AbstractNMDCHubProtocolCommand {
 			if (Supports.useZLIB) {
 				hub.addCommand(new ZOn(hub));
 			}
+
 	
 			
 		
 			
-			hub.sendUnmodifiedRaw("$Version 1,0091|$GetNickList|");
+			hub.sendUnmodifiedRaw("$Version 1,0091|");
+			hub.sendUnmodifiedRaw("$GetNickList|");
 			
 			hub.sendMyInfo(true); 
 		}

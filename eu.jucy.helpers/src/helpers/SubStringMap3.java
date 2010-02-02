@@ -150,13 +150,12 @@ public class SubStringMap3<V> implements ISearchMap<V> {
 				found.retainAll(current);
 			} else {
 				//remove filtered items
-				if (filter != null) {
-					for (Iterator<V> it = found.iterator(); it.hasNext();) {
-						if (!filter.filter(it.next())) {
-							it.remove();
-						}
+				for (Iterator<V> it = found.iterator(); it.hasNext();) {
+					if (!filter.filter(it.next())) {
+						it.remove();
 					}
 				}
+				
 			}
 			current = found;
 			if (current.isEmpty()) {

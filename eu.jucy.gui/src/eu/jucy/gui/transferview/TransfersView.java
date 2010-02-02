@@ -57,7 +57,7 @@ import uc.files.transfer.IFileTransfer;
 import uc.files.transfer.TransferChange;
 import uc.protocols.client.ClientProtocol;
 import uc.protocols.client.ClientProtocolStateMachine;
-import uihelpers.DelayedUpdate;
+import uihelpers.DelayedTableUpdater;
 import uihelpers.SUIJob;
 import uihelpers.TableViewerAdministrator;
 import uihelpers.ToolTipProvider;
@@ -77,7 +77,7 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 	
 
 	private TableViewerAdministrator<Object> tva; 
-	private DelayedUpdate<Object> update; 
+	private DelayedTableUpdater<Object> update; 
 	
 
 	@Override
@@ -89,7 +89,7 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 		
 		table.setHeaderVisible(true);
 		
-		UCProgressPainter.AddToTable(table);
+		UCProgressPainter.addToTable(table);
 		
 		
 		tva = new TableViewerAdministrator<Object>(tableViewer,
@@ -100,7 +100,7 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 						
 		tva.apply();
 		
-		update = new DelayedUpdate<Object>(tableViewer);
+		update = new DelayedTableUpdater<Object>(tableViewer);
 		
 		TransferContentProvider tcp = new TransferContentProvider();
 		tableViewer.setContentProvider(tcp);

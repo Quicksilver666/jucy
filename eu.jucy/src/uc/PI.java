@@ -337,8 +337,8 @@ public class PI extends AbstractPreferenceInitializer {
 
 	public static File getTempPath() {
 		File f  = new File(getStoragePath(),"tmp");
-		if (!f.isDirectory()) {
-			f.mkdir();
+		if (!f.isDirectory() && !f.mkdir()) {
+			logger.error("temp dir creation failed: "+f);
 		}
 		return f;
 	}

@@ -478,12 +478,12 @@ public abstract class ComplexListEditor<V> extends FieldEditor {
     }
     
     public static <V> String createList(List<V> items,IPrefSerializer<V> translater) {
-    	String s = "";
+    	StringBuilder s = new StringBuilder();
     	for (V v: items) {
     		String item = PrefConverter.asString(translater.serialize(v));
-    		s += GH.replaces(item)+ "\n";
+    		s.append( GH.replaces(item)).append('\n');
     	}
-    	return s;
+    	return s.toString();
     }
     
     

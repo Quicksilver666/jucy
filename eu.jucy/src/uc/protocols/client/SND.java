@@ -64,7 +64,7 @@ public class SND extends AbstractADCClientProtocolCommand {
 	 * @param comp - what compression will be used for transferring..
 	 */
 	private static void sendADCSNDforFile(ClientProtocol client,HashValue what, long startpos, long endpos ,Compression comp) {
-		client.sendRaw("CSND file TTH/"+what+" "+startpos+" "+ endpos +comp.toString()+"\n");
+		client.sendUnmodifiedRaw("CSND file TTH/"+what+" "+startpos+" "+ endpos +comp.toString()+"\n");
 	}
 	
 	/**
@@ -73,11 +73,11 @@ public class SND extends AbstractADCClientProtocolCommand {
 	 */
 	private static void sendADCSNDforFilelist(ClientProtocol client,long length,Compression comp) {
 		String list = (client.isNewList()? "list "+AbstractADCCommand.doReplaces(client.getFti().getFileListSubPath()):"file files.xml.bz2");
-		client.sendRaw("CSND "+ list+ " 0 " + length +comp.toString() +"\n");
+		client.sendUnmodifiedRaw("CSND "+ list+ " 0 " + length +comp.toString() +"\n");
 	}
 	
 	private static void sendADCSNDforInterleaves(ClientProtocol client,HashValue what,long length,Compression comp) {
-		client.sendRaw("CSND tthl TTH/"+what+" 0 " + length +comp.toString()+"\n");
+		client.sendUnmodifiedRaw("CSND tthl TTH/"+what+" 0 " + length +comp.toString()+"\n");
 	}
 	
 	public static void sendADCSND(ClientProtocol client) throws IOException {

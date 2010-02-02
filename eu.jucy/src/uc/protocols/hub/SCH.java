@@ -11,8 +11,10 @@ import java.util.Map;
 import java.util.Set;
 
 import uc.User;
+import uc.crypto.BASE32Encoder;
 import uc.crypto.HashValue;
 import uc.crypto.TigerHashValue;
+import uc.crypto.UDPEncryption;
 import uc.files.filelist.OwnFileList.SearchParameter;
 import uc.files.search.FileSearch;
 import uc.files.search.SearchType;
@@ -78,60 +80,74 @@ TRACE Hub.java Line:463
 			ias = new InetSocketAddress(ia,usr.getUdpPort());
 		}
 		
+		byte[] encryptionKey = null;
+		if (flags.containsKey(Flag.KY)) {
+			encryptionKey = BASE32Encoder.decode(flags.get(Flag.KY));
+		}
 		
 		
 		if (flags.containsKey(Flag.TR)) {
 			HashValue hash = HashValue.createHash(flags.get(Flag.TR));
-			hub.searchReceived(hash, passive, usr,  ias, flags.get(Flag.TO));
+			hub.searchReceived(hash, passive, usr,  ias, flags.get(Flag.TO),encryptionKey);
 		} else {
 			SearchParameter sp = new SearchParameter(
 					includes,excludes,minsize,maxsize,equalssize,endings, onlyDirectories);
 			
-			hub.searchReceived(sp,passive, usr , ias, flags.get(Flag.TO));
+			hub.searchReceived(sp,passive, usr , ias, flags.get(Flag.TO),encryptionKey);
 		}
 	}
 	
 	public static void sendSearch(Hub hub,FileSearch search) {
 		//BSCH KAZ4 TRTFMBXT6AFYHJJOGE4OPLFSEWTYJEFFYY6RDWNIA TOauto
-		String sch;
+		StringBuilder sch= new StringBuilder();
 		if (hub.getDcc().isActive()) {
-			sch = "BSCH "+SIDToStr(hub.getSelf().getSid());
+			sch.append("BSCH ").append(SIDToStr(hub.getSelf().getSid()));
+			//logger.info("hub encryption: "+hub.isEncrypted()+"  "+UDPEncryption.isUDPEncryptionSupported());
+			if (hub.isEncrypted() && UDPEncryption.isUDPEncryptionSupported()) {
+				appendToSB(sch,Flag.KY,BASE32Encoder.encode(search.getEncryptionKey()));
+			}
 		} else {
-			sch = "FSCH "+SIDToStr(hub.getSelf().getSid())+" +"+(hub.getDcc().isIPv4Used()?User.TCP4:User.TCP6);
+			sch.append("FSCH ").append(SIDToStr(hub.getSelf().getSid()));
+			sch.append(" +").append(hub.getDcc().isIPv4Used()?User.TCP4:User.TCP6);
 		}
 			
 
 		String[] splits =  space.split(search.getSearchString());
 		for (String s: splits) {
 			if (s.matches(TigerHashValue.TTHREGEX) && splits.length == 1) {
-				sch+= " TR"+s;
+				appendToSB(sch,Flag.TR,s);
 				break;
 			} else if (!GH.isEmpty(s)) {
 				if (s.startsWith("-") && s.length() > 1) {
-					sch+= " NO"+ doReplaces(s.substring(1)) ;
+					appendToSB(sch,Flag.NO,s.substring(1));
 				} else {
-					sch+= " AN"+ doReplaces(s) ;
+					appendToSB(sch,Flag.AN,s);
 				}
 			}
 		}
 		for (String s:search.getSearchType().getEndings()) { //add allowed endings
-			sch+=" EX"+doReplaces(s);
+			appendToSB(sch,Flag.EX,s);
 		}
 		
 		if (search.getSize() >= 0) {
-			sch+=" "+search.getComparisonEnum().getAdcCC()+search.getSize();
+			sch.append(' ').append(search.getComparisonEnum().getAdcCC());
+			sch.append(Long.toString(search.getSize()));
 		}
 		
 		if (search.getSearchType() == SearchType.Folder) {
-			sch+=" TY2";
+			appendToSB(sch,Flag.TY,"2");
 		}
 		if (search.getToken() != null) {
-			sch+=" TO"+doReplaces(search.getToken());
+			appendToSB(sch,Flag.TO,search.getToken());
 		}
-		
-		hub.sendUnmodifiedRaw(sch+"\n");
+	//	logger.info(sch +"  "+hub.getHubaddy());
+		sch.append('\n');
+		hub.sendUnmodifiedRaw(sch.toString());
 	}
 	
+	private static void appendToSB(StringBuilder sb,Flag f,String s) {
+		sb.append(' ').append(f.name()).append(doReplaces(s));
+	}
 	
 	
 

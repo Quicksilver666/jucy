@@ -35,7 +35,6 @@ import uc.database.IDatabase;
 import uc.files.IDownloadable;
 import uc.files.IDownloadable.IDownloadableFile;
 import uc.files.filelist.FileList;
-import uc.files.filelist.OwnFileList.FilelistNotReadyException;
 import uc.protocols.TransferType;
 
 

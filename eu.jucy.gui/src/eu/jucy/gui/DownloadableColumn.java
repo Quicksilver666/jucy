@@ -18,7 +18,6 @@ import uc.files.IDownloadable;
 import uc.files.IDownloadable.IDownloadableFile;
 import uc.files.IDownloadable.IDownloadableFolder;
 import uc.files.filelist.FileListFolder;
-import uc.files.filelist.OwnFileList.FilelistNotReadyException;
 import uc.files.search.ISearchResult;
 import uihelpers.IconManager;
 import uihelpers.SUIJob;

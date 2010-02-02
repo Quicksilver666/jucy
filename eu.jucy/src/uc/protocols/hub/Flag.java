@@ -28,6 +28,7 @@ public enum Flag {
 	TO,				//Token used in result for identification / or in FileTransfer CTMs
 	TY,				//Fileytype 1 = File 2 = Directory  not present all
 	TR,				//Tiger in Search
+	KY,				//16 Byte KEY for AES UDP encryption Base32Encoded
 	
 	PR,				//Protocol
 	
@@ -98,6 +99,7 @@ public enum Flag {
 		case FN:
 		case PR:
 		case FM: return !GH.isEmpty(value);
+		case KY: return value.matches(IProtocolCommand.BASE32CHAR+"{26}"); //16 byte key
 		case PM:
 		case ID: return value.matches(IProtocolCommand.SID);
 		case TR: return value.matches(IProtocolCommand.TTH);

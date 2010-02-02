@@ -1,5 +1,8 @@
 package uihelpers;
 
+import helpers.GH;
+
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.dialogs.InputDialog;
@@ -18,12 +21,7 @@ public class SemikolonListFieldEditor extends ListEditor {
 	
 	@Override
 	protected String createList(String[] items) {
-		String ret="";
-		for(String item: items)
-			ret+=item+";";
-		if(ret.length()> 0)
-			ret = ret.substring(0, ret.length()-1); //cut away last semikolon
-		return ret;
+		return GH.concat(Arrays.asList(items), ";", "");
 	}
 
 	@Override

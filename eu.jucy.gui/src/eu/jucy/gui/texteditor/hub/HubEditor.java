@@ -96,6 +96,7 @@ import eu.jucy.language.LanguageKeys;
 
 import uc.FavHub;
 import uc.IHasUser;
+import uc.IHub;
 import uc.IUser;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.ConnectionState;
@@ -104,7 +105,7 @@ import uc.protocols.hub.IHubListener;
 import uc.protocols.hub.PrivateMessage;
 
 
-import uihelpers.DelayedUpdate;
+import uihelpers.DelayedTableUpdater;
 import uihelpers.SUIJob;
 import uihelpers.TableViewerAdministrator;
 import uihelpers.ToasterUtil;
@@ -160,7 +161,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	
 	private LabelViewer labelViewer;
 	
-	private DelayedUpdate<IUser> updater;
+	private DelayedTableUpdater<IUser> updater;
 	
 
 	private ISelectionListener transfersListener;
@@ -334,7 +335,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		
 		sendingWriteline = new HubSendingWriteline(writeline,getHub().getUserPrefix(),getHub(),this);
 		
-		updater = new DelayedUpdate<IUser>(tableViewer) {
+		updater = new DelayedTableUpdater<IUser>(tableViewer) {
 			protected void updateDone() {
 				userLabel.setText(getHub().getUsers().size()+" "+Lang.Users );
 				sharesizeLabel.setText(SizeEnum.getReadableSize(getHub().getTotalshare()));
@@ -493,6 +494,14 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	}
 	
 	
+	
+	@Override
+	public void storedPM(IUser usr,String message, boolean me) {
+		statusMessage("stored PM for "+usr.getNick()+": "+message,0); // TODO internationalize
+		
+	}
+
+
 	/*
 	 * (non-Javadoc)
 	 * @see UC.protocols.hub.IMCReceivedListener#mcReceived(java.lang.String)
@@ -682,6 +691,8 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		}.schedule();
 	}
 
+
+	
 	public Hub getHub() {
 		return hub;
 	}

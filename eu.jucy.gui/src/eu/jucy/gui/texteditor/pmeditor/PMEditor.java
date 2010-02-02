@@ -114,7 +114,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 		ApplicationWorkbenchWindowAdvisor.get().getPopulation()
 			.registerUserChangedListener(this, getUser().getUserid());
 		
-		setTitleImage( Nick.GetUserImage(getUser()));
+		setTitleImage( Nick.getUserImage(getUser()));
 		
 		setControlsForFontAndColour(text,pmText);
 		
@@ -227,7 +227,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 		if (messagesWaiting) {
 			setTitleImage(userOnline?newMessage:newMessageOffline);
 		} else {
-			setTitleImage( Nick.GetUserImage(getUser()));
+			setTitleImage( Nick.getUserImage(getUser()));
 		}
 	}
 	
@@ -243,7 +243,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 	
 	
 	@Override
-	public void storedPM(String message, boolean me) {
+	public void storedPM(IUser usr,String message, boolean me) {
 		append("*** stored PM: "+message,null,System.currentTimeMillis()); //TODO internationalize
 	}
 
@@ -260,7 +260,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 
 
 	public String getTopic() {
-		IHub hub = getUser().getHub();
+		IHub hub = getHub();
 		if (hub != null) {
 			return getUser().getNick()+" - "+ hub.getName();
 		} else {
@@ -272,9 +272,6 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 	public void clear() {
 		textViewer.clear();
 	}
-
-	
-	
 	
 	
 	public static PMEditor openPMEditor(final PMEditorInput pme) {

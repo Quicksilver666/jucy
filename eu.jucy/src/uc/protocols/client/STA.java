@@ -42,7 +42,7 @@ public class STA extends AbstractADCClientProtocolCommand {
 	}
 	
 	public static void sendSTA(ClientProtocol client,ADCStatusMessage sm) {
-		client.sendRaw("CSTA "+sm.toADCString()+"\n");
+		client.sendUnmodifiedRaw("CSTA "+sm.toADCString()+"\n");
 		if (sm.getSeverity() == ADCStatusMessage.FATAL) {
 			client.disconnect(sm);
 		}

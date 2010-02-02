@@ -132,7 +132,7 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 				+ fti.getCompression() 
 				+ "|" ;
 
-			client.sendRaw(adcget);
+			client.sendUnmodifiedRaw(adcget);
 		//	simple.send(adcget);
 			// Request all bytes from current position to end of file
 			logger.debug("read one nmdc command");

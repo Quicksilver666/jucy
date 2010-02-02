@@ -30,6 +30,7 @@ import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
@@ -220,9 +221,10 @@ public class HashEngine implements IHashEngine {
 			try {
 				rbc = block.getReadChannel();
 
-				InterleaveHashes inter = getHasher().hash( rbc , block.getLength(), new FakeProgressmonitor() );
+				InterleaveHashes inter = getHasher().hash( rbc , block.getLength(), new NullProgressMonitor() );
 
 				HashValue root = getHasher().hash(inter);
+				GH.close(rbc);
 				listener.checked(root.equals(block.getHashOfBlock()));
 
 			} catch(IOException ioe) {

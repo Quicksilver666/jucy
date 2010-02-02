@@ -50,7 +50,7 @@ public class ADLFieldEditor extends ComplexListEditor<ADLSearchEntry> {
 		return ADLSearchEntry.fromString(ar);
 	} */
 	
-	public static List<ADLSearchEntry> LoadFromString(String s) {
+	public static List<ADLSearchEntry> loadFromString(String s) {
 		return ComplexListEditor.parseString(s, new ADLTranslator());
 		/*
 		List<ADLSearchEntry> ret = new ArrayList<ADLSearchEntry>();

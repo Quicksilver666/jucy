@@ -76,12 +76,12 @@ public class INF extends AbstractADCClientProtocolCommand {
 	
 	private void sendINFOutgoing() {
 		String inf = "CINF ID"+client.getSelf().getCID()+" TO"+doReplaces(client.getToken()) ;
-		client.sendRaw(inf+"\n");
+		client.sendUnmodifiedRaw(inf+"\n");
 	}
 	
 	public static void sendINFIncoming(ClientProtocol cp) {
 		//CINF IDAFVC6C65R4ZLTP7UYDDK6QJPQHUZLAJPSZSG3DQ  no TOKEN info in incoming
-		cp.sendRaw("CINF ID"+ cp.getCh().getDCC().getPID().hashOfHash()+"\n");
+		cp.sendUnmodifiedRaw("CINF ID"+ cp.getCh().getDCC().getPID().hashOfHash()+"\n");
 	}
 	
 

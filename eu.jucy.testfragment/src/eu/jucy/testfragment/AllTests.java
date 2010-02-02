@@ -9,26 +9,33 @@ import org.junit.runner.notification.Failure;
 
 import uc.crypto.BloomFilterTest;
 import uc.protocol.hub.AdcHubTest;
+import uc.protocol.hub.NmdcHubTest;
 
 public class AllTests implements IApplication {
 
+	private static final Class<?>[] TEST_CASES= new Class[] {BloomFilterTest.class,
+		NmdcHubTest.class,
+		AdcHubTest.class};
+	
 	public Object start(IApplicationContext context) throws Exception {
 		
-		
-		Result res = JUnitCore.runClasses(BloomFilterTest.class,
-	              AdcHubTest.class
-	              );
-
-		if (res.wasSuccessful()) {
-			System.out.println("Success");
-		} else {
-			for (Failure f: res.getFailures()) {
-				System.out.println(f.getDescription().getDisplayName());
-				f.getException().printStackTrace();
-				break;
+		for (Class<?> c:TEST_CASES) {
+			Result res = JUnitCore.runClasses(c);
+			if (res.wasSuccessful()) {
+				System.out.println("Success: "+c.getSimpleName()+"  NrOfTest: "+res.getRunCount()+"  Time: "+(res.getRunTime()/1000)+"sec");
+			} else {
+				for (Failure f: res.getFailures()) {
+					System.out.println(f.getDescription().getDisplayName());
+					f.getException().printStackTrace();
+					break;
+				}
+				System.out.println("Failure: "+c.getSimpleName());
 			}
-			System.out.println("Failure");
 		}
+		
+		
+
+		
 		return Status.OK_STATUS;
 	}
 

@@ -246,7 +246,7 @@ public abstract class SendingWriteline  {
 				public void run() {
 					PMResult pmres = usr.sendPM(s, false, true);
 					if (pmres == PMResult.STORED) {
-						pme.storedPM(s, false);
+						pme.storedPM(usr,s, false);
 					}
 				}
 			});

@@ -87,6 +87,7 @@ public class DownloadsView extends UCView implements IObserver<StatusObject> {
 
 		@Override
 		public boolean equals(Object obj) {
+			if (obj == null) return false;
 			return getClass().equals(obj.getClass());
 		}
 		

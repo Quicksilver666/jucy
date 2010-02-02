@@ -10,6 +10,8 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Map.Entry;
 
@@ -31,6 +34,7 @@ import javax.swing.filechooser.FileSystemView;
 public final class GH {
 
 	private static final Random rand = new Random();
+	
 	
 	private static final FileSystemView chooser = FileSystemView.getFileSystemView();
 	
@@ -263,18 +267,16 @@ public final class GH {
 		return s == null || s.length() == 0;
 	}
 	
+	/**
+	 * 
+	 *help for debugging.. concatenates all .toString() calls in some list fashioned 
+	 *way
+	 */
 	public static String toString(Object[] arr) {
 		if (arr == null) {
 			return "null";
 		}
-		if (arr.length == 0) {
-			return "{empty}";
-		}
-		String s = "";
-		for (Object o:arr) {
-			s+=","+o.toString();
-		}
-		return "{"+s.substring(1)+"}";
+		return "{"+GH.concat(Arrays.asList(arr), ",", "empty")+"}";
 	}
 	
 	/**
@@ -353,22 +355,20 @@ public final class GH {
 	 * 
 	 * if the map is empty it will return the empty map string instead...
 	 * 
-	 * prefix and postfix are applied around everything..
 	 */
-	public static String concat(Collection<?> terms,String between,String emptyMap) {
-		String ret = null;
+	public static String concat(Iterable<?> terms,String between,String emptyMap) {
+		StringBuilder ret = new StringBuilder();
 		
 		for (Object o: terms) {
-			if (ret != null) {
-				ret += between+o.toString();
-			} else {
-				ret  = o.toString();
-			}
+			if (ret.length() != 0) {
+				ret.append(between);
+			} 
+			ret.append(o.toString());
 		}
-		if (ret == null) {
+		if (ret.length() == 0) {
 			return emptyMap;
 		} else {
-			return ret;
+			return ret.toString();
 		}
 	}
 	
@@ -461,5 +461,51 @@ public final class GH {
 		}
 		
 		return lengthDist+dist;
+	}
+	
+	
+	private static final String HEXES = "0123456789ABCDEF";
+	public static String getHex( byte [] raw ) {
+		final StringBuilder hex = new StringBuilder( 2 * raw.length );
+		for ( final byte b : raw ) {
+			hex.append(HEXES.charAt((b & 0xF0) >> 4))
+			.append(HEXES.charAt((b & 0x0F)));
+		}
+		return hex.toString();
+	}
+	
+	/**
+	 * creates hash with provided algorithm..
+	 * throwing illegalStateException if unsuccessful
+	 * 
+	 * @param tohash bytes to hash
+	 * @param alg what algorithm to use
+	 * @return the digest output
+	 */
+	public static byte[] getHash(byte[] tohash,String alg) {
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance( alg );
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException(e);
+		}
+		byte[] raw = md.digest(tohash);
+		return raw;
+	}
+	
+	/**
+	 * increments the mapped counter
+	 * @param <K>  - any value..
+	 * @param mappedCounter - 
+	 * @param k - against what this counter is mapped. if not found counter is create with value 0
+	 * @param increment - value to increment by
+	 */
+	public static <K> void incrementMappedCounter(Map<K,Integer> mappedCounters,K k, int increment) {
+		Integer i = mappedCounters.get(k);
+		if (i == null) {
+			i = 0;
+		}
+		i += increment;
+		mappedCounters.put(k, i);
 	}
 }

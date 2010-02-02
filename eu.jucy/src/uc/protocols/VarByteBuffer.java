@@ -226,12 +226,13 @@ public class VarByteBuffer {
 			decoder.decode(buf, cb, true);
 			cb.flip();
 			if (decompression == null) {
-				String s = "";
+		
+				StringBuilder sb = new StringBuilder(); 
 				for (int i = readpos ; i < writepos; i++) {
-					s +=(char)(current[i] & 0xff);
+					sb.append((char)(current[i] & 0xff));
 				}
 				
-				logger.info("last string read: "+cb.toString()+" nextin Buffer: "+s );
+				logger.debug("last string read: "+cb.toString()+" nextin Buffer: "+sb );
 		
 				
 				/*if (s.length() > 0 &&  s.charAt(0) != '$') { 
@@ -243,6 +244,11 @@ public class VarByteBuffer {
 				} */
 				
 			}
+			if (cb.toString().equals("IZON")) {
+				logger.debug("used ZON for eof");
+				decompression = null;
+			}
+			logger.info("read compressed: "+cb);
 			
 			return cb.toString();
 		}
@@ -261,9 +267,9 @@ public class VarByteBuffer {
 							try {
 								i++;
 								readSynchObject.wait(100);
-								logger.warn("wait"+i);
+								logger.debug("wait"+i);
 							} catch (InterruptedException ie){}
-							if (i > 1200) { // 2 minutes timeout...
+							if (i > 120) { // 2 minutes timeout...
 								logger.warn("timeout");
 								return -1;
 							}
@@ -275,6 +281,10 @@ public class VarByteBuffer {
 			decompression =  comp.wrapIncoming(is);
 		}
 	}
+	
+
+	
+	
 
 	/**
 	 * debug output of current contents

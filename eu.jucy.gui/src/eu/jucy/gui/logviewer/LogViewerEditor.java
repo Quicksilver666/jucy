@@ -331,12 +331,15 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 		styledText.setText("");
 		if (dbLogger != null) {
 			List<ILogEntry> logs = dbLogger.loadLogEntrys(hitsPerPage,hitsPerPage * page);
-			String text = "";
+			StringBuilder text = new StringBuilder();
 			SimpleDateFormat sdf = new SimpleDateFormat(PI.get(PI.logTimeStamps));
 			for (ILogEntry log:logs) {
-				text += sdf.format(new Date(log.getDate())) +log.getMessage()+"\n";
+				text.append(sdf.format(new Date(log.getDate())))
+						.append(log.getMessage())
+						.append('\n');
+				
 			}
-			styledText.setText(text);
+			styledText.setText(text.toString());
 			
 			totalcount = dbLogger.countLogEntrys();
 			countLabel.setText(String.format(Lang.TotalMessages, totalcount));

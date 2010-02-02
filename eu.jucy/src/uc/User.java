@@ -42,7 +42,7 @@ public class User implements IUser , IHasUser {
 	 * known ADC support strings
 	 */
 	public static final String 	ADCS_SUPPORT = "ADC0",	
-								ADCS_UDP	= "SUD0" , //SUDP -> SecureUDP
+								ADCS_UDP	= "SUD1" , //SUDP -> SecureUDP
 								TCP4 = "TCP4",UDP4 = "UDP4",TCP6 = "TCP6",UDP6 = "UDP6",
 								KEYP = "KEY0";
 	
@@ -431,23 +431,23 @@ public class User implements IUser , IHasUser {
 			return null;
 		}
 		AbstractDownloadQueueEntry ret = null;
-		synchronized(extended.dqes) {
-			for (AbstractDownloadQueueEntry dqe : extended.dqes) {
-				logger.debug(dqe);
-				//must not be stopped and must have room for download..determines if downloadable
-				boolean isDownloadable= dqe.getPriority() != 0  && dqe.isDownloadable();
-				//if we have a MerkleTree or a Filelist we immediately return
-				if (isDownloadable && (dqe.getType() == TransferType.FILELIST || dqe.getType() == TransferType.TTHL  )) {
-					logger.debug("immediate return: "+dqe);
-					return dqe;
-				}
-					
-				//dqe must be downloadable and better than best entry.. 
-				if (isDownloadable && (ret == null ||  ret.compareTo(dqe) < 0 )) { 
-					ret = dqe;
-				}
+		
+		for (AbstractDownloadQueueEntry dqe : extended.dqes) {
+			logger.debug(dqe);
+			//must not be stopped and must have room for download..determines if downloadable
+			boolean isDownloadable= dqe.getPriority() != 0  && dqe.isDownloadable();
+			//if we have a MerkleTree or a Filelist we immediately return
+			if (isDownloadable && (dqe.getType() == TransferType.FILELIST || dqe.getType() == TransferType.TTHL  )) {
+				logger.debug("immediate return: "+dqe);
+				return dqe;
+			}
+
+			//dqe must be downloadable and better than best entry.. 
+			if (isDownloadable && (ret == null ||  ret.compareTo(dqe) < 0 )) { 
+				ret = dqe;
 			}
 		}
+		
 		
 		return ret;
 	}

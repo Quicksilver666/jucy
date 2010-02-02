@@ -51,8 +51,8 @@ public class DownloadsPreferencePage extends UCPrefpage {
 	}
 	
 	private static void checkExistance(File dir) {
-		if (!dir.isDirectory()) {
-			dir.mkdirs();
+		if (!dir.isDirectory() && !dir.mkdirs()) {
+			throw new IllegalStateException("unable to create dir: "+dir);
 		}
 	}
 

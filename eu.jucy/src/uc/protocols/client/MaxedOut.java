@@ -28,14 +28,14 @@ public class MaxedOut extends AbstractNMDCClientProtocolCommand {
 	}	
 	
 	public static void sendMaxedOut(ClientProtocol client) {
-		client.sendRaw("$MaxedOut|");
+		client.sendUnmodifiedRaw("$MaxedOut|");
 	}
 	
 	public static void sendMaxedOut(ClientProtocol client,int position) {
 		if (position < 0) {
 			sendMaxedOut(client);
 		} else {
-			client.sendRaw("$MaxedOut "+position+"|");
+			client.sendUnmodifiedRaw("$MaxedOut "+position+"|");
 		}
 	}
 

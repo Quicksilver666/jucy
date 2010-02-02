@@ -2,9 +2,10 @@ package uc.files.search;
 
 
 
+import helpers.GH;
 import helpers.StatusObject.ChangeType;
 
-import java.security.SecureRandom;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,8 +16,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.runtime.Assert;
 
-import uc.crypto.BASE32Encoder;
+
 import uc.crypto.HashValue;
+import uc.crypto.UDPEncryption;
 import uc.files.MultiUserAbstractDownloadable;
 import uc.files.IDownloadable.IDownloadableFile;
 import uc.files.search.SearchResult.IExtSearchResultListener;
@@ -84,7 +86,15 @@ public class FileSearch implements ISearchResultListener {
 	 */
 	private final String searchString;
 	
+	private static int SEARCH_NONCE_COUNTER = GH.nextInt(100);
+	
+	private static synchronized int getNextNonce() {
+		SEARCH_NONCE_COUNTER+=GH.nextInt(100)+1;
+		return SEARCH_NONCE_COUNTER;
+	}
+	
 	private final String token;
+	private final byte[] encryptionKey ;
 	
 	private int nrOfResults = 0;
 	
@@ -112,10 +122,8 @@ public class FileSearch implements ISearchResultListener {
 		
 		this.size = size;
 		
-		SecureRandom rand = new SecureRandom();
-		byte[] randBytes = new byte[16];
-		rand.nextBytes(randBytes);
-		this.token = BASE32Encoder.encode(randBytes);
+		encryptionKey = UDPEncryption.getRandomKey();
+		this.token = ""+getNextNonce();
 		startOfSearch = System.currentTimeMillis();
 	}
 	
@@ -142,8 +150,7 @@ public class FileSearch implements ISearchResultListener {
 				srs.add(sr);
 			}
 		}
-		
-		
+
 		return srs;
 	}
 
@@ -291,5 +298,9 @@ public class FileSearch implements ISearchResultListener {
 		return resultFiles.size();
 	}
 
+	public byte[] getEncryptionKey() {
+		return encryptionKey;
+	}
 
+	
 }

@@ -4,17 +4,18 @@ package uc.crypto;
 import helpers.GH;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 import java.util.List;
 
 
 import javax.crypto.Cipher;
 
 
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import uc.protocols.DCProtocol;
+
 
 
 
@@ -23,23 +24,22 @@ public class UDPEncryption {
 	//private static final Logger logger = LoggerFactory.make();
 	
 	public static final short KEYLENGTH = 16;
-	
-	
-	
-	private static final Cipher cipher;
+	private static final SecureRandom SRAND = new SecureRandom();
+	private static final Cipher CIPHER;
 	
 	static {
-		Cipher c = null;
+		Cipher d = null;
+		
 		try {
-			c = Cipher.getInstance("AES/ECB/PKCS5Padding");
+			d = Cipher.getInstance("AES/CBC/PKCS5Padding");
 		} catch (GeneralSecurityException e) {
 			e.printStackTrace();
 		} 
-		cipher = c;
+		CIPHER = d;
 	}
 	
 	public static boolean isUDPEncryptionSupported() {
-		return cipher != null;
+		return CIPHER != null;
 	}
 	
 	public static void main(String... args) throws IOException,Exception {
@@ -48,40 +48,63 @@ public class UDPEncryption {
 		
 		byte[] message = "hello world".getBytes();
 		byte[] cypher = encryptMessage(message,keyBytes);
+		System.out.println("Message size: "+message.length+ " cipherlength: "+cypher.length +"  "+new String(cypher));
 		byte[] decrypted = decryptMessage(cypher, keyBytes);
 		System.out.println(new String(decrypted));
 	}
 	
 	public static byte[] encryptMessage(byte[] input,byte[] keyBytes) throws GeneralSecurityException {
-		
+		if (keyBytes.length != KEYLENGTH) {
+			throw new IllegalArgumentException();
+		}
 
 		SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
-	    System.out.println(new String(input));
-
-	    // encryption pass
-	    synchronized (cipher) {
-		    cipher.init(Cipher.ENCRYPT_MODE, key);
-	
-		    byte[] cipherText = new byte[cipher.getOutputSize(input.length)];
-		    int ctLength = cipher.update(input, 0, input.length, cipherText, 0);
-		    
-		    ctLength += cipher.doFinal(cipherText, ctLength);
-			return cipherText;
+		
+	  //  System.out.println(new String(input));
+	    
+	    byte[] ivBytes = new byte[KEYLENGTH] ;
+	    synchronized (SRAND) {
+	    	SRAND.nextBytes(ivBytes);
 	    }
+	    IvParameterSpec iv = new IvParameterSpec(new byte[KEYLENGTH]);
+	    byte[] packetToEncrypt = GH.concatenate(ivBytes,input);
+//	    // encryption pass
+//	    byte[] encryptedIV;
+//	    synchronized (CIPHER_IV) {
+//	    	CIPHER_IV.init(Cipher.ENCRYPT_MODE, key);
+//	
+//	    	byte[] encryptedIVwork = new byte[CIPHER_IV.getOutputSize(ivBytes.length)];
+//		    
+//		    int ctLength = CIPHER_IV.update(ivBytes, 0, ivBytes.length, encryptedIVwork, 0);
+//		    ctLength += CIPHER_IV.doFinal(encryptedIVwork, ctLength);
+//		    encryptedIV = GH.subarray(encryptedIVwork, 0, ctLength);
+//	    }
+	    
+	    byte[] encryptedPacket;
+	    synchronized (CIPHER) {
+	    	CIPHER.init(Cipher.ENCRYPT_MODE, key, iv);
+	    	 byte[] encryptedPacketWork = new byte[CIPHER.getOutputSize(packetToEncrypt.length)];
+			 int ctLength = CIPHER.update(packetToEncrypt, 0, packetToEncrypt.length, encryptedPacketWork, 0);
+			 ctLength += CIPHER.doFinal(encryptedPacketWork, ctLength);
+			 encryptedPacket = GH.subarray(encryptedPacketWork, 0, ctLength); 
+	    }
+	    return encryptedPacket;
 	}
 	
 	public static byte[] decryptMessage(byte[] encrypted,byte[] keyBytes) throws GeneralSecurityException {
+		if (keyBytes.length != KEYLENGTH || encrypted.length < KEYLENGTH*2) {
+			throw new IllegalArgumentException();
+		}
 		SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
 
-	    // decryption pass
-		synchronized (cipher) {
-		    cipher.init(Cipher.DECRYPT_MODE, key);
-		    byte[] plainText = new byte[cipher.getOutputSize(encrypted.length)];
-		    int ptLength = cipher.update(encrypted, 0, encrypted.length, plainText, 0);
-		    ptLength += cipher.doFinal(plainText, ptLength);
-		    
-		    byte[] ret = GH.subarray(plainText, 0, ptLength);
-		    return ret;
+		IvParameterSpec iv =  new IvParameterSpec(new byte[KEYLENGTH]);
+
+		synchronized (CIPHER) {
+			CIPHER.init(Cipher.DECRYPT_MODE, key,iv);
+		    byte[] plainPacket = new byte[CIPHER.getOutputSize(encrypted.length)];
+		    int ptLength = CIPHER.update(encrypted, 0, encrypted.length, plainPacket, 0);
+		    ptLength += CIPHER.doFinal(plainPacket, ptLength);
+		    return GH.subarray(plainPacket, KEYLENGTH, ptLength-KEYLENGTH);
 		}
 	}
 	
@@ -104,16 +127,23 @@ public class UDPEncryption {
 		return null;
 	}
 	
-	public static byte[] tokenStringToKey(String token)  {
-		try {
-			byte[] bytes = token.getBytes(DCProtocol.ADCCHARSET.name());
-			byte[] keyFull = Tiger.tigerOfBytes(bytes).getRaw();
-			byte[] key = GH.subarray(keyFull, 0, UDPEncryption.KEYLENGTH);
-			return key;
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalStateException(e);
+//	public static byte[] tokenStringToKey(String token)  {
+//		try {
+//			byte[] bytes = token.getBytes(DCProtocol.ADCCHARSET.name());
+//			byte[] keyFull = Tiger.tigerOfBytes(bytes).getRaw();
+//			byte[] key = GH.subarray(keyFull, 0, UDPEncryption.KEYLENGTH);
+//			return key;
+//		} catch (UnsupportedEncodingException e) {
+//			throw new IllegalStateException(e);
+//		}
+//	}
+	
+	public static byte[] getRandomKey() {
+		byte[] encryptionKey = new byte[KEYLENGTH];
+		synchronized(SRAND) {
+			SRAND.nextBytes(encryptionKey);
 		}
-		
+		return encryptionKey;
 	}
 	
 }

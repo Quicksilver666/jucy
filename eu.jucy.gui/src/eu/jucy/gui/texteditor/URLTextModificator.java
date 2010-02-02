@@ -304,7 +304,7 @@ public class URLTextModificator implements ITextModificator {
 		Image img = alt.getImageAfterURI(uri);
 		lab.setImage(img);
 		lab.setData(uri);
-		final ObjectPoint<Control> op =  viewer.addControl(lab, pos,uri, 2f/3f);
+		final ObjectPoint<Control> op =  viewer.addControl(lab, pos,"", 2f/3f);
 		lab.addMouseListener(new MouseAdapter() {
 			public void mouseDown(MouseEvent e) {
 				String uri = (String)e.widget.getData();
@@ -317,7 +317,7 @@ public class URLTextModificator implements ITextModificator {
 		Label lab = new Label(text,SWT.NONE);
 		lab.setImage(img);
 		lab.setData(uri);
-		final ObjectPoint<Control> op = viewer.addControl(lab, pos,uri, 2f/3f);
+		final ObjectPoint<Control> op = viewer.addControl(lab, pos,"", 2f/3f);
 		lab.addMouseListener(new MouseAdapter() {
 			public void mouseDown(MouseEvent e) {
 				String uri = (String)e.widget.getData();

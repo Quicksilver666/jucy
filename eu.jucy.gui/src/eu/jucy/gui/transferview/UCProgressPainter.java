@@ -62,7 +62,7 @@ public class UCProgressPainter implements Listener {
 	}
 	
 
-	public static void AddToTable(final Table table) {
+	public static void addToTable(final Table table) {
 		table.addListener(SWT.PaintItem, new UCProgressPainter(table));
 		new SUIJob(table) { 
 			@Override

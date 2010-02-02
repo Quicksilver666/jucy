@@ -4,17 +4,21 @@ package uc.protocols;
 
 
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.io.IOException;
 
@@ -39,7 +43,7 @@ import org.eclipse.core.runtime.Platform;
  * */
 public abstract class ConnectionProtocol {
 
-	private static Logger logger = LoggerFactory.make(Level.DEBUG); 
+	private static Logger logger = LoggerFactory.make(Level.INFO); 
 	
 	
 	private static final ProtocolTimer mt = new ProtocolTimer();
@@ -52,8 +56,19 @@ public abstract class ConnectionProtocol {
 	protected Charset charset; 
 	private int socketTimeout = 40000; 
 
-
+	private static final Map<InetAddress,IConnectionDebugger> AUTO_ATTACH= 
+		Collections.synchronizedMap(new HashMap<InetAddress,IConnectionDebugger>());
 	
+	public static void addAutoAttach(InetAddress ia,IConnectionDebugger debug) {
+		AUTO_ATTACH.put(ia, debug);
+	}
+	
+	public static void removeAutoAttach(InetAddress ia) {
+		AUTO_ATTACH.remove(ia);
+	}
+
+	private final CopyOnWriteArraySet<IConnectionDebugger> debuggers = 
+		new CopyOnWriteArraySet<IConnectionDebugger>();
 
 	private volatile boolean loginDone = false;
 	
@@ -172,8 +187,16 @@ public abstract class ConnectionProtocol {
 	 * to the other side
 	 *  overwriting methods must  call super.onConnect()
 	 */
-	public void onConnect() throws IOException{
+	public void onConnect() throws IOException {
 		setState(ConnectionState.CONNECTED);
+		InetAddress ia = connection.getInetSocketAddress().getAddress();
+		IConnectionDebugger debug = AUTO_ATTACH.get(ia);
+		if (debug != null) {
+			boolean remove = debug.autoAttached(ia, this);
+			if (remove) {
+				AUTO_ATTACH.remove(ia);
+			}
+		}
 	}
 	
 	/**
@@ -206,29 +229,29 @@ public abstract class ConnectionProtocol {
 	public void receivedCommand(String command) throws IOException, ProtocolException {
 		
 		Matcher m = prefix.matcher(command);
+		IProtocolCommand com = null;
 		if (m.matches()) {
 			String prefix = m.group(1);
-			IProtocolCommand com = commands.get(prefix);
-			if (com != null) {
-			//	logger.debug("command found "+com.getPrefix());
-				if (com.matches(command)) {
-					com.handle(command);
-				} else {
-					onMalformedCommandReceived(command);
-	
-					//throw new ProtocolException("Malformed Command received: "+command); better ignore malformed commands... instead of throwing exceptions
-				}
-			} else {
-				onUnexpectedCommandReceived(command);
-			}
-			
-		} else {
-
-			//if no prefix is determined.. use a default command..
-			if (defaultCommand != null && defaultCommand.matches(command)) {
-				defaultCommand.handle(command);
-			}
+			com = commands.get(prefix);
+		} else if (defaultCommand != null){
+			com = defaultCommand;
 		}
+		boolean wellFormed = true;
+		if (com != null) {
+		//	logger.debug("command found "+com.getPrefix());
+			if (com.matches(command)) {
+				com.handle(command);
+			} else {
+				wellFormed = false;
+				onMalformedCommandReceived(command);
+			}
+		} else {
+			onUnexpectedCommandReceived(command);
+		}
+		for (IConnectionDebugger debugger:debuggers) {
+			debugger.receivedCommand(com, wellFormed, command);
+		}
+		
 	}
 	
 	protected void onUnexpectedCommandReceived(String command) {
@@ -257,6 +280,29 @@ public abstract class ConnectionProtocol {
 	 *  it is called every second by a global timer
 	 */
 	public void timer() {
+	}
+	
+	/**
+	 * sends a raw without doing any tinkering 
+	 * like formatting by context..
+	 * @param mes - the message to be sent..
+	 */
+	protected void sendRaw(String mes) {
+		try {
+			connection.send(mes);
+			logger.debug("sent raw: "+mes);
+		} catch(IOException ioe) {
+			logger.warn(ioe,ioe); 
+		}
+	}
+	
+	protected void sendRaw(byte[] mes) {
+		try {
+			connection.send(ByteBuffer.wrap(mes));
+			logger.debug("sent raw: "+new String(mes));
+		} catch(IOException ioe) {
+			logger.warn(ioe,ioe); 
+		}
 	}
 	
 	
@@ -407,6 +453,20 @@ public abstract class ConnectionProtocol {
 	public long getLastLogin() {
 		return lastLogin;
 	}
+	
+	/**
+	 * @param conDebug - register Debugger that then gets notified of connections
+	 */
+	public void registerDebugger(IConnectionDebugger conDebug) {
+		debuggers.add(conDebug);
+	}
+	/**
+	 * @param conDebug - unregister Debugger that then gets notified of connections
+	 */
+	public void unregisterDebugger(IConnectionDebugger conDebug) {
+		debuggers.remove(conDebug);
+	}
+	
 }
 
 

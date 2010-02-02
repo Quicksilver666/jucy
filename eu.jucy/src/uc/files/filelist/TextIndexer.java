@@ -96,8 +96,8 @@ public class TextIndexer {
 		
 		dir = new File(new File(PI.getStoragePath(),"db"),"textindex");
 		File lockfile = new File(dir,"write.lock");
-		if (lockfile.exists()) {
-			lockfile.delete();
+		if (lockfile.exists() && !lockfile.delete()) {
+			lockfile.deleteOnExit();
 		}
 	
 		index = new NIOFSDirectory(dir); 

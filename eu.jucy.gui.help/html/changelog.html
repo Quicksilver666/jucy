@@ -12,11 +12,14 @@
 <h2>Versions</h2> 
 <h3>V:0.82<!-- current --></h3>
 - Fixed partial FileList downloads causing trouble with ApexDC++. (This time for real!) <br>
-- Added encrypted active search as a new feature. (ADCS spec enhancement proposal) <br>
+- Added encrypted active search as a new feature. (ADCS spec enhancement proposal / SUDP ) <br>
+- Added KEYP protocol extension.<br>
 - Fixed closing no longer locking up UI thread. (Some OS asked the user to enforce close.)<br>
 - Selecting a transfer will now also reveal the user in the hubwindow. Doubleclick will show the folder of the corresponding file in Explorer.<br>
 - Copying text in hub/pm-window will again copy URIs to clipboard.<br>
 - Fixed some drawing issues with file transfers.<br>
+- Fixed ADC active search not working. (since 0.80 damn! nobody noticed? nobody uses ADC?)<br>
+- Fixed annoyance: After finishing download even if a file was on the same partition as the temp directory file was copied over and not just moved.<br>
 (- potentially fixed that 100% CPU usage bug.) <br> 
 <p>
 <h3>V:0.81<!-- git: 84794c718817bfdf0b2d707a7652629a570ce3fd --></h3>

@@ -12,7 +12,7 @@ import java.io.IOException;
 public class Direction extends AbstractNMDCClientProtocolCommand {
 
 	public static void sendDirectionString(ClientProtocol client) throws IOException {
-		client.sendRaw("$Direction " + (client.getFti().getDqe() != null ? "Download" : "Upload") + " "
+		client.sendUnmodifiedRaw("$Direction " + (client.getFti().getDqe() != null ? "Download" : "Upload") + " "
 				+ client.getMyNumber() + "|"); //here manipulating the n
 	}
 	

@@ -10,6 +10,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import logger.LoggerFactory;
+
+import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -38,7 +41,9 @@ import uc.database.ILogEntry;
 import uihelpers.SUIJob;
 
 public abstract class LogViewerHandlers extends AbstractHandler {
-
+	
+	private static final Logger logger = LoggerFactory.make();
+	
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IStructuredSelection selection = (IStructuredSelection) HandlerUtil.getCurrentSelectionChecked(event);
 		if (!selection.isEmpty()) {
@@ -139,8 +144,8 @@ public abstract class LogViewerHandlers extends AbstractHandler {
 			String dir = dd.open();
 			if (dir != null) {
 				final File fdir = new File(dir);
-				if (!fdir.isDirectory()) {
-					fdir.mkdirs();
+				if (!fdir.isDirectory() && !fdir.mkdirs()) {
+					logger.warn("Could not create Dir: "+fdir);
 				}
 				final IDatabase db = ApplicationWorkbenchWindowAdvisor.get().getDatabase();
 				Job job = new Job(name) {

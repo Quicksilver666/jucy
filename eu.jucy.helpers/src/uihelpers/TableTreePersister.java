@@ -207,11 +207,11 @@ public class TableTreePersister {
 	}
 	
 	private static String toString(int[] a) {
-		String ret = ""+a[0];
-		for (int i =1 ; i < a.length; i++) {
-			ret+= ";"+a[i];
+		StringBuilder ret = new StringBuilder(Integer.toString(a[0]));
+		for (int i = 1 ; i < a.length; i++) {
+			ret.append(';').append( Integer.toString(a[i]));
 		}
-		return ret;
+		return ret.toString();
 	}
 	
 	/**

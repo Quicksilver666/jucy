@@ -26,7 +26,7 @@ public class Lock extends AbstractNMDCClientProtocolCommand {
 		Direction.sendDirectionString(client);
 
 	
-		client.sendRaw(DCProtocol.generateKey(command,client.getCharset()));
+		client.sendUnmodifiedRaw(DCProtocol.generateKey(command,client.getCharset()));
 		client.increaseLoginLevel();
 		
 		client.removeCommand(this);

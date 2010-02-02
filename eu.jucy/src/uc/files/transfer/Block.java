@@ -237,14 +237,13 @@ public class Block implements IBlock {
 			
 			public void close() throws IOException {
 				if (open) {
+					returnFC(dqe.getTempPath());	
+					open = false;
 					if (bytesleft == 0) {
 						verify();
 					} else {
 						setState(BlockState.EMPTY);
 					}
-						
-					returnFC(dqe.getTempPath());	
-					open = false;
 				}
 			}
 

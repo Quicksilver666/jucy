@@ -22,6 +22,7 @@ import java.net.Inet4Address;
 
 
 
+import java.security.SecureRandom;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +30,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -70,7 +70,6 @@ import uc.InfoChange.IInfoChanged;
 import uc.crypto.HashValue;
 import uc.crypto.IHashEngine;
 import uc.crypto.Tiger;
-import uc.crypto.TigerHashValue;
 
 
 import uc.database.IDatabase;
@@ -99,11 +98,17 @@ import uc.protocols.hub.Hub;
 
 /** 
  * TODO might be nice to have different model for connections..
- * i.e. instead of getting a stream from unblockign connection and read from it with a thread
- * -> set a ammount of bytes to be read max .. do unpacking in aconnection...
+ * i.e. instead of getting a stream from unblocking connection and read from it with a thread
+ * -> set a ammount of bytes to be read max .. do unpacking in a connection...
  * -> does that work together with limiter? uploadlimiter maybe  but downloadlimiter?
  *
  *  TODO internationalisation in hublisteditor
+ *
+ * TODO check ISharedImages PlatformUI.getWorkbench().
+					getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT); 
+					IMG_OBJ_FOLDER
+					IMG_OBJ_FILE   could both be interestign for default files and folders..
+					
  *
  * Presentation of magnet -> save as button .. or play button could be added / may be a view button also..
  
@@ -118,15 +123,6 @@ import uc.protocols.hub.Hub;
  *  TODO may be think about torrent support in dc client -> starting torrents downloaded..
  *  
 
- It's just a draft spec, so, well.… yeah.
-[20:10]<Ophite1> having BINF … KPsha256:BLEHBLEHBLEHBLEHBLEHBELHBELHBELHBE
-[20:11]<Ophite1> would be about right for a client (payload of KP being <hash>:<base32encoded-hash value of certificate fingerprint>)
-[20:11]<Ophite1> and in hub url, URL parameter ?kp=<hash>:<base32encoded-hash value of certificate fingerprint>
-[20:11]<Ophite1> (or of course possibly ;kp= or &kp= if it isn’t the first parameter in the URL)
-[20:12]<Ophite1> while you _could_ use tth I wouldn’t if I were you because it’s likely to be inconvenient to implement, and you’re better off using sha256.
- 
- <Ophite1> Quicksilver: Standard on signature generation is I think part of PKCS#5.
-[22:12]<Ophite1> Fingerprints are specified; you should be able to get access to the fingerprints from the same crypto library that implements TLS.
  *  
  * TODO implement some game.. i.e. Battleship or chess that could be played against other user..
  *  
@@ -258,12 +254,12 @@ public final class DCClient {
 	
 	private final User fileListSelf; //the self that holds our own FileList
 
-	private final Object synchPID = new Object();
-	private HashValue pid; 
+//	private final Object synchPID = new Object();
+	private final HashValue pid; 
 	
 	/**
-	 * check if FileList was initialised ..
-	 *  fall back mechanism if FileList initialiser in the beginning wasn't called
+	 * check if FileList was initialized ..
+	 *  fall back mechanism if FileList initializer in the beginning wasn't called
 	 *  so client still has a legal startup
 	 */
 	private Future<?> fileListInitialised;
@@ -350,30 +346,6 @@ public final class DCClient {
 				logger.warn(e,e);
 			}
 		});
-		
-	//	logger.debug("force loading BC: "+loader.Activator.class.getName()); //forces loading of Bouncycastle..
-	/*	Bundle b = Platform.getBundle("lib.org.bouncycastle.bcprov");
-		logger.debug("got bundle "+ (b != null));
-		try {
-			b.start();
-		} catch (Exception e) {
-			logger.error(e,e);
-		} */
-		//int pos = //Security.insertProviderAt(new BouncyCastleProvider(),4);
-	//	logger.debug(Loader2.class.getCanonicalName());
-	//	Security.addProvider(new BouncyCastleProvider());
-	//	logger.debug("position installed: "+pos);
-	//	Security.removeProvider("SunJCE");
-		//logger.debug("removeing Provider SunJCE");
-		
-	/*	for (Provider p: Security.getProviders()) {
-			logger.debug("Name: "+p.getName());
-			logger.debug("Info: "+p.getInfo());
-			for (Service s: p.getServices()) {
-				logger.debug("Alg: "+s.getAlgorithm());
-			}
-		} */
-    //	logger.debug("installe dProvider: "+pos);
 	}
 
 	private final OwnFileList filelist;
@@ -417,6 +389,7 @@ public final class DCClient {
     	downloadQueue = new DownloadQueue(this);
     	
     	database = init.loadDB(this);
+    	pid = loadPID();
     	
     	hashEngine = init.loadHashEngine();
     	filelistProcessors = init.loadFilelistProcessors();
@@ -427,7 +400,7 @@ public final class DCClient {
     	upQueue = init.createUploadQueue(this, true);
     	downQueue = init.createUploadQueue(this, false);
     	
-    	fileListSelf = new User(this,PI.get(PI.nick),TigerHashValue.SELFHASH ) { 
+    	fileListSelf = new User(this,PI.get(PI.nick), pid.hashOfHash()) { 
 			@Override
 			public String getNick() { 
 				return PI.get(PI.nick);
@@ -475,8 +448,8 @@ public final class DCClient {
      */
     public void search(FileSearch search, Set<IHub> hubsToSearch) {
     	if (!hubsToSearch.isEmpty()) {
-	    	connectionDeterminator.searchStarted(search); 
-	    	udphandler.addTokenExpected(search.getToken());
+	    	connectionDeterminator.searchStarted(search);
+	    	udphandler.addKeyExpected(search.getEncryptionKey());
     		for (IHub hub:hubsToSearch) {
 	    		hub.search(search);
 	    	}
@@ -574,19 +547,6 @@ public final class DCClient {
     	population.registerUserChangedListener(databaseUserChanges); 
     	
     	Future<?> connectDetInit = connectionDeterminator.start();
-    	
-    	if (GH.isEmpty(PI.get(PI.uUID))) {
-    		try {
-        		connectDetInit.get(); //on first start we need the ConnectionDeterminator before UID creation
-        	} catch(Exception e) {
-        		logger.warn(e,e);
-        	}
-    		PI.put(PI.uUID, createUUID().toString());
-    	}
-    	synchronized (synchPID) {
-    		pid = HashValue.createHash(PI.get(PI.uUID));
-    	}
-    	
     	monitor.worked(1);
     	
     	Future<?> filelistInit = initialiseFilelist(); 
@@ -642,14 +602,18 @@ public final class DCClient {
     /**
      * creates some UUID for this client 
      */
-    private  HashValue createUUID() {
-    	String id = "";
-    	id += UUID.randomUUID().toString();
+    private static HashValue loadPID() {
+    	String uuid = PI.get(PI.uUID);
+    	if (GH.isEmpty(uuid)) {
+    		SecureRandom sr = new SecureRandom();
+        	byte[] b = new byte[1024];
+        	sr.nextBytes(b);
+        	HashValue hash = Tiger.tigerOfBytes(b);
+        	uuid = hash.toString();
+    		PI.put(PI.uUID, uuid);
+    	}
     	
-		id += connectionDeterminator.getPublicIP().toString();
-		id += " "+System.currentTimeMillis()+" "+System.nanoTime();
-		logger.debug("id: "+id);
-		return Tiger.tigerOfString(id);
+    	return HashValue.createHash(uuid);
 	}
     
    
@@ -658,15 +622,13 @@ public final class DCClient {
      * @return the PID of the client 
      */
     public HashValue getPID() {
-    	synchronized(synchPID) {
-    		return pid;
-    	}
+    	return pid;
     }
     
     /**
      * called to on closing by the GUI....hopefully..
      * @param shutDownExec .. if set to false
-     * executor is let alive.. makign it possible to create
+     * executor is let alive.. making it possible to create
      * a new DCClient object..
      */
     public void stop(boolean shutDownExec) {
@@ -804,7 +766,7 @@ public final class DCClient {
     				Runnable finish = new Runnable() {
     					int i = hublisteners.size();
 						public synchronized void run() {
-							if (--i == 0) {
+							if (--i <= 0) {
 								scheduler.schedule(new Runnable() {
 			    					public void run() {
 			    						synchronized(hubf) {
@@ -818,9 +780,12 @@ public final class DCClient {
 						}
     					
     				};
-    				
-    				for (IHubCreationListener hubl:hublisteners) {
-    					hubl.hubCreated(favHub,showInUI,finish);
+    				if (hublisteners.isEmpty()) {
+    					DCClient.execute(finish);
+    				} else {
+	    				for (IHubCreationListener hubl:hublisteners) {
+	    					hubl.hubCreated(favHub,showInUI,finish);
+	    				}
     				}
     			}
     		}
@@ -967,7 +932,7 @@ public final class DCClient {
 		    				for (Hub hub : hubs.values()) {
 		    					synchronized(hub) {
 			    					if (hub.getState() == ConnectionState.LOGGEDIN) {
-			    						hub.sendMyInfo(false);
+			    						hub.sendMyInfo();
 			    					}
 		    					}
 		    					Set<InfoChange> copy;
@@ -1250,13 +1215,11 @@ public final class DCClient {
 					logger.error("Can't load the Database!",e);
 					
 				} catch (Exception e) {
-					logger.error("Error initializing database: "+e.getMessage(),e);
-					System.exit(-1);
+					throw new Error("Error initializing database: "+e.getMessage(),e);
 				}
 			}
 			if (db == null) {
-				logger.error("no database found .. UC can't work without a database");
-				System.exit(-1);
+				throw new Error("no database found");
 			} 
 			return db;
 	    }
@@ -1284,8 +1247,7 @@ public final class DCClient {
 				} 
 			}
 			if (he == null ) {
-				logger.error("no hashEngine found");
-				System.exit(-1);
+				throw new Error("no hashEngine found");
 			} 
 			he.init();
 			

@@ -79,6 +79,7 @@ import uc.protocols.UnblockingConnection;
 
 import uc.protocols.DCProtocol;
 import uc.protocols.hub.IFeedListener.FeedType;
+import uc.protocols.hub.ZOn.ZON;
 
 
 public class Hub extends DCProtocol implements IHub {
@@ -91,6 +92,8 @@ public class Hub extends DCProtocol implements IHub {
 		inject = ci;
 	}
 	
+	public static final boolean ZLIF = false;
+	
 	/**
 	 * 
 	 * Used for inserting different connections for Unit-tests..
@@ -102,8 +105,8 @@ public class Hub extends DCProtocol implements IHub {
 		}
 	}
 	
-	public static final int 	MaxActiveResults = 10, 
-								MaxPassiveResults = 5;
+	public static final int 	MAX_ACTIVE_RESULTS = 10, 
+								MAX_PASSIVE_RESULTS = 5;
 	
 	private DBLogger mcLoggerDB; 
 	private DBLogger feedLoggerDB;
@@ -451,22 +454,6 @@ public class Hub extends DCProtocol implements IHub {
 				return true;
 			}
 
-			//override needed so listeners are called
-		/*	@Override
-			public void setCt(byte ct) {
-				super.setCt(ct);
-				setWeAreOp(this.isOp());
-			}*/
-			
-
-
-			//Override needed so listeners are called
-			/*@Override
-			public void setOp(boolean op) {
-				super.setOp(op);
-				setWeAreOp(this.isOp());
-			} */
-
 			@Override
 			public void setProperty(INFField inf, String val)throws  NumberFormatException,IllegalArgumentException {
 				super.setProperty(inf, val);
@@ -489,7 +476,6 @@ public class Hub extends DCProtocol implements IHub {
 		};
 		
 		connection = inject.getConnection(hubaddy, this, ProtocolPrefix.parse(favHub.getHubaddy()).encrypted,fingerPrint);
-		//connection = new UnblockingConnection(hubaddy,this, ProtocolPrefix.parse(favHub.getHubaddy()).encrypted);
 	
 	}
 	
@@ -533,6 +519,9 @@ public class Hub extends DCProtocol implements IHub {
 			addCommand(new SUP(this),new SID(this),new INF(this),
 					new MSG(this),new STA(this),new GPA(this),
 					new CMD(this),new GET(this));
+			if (Hub.ZLIF) {
+				addCommand(new ZON(this));
+			}
 		}
 	
 		
@@ -560,6 +549,7 @@ public class Hub extends DCProtocol implements IHub {
 		if (!getFavHub().isChatOnly()) {
 			super.onUnexpectedCommandReceived(command);
 		}
+		logger.debug(command);
 	}
 	
 	/**
@@ -675,21 +665,11 @@ public class Hub extends DCProtocol implements IHub {
 	 * @param mes - the message to be sent..
 	 */
 	synchronized void sendUnmodifiedRaw(String mes) {
-		try {
-			connection.send(mes);
-			logger.debug("sent raw: "+mes);
-		} catch(IOException ioe) {
-			logger.warn(ioe,ioe); 
-		}
+		super.sendRaw(mes);
 	}
 	
 	synchronized void sendUnmodifiedRaw(byte[] mes) {
-		try {
-			connection.send(ByteBuffer.wrap(mes));
-			logger.debug("sent raw: "+new String(mes));
-		} catch(IOException ioe) {
-			logger.warn(ioe,ioe); 
-		}
+		super.sendRaw(mes);
 	}
 	
 	void passwordRequested() {
@@ -965,15 +945,15 @@ public class Hub extends DCProtocol implements IHub {
 	 * @param searcher - if passive this is a User object .. if active this is an 
 	 * InetSocketAddress address or a User Object (which holds an UDP socket and an InetAddress)
 	 */
-	void searchReceived(SearchParameter sp, boolean passive, User searcherusr,InetSocketAddress searcherip,String token) {
+	void searchReceived(SearchParameter sp, boolean passive, User searcherusr,InetSocketAddress searcherip,String token,byte[] encryptionKey) {
 		
-		sp.maxResults = passive? MaxPassiveResults:MaxActiveResults;
+		sp.maxResults = passive? MAX_PASSIVE_RESULTS:MAX_ACTIVE_RESULTS;
 		sp.hub = favHub;
 		Set<IFileListItem> found = dcc.getFilelist().search(sp);
 		dcc.searchReceived(sp.keys, searcherusr != null? searcherusr:searcherip, found.size());
 		
 		if (!found.isEmpty()) {
-			sendFoundBack(found,passive,searcherusr,searcherip,token);
+			sendFoundBack(found,passive,searcherusr,searcherip,token,encryptionKey);
 		}
 	}
 	
@@ -984,17 +964,17 @@ public class Hub extends DCProtocol implements IHub {
 	 * @param searcher - if passive a User object if active an InetSocketAddress
 	 * @param token ... ADC token .. needed to send the search back
 	 */
-	void searchReceived(HashValue hash,boolean passive,User searcherusr,InetSocketAddress searcherip,String token) {
+	void searchReceived(HashValue hash,boolean passive,User searcherusr,InetSocketAddress searcherip,String token,byte[] encryptionKey) {
 		FileListFile found = dcc.getFilelist().search(hash);
 		
 		dcc.searchReceived(Collections.singleton(hash.toString()), searcherusr !=null ? searcherusr:searcherip,found == null? 0:1);
 		
 		if (found != null) {
-			sendFoundBack(Collections.<IFileListItem>singleton( found),passive,searcherusr,searcherip,token);
+			sendFoundBack(Collections.<IFileListItem>singleton( found),passive,searcherusr,searcherip,token,encryptionKey);
 		}
 	}
 	
-	private void sendFoundBack(Set<IFileListItem> found,boolean passive,User searcherusr,InetSocketAddress searcherip,String token) {
+	private void sendFoundBack(Set<IFileListItem> found,boolean passive,User searcherusr,InetSocketAddress searcherip,String token,byte[] encryptionKey) {
 
 		Set<SearchResult> srs = new HashSet<SearchResult>();
 		for (IFileListItem ff: found) {
@@ -1010,7 +990,7 @@ public class Hub extends DCProtocol implements IHub {
 		if (passive) {
 			sendSearchResultbackPassive(srs,searcherusr); 
 		} else {
-			sendSearchResultbackActive(srs,searcherusr , searcherip);
+			sendSearchResultbackActive(srs,searcherusr , searcherip,encryptionKey);
 		}
 	}
 	
@@ -1027,16 +1007,16 @@ public class Hub extends DCProtocol implements IHub {
 		}
 	}
 	
-	private void sendSearchResultbackActive(Set<SearchResult> srs, User target,InetSocketAddress searcherIp) {
+	private void sendSearchResultbackActive(Set<SearchResult> srs, User target,InetSocketAddress searcherIp,byte[] encryptionKey) {
     	try {
     		for (SearchResult sr: srs) {
     			String command = getUDPSRPacket(sr); 
     			byte[] packet = command.getBytes(getCharset().name());
-    			if (target != null && target.hasSupportForUDPEncryption()) {
-    				byte[] key = UDPEncryption.tokenStringToKey(sr.getToken());
-    				packet = UDPEncryption.encryptMessage(packet, key);
+    			if (encryptionKey != null && target.hasSupportForUDPEncryption()) {
+    				//byte[] key = UDPEncryption.tokenStringToKey(sr.getToken());
+    				packet = UDPEncryption.encryptMessage(packet, encryptionKey);
     				if (Platform.inDevelopmentMode()) {
-    					logger.warn("sending encrypted packet to: "+target);
+    					logger.warn("sending encrypted packet to: "+target+" in:"+getHubaddy());
     				}
     			}
     			dcc.getUdphandler().sendPacket(ByteBuffer.wrap(packet), searcherIp);
@@ -1188,7 +1168,7 @@ public class Hub extends DCProtocol implements IHub {
 		int postfix = this.hubaddy.indexOf('/');
 		if (postfix >= 0) {
 			String kp = this.hubaddy.substring(postfix);
-			int i = kp.indexOf("pk=");
+			int i = kp.indexOf("kp=");
 			if ( i >= 0  ) {
 				kp = kp.substring(i+3);
 				try {
@@ -1277,12 +1257,19 @@ public class Hub extends DCProtocol implements IHub {
 	 * if force is false it will only be sent if there is any new information
 	 *  
 	 */
-	public void sendMyInfo(boolean force) {
+	void sendMyInfo(boolean force) {
 		if (nmdc) {
 			MyINFO.sendMyINFO(this,force);
 		} else {
 			INF.sendINF(this, force);
 		}
+	}
+	
+	/**
+	 * sends MyINFO/INF to hub updating data ..
+	 */
+	public void sendMyInfo() {
+		sendMyInfo(false);
 	}
 	
 

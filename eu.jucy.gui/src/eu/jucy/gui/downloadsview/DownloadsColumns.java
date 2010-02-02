@@ -81,7 +81,7 @@ public abstract class DownloadsColumns extends ColumnDescriptor<Object> {
 		@Override
 		public Image getImage(Object x) {
 			if (x instanceof ClientProtocol) {
-				return Nick.GetUserImage(((ClientProtocol)x).getUser());
+				return Nick.getUserImage(((ClientProtocol)x).getUser());
 			} else if (x instanceof AbstractDownloadQueueEntry) {
 				return IconManager.get().getIconByFilename(
 						((AbstractDownloadQueueEntry)x).getFileName() );

@@ -67,7 +67,7 @@ public class ADCSND extends AbstractNMDCClientProtocolCommand {
 	 * @param comp - what compression will be used for transferring..
 	 */
 	private static void sendADCSNDforFile(ClientProtocol client,HashValue what, long startpos, long endpos ,Compression comp) {
-		client.sendRaw("$ADCSND file TTH/"+what+" "+startpos+" "+ endpos +comp.toString()+"|");
+		client.sendUnmodifiedRaw("$ADCSND file TTH/"+what+" "+startpos+" "+ endpos +comp.toString()+"|");
 	}
 	
 	/**
@@ -75,11 +75,11 @@ public class ADCSND extends AbstractNMDCClientProtocolCommand {
 	 * @param length - how large the FileList is..
 	 */
 	private static void sendADCSNDforFilelist(ClientProtocol client,long length,Compression comp) {
-		client.sendRaw("$ADCSND "+ (client.isNewList()? "list /":"file files.xml.bz2")+ " 0 " + length +comp.toString() +"|");
+		client.sendUnmodifiedRaw("$ADCSND "+ (client.isNewList()? "list /":"file files.xml.bz2")+ " 0 " + length +comp.toString() +"|");
 	}
 	
 	private static void sendADCSNDforInterleaves(ClientProtocol client,HashValue what,long length,Compression comp) {
-		client.sendRaw("$ADCSND tthl TTH/"+what+" 0 " + length +comp.toString()+"|");
+		client.sendUnmodifiedRaw("$ADCSND tthl TTH/"+what+" 0 " + length +comp.toString()+"|");
 	}
 	
 	public static void sendADCSND(ClientProtocol client) throws IOException {

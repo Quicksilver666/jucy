@@ -42,11 +42,15 @@ import uc.DCClient.Initializer;
 import uc.FavFolders.SharedDir;
 import uc.IUser.Mode;
 import uc.crypto.BloomFilter;
+import uc.crypto.HashValue;
+import uc.crypto.UDPEncryption;
 import uc.crypto.IHashEngine.IHashedListener;
 import uc.files.filelist.FileListFile;
+import uc.files.search.FileSearch;
 import uc.protocols.AbstractADCCommand;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.ConnectionState;
+import uc.protocols.DCProtocol;
 import uc.protocols.IConnection;
 import uc.protocols.hub.Hub;
 import uc.protocols.hub.IHubListener;
@@ -58,8 +62,9 @@ public class AdcHubTest {
 
 	private static DCClient dcc;
 	private TestHubConnection thc;
+	private static TestUDPHandler tudpH;
 	private Hub hub;
-	private static final Semaphore searchRSSent = new Semaphore(0);
+	
 	
 	private static final List<String> userINF = new ArrayList<String>();
 	private static final List<String> sharedFiles = new ArrayList<String>();
@@ -68,6 +73,9 @@ public class AdcHubTest {
 	private static final String SidOwn 	 = "Y2NH";
 	private static final String SidAsterix 	 = "HDTK";
 	private static final String SidActiveUser = SidAsterix ;
+	private static final String CIDAsterix = "JSJK4ALI7EZVQSYFGF6HD6SLDP67OITQAMLHT3Y",
+								CIDObelix= "MLKJ7IKCCT3LYSONVW5FLQ6SEBYM4CIFWEJMRKA";
+
 	
 	private static final String SidPassiveUser = "IU7D";
 	
@@ -75,8 +83,8 @@ public class AdcHubTest {
 	
 	static {
 		String[] users= new String[] {
-				"BINF "+SidAsterix+" IDJSJK4ALI7EZVQSYFGF6HD6SLDP67OITQAMLHT3Y NIAsterix I4213.89.70.149 HN3 HO0 HR0 SF10368 SS203141739008 SL9 SUTCP4,UDP4 U41408 VE++\\s0.699 US5242",
-				"BINF CQHS IDMLKJ7IKCCT3LYSONVW5FLQ6SEBYM4CIFWEJMRKA NIObelix I481.200.167.218 HN8 HO0 HR0 SF0 SS0 SL1 SUADC0,TCP4,UDP4 U44638 VE++\\s0.702 US10485760",
+				"BINF "+SidAsterix+" ID"+CIDAsterix+" NIAsterix I4213.89.70.149 HN3 HO0 HR0 SF10368 SS203141739008 SL9 SUTCP4,UDP4 U41408 VE++\\s0.699 US5242",
+				"BINF CQHS ID"+CIDObelix+" NIObelix I481.200.167.218 HN8 HO0 HR0 SF0 SS0 SL1 SUADC0,TCP4,UDP4 U44638 VE++\\s0.702 US10485760",
 				"BINF HLGC IDEJCANVZXUZ2SNJ4GIWTZUOQPDCASCTZ4HVLRFRY NIMajestix I482.196.97.148 DEWhisky HN0 HO2 HR1 CT4 SF0 SS0 SL1 SUADC0,TCP4,UDP4 U4412 VE++\\s0.705 US5242",
 				"BINF OVD7 IDFAJ6HFSJVEUWGTRT75LTHEI7PI5QELRP7CG5VOI NIIdefix I488.83.46.99 DS49152 HN11 HO0 HR0 SF1414 SS38341855326 SL1 SUTCP4,UDP4 U41412 VE++\\s0.699 US2097152",
 				"BINF FLO7 IDCL4VPGSZ6OBIO35GFIDCWJGL2ZBM76V6UKKDKXA NITroubadix HN60 HO0 HR0 SF11634 SS167565105641 SL2 SUADC0 VE++\\s0.704 US2097152",
@@ -94,29 +102,43 @@ public class AdcHubTest {
 		sharedFilesizes[0] = 0;
 		sharedFilesizes[1] = 1025;
 		sharedFilesizes[2] = 1024 * 1024 * 4;
+		
+	}
+	
+	public static class TestUDPHandler extends UDPhandler {
+		public final Semaphore searchRSSent = new Semaphore(0);
+		
+		public TestUDPHandler(DCClient dcc) {
+			super(dcc);
+		}
+		
+		@Override
+		public void sendPacket(ByteBuffer packet,
+				InetSocketAddress target) {
+			searchRSSent.release();
+		}
+		
+		@Override
+		public void receivedPacket(InetSocketAddress from,
+				ByteBuffer packet, boolean possiblyEncrypted) {
+			super.receivedPacket(from, packet, possiblyEncrypted);
+		}
 	}
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		DCClient.setInitializer(new Initializer() {
-
 			@Override
 			protected IUDPHandler createUDPHandler(DCClient dcc) {
-				return new UDPhandler(dcc) {
-					@Override
-					public void sendPacket(ByteBuffer packet,
-							InetSocketAddress target) {
-						searchRSSent.release();
-					}
-				};
+				return tudpH = new TestUDPHandler(dcc);
 			}
-			
 		});
 		
 		dcc = new DCClient();
 		dcc.start(new NullProgressMonitor());
 		Hub.setConnectionInjector(new ConnectionInjector() {
-			public IConnection getConnection(String addy, ConnectionProtocol connectionProt,boolean encryption) {
+			@Override
+			public IConnection getConnection(String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
 				return new TestHubConnection(addy, connectionProt, encryption);
 			}
 		});
@@ -131,14 +153,16 @@ public class AdcHubTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		FavHub fh = new FavHub("adc://127.0.0.1:456");
+		FavHub fh = new FavHub("adcs://127.0.0.1:456");
 		fh.connect(dcc);
 		hub = dcc.getHub(fh, false);
 		thc =  (TestHubConnection)hub.getConnection();
+		Thread.sleep(200);
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		tudpH.searchRSSent.drainPermits();
 		hub.close();
 		hub = null;
 		thc = null;
@@ -158,7 +182,7 @@ public class AdcHubTest {
 			ISTA 000 Running\sTheta\sVersion\sof\sDSHub.
 			ISTA 000 Hub\sis\sup\ssince\sThu\sMar\s20\s19:36:54\sCET\s2008 */
 			
-			//as an answer we have to send
+			//as an answer the hub sends: his supports, inf and gives us a SID
 			hub.receivedCommand("ISUP ADBASE ADTIGR ADUCM0 ADPING");
 		
 			hub.receivedCommand("ISID "+SidOwn);
@@ -194,7 +218,7 @@ public class AdcHubTest {
 			
 			
 			assertEquals("Received client inf: "+receivedINF,ConnectionState.LOGGEDIN, hub.getState());
-			assertEquals(userINF.size()+1 , hub.getUsers().size() ); //check all users noted down..
+			assertEquals("found: "+(userINF.size()+1)+" "+hub.getUsers().size(),userINF.size()+1 , hub.getUsers().size() ); //check all users noted down..
 			assertEquals(Mode.PASSIVE,hub.getUserByNick("Miraculix").getModechar()); // check modechar correctly found
 			assertEquals(Mode.ACTIVE,hub.getUserByNick("Asterix").getModechar()); // same
 			
@@ -241,7 +265,7 @@ public class AdcHubTest {
 		
 		// check passive search that fails..
 		
-		hub.receivedCommand("BSCH "+SidPassiveUser+" ANSerial\nExperiments TOauto");
+		hub.receivedCommand(search+" ANSerial\nExperiments");
 		Thread.sleep(500);
 		assertTrue(thc.isMessageSentEmpty()); //either no message or just an INF
 
@@ -249,8 +273,40 @@ public class AdcHubTest {
 		// check active search that hits..
 		hub.receivedCommand(search.replace(SidPassiveUser, SidActiveUser));
 		
-		assertTrue(searchRSSent.tryAcquire(2, 500, TimeUnit.MILLISECONDS));
+		assertTrue(tudpH.searchRSSent.tryAcquire(2, 500, TimeUnit.MILLISECONDS));
 		
+		
+		FileListFile file = null;
+		for (FileListFile f : dcc.getOwnFileList().getRoot()) {
+			file = f;
+			break;
+		}
+		assertNotNull(file);
+		
+		FileSearch fs = new FileSearch(file.getTTHRoot());
+		dcc.register(fs);
+		dcc.search(fs);
+		String searchMessageSent = thc.pollNextMessage(true);
+		assertTrue("Not a search",searchMessageSent.contains("SCH "));
+		assertTrue("search not contained correct hash", searchMessageSent.contains(file.getTTHRoot().toString()));
+		
+		String packet = "URES "+CIDAsterix+" TO"+fs.getToken()+" TR"+file.getTTHRoot()
+		+" SI"+file.getSize()+" FN"+AbstractADCCommand.doReplaces(file.getPath().replace(File.separatorChar , '/'))  +"\n";
+		
+		tudpH.receivedPacket(new InetSocketAddress("127.0.0.1", 5000), 
+				ByteBuffer.wrap(packet.getBytes(DCProtocol.ADCCHARENCODING)), true);
+		
+		assertEquals("expected exactly one File: ",1, fs.getNrOfFiles());
+		
+		
+		String packet2 = packet.replace(CIDAsterix, CIDObelix); //same result from different user..
+		byte[] packet2bytes = packet2.getBytes(DCProtocol.ADCCHARENCODING);
+		byte[] packet2Ency = UDPEncryption.encryptMessage(packet2bytes, fs.getEncryptionKey());
+		tudpH.receivedPacket(new InetSocketAddress("127.0.0.1", 5001), 
+				ByteBuffer.wrap(packet2Ency), true);
+		
+		
+		assertEquals("encrypted File not received: "+fs.getNrOfResults(),2, fs.getNrOfResults());
 		
 		removeSharedFiles();
 		thc.removeIgnore(ignoreINFprefix); //clean up ignore..
@@ -385,7 +441,7 @@ public class AdcHubTest {
 	
 
 	
-	private void checkErrorLogsEmpty() {
+	public static void checkErrorLogsEmpty() {
 		assertEquals("error.log not empty",0,LoggerFactory.getErrorLog().length());
 		assertEquals("Platform .log not empty",0,
 				new File(new File(PI.getStoragePath(),".metadata"),".log").length());
@@ -429,7 +485,7 @@ public class AdcHubTest {
 		dcc.getFavFolders().storeSharedDirs(Collections.singletonList(sd));
 		//now wait some seconds for the hashing
 		while( dcc.getFilelist().getNumberOfFiles() < sharedFiles.size() ) {
-			GH.sleep(100);
+			GH.sleep(500);
 			dcc.getFilelist().refresh(true);
 		}
 		
@@ -445,7 +501,6 @@ public class AdcHubTest {
 		dcc.getFilelist().refresh(true);
 		assertEquals(0, dcc.getOwnFileList().getNumberOfFiles());
 		assertTrue(sharedStuff.delete());
-		
 	}
 	
 }

@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.core.runtime.Platform;
-
 
 
 import uc.DCClient;
@@ -162,12 +160,12 @@ public class INF extends AbstractADCHubCommand {
 			
 			if (!next.isEmpty()) {
 				String inf = "BINF "+SIDToStr(self.getSid());
-				inf +=  ReverseINFMap( next);
+				inf += reverseINFMap( next);
 				
 				hub.sendUnmodifiedRaw(inf + "\n");
-				if (Platform.inDevelopmentMode()) {
-					logger.info("INF: "+inf);
-				}
+//				if (Platform.inDevelopmentMode()) {
+//					logger.info("INF: "+inf);
+//				}
 			}
 		}
 	}

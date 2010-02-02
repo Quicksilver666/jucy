@@ -104,7 +104,7 @@ public class DownloadQueueContributionItem extends CompoundContributionItem
 					UserHandlers.USER_BY_ID,usr.getUserid().toString()); 
 			ccip.label = usr.getNick();
 		
-			ccip.icon = ImageDescriptor.createFromImage(UserColumns.Nick.GetUserImage(usr));
+			ccip.icon = ImageDescriptor.createFromImage(UserColumns.Nick.getUserImage(usr));
 		} else {
 			ccip.parameters = Collections.singletonMap(
 					UserHandlers.USER_BY_ID,null); //all users

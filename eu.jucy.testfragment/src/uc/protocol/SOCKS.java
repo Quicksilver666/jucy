@@ -113,8 +113,8 @@ public class SOCKS{
       return pr;
    }
 
-   @SuppressWarnings("unchecked")
-static boolean addAuth(IdentAuthenticator ident,Properties pr){
+
+   static boolean addAuth(IdentAuthenticator ident,Properties pr){
 
       InetRange irange;
 
@@ -130,7 +130,7 @@ static boolean addAuth(IdentAuthenticator ident,Properties pr){
          return true;
       }
 
-      Hashtable uhash = new Hashtable();
+      Hashtable<String, String> uhash = new Hashtable<String, String>();
 
       StringTokenizer st = new StringTokenizer(users,";");
       while(st.hasMoreTokens())

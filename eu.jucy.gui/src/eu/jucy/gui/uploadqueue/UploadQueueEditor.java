@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Table;
 
 
 import uc.files.UploadQueue.UploadInfo;
-import uihelpers.DelayedUpdate;
+import uihelpers.DelayedTableUpdater;
 import uihelpers.SUIJob;
 import uihelpers.TableViewerAdministrator;
 
@@ -55,7 +55,7 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 	private Table table;
 	private TableViewer tableViewer;
 	private TableViewerAdministrator<UploadInfo> tva;
-	private DelayedUpdate<UploadInfo> update;
+	private DelayedTableUpdater<UploadInfo> update;
 	
 
 	@SuppressWarnings("unchecked")
@@ -78,7 +78,7 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 						GUIPI.uploadQueueTable,7);
 		tva.apply();
 		
-		update = new DelayedUpdate<UploadInfo>(tableViewer);
+		update = new DelayedTableUpdater<UploadInfo>(tableViewer);
 		
 		tableViewer.setContentProvider(new UploadQueueProvider());
 		tableViewer.addFilter(new ViewerFilter() {

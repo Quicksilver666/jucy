@@ -1,6 +1,7 @@
 package eu.jucy.testfragment;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
@@ -20,6 +21,7 @@ import logger.LoggerFactory;
 import uc.crypto.HashValue;
 import uc.protocols.Compression;
 import uc.protocols.ConnectionProtocol;
+import uc.protocols.DCProtocol;
 import uc.protocols.IConnection;
 
 public class TestHubConnection implements IConnection {
@@ -60,6 +62,11 @@ public class TestHubConnection implements IConnection {
 	public void close() {
 		if (open) {
 			open = false;
+			try {
+				cp.onDisconnect();
+			} catch(IOException ioe) {
+				throw new IllegalStateException(ioe);
+			}
 		} else {
 			throw new IllegalStateException("closed Connection that was already closed");
 		}
@@ -162,14 +169,22 @@ public class TestHubConnection implements IConnection {
 	/**
 	 * gets the last message the connection sent out..
 	 * if removeNL is set.. trailing character  will be removed 
+	 * @throws UnsupportedEncodingException 
 	 */
-	public String pollNextMessage(boolean removeLastChar) throws InterruptedException {
-		String s = (String)messagesSent.take();
+	public String pollNextMessage(boolean removeLastChar) throws InterruptedException, UnsupportedEncodingException {
+		Object o = messagesSent.take();
+		if (o instanceof ByteBuffer) {
+			o = new String(((ByteBuffer)o).array(),DCProtocol.NMDCCHARENCODING);
+		}
+		
+		String s = (String)o;
 		if (removeLastChar) {
 			s = s.substring(0, s.length()-1);
 		}
 		return s;
 	}
+	//
+	
 	public String pollNextMessage(long millisecondstimeout) throws InterruptedException {
 		String s = (String)messagesSent.poll(millisecondstimeout, TimeUnit.MILLISECONDS);
 		
