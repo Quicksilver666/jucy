@@ -49,11 +49,9 @@ public class OpenDebuggerViewHandler extends AbstractHandler {
 		if (exists) {
 			DebuggerView.addInput(id, o);
 		}
-		
 		try {
 			page.showView(DebuggerView.ID,id,
 					exists? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_CREATE );
-		      
 		} catch (PartInitException e){
 		     MessageDialog.openError(window.getShell(),"Error" ,e.toString());
 		}

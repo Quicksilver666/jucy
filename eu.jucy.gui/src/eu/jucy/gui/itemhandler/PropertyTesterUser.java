@@ -36,6 +36,8 @@ public class PropertyTesterUser extends PropertyTester {
 			return expectedValue.equals(usr.hasCurrentlyAutogrant());
 		} else if ("isHubKnown".equals(property)) {
 			return expectedValue.equals(usr.getHub() != null);
+		} else if ("isIPKnown".equals(property)) {
+			return expectedValue.equals(usr.getIp() != null);
 		}
 		
 		throw new IllegalStateException();

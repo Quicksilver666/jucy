@@ -130,7 +130,8 @@ public class DebuggerView extends UCView implements IObserver<StatusObject> {
 		} else if (o instanceof IUser && ((IUser)o).getIp() != null) {
 			ConnectionProtocol.addAutoAttach(((IUser)o).getIp(), debugger);
 		} 
-
+		VIEW_INPUT.remove(secID);
+		
 		viewer.setInput(debugger);
 		debugger.addObserver(this);
 		

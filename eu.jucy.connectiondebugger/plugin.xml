@@ -18,17 +18,81 @@
       <menuContribution
             locationURI="menu:view?before=eu.jucy.gui.views.seperator1">
          <command
-               commandId="org.eclipse.ui.views.showView"
+               commandId="eu.jucy.connectiondebugger.openonhub"
                icon="icons/debuggerview.16.gif"
                label="Connection Debugger"
                style="push">
-            <parameter
-                  name="org.eclipse.ui.views.showView.viewId"
-                  value="eu.jucy.connectiondebugger.debuggerview">
-            </parameter>
          </command>
       </menuContribution>
+       <menuContribution
+               locationURI="popup:eu.jucy.hub?before=eu.jucy.gui.hub.separator2">
+            <command
+                  commandId="eu.jucy.connectiondebugger.attachuser"
+                  style="push">
+            </command>
+       </menuContribution>
    </extension>
+   
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="eu.jucy.connectiondebugger.OpenDebuggerViewHandler$OpenDebuggerViewHubHandler"
+            commandId="eu.jucy.connectiondebugger.openonhub">
+         <activeWhen>
+            <with
+                  variable="activeEditorId">
+               <equals
+                     value="eu.jucy.hub">
+                 </equals>
+            </with>
+         </activeWhen>
+      </handler>
+       <handler
+            class="eu.jucy.connectiondebugger.OpenDebuggerViewHandler"
+            commandId="eu.jucy.connectiondebugger.attachuser">
+         <activeWhen>
+               <reference
+                     definitionId="eu.jucy.gui.user.oneUserWithIP">
+               </reference>
+            </activeWhen>
+      </handler>
+      
+     </extension>
+     
+ 	<extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="eu.jucy.connectiondebugger.openonhub"
+            name="Connection Debugger hub">
+      </command>
+      <command
+            id="eu.jucy.connectiondebugger.attachuser"
+            name="Connection Debugger User">
+      </command>
+   </extension>
+   
+      <extension
+         point="org.eclipse.core.expressions.definitions">
+   <definition
+            id="eu.jucy.gui.user.oneUserWithIP">
+         <with
+               variable="selection">
+            <and>
+               <count
+                     value="1">
+               </count>
+               <iterate
+                     operator="or">
+                  <test
+                        property="eu.jucy.properties.user.isIPKnown"
+                        value="true">
+                  </test>
+               </iterate>
+            </and>
+         </with>
+      </definition>
+   </extension>
+  
   
 
 

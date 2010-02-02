@@ -96,7 +96,6 @@ import eu.jucy.language.LanguageKeys;
 
 import uc.FavHub;
 import uc.IHasUser;
-import uc.IHub;
 import uc.IUser;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.ConnectionState;
@@ -687,7 +686,6 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 			public void run() {
 				labelViewer.addFeedMessage(ft, message);
 			}
-
 		}.schedule();
 	}
 
@@ -750,7 +748,4 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
 		
 	}
-
-	
-
 }

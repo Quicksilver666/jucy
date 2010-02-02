@@ -2205,7 +2205,7 @@
                class="eu.jucy.gui.itemhandler.PropertyTesterUser"
                id="eu.jucy.properties.user"
                namespace="eu.jucy.properties.user"
-               properties="isFavUser,hasDownloadedFilelist,hasFilesInQueue,hasSlotGranted,isHubKnown"
+               properties="isFavUser,hasDownloadedFilelist,hasFilesInQueue,hasSlotGranted,isHubKnown,isIPKnown"
                type="uc.IHasUser">
          </propertyTester>
          <propertyTester
