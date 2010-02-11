@@ -107,14 +107,18 @@ public class CommandInterpreter {
 						"I don't even know what to say. \nThis client is so simple yet so feature complete.    -- Todi",  //said as fun when still thinking the client didn't exist and was a April Fools joke
 						"I know my client is secure against\nbuffer overflows. What about yours?",
 						"My client is LG-Proof®. What about yours?",
-						"Actually, I agree with Todi. Great work qs!    -- Nev",
+						"Actually, I agree with Todi. Great work qs!\n-- Nev",
 						"Leave out all the rest!   -- Linkin Park",
 						"My client loads old PMs from the log \nwhen opening a PM window. \nWhat about yours?",
-						"Downloading the same file from multiple users?\nSure you can do that!\nBut my client does not need 1000 segments for that!"
+						"Downloading the same file from multiple users?\nSure you can do that!\nBut my client does not need 1000 segments for that!",
+						"Jucy is short form for\n\"Jucy-is ultimately certainly yaddayadda-no-dc++-mod-whatsoever\"\nOr something like that!",
+						"Ever started a PM to one user\nand sent it to another?\nNot with jucy!",
+						"Shakesp...-what? Nope never heard of it..."
 						);
 				
+				//String number = GetFirstWord(line).trim();
 				
-				hub.sendMM("\n"+phrases.get(GH.nextInt(phrases.size()))+"\n<"+DCClient.LONGVERSION+"> http://jucy.eu",false);
+				hub.sendMM("\n"+GH.getRandomElement(phrases)+"\n<"+DCClient.LONGVERSION+"> http://jucy.eu",false);
 				break;
 			case CLEAR:
 				editor.clear();

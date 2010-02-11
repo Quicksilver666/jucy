@@ -33,6 +33,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.swt.IFocusService;
 
 
 
@@ -56,6 +58,7 @@ import org.eclipse.swt.widgets.TreeColumn;
 public class TableViewerAdministrator<T> {
 
 	public static final String ExtensionpointID = "eu.jucy.helpers.tablevieweradministrator";
+	
 	
 	public static final int NoSorting = Integer.MIN_VALUE;
 	
@@ -233,6 +236,10 @@ public class TableViewerAdministrator<T> {
 			boolean inverted = defaultSortCol < 0 ;
 			int col = inverted? (-defaultSortCol)-1: defaultSortCol;
 			viewer.setComparator(descriptors.get(col).getComparator(inverted));
+		}
+		IFocusService ifc = (IFocusService)PlatformUI.getWorkbench().getService(IFocusService.class);
+		if (ifc != null) {
+			ifc.addFocusTracker(viewer.getControl(), tableID);
 		}
 	}
 	

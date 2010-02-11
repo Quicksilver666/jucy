@@ -15,7 +15,7 @@ public class FollowRedirectHandler extends AbstractHandler implements IHandler {
 		IHub hub = ((HubEditor)HandlerUtil.getActiveEditorChecked(event)).getHub();
 
 		if (hub.pendingReconnect()) {
-			hub.followLastRedirect();
+			hub.followLastRedirect(true);
 		}
 		return null;
 	}

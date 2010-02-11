@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.hublist"
       label="Hublist Feature"
-      version="1.1.4"
+      version="1.1.5"
       provider-name="Quicksilver"
       plugin="eu.jucy.ui.hublist">
 

@@ -886,7 +886,7 @@ public class HSQLDB implements IDatabase {
 		return null;
 	}
 
-	public  void addLogEntry(ILogEntry logentry) {
+	public synchronized void addLogEntry(ILogEntry logentry) {
 		try {
 			ensureConnectionIsOpen();
 			if (!knownLogEntitys.containsKey(logentry.getEntityID())) {
@@ -916,7 +916,7 @@ public class HSQLDB implements IDatabase {
 		}
 	}
 
-	public List<ILogEntry> getLogentrys(HashValue entityID, int max,int offset) {
+	public synchronized List<ILogEntry> getLogentrys(HashValue entityID, int max,int offset) {
 		if (max <= 0) {
 			throw new IllegalArgumentException();
 		}
@@ -957,7 +957,7 @@ public class HSQLDB implements IDatabase {
 	
 	
 
-	public  int countLogentrys(HashValue entityID) {
+	public synchronized int countLogentrys(HashValue entityID) {
 		try {
 			ensureConnectionIsOpen();
 			PreparedStatement prepst;

@@ -125,46 +125,50 @@ public class Hub extends DCProtocol implements IHub {
 			this.nmdc = nmdc;
 		}
 		
-		/**
-		 * 
-		 * @param address
-		 * @return
-		 * @deprecated logic for parsing is in FavHub
-		 */
-		public static boolean matchesPrefix(String address) {
-			int index = address.indexOf("://");
-			if (index >= 0) {
-				String prefix  = address.substring(0, index).toUpperCase();
-				try {
-					ProtocolPrefix p = valueOf(prefix);
-					return p != null;
-				} catch (Exception e) {}
-			}
-			return false;
+//		/**
+//		 * 
+//		 * @param address
+//		 * @return
+//		 * @deprecated logic for parsing is in FavHub
+//		 */
+//		public static boolean matchesPrefix(String address) {
+//			int index = address.indexOf("://");
+//			if (index >= 0) {
+//				String prefix  = address.substring(0, index).toUpperCase();
+//				try {
+//					ProtocolPrefix p = valueOf(prefix);
+//					return p != null;
+//				} catch (Exception e) {}
+//			}
+//			return false;
+//		}
+		
+		public String toString() {
+			return name().toLowerCase();
 		}
 		
-		/**
-		 * 
-		 * @param whole
-		 * @return
-		 * @deprecated logic for parsing is in FavHub
-		 */
-		public static ProtocolPrefix parse(String whole) {
-			int index = whole.indexOf("://");
-			if (index >= 0) {
-				String prefix = whole.substring(0, index).toUpperCase();
-				logger.debug("prefix: "+prefix);
-				try {
-					ProtocolPrefix p = valueOf(prefix);
-					if (p != null) {
-						return p;
-					}
-				} catch (Exception e) {
-					logger.debug(e,e);
-				}
-			}
-			return DCHUB;
-		}
+//		/**
+//		 * 
+//		 * @param whole
+//		 * @return
+//		 * @deprecated logic for parsing is in FavHub
+//		 */
+//		public static ProtocolPrefix parse(String whole) {
+//			int index = whole.indexOf("://");
+//			if (index >= 0) {
+//				String prefix = whole.substring(0, index).toUpperCase();
+//				logger.debug("prefix: "+prefix);
+//				try {
+//					ProtocolPrefix p = valueOf(prefix);
+//					if (p != null) {
+//						return p;
+//					}
+//				} catch (Exception e) {
+//					logger.debug(e,e);
+//				}
+//			}
+//			return DCHUB;
+//		}
 		
 		private final boolean encrypted,nmdc; 
 	}
@@ -338,11 +342,6 @@ public class Hub extends DCProtocol implements IHub {
 			public HashValue getCID() { 
 				return getPD().hashOfHash();
 			}
-
-//			@Override
-//			public String getConnection() {
-//				return dcc.getConnection();
-//			}
 
 			@Override
 			public String getDescription() {
@@ -1226,9 +1225,9 @@ public class Hub extends DCProtocol implements IHub {
 	void redirectReceived(FavHub addy) {
 		if (addy.isValid()) {
 			redirectaddy = addy ;
-			statusMessage(String.format(LanguageKeys.RedirectReceived,addy),0);
+			statusMessage(String.format(LanguageKeys.RedirectReceived,addy.getSimpleHubaddy()),0);
 			if (PI.getBoolean(PI.autoFollowRedirect)) {
-				followLastRedirect();
+				followLastRedirect(false);
 			}
 		}
 	}
@@ -1236,13 +1235,24 @@ public class Hub extends DCProtocol implements IHub {
 	/**
 	 * if there is a reconnect pending..
 	 * this function will 
+	 * @param immediate  if true immediately.. otherwise wait 15 secs..
 	 */
-	public void followLastRedirect() {
+	public void followLastRedirect(boolean immediate) {
 		if (redirectaddy != null && redirectaddy.isValid()) {
 		//	setHubaddy(redirectaddy);
-			close();
-			redirectaddy.connect(dcc);
-			redirectaddy = null;
+			if (getState() != ConnectionState.DESTROYED) {
+				close();
+			}
+		//	final FavHub redirect = redirectaddy;
+			dcc.getSchedulerDir().schedule(new Runnable() {
+				public void run() {
+					if (redirectaddy != null && redirectaddy.isValid()) {
+						redirectaddy.connect(dcc);
+						redirectaddy = null;
+					}
+				}
+			},immediate?1:15,TimeUnit.SECONDS);
+			
 		//	reconnect(0);
 		}
 	}

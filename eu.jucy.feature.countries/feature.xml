@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.countries"
       label="Country Feature"
-      version="1.1.4"
+      version="1.1.5"
       provider-name="Quicksilver"
       plugin="eu.jucy.countries">
 

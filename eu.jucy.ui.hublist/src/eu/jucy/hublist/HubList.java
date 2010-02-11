@@ -36,6 +36,7 @@ public class HubList {
 	private final List<Column> columns = new ArrayList<Column>();
 	private final List<HublistHub> hubs = new ArrayList<HublistHub>();
 
+	private FilterLowerBytes filter;
 
 	private long users;
 
@@ -73,7 +74,7 @@ public class HubList {
 			
 			if (url.toString().contains(".xml")) {
 				if (tryIgnoreErrors) {
-					in = new FilterLowerBytes(in);
+					in = (filter = new FilterLowerBytes(in));
 				}
 				readInXMLHublist(in);
 			} else {
@@ -146,6 +147,10 @@ public class HubList {
 	public List<HublistHub> getHubs() {
 		return hubs;
 	}
+	
+	public int getNumberOfErrors() {
+		return filter != null? filter.getFilteredChars():0;
+	}
 
 	
 	/**
@@ -165,6 +170,11 @@ public class HubList {
 				System.out.println("Success");
 				if (args.length == 1) {
 					System.exit(0);
+				}
+			} catch(org.xml.sax.SAXParseException e) {
+				System.out.println("Failed: "+ e.toString()+"  line:"+e.getLineNumber()+"  col:"+e.getColumnNumber());
+				if (args.length == 1) {
+					System.exit(-1);
 				}
 			} catch (Exception e) {
 				System.out.println("Failed: "+ e.toString());

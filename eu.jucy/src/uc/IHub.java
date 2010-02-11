@@ -51,7 +51,7 @@ public interface IHub {
 	 * if a redirect is pending on calling this function the hub
 	 * will follow the redirect.
 	 */
-	void followLastRedirect();
+	void followLastRedirect(boolean immediate);
 	
 	/**
 	 * 

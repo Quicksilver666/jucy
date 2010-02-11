@@ -198,11 +198,12 @@ public class FavHub implements Comparable<FavHub> {
 		if (m.matches()) {
 			String address;
 			String protocol = m.group(1);
-			if (GH.isNullOrEmpty(protocol)) {
-				protocol = "dchub";
+			if (GH.isNullOrEmpty(protocol) || protocol.equals(ProtocolPrefix.NMDC.toString())) {
+				protocol = ProtocolPrefix.DCHUB.toString();
+			} else if (protocol.equals(ProtocolPrefix.DCHUBS.toString())) {
+				protocol = ProtocolPrefix.NMDCS.toString();
 			}
-			
-			
+	
 			String port = m.group(3);
 			if (GH.isNullOrEmpty(port)) {
 				port = "411"; 

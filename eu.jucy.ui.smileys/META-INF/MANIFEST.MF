@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Smileys Plug-in
 Bundle-SymbolicName: eu.jucy.ui.smileys;singleton:=true
-Bundle-Version: 1.1.5
+Bundle-Version: 1.1.6
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: eu.jucy.gui,
  eu.jucy,

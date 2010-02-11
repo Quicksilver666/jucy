@@ -2067,19 +2067,32 @@
            <handler
              class="eu.jucy.gui.itemhandler.CopyFromTableHandler"
              commandId="org.eclipse.ui.edit.copy">
-          <activeWhen>
-             <with
-                   variable="selection">
-                <iterate
-                      ifEmpty="false"
-                      operator="and">
-                   <instanceof
-                         value="java.lang.Object">
-                   </instanceof>
-                </iterate>
-             </with>
-          </activeWhen>
-       </handler>
+         <activeWhen>
+                      <and>
+              <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                      <instanceof
+                           value="java.lang.Object">
+                  	</instanceof>
+                  </iterate>
+               </with>
+               <with variable="activeFocusControl">
+               		<or>
+               		<instanceof
+                           value="org.eclipse.swt.widgets.Table">
+                  	</instanceof>
+                  	<instanceof
+                           value="org.eclipse.swt.widgets.Tree">
+                  	</instanceof>
+               		</or>
+      		</with>
+
+    		</and>
+         </activeWhen>
+       </handler> 
       </extension>
       <extension
             point="org.eclipse.ui.bindings">

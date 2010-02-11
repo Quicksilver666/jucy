@@ -224,6 +224,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
 		
+		
 		tableViewer= new TableViewer(sashForm, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER );
 		table = tableViewer.getTable();
 		table.setHeaderVisible(true);
@@ -586,7 +587,8 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	
 	private void setTitleImage() {
 		Hub hub = getHub();
-		if (messagesWaiting) {
+		ConnectionState state = hub.getState();
+		if (messagesWaiting && state != ConnectionState.DESTROYED) {
 			if (nickWasCalled) {
 				setTitleImage(NICK_CALLED);
 			} else {
@@ -594,8 +596,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 					newMessage: newMessageOffline);
 			}
 		} else {
-			
-			switch (hub.getState()){
+			switch (state){
 			case CONNECTED:
 				setTitleImage(YELLOW_LED);
 				break;
@@ -612,6 +613,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 				setTitleImage(RED_LED);
 				break;
 			case CLOSED:
+			case DESTROYED:
 				setTitleImage(hub.checkReconnect()?RED_LED:GREY_LED);
 				break;
 			}
@@ -665,9 +667,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	public void statusChanged(final ConnectionState newStatus, ConnectionProtocol cp) {
 		new SUIJob() {
 			public void run() {
-				if (newStatus != ConnectionState.DESTROYED) {
-					setTitleImage();
-				}
+				setTitleImage();
 				switch (newStatus) {
 				case CONNECTING:
 					logger.debug("statchanged connecting "+hub.getFavHub().getSimpleHubaddy());
@@ -680,7 +680,20 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 					statusMessage(LanguageKeys.Disconnected,0);
 					break;
 				case DESTROYED:
-					dispose();
+					new SUIJob(hubText) {
+						int count = 6;
+						public void run() {
+							if (count > 0) {
+								statusMessage(String.format("Closing in %d s",count*5),0);
+								count--;
+								schedule(5000);
+							} else {
+								HubEditor.this.getSite().getPage().closeEditor(HubEditor.this, false);
+							}
+							
+						}
+					}.schedule(1000);
+					
 					break;
 				}
 			}
@@ -723,7 +736,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		
 		getHub().unregisterHubListener(this);
 		//if this is the last Hubeditor on this hub.. 
-		if (!anotherEditorIsOpenOnHub()) {
+		if (!anotherEditorIsOpenOnHub() && getHub().getState() != ConnectionState.DESTROYED) {
 			getHub().close();//disconnect and no reconnect;
 		}
 		if (transfersListener != null) {

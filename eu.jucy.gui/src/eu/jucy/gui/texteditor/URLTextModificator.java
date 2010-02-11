@@ -550,7 +550,11 @@ public class URLTextModificator implements ITextModificator {
 			return FAVHUB_ICON;
 		}
 
-		
+		@Override
+		public boolean hasImageAfterURI(String uri) {
+			return !ApplicationWorkbenchWindowAdvisor.get().getFavHubs().contains(uri);
+		}
+
 	}
 	
 	
