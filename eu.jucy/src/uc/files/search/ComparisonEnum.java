@@ -12,12 +12,13 @@ import eu.jucy.language.LanguageKeys;
  */
 public enum ComparisonEnum {
 
-	EQUAL("=",LanguageKeys.Equals,"EQ"),ATLEAST("≥",LanguageKeys.AtLeast,"GE"), ATMOST("≤",LanguageKeys.AtMost,"LE");
+	EQUAL("=",LanguageKeys.Equals,"EQ",'F'),ATLEAST("≥",LanguageKeys.AtLeast,"GE",'F'), ATMOST("≤",LanguageKeys.AtMost,"LE",'T');
 	
-	ComparisonEnum(String comp,String lang,String adc){
+	ComparisonEnum(String comp,String lang,String adc,char nmdcc){
 		this.comp= comp;
 		this.trans = lang;
 		this.adcCC = adc;
+		this.nmdcc= nmdcc;
 	}
 	/**
 	 * the mathematical sing for the comparisson
@@ -25,6 +26,7 @@ public enum ComparisonEnum {
 	private final String comp;
 	private final String trans;
 	private final String adcCC;
+	private final char nmdcc;
 	
 	/**
 	 * 
@@ -43,6 +45,10 @@ public enum ComparisonEnum {
 
 	public String getComp() {
 		return comp;
+	}
+	
+	public char getNMDCC() {
+		return nmdcc;
 	}
 	
 	

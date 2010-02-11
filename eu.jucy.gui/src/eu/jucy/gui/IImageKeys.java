@@ -7,10 +7,15 @@ public class IImageKeys {
 	
 	// usericons
 	public static final String 
-								USER_PASSIVE	=   "icons/user_blue_passive.gif",
-								USER_ACTIVE	=	"icons/user_green_active.gif",
-								USER_OFFLINE		=	"icons/user_offline.gif",
-								USER_OPKEY			=	"icons/user_opkey2.gif",
+//								USER_PASSIVE	=   "icons/user_blue_passive.gif",
+//								USER_ACTIVE		=	"icons/user_green_active.gif",
+//								USER_OFFLINE		=	"icons/user_offline.gif",
+//								USER_OPKEY			=	"icons/user_opkey2.gif",
+								
+								USER_PASSIVE2		=   "icons/user_passive.128.png",
+								USER_ACTIVE2		=	"icons/user_active.128.png",
+								USER_OFFLINE2		=	"icons/user_offline.128.png",
+								USER_OPKEY2			=	"icons/user_opkey.128.png",
 	
 	// CoolBar icons /Editor icons
 //								DOWNLOAD_QUEUE		=	"icons/DownloadQueue.png",
@@ -46,11 +51,11 @@ public class IImageKeys {
 								STOPICON			=	"icons/stop.16.gif",
 								VIEWIMAGEICON 		=	"icons/view_image.gif",
 								ENCRYPTED			=	"icons/encrypted.16.gif",
+								ENCRYPTEDKEYP		=	"icons/encryptedkeyp.16.gif",
 								DECRYPTED			=	"icons/decrypted.16.gif",
 								UPLOAD_ICON			=	"icons/upload.gif" ,
-								UPLOAD_ENC_ICON		=	"icons/upload_encrypted.16.gif",
-								DOWNLOAD_ICON		=	"icons/download.gif" ,
-								DOWNLOAD_ENC_ICON	=	"icons/download_encrypted.16.gif"
+								DOWNLOAD_ICON		=	"icons/download.gif" 
+			
 									;
 								
 								
@@ -59,7 +64,7 @@ public class IImageKeys {
 		GregorianCalendar cal = new GregorianCalendar();
 		if (cal.get(GregorianCalendar.MONTH) == GregorianCalendar.DECEMBER) {
 			int day = cal.get(GregorianCalendar.DATE);
-			christmas = day >= 24 && day <= 26; 
+			christmas = day >= 23 && day <= 27; 
 		}
 		TRAYICON =	christmas?"icons/iconch09_16.gif" :"icons/icon_16.gif";
 	}

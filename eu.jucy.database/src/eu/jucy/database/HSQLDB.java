@@ -135,7 +135,7 @@ public class HSQLDB implements IDatabase {
 	
 
 	
-	private void ensureConnectionIsOpen() throws SQLException {
+	private synchronized void ensureConnectionIsOpen() throws SQLException {
 		if (c == null || c.isClosed()) {
 			try {
 				connect();
@@ -886,7 +886,7 @@ public class HSQLDB implements IDatabase {
 		return null;
 	}
 
-	public synchronized void addLogEntry(ILogEntry logentry) {
+	public  void addLogEntry(ILogEntry logentry) {
 		try {
 			ensureConnectionIsOpen();
 			if (!knownLogEntitys.containsKey(logentry.getEntityID())) {
@@ -916,7 +916,7 @@ public class HSQLDB implements IDatabase {
 		}
 	}
 
-	public synchronized List<ILogEntry> getLogentrys(HashValue entityID, int max,int offset) {
+	public List<ILogEntry> getLogentrys(HashValue entityID, int max,int offset) {
 		if (max <= 0) {
 			throw new IllegalArgumentException();
 		}
@@ -957,7 +957,7 @@ public class HSQLDB implements IDatabase {
 	
 	
 
-	public synchronized int countLogentrys(HashValue entityID) {
+	public  int countLogentrys(HashValue entityID) {
 		try {
 			ensureConnectionIsOpen();
 			PreparedStatement prepst;
@@ -989,51 +989,44 @@ public class HSQLDB implements IDatabase {
 		List<DBLogger> loggers = new ArrayList<DBLogger>();
 		
 		for (Entry<HashValue,String> entity: knownLogEntitys.entrySet()) {
-			loggers.add(new DBLogger(entity.getValue(),entity.getKey()));
+			loggers.add(new DBLogger(entity.getValue(),entity.getKey(),this));
 		}
 		return loggers;
 	}
 
 	
-	public synchronized void pruneLogentrys(HashValue entityID, Date before) {
+	public void pruneLogentrys(HashValue entityID, Date before) {
 		if (before == null) {
 			throw new IllegalArgumentException("no date provided");
 		}
+	
+		try {
+			ensureConnectionIsOpen();
 		
-		if (entityID == null) {
-			try {
+			if (entityID == null) {	
 				PreparedStatement stm = c.prepareStatement("DELETE FROM logs WHERE timestamp < ? ");
 				stm.setLong(1, before.getTime());
 				stm.executeUpdate();
 				stm.close();
-			} catch (SQLException e) {
-				logger.warn(e,e);
-			}
-		} else {
-			try {
+			} else {
 				PreparedStatement stm = c.prepareStatement("DELETE FROM logs WHERE entityid = ? AND timestamp < ? ");
 				stm.setString(1, entityID.toString());
 				stm.setLong(2, before.getTime());
 				stm.executeUpdate();
 				stm.close();
-			} catch (SQLException e) {
-				logger.warn(e,e);
 			}
-		}
-
-		try {
 			PreparedStatement stm2 = c.prepareStatement(
-						"DELETE FROM logEntitys WHERE NOT EXISTS" 
-					+	"( SELECT * FROM logs WHERE logs.entityid = logEntitys.entityid ) ");
-			
+					"DELETE FROM logEntitys WHERE NOT EXISTS" 
+				+	"( SELECT * FROM logs WHERE logs.entityid = logEntitys.entityid ) ");
+		
 			if (stm2.executeUpdate() > 0) {
 				loadLogEntitys();
 			}
 			stm2.close();
+		
 		} catch (SQLException e) {
 			logger.warn(e,e);
-		}
-		
+		} 
 	}
 	
 	

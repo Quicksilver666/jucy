@@ -33,7 +33,7 @@ import eu.jucy.gui.texteditor.hub.HubEditor;
 public class ConnectionStatus extends Label implements IObserver<String> {
 
 	
-	private Image grey;
+
 
 	private final int size;
 	
@@ -44,7 +44,7 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 	
 	public ConnectionStatus(Composite comp, int size) {
 		super(comp,SWT.NONE);
-		Rectangle rect = HubEditor.green.getBounds();
+		Rectangle rect = HubEditor.GREEN_LED.getBounds();
 		int originalSize = rect.height;
 		
 	
@@ -76,9 +76,6 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 	public void dispose() {
 		ApplicationWorkbenchWindowAdvisor.get().getConnectionDeterminator()
 			.deleteObserver(ConnectionStatus.this);
-		if (grey != null) {
-			grey.dispose();
-		}
 		super.dispose();
 	}
 
@@ -89,14 +86,14 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 			
 			switch (cd.getWarningState()) {
 			case 0:
-				setImage(HubEditor.green);
+				setImage(HubEditor.GREEN_LED);
 				break;
 			case 1:
-				setImage(HubEditor.yellow);
+				setImage(HubEditor.YELLOW_LED);
 				break;
 			case 2:
 			case 3:
-				setImage(HubEditor.red);
+				setImage(HubEditor.RED_LED);
 				break;
 
 			}
@@ -129,7 +126,7 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 			
 		
 		} else {
-			setImage(getGrey());
+			setImage(HubEditor.GREY_LED);
 			setToolTipText(Lang.CSPassiveMode);
 		}
 		redraw();
@@ -170,12 +167,7 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 		}
 	}
 	
-	private Image getGrey() {
-		if (grey == null) {
-			grey = new Image(HubEditor.green.getDevice(),HubEditor.green,SWT.IMAGE_COPY| SWT.IMAGE_GRAY);
-		}
-		return grey;
-	}
+
 	
 	protected void checkSubclass () {}
 	

@@ -21,6 +21,15 @@ public class CMD extends AbstractADCHubCommand {
 	public void handle(String command) throws ProtocolException, IOException {
 		
 		String name = revReplaces(matcher.group(HeaderCapt+1));
+		//replace all / with \   and vice versa..
+		char a='/',b='\\',found;
+		for (int i=0; i < name.length();i++) {
+			found = name.charAt(i);
+			if (a == found || b == found) {
+				name = name.substring(0, i)+ (a == found?b:a )+name.substring(i+1);
+			}
+		}
+		//end replace..
 		
 		Map<Flag,String> flags = getFlagMap(matcher.group(HeaderCapt+2));
 		int context  =  0;

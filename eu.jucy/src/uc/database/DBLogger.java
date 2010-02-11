@@ -24,9 +24,10 @@ public class DBLogger {
 	
 	private final IDatabase database;
 	
+
 	
-	public DBLogger(IUser usr) {
-		this(usr.getNick(),usr.getUserid());
+	public DBLogger(IUser usr,DCClient dcc) {
+		this(usr.getNick(),usr.getUserid(),dcc.getDatabase());
 	}
 	
 
@@ -36,22 +37,16 @@ public class DBLogger {
 	 * @param favHub - the hub for which to create..
 	 * @param mc - true for a mc logger.. false for a feedlogger..
 	 */
-	public DBLogger(FavHub favHub,boolean mc) {
-		this((mc?"MC: ": "Feed: ")+favHub.getHubaddy(),favHub.getEntityID(mc));
+	public DBLogger(FavHub favHub,boolean mc,DCClient dcc) {
+		this((mc?"MC: ": "Feed: ")+favHub.getSimpleHubaddy(),favHub.getEntityID(mc),dcc.getDatabase());
 	}
 	
 
 	
-	public DBLogger(String name, HashValue entityId) {
+	public DBLogger(String name, HashValue entityId,IDatabase database) {
 		this.name = name;
 		this.entityID = entityId;
-		
-		DCClient dcc = DCClient.get();
-		if (dcc != null) {
-			database = dcc.getDatabase();
-		} else {
-			database = null;
-		}
+		this.database = database;
 		
 	}
 

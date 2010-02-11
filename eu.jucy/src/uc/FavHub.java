@@ -2,17 +2,22 @@
 package uc;
 
 
+import helpers.GH;
 import helpers.PrefConverter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 import org.osgi.service.prefs.Preferences;
 
 import uc.crypto.HashValue;
+import uc.crypto.SHA256HashValue;
 import uc.crypto.Tiger;
+import uc.protocols.IProtocolCommand;
+import uc.protocols.hub.Hub.ProtocolPrefix;
 import uihelpers.ComplexListEditor.IPrefSerializer;
 
 /**
@@ -23,10 +28,30 @@ import uihelpers.ComplexListEditor.IPrefSerializer;
  */
 public class FavHub implements Comparable<FavHub> {
 	
+	private static final String ADDRESS = "(?:(dchubs?|nmdcs?|adcs?)://)?([^/:]+):?("+
+					IProtocolCommand.PORT+")?/?(?:\\?kp=SHA256/(.+))?";
+	
+	private static final Pattern ADDRESSP = Pattern.compile(ADDRESS);
+	
+	public static void main(String... args) {
+		test("adcs://beta.indigosakura.com:24728/?kp=SHA256/BXL7GBLER72YOQFELQXFZJX6D757F7AJMVEZZKDLFBQ7KBZ2S6UA");
+		test("dchub://chronicsstash.no-ip.info:420");
+		test("du-hub1.dnsalias.com");
+	}
+	private static void test(String address) {
+		Pattern p = Pattern.compile(ADDRESS);
+		Matcher m = p.matcher(address);
+		if (m.matches()) {
+			System.out.println(m.group(1)+"  "+m.group(2)+"  "+m.group(3)+"  "+m.group(4));
+		} else {
+			System.out.println("no match");
+		}
+	}
+	
 	private int order; // the order in which this hub should be displayed and started..
 	private boolean autoconnect = false; //auto-connect on startup
-	private String hubname="";
-	private String hubaddy;
+	private String hubname = "";
+	private final String hubaddy;
 	private String description="";
 	private String nick="";
 	private String password="";
@@ -47,13 +72,16 @@ public class FavHub implements Comparable<FavHub> {
 
 	private FavHub(int order , String hubaddy) {
 		this.order =	order;
-		this.hubaddy =	hubaddy;
+		this.hubaddy = unifieAddress(hubaddy);
 	}
 	
 	public FavHub(String hubaddy) {
 		this(-1,hubaddy);
 	}
 
+	public boolean isValid() {
+		return ADDRESSP.matcher(hubaddy).matches();
+	}
 	
 	/**
 	 * loads a single hub
@@ -76,62 +104,8 @@ public class FavHub implements Comparable<FavHub> {
 		return fh;
 	}
 	
-	/*
-	 * loads a single hub
-	 * @param p - the node where all of the hubs information is stored
-	 *
-	static FavHub loadHub(String s) {
-		String[] data = PrefConverter.asArray(s);
-		FavHub fh = new FavHub(Integer.parseInt(data[0]), data[1]); // p.get(PI.favHubhubaddy, "unknown"));
-		fh.autoconnect = Boolean.parseBoolean(data[2]); //   p.getBoolean(PI.favHubAutoconnect, false);
-		fh.chatOnly = Boolean.parseBoolean(data[3]);// p.getBoolean(PI.favHubchatOnly, false);
-		fh.hubname = data[4]; // p.get(PI.favHubhubname, "");
-		fh.email = data[5]; //p.get(PI.eMail, "");
-		fh.description =  data[6]; //p.get(PI.description, "");
-		fh.nick	= data[7];//	p.get(PI.nick, "");
-		fh.password =  data[8]; //p.get(PI.favHubpassword,"" );
-		fh.userDescription = data[9]; // p.get(PI.favHubuserDescription, "");
-		fh.setWeights(data[10]); // p.get(PI.favHubweights, fh.getWeights() ) );
-		fh.info.putAll( PrefConverter.asMap(data[11]));   //p.get(PI.favInfo, "")));
-		fh.charset =  data[12];// p.get(PI.favCharset, "");
-		return fh;
-	} */
-	
-	
-	/*String store() {
-		String[] s = new String[13];
-		s[0] = ""+order;
-		s[1] = hubaddy;
-		s[2] = ""+autoconnect;
-		s[3] = ""+chatOnly;
-		s[4] = hubname;
-		s[5] = email;
-		s[6] = description;
-		s[7] = nick;
-		s[8] = password;
-		s[9] = userDescription;
-		s[10] = getWeights();
-		s[11]= PrefConverter.asString(info);
-		s[12]= charset;
-		
-		return PrefConverter.asString(s);
-	} */
-	/*
-	void store(Preferences p) {
-		p.putBoolean(PI.favHubAutoconnect, autoconnect);
-		p.put(PI.favHubhubaddy, hubaddy);
-		p.putBoolean(PI.favHubchatOnly, chatOnly);
-		p.put(PI.favHubhubname, hubname);
-		p.put(PI.eMail, email);
-		p.put(PI.description, description);
-		p.put(PI.nick, nick);
-		p.put(PI.favHubpassword, password);
-		p.put(PI.favHubuserDescription, userDescription);
-		p.put(PI.favHubweights, getWeights());
-		p.put(PI.favInfo, PrefConverter.asString(info));
-		p.put(PI.favCharset, charset);
-		
-	} */
+
+
 	
 	
 	
@@ -219,24 +193,103 @@ public class FavHub implements Comparable<FavHub> {
 		return hubaddy;
 	}
 	
+	public static String unifieAddress(String hubaddress) {
+		Matcher m = ADDRESSP.matcher(hubaddress);
+		if (m.matches()) {
+			String address;
+			String protocol = m.group(1);
+			if (GH.isNullOrEmpty(protocol)) {
+				protocol = "dchub";
+			}
+			
+			
+			String port = m.group(3);
+			if (GH.isNullOrEmpty(port)) {
+				port = "411"; 
+			}
+			address = protocol+"://"+m.group(2)+":"+port;
+			
+			String hash = m.group(4);
+			if (!GH.isNullOrEmpty(hash) && SHA256HashValue.isSHA256HashValue(hash)) {
+				address+= "/?kp=SHA256/"+hash;
+			}
+			return address;
+		} else {
+			return hubaddress;
+		}
+	}
+	
+	public ProtocolPrefix getProtocolPrefix() {
+		Matcher m = matchAddy();
+		if (m != null) {
+			String protocol = m.group(1).toUpperCase();
+			return ProtocolPrefix.valueOf(protocol);
+		}
+		return ProtocolPrefix.DCHUB;
+	}
+	
+	private Matcher matchAddy() {
+		Matcher m = ADDRESSP.matcher(hubaddy);
+		if (m.matches()) {
+			return m;
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * 
+	 * @return keyprint or null
+	 */
+	public HashValue getKeyPrint() {
+		Matcher m = matchAddy();
+		if (m != null) {
+			String hash = m.group(4);
+			if (!GH.isNullOrEmpty(hash) && SHA256HashValue.isSHA256HashValue(hash)) {
+				return HashValue.createHash(hash);
+			}
+		}
+		return null;
+	}
+	
+	public String getInetSocketaddress() {
+		Matcher m = matchAddy();
+		return m.group(2)+":"+m.group(3);
+	}
+	
 	/**
 	 * 
 	 * @return hubaddy guaranteed to be with protocol prefix..
+	 * and without keyprint
 	 */
-	public String getUnifiedHubaddy() {
-		if (hubaddy.contains("://")) {
-			return hubaddy;
-		} else {
-			return "dchub://"+hubaddy;
+	public String getSimpleHubaddy() {
+		String unifiedaddy = hubaddy;
+		int i;
+		if (-1 != (i = unifiedaddy.indexOf("/?kp="))) {
+			unifiedaddy = unifiedaddy.substring(0,i);
 		}
+		
+		return unifiedaddy;
 	}
+	
+	
 	
 
 	/**
 	 * @param hubaddy the hubaddy to set
+	 * creates copy of the hub -> hubaddy can't be changed
+	 * new FavHubs is created with  different address..
 	 */
-	public void setHubaddy(String hubaddy) {
-		this.hubaddy = hubaddy;
+	public FavHub setHubaddy(String hubaddy) {
+		String hubaddyNew =  unifieAddress(hubaddy);
+		if (hubaddyNew.equals(this.hubaddy)) {
+			return this;
+		} else {
+			// use translator to copy favHub ..
+			String[] fh = new FavHubTranslater().serialize(this);
+			fh[1] = hubaddyNew;
+			return new FavHubTranslater().unSerialize(fh);
+		}
 	}
 	/**
 	 * @return the hubname
@@ -304,8 +357,8 @@ public class FavHub implements Comparable<FavHub> {
 		this.order = order;
 	}
 	
-	public void connect(DCClient dcc) {
-		dcc.getHub(this, true);
+	public IHub connect(DCClient dcc) {
+		return dcc.getHub(this, true);
 	}
 	
 	/**
@@ -359,36 +412,6 @@ public class FavHub implements Comparable<FavHub> {
 	
 	
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 *
-	@Override
-	public int hashCode() {
-		return order;
-	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 *
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final FavHub other = (FavHub) obj;
-		if (hubaddy == null) {
-			if (other.hubaddy != null)
-				return false;
-		} else if (!(hubaddy.hashCode() == other.hubaddy.hashCode()))
-			return false;
-
-		return true;
-	} */
-	
-	
-	
 
 	public int compareTo(FavHub o) {
 		return Integer.valueOf(order).compareTo(o.order);
@@ -399,7 +422,7 @@ public class FavHub implements Comparable<FavHub> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((hubaddy == null) ? 0 : hubaddy.hashCode());
+		result = prime * result + ((hubaddy == null) ? 0 : getSimpleHubaddy().hashCode());
 		return result;
 	}
 
@@ -415,7 +438,7 @@ public class FavHub implements Comparable<FavHub> {
 		if (hubaddy == null) {
 			if (other.hubaddy != null)
 				return false;
-		} else if (!hubaddy.equals(other.hubaddy))
+		} else if (!getSimpleHubaddy().equals(other.getSimpleHubaddy()))
 			return false;
 		return true;
 	}
@@ -519,7 +542,7 @@ public class FavHub implements Comparable<FavHub> {
 		}
 
 		public FavHub unSerialize(String[] data) {
-			FavHub fh = new FavHub(Integer.parseInt(data[0]), data[1]); 
+			FavHub fh = new FavHub(Integer.parseInt(data[0]), data[1]);  //note 1 used above..
 			fh.autoconnect = Boolean.parseBoolean(data[2]);
 			fh.chatOnly = Boolean.parseBoolean(data[3]);
 			fh.hubname = data[4]; 

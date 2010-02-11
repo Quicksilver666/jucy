@@ -4,6 +4,9 @@
 package uc.protocols.hub;
 
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -55,9 +58,7 @@ public enum INFField {
 	private static Logger logger = LoggerFactory.make(Level.DEBUG);
 	
 
-	
 
-	
 	public static INFField parse(String infChars) {
 		try {
 			if (Fields.contains(infChars.toUpperCase())) {
@@ -69,100 +70,27 @@ public enum INFField {
 		return null;
 	}
 	
-	/*
-	 * properties that can be set to Users can be set using this..
-	 * 
-	 * @param usr
-	 * @param val
-	 * @throws UnknownHostException
-	 * @throws NumberFormatException
-	 * @throws IllegalArgumentException
-	 *
-	public void setProperty(User usr,String val) throws UnknownHostException, NumberFormatException, IllegalArgumentException {
-		if (GH.isEmpty(val)) {
-			return; 
-		}
-		switch(this) {
-		case ID: 
-			usr.setCid( HashValue.createHash(val));
-		break;
-		case I4:
-		case I6:
-			usr.setIp(InetAddress.getByName(val));
-			break;
-		case SS:
-			usr.setShared(Long.valueOf(val));
-			break;
-		case SF:
-			usr.setNumberOfSharedFiles(Integer.valueOf(val));
-			break;
-		case SL:
-			usr.setSlots(Integer.valueOf(val));
-			break;
-		case EM:
-			usr.setEMail(val);
-			break;
-		case NI:
-			if (usr.getHub() != null) {
-				usr.getHub().internal_userChangedNick(usr,val);
-			} else {
-				usr.setNick(val);
-			}
-			break;
-		case DE:
-			usr.setDescription(val);
-			break;
-		case HN:
-			usr.setNormHubs(Integer.valueOf(val));
-			break;
-		case HR:
-			usr.setRegHubs(Integer.valueOf(val));
-			break;
-		case HO:
-			usr.setOpHubs(Integer.valueOf(val));
-			break;
-		case CT:
-			usr.setCt(Byte.valueOf(val));
-			break;
-		case AW: //Away mode
-			usr.setAwayMode(AwayMode.parse(val));
-			break;
-		case SU:
-			usr.setSupports(val.intern());
-			break;
-		case AM:
-			usr.setAm(Integer.valueOf(val));
-			break;
-		case AS:
-			usr.setAs(Integer.valueOf(val));
-			break;
-		case DS:
-			usr.setDs(Long.valueOf(val));
-			break;
-		case US:
-			usr.setUs(Long.valueOf(val));
-			break;
-		case U4:
-		case U6:
-			usr.setUdpPort(Integer.valueOf(val)); 
-			break;
-		case PD: //PID is never sent to us, only interesting for the hub
-			break;
-		case RF: //Referrer field is also only interesting for the hub
-			break;
-		case VE:
-			usr.setVersion(val.intern());
-			break;
-		}
-	} */
-	
 	public String getProperty(IUser usr) {
 		switch(this) {
 		case ID: 
-			return usr.getCID().toString();
+			HashValue hash = usr.getCID();
+			if (hash == null) {
+				return "";
+			} else {
+				return hash.toString();
+			}
 		case I4:
+			InetAddress ia4 = usr.getIp();
+			if (ia4 instanceof Inet4Address) {
+				return ia4.getHostAddress();
+			}
+			return "";
 		case I6:
-			return usr.getIp().getHostAddress();
+			InetAddress ia6 = usr.getIp();
+			if (ia6 instanceof Inet6Address) {
+				return ia6.getHostAddress();
+			}
+			return "";
 		case SS:
 			return ""+usr.getShared();
 		case SF:
@@ -207,9 +135,9 @@ public enum INFField {
 		case VE:
 			return usr.getVersion();
 		case KP: 
-			HashValue hash = usr.getKeyPrint();
-			if (hash != null) {
-				return hash.magnetString().toUpperCase()+"/"+hash.toString();
+			HashValue kp = usr.getKeyPrint();
+			if (kp != null) {
+				return kp.magnetString().toUpperCase()+"/"+kp.toString();
 			}
 			break;
 		}

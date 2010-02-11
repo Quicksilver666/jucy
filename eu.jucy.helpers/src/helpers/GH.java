@@ -101,7 +101,16 @@ public final class GH {
 	
 	@SuppressWarnings("unchecked")
 	public static  <K> K getRandomElement(Collection<K> source) {
+		if (source.isEmpty()) {
+			return null;
+		}
 		return (K)source.toArray()[nextInt(source.size())];
+	}
+	public static  <K> K getRandomElement(List<K> source) {
+		if (source.isEmpty()) {
+			return null;
+		}
+		return source.get(nextInt(source.size()));
 	}
 	
 	/**
@@ -501,11 +510,18 @@ public final class GH {
 	 * @param increment - value to increment by
 	 */
 	public static <K> void incrementMappedCounter(Map<K,Integer> mappedCounters,K k, int increment) {
+		int i = getValueOfMappedCounter(mappedCounters,k);
+		i += increment;
+		mappedCounters.put(k, i);
+	}
+	
+	public static <K> int getValueOfMappedCounter(Map<K,Integer> mappedCounters,K k) {
 		Integer i = mappedCounters.get(k);
 		if (i == null) {
 			i = 0;
 		}
-		i += increment;
-		mappedCounters.put(k, i);
+		return i;
 	}
+	
+	
 }

@@ -579,6 +579,9 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		dq.notifyObservers(new StatusObject(this,ChangeType.CHANGED));
 	}
 	
+	DCClient getDCC() {
+		return dq.getDcc();
+	}
 	
 
 

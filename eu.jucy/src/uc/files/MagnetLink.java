@@ -46,7 +46,7 @@ public class MagnetLink extends AbstractDownloadableFile implements IDownloadabl
 		if (magnet.matches()) {
 			HashValue hash = HashValue.createHash(magnet.group(1));
 			long size = Long.parseLong(magnet.group(2));
-			String name = magnet.group(3).replace('+', ' ');
+			String name = magnet.group(3).replace('+', ' ').trim();
 			
 			return new MagnetLink(hash,size,name);
 		}

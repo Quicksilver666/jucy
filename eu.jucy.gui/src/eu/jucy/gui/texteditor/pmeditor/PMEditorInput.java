@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.UCEditorInput;
 import eu.jucy.gui.texteditor.StyledTextViewer;
 
@@ -34,7 +35,7 @@ public class PMEditorInput extends UCEditorInput {
 	public void loadLogs() {
 		synchronized(this) {
 			if (logs == null) {
-				DBLogger entity = new DBLogger(other);
+				DBLogger entity = new DBLogger(other,ApplicationWorkbenchWindowAdvisor.get());
 				logs = entity.loadLogEntrys(StyledTextViewer.HISTORY, 0);
 			}
 		}

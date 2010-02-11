@@ -21,6 +21,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 
 import logger.LoggerFactory;
@@ -59,11 +60,11 @@ public abstract class ConnectionProtocol {
 	private static final Map<InetAddress,IConnectionDebugger> AUTO_ATTACH= 
 		Collections.synchronizedMap(new HashMap<InetAddress,IConnectionDebugger>());
 	
-	public static void addAutoAttach(InetAddress ia,IConnectionDebugger debug) {
+	public static void addNotifyAttachable(InetAddress ia,IConnectionDebugger debug) {
 		AUTO_ATTACH.put(ia, debug);
 	}
 	
-	public static void removeAutoAttach(InetAddress ia) {
+	public static void removeNotifyAttachable(InetAddress ia) {
 		AUTO_ATTACH.remove(ia);
 	}
 
@@ -192,10 +193,7 @@ public abstract class ConnectionProtocol {
 		InetAddress ia = connection.getInetSocketAddress().getAddress();
 		IConnectionDebugger debug = AUTO_ATTACH.get(ia);
 		if (debug != null) {
-			boolean remove = debug.autoAttached(ia, this);
-			if (remove) {
-				AUTO_ATTACH.remove(ia);
-			}
+			debug.notifyAttachable(ia, this);
 		}
 	}
 	
@@ -236,21 +234,27 @@ public abstract class ConnectionProtocol {
 		} else if (defaultCommand != null){
 			com = defaultCommand;
 		}
-		boolean wellFormed = true;
+		boolean matches = false;
+
+		if (com != null ) {
+			matches = com.matches(command);
+		}
+		
+		for (IConnectionDebugger debugger:debuggers) {
+			debugger.receivedCommand(com, matches, command);
+		}
+		
 		if (com != null) {
 		//	logger.debug("command found "+com.getPrefix());
-			if (com.matches(command)) {
+			if (matches) {
 				com.handle(command);
 			} else {
-				wellFormed = false;
 				onMalformedCommandReceived(command);
 			}
 		} else {
 			onUnexpectedCommandReceived(command);
 		}
-		for (IConnectionDebugger debugger:debuggers) {
-			debugger.receivedCommand(com, wellFormed, command);
-		}
+
 		
 	}
 	
@@ -288,15 +292,26 @@ public abstract class ConnectionProtocol {
 	 * @param mes - the message to be sent..
 	 */
 	protected void sendRaw(String mes) {
+		for (IConnectionDebugger debugger:debuggers) {
+			debugger.sentCommand(mes);
+		}
 		try {
 			connection.send(mes);
 			logger.debug("sent raw: "+mes);
 		} catch(IOException ioe) {
 			logger.warn(ioe,ioe); 
 		}
+
 	}
 	
 	protected void sendRaw(byte[] mes) {
+		try {
+			for (IConnectionDebugger debugger:debuggers) {
+				debugger.sentCommand(new String(mes,charset != null?charset.name():"UTF-8"));
+			}
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException();
+		}
 		try {
 			connection.send(ByteBuffer.wrap(mes));
 			logger.debug("sent raw: "+new String(mes));
@@ -432,6 +447,14 @@ public abstract class ConnectionProtocol {
 	 */
 	public boolean isEncrypted() {
 		return connection.usesEncryption();
+	}
+	
+	/**
+	 * 
+	 * @return true if KEYP is in use for this connection
+	 */
+	public boolean isFingerPrintUsed() {
+		return connection.isFingerPrintUsed();
 	}
 	
 	int[] getPerformancePrefs() {

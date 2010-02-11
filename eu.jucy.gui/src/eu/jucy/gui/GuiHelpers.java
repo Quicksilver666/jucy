@@ -7,9 +7,15 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ParameterizedCommand;
 
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -126,4 +132,32 @@ public final class GuiHelpers {
 		}
 	}
 
+	/**
+	 * 
+	 * @param main - image to be added to
+	 * @param corner - the icon that should be placed in the lower left corner
+	 * @return image copy of main+cornericon
+	 */
+	public static Image addCornerIcon(Image main,Image corner) {
+		Rectangle m = main.getBounds();
+		Image i = new Image(null,m.height,m.width); ;
+	
+		GC gc = new GC(i);
+		gc.setBackground(main.getDevice().getSystemColor(SWT.COLOR_WHITE));
+		gc.setAntialias(SWT.ON);
+		gc.setInterpolation(SWT.HIGH);
+		gc.drawImage(main, 0, 0);
+		
+		Rectangle c = corner.getBounds();
+		int size = c.width*2 /3;
+		gc.drawImage(corner, 0, 0, c.width, c.height, 0, m.width-size, size, size);
+		
+		gc.dispose();
+		
+		ImageData id = i.getImageData();
+		id.transparentPixel = id.palette.getPixel(new RGB(255,255,255));
+		i.dispose();
+		
+		return new Image(null, id);
+	}
 }

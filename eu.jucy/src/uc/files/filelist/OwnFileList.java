@@ -137,8 +137,7 @@ public class OwnFileList implements IOwnFileList  {
 	
 	
 	/**
-	 * side effect: lastOnlineDirs state variable needed by this method
-	 * is updated..
+	 * 
 	 * 
 	 * @return true if the SharedDirs changed since last call of this method
 	 */
@@ -148,11 +147,11 @@ public class OwnFileList implements IOwnFileList  {
 			dirs.put(dir.getSharedDir(), dir.isOnline());
 		}
 		if (dirs.equals(lastOnlineDirs)) {
-			return true;
+			return false;
 		} else {
 			lastOnlineDirs.clear();
 			lastOnlineDirs.putAll(dirs);
-			return false;
+			return true;
 		}
 	}
 	
@@ -234,8 +233,7 @@ public class OwnFileList implements IOwnFileList  {
 	 * goes recursively through all shared dirs..
 	 * and checks if hashes are up to date... or if the file needs to be hashed
 	 */
-	private void refresh(IProgressMonitor monitor) {
-		
+	private void refresh(IProgressMonitor monitor) {	
 		if (refresh.tryAcquire()) {
 			logger.debug(LanguageKeys.StartedRefreshingTheFilelist);
 			try {
@@ -283,7 +281,6 @@ public class OwnFileList implements IOwnFileList  {
 				
 				logger.info( LanguageKeys.FinishedFilelistRefresh);
 				
-			//flag that refreshing is done..
 			} finally {
 				refresh.release();
 			}
@@ -588,7 +585,7 @@ public class OwnFileList implements IOwnFileList  {
 	class RefreshJob extends Job {
 
 		public RefreshJob() {
-			super("Refreshing Filelist"); //TODO translatable
+			super("Refreshing Filelist"); //TODO translateable
 			setPriority(Job.LONG);
 		}
 

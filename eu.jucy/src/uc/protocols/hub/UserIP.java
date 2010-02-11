@@ -7,10 +7,9 @@ import java.net.InetAddress;
 import java.util.regex.Pattern;
 
 import logger.LoggerFactory;
-
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import uc.IUser;
 import uc.User;
 import uc.listener.IUserChangedListener.UserChange;
 import uc.listener.IUserChangedListener.UserChangeEvent;
@@ -19,11 +18,6 @@ public class UserIP extends AbstractNMDCHubProtocolCommand {
 
 	private static Logger logger = LoggerFactory.make();
 	
-	 
-	
-	static {
-		logger.setLevel(Level.INFO);
-	}
 	
 	public UserIP(Hub hub) {
 		super(hub);
@@ -53,7 +47,7 @@ public class UserIP extends AbstractNMDCHubProtocolCommand {
 		}
 	}
 	
-	public static void sendUserIPRequest(Hub hub,User usr) {
+	public static void sendUserIPRequest(Hub hub,IUser usr) {
 		if (supportsUserIp(hub)) {
 			String userip = "$UserIP "+usr.getNick()+"|";
 			hub.sendUnmodifiedRaw(userip);

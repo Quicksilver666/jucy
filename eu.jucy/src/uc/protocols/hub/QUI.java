@@ -10,6 +10,7 @@ import logger.LoggerFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import uc.FavHub;
 import uc.User;
 
 
@@ -71,7 +72,8 @@ public class QUI extends AbstractADCHubCommand {
 			}
 			
 			if (flags.containsKey(Flag.RD)) { //A redirect for us
-				hub.redirectReceived(flags.get(Flag.RD));  
+				FavHub fh = new FavHub(flags.get(Flag.RD));
+				hub.redirectReceived(fh);  
 			} else if (flags.containsKey(Flag.TL)) { // a kick? 
 				int reconnectTime = Integer.valueOf(flags.get(Flag.TL));
 				hub.reconnect(reconnectTime);

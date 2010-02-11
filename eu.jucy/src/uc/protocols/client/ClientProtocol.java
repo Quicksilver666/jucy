@@ -146,6 +146,11 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 */
 	private volatile String token;
 
+	/**
+	 * hubaddress told to us via REF in NMDC ...
+	 * -> used to help finding out who connected to us.
+	 */
+	private volatile String hubaddy;
 
 
 
@@ -897,6 +902,14 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		}
 		
 		return null;
+	}
+	
+	public String getHubaddy() {
+		return hubaddy;
+	}
+
+	public void setHubaddy(String hubaddy) {
+		this.hubaddy = hubaddy;
 	}
 	
 	

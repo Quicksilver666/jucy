@@ -18,10 +18,10 @@ public interface IConnectionDebugger {
 	void sentCommand(String sent);
 
 	/**
-	 * 
+	 * called when ever a connection with before specified IP was created..
 	 * @param ia - the address it should have been attached to
 	 * @param attachedTo - the protocol it was attached to
 	 * @return true if auto-attachment should cease false for further listening..
 	 */
-	boolean autoAttached(InetAddress ia,ConnectionProtocol attachedTo);
+	void notifyAttachable(InetAddress ia,ConnectionProtocol attacheableTo);
 }

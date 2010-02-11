@@ -67,6 +67,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import eu.jucy.gui.Application;
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GUIPI;
+import eu.jucy.gui.GuiHelpers;
 import eu.jucy.gui.IImageKeys;
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.UserColumns.Connection;
@@ -87,6 +88,7 @@ import eu.jucy.gui.texteditor.UCTextEditor;
 import eu.jucy.gui.texteditor.SendingWriteline.HubSendingWriteline;
 import eu.jucy.gui.texteditor.StyledTextViewer.MyStyledText;
 import eu.jucy.gui.texteditor.pmeditor.PMEditor;
+import eu.jucy.gui.transferview.TransferColumns;
 import eu.jucy.gui.transferview.TransfersView;
 import eu.jucy.language.LanguageKeys;
 
@@ -127,20 +129,26 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	public static final String ID = "eu.jucy.hub";
 	
 	
-	public static final Image 	green ,
-								yellow,
-								red	,
-								nickCalled;     
+	public static final Image 	GREEN_LED ,
+								YELLOW_LED,
+								RED_LED	,
+								GREY_LED,
+								GREEN_ENC_LED,
+								GREENLKEYP_LED,
+								NICK_CALLED;     
 		
 	static {
 		//load the images that show if the hub is connected or not.. 
-		green	= AbstractUIPlugin.imageDescriptorFromPlugin(
+		GREEN_LED	= AbstractUIPlugin.imageDescriptorFromPlugin(
 				Application.PLUGIN_ID, IImageKeys.LEDLIGHT_GREEN).createImage();
-		yellow	= AbstractUIPlugin.imageDescriptorFromPlugin(
+		YELLOW_LED	= AbstractUIPlugin.imageDescriptorFromPlugin(
 				Application.PLUGIN_ID, IImageKeys.LEDLIGHT_YELLOW).createImage();
-		red		= AbstractUIPlugin.imageDescriptorFromPlugin(
-				Application.PLUGIN_ID, IImageKeys.LEDLIGHT_RED).createImage();     
-		nickCalled = AbstractUIPlugin.imageDescriptorFromPlugin(
+		RED_LED		= AbstractUIPlugin.imageDescriptorFromPlugin(
+				Application.PLUGIN_ID, IImageKeys.LEDLIGHT_RED).createImage();    
+		GREY_LED 	= new Image(null,RED_LED,SWT.IMAGE_GRAY);
+		GREEN_ENC_LED = GuiHelpers.addCornerIcon(GREEN_LED, TransferColumns.UserColumn.ENC_ICON);
+		GREENLKEYP_LED =  GuiHelpers.addCornerIcon(GREEN_LED, TransferColumns.UserColumn.ENCKEYP_ICON);
+		NICK_CALLED = AbstractUIPlugin.imageDescriptorFromPlugin(
 				Application.PLUGIN_ID, IImageKeys.NICK_CALLED).createImage();    
 		
 	}
@@ -326,6 +334,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 
 		setText(hubText);
 		
+		
 		this.hub = ApplicationWorkbenchWindowAdvisor.get().getHub(getInput(),false);   //here retrieve the hub  
 		
 		labelViewer = new LabelViewer(feedLabel,hub);
@@ -477,11 +486,14 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	}
 	
 	private boolean shouldJoinPartBeShown(IUser usr) {
-		return 	System.currentTimeMillis()- hub.getLastLogin() > 5000 &&  
+		return 	!logInRecent() &&  
 				ConnectionState.LOGGEDIN.equals(hub.getState()) &&
 				(getInput().isShowJoins() || (getInput().isShowFavJoins() && usr.isFavUser()));
 	}
 
+	private boolean logInRecent() {
+		return System.currentTimeMillis()- hub.getLastLogin() < 20000;
+	}
 
 	
 	/* (non-Javadoc)
@@ -549,7 +561,6 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 			public void run() {
 				textViewer.addMessage(text,usr,new Date()); 
 				boolean activeEditor = HubEditor.this.getSite().getPage().getActiveEditor() == HubEditor.this;
-
 				//notify because of nick found
 				if (!hub.getSelf().equals(usr) && text.contains(hub.getSelf().getNick())
 						&& usr != null && ! (usr.isOp() && usr.getShared() == 0)) { //here check if it is not is a bot..
@@ -564,7 +575,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 						ToasterUtil.showMessage(text,GUIPI.getInt(GUIPI.toasterTime));
 					}
 				}
-				if (!activeEditor) {
+				if (!activeEditor && !logInRecent()) {
 					messagesWaiting = true;
 					setTitleImage();
 				}
@@ -574,24 +585,35 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	}
 	
 	private void setTitleImage() {
+		Hub hub = getHub();
 		if (messagesWaiting) {
 			if (nickWasCalled) {
-				setTitleImage(nickCalled);
+				setTitleImage(NICK_CALLED);
 			} else {
-				setTitleImage(getHub().getState() == ConnectionState.LOGGEDIN ? 
+				setTitleImage(hub.getState() == ConnectionState.LOGGEDIN ? 
 					newMessage: newMessageOffline);
 			}
 		} else {
-			switch (getHub().getState()){
+			
+			switch (hub.getState()){
 			case CONNECTED:
-				setTitleImage(yellow);
+				setTitleImage(YELLOW_LED);
 				break;
 			case LOGGEDIN:
-				setTitleImage(green);
+				if (hub.isFingerPrintUsed()) {
+					setTitleImage(GREENLKEYP_LED);
+				} else if (hub.isEncrypted()) {
+					setTitleImage(GREEN_ENC_LED);
+				} else {
+					setTitleImage(GREEN_LED);
+				}
 				break;
 			case CONNECTING:
+				setTitleImage(RED_LED);
+				break;
 			case CLOSED:
-				setTitleImage(red);
+				setTitleImage(hub.checkReconnect()?RED_LED:GREY_LED);
+				break;
 			}
 		}
 	}
@@ -600,12 +622,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	 * @see UC.listener.IPMReceivedListener#pmReceived(UC.datastructures.User, UC.datastructures.User, java.lang.String)
 	 */
 	public void pmReceived(final PrivateMessage pm) {
-		new SUIJob() {
-			public void run() {
-				PMEditor.addPM(pm);
-			}
-			
-		}.schedule();
+		PMEditor.addPM(pm);
 	}
 	
 
@@ -627,7 +644,8 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		if (!GH.isEmpty(hub.getTopic())) {
 			text += " - " + hub.getTopic();
 		}
-		return (text+(hub.getHubaddy() != null ? " ("+hub.getHubaddy()+")" : "" )).trim();
+		FavHub fh = hub.getFavHub();
+		return (text+( " ("+fh.getSimpleHubaddy()+")"  )).trim();
 	}
 	
 	private String getShortText() {	
@@ -652,8 +670,8 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 				}
 				switch (newStatus) {
 				case CONNECTING:
-					logger.debug("statchanged connecting "+hub.getHubaddy());
-					statusMessage(String.format(LanguageKeys.ConnectingTo,hub.getHubaddy()),0);
+					logger.debug("statchanged connecting "+hub.getFavHub().getSimpleHubaddy());
+					statusMessage(String.format(LanguageKeys.ConnectingTo,hub.getFavHub().getSimpleHubaddy()),0);
 					break;
 				case CONNECTED:
 					statusMessage(LanguageKeys.Connected,0);

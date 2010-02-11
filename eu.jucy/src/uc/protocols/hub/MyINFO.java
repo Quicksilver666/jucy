@@ -14,7 +14,6 @@ import logger.LoggerFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import uc.DCClient;
 import uc.User;
 import uc.IUser.AwayMode;
 import uc.IUser.Mode;
@@ -58,7 +57,7 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 	
 	private static final Pattern FLOATNUMBER = Pattern.compile("\\d+\\.?\\d*");
 	
-	private final Pattern description = Pattern.compile("^.*,M\\:([AP5]),H:(\\d+)/(\\d+)/(\\d+)\\,S:(\\d+).*$");
+	private final Pattern description = Pattern.compile("^<([^,<]*).*,M\\:([AP5]),H:(\\d+)/(\\d+)/(\\d+)\\,S:(\\d+).*$");
 	
 	
 	private static final Pattern desc = Pattern.compile("("+TEXT_NODOLLAR+")(<"+TEXT_NODOLLAR+">)");
@@ -108,7 +107,7 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 			current.setProperty(INFField.DE,userDescription);
 					
 			current.setTag(tag);
-
+			
 			String connection = m.group(3);
 			if (FLOATNUMBER.matcher(connection).matches()) {
 				current.setProperty(INFField.US, ""+((long)(Float.parseFloat(connection)*1000000L/8 ))) ;
@@ -176,15 +175,22 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 			}
 		}
 		
-		Matcher my = description.matcher(current.getTag());
+		String tag = current.getTag();
+		Matcher my = description.matcher(tag);
 
 		if (my.matches()) {
-			current.setModechar(Mode.fromModeChar(my.group(1).charAt(0)));
-			current.setProperty(INFField.HN, my.group(2));
-			current.setProperty(INFField.HR, my.group(3));
-			current.setProperty(INFField.HO, my.group(4));
+			current.setProperty(INFField.VE,my.group(1));
+			current.setModechar(Mode.fromModeChar(my.group(2).charAt(0)));
+			current.setProperty(INFField.HN, my.group(3));
+			current.setProperty(INFField.HR, my.group(4));
+			current.setProperty(INFField.HO, my.group(5));
+			current.setProperty(INFField.SL, my.group(6));
 			
-			current.setProperty(INFField.SL, my.group(5));
+//			int i = tag.indexOf(',');
+//			if (i > 0 && i < tag.length()) {
+//				current.setProperty(INFField.VE,tag.substring(1, i));
+//			}
+
 		} else {
 			current.setModechar(Mode.ACTIVE); // set active so connects can still happen if we are passive..
 		}
@@ -207,8 +213,11 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 	public static void sendMyINFO(Hub hub, boolean force) {
 		SendContext sc = new SendContext();
 		sc.setHub(hub);
+		long speed = hub.getSelf().getUs();
+		String speeds = toBperStoMBit(speed); //String.format("%5.3f", speed).trim();
+		
 		String unformatted ="$MyINFO $ALL %[myNI] %[myDE] %[myTAG]$ $" 
-					+ DCClient.get().getConnection()+ ((char)hub.getSelf().getFlag())+"$" 
+					+ speeds+ ((char)hub.getSelf().getFlag())+"$" 
 					+ "%[myEM]$%[mySS]$|";
 		String message = sc.format(unformatted);
 		if (force || !message.equals(lastSent.get(hub))) {
@@ -218,5 +227,13 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 	//	logger.debug("foundMyINFO: "+message+"  "+hub.getHubname());
 	}
 	
+	private static String toBperStoMBit(long speed) {
+		double speedM = speed *8 / (1000d*1000d);
+		if (speedM >= 10) {
+			return  Integer.toString((int)speedM);
+		} else {
+			return String.format("%5.3f", speedM);
+		}
+	}
 	
 }

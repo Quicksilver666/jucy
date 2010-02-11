@@ -9,6 +9,7 @@ public class SHA256HashValue extends HashValue {
 	 */
 	public static final int digestlength = 32;  
 	
+	public static final String SHA256REGEX = "(?:[A-Z2-7]{52})";
 
 	
 	public static final int serializedDigestLength = 52;
@@ -30,7 +31,12 @@ public class SHA256HashValue extends HashValue {
 		}
 	}
 
-
+	public static boolean isSHA256HashValue(String hash) {
+		if (hash.startsWith("SHA256/")) {
+			hash = hash.substring(7);
+		}
+		return hash.length() == serializedDigestLength && hash.matches(SHA256REGEX);
+	}
 
 	@Override
 	public SHA256HashValue hashOfHash() {

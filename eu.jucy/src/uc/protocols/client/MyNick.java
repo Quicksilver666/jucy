@@ -66,7 +66,7 @@ public class MyNick extends AbstractNMDCClientProtocolCommand {
 		
 		if (!client.isIncoming()) {
 			FavHub fh = client.getSelf().getHub().getFavHub();
-			String s = fh.getUnifiedHubaddy();
+			String s = fh.getSimpleHubaddy();
 			myNickAndLock += "Ref=" + s.replace(' ', '_');
 		}
 		

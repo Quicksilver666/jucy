@@ -3,7 +3,9 @@ package eu.jucy.gui.downloadqueue;
 import helpers.GH;
 import helpers.SizeEnum;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -147,8 +149,11 @@ public abstract class DownloadQueueColumns extends ColumnDescriptor<AbstractDown
 
 		@Override
 		public String getText(AbstractDownloadQueueEntry dqe) {
-			return GH.concat(dqe.getUsers(), ";", "");
-
+			List<String> s = new ArrayList<String>();
+			for (IUser usr:dqe.getUsers()) {
+				s.add(usr.getNick());
+			}
+			return GH.concat(s, ";", "");
 		}
 		
 	}

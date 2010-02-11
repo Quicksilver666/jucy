@@ -35,7 +35,7 @@ public class FlagStorage {
 		private static final FlagStorage singleton = new FlagStorage();
 	}
 	
-	public static final Logger logger = LoggerFactory.make();
+	private static final Logger logger = LoggerFactory.make();
 	
 
 	

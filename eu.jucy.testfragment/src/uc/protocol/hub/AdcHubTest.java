@@ -139,7 +139,7 @@ public class AdcHubTest {
 		Hub.setConnectionInjector(new ConnectionInjector() {
 			@Override
 			public IConnection getConnection(String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
-				return new TestHubConnection(addy, connectionProt, encryption);
+				return new TestHubConnection(addy, connectionProt, encryption,fingerPrint);
 			}
 		});
 	}
@@ -154,8 +154,8 @@ public class AdcHubTest {
 	@Before
 	public void setUp() throws Exception {
 		FavHub fh = new FavHub("adcs://127.0.0.1:456");
-		fh.connect(dcc);
-		hub = dcc.getHub(fh, false);
+		
+		hub = (Hub) fh.connect(dcc);
 		thc =  (TestHubConnection)hub.getConnection();
 		Thread.sleep(200);
 	}

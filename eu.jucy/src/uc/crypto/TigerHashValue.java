@@ -1,5 +1,8 @@
 package uc.crypto;
 
+import java.security.SecureRandom;
+import java.util.Random;
+
 public class TigerHashValue extends HashValue {
 
 
@@ -25,6 +28,9 @@ public class TigerHashValue extends HashValue {
 	public static final int serializedDigestLength = 39;
 	
 	public static boolean isTTH(String what) {
+		if (what.startsWith("TTH/")) {
+			what = what.substring(4);
+		}
 		return what.length() == 39 && what.matches(TTHREGEX);
 	}
 	
@@ -59,6 +65,35 @@ public class TigerHashValue extends HashValue {
 		return Tiger.tigerOfHash(this);
 	}
 	
+	public static void main(String[] args) {
+		byte[] startWith = BASE32Encoder.decode("JUCYR"); 
+		int maxLengthFound = 0;
+		Random rand = new SecureRandom();
+		byte[] hash = new byte[digestlength];
+		TigerHashValue pid = new TigerHashValue(hash);
+		byte[] cid = null;
+		while (maxLengthFound < startWith.length) {
+			rand.nextBytes(hash);
+			for (int x = 0; x < startWith.length;x++) {
+				hash[x] = startWith[x];
+			}
+			cid = pid.hashOfHash().getRaw();
+			int i = 0;
+			for (i=0; i < startWith.length;i++) {
+				if (cid[i] != startWith[i]) {
+					if (i > maxLengthFound) {
+						System.out.println("PID :"+ BASE32Encoder.encode(hash)+"  CID:"+BASE32Encoder.encode(cid));
+						maxLengthFound = i;
+					} 
+					break;
+				}
+			}
+			if (i == startWith.length) {
+				break;
+			}
+		}
+		System.out.println("fin: PID :"+ BASE32Encoder.encode(hash)+"  CID:"+BASE32Encoder.encode(cid));
+	}
 	
 
 }

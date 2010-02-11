@@ -5,6 +5,11 @@ import helpers.GH;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import logger.LoggerFactory;
+
+
+import org.apache.log4j.Logger;
+
 import uc.User;
 import uc.crypto.HashValue;
 import uc.listener.IUserChangedListener.UserChange;
@@ -13,6 +18,8 @@ import uc.protocols.DCProtocol;
 
 public class OpList extends AbstractNMDCHubProtocolCommand {
 
+	private static Logger logger = LoggerFactory.make();
+	
 	public OpList(Hub hub) {
 		super(hub);
 	}
@@ -24,6 +31,12 @@ public class OpList extends AbstractNMDCHubProtocolCommand {
 	@Override
 	public void handle(String command) throws IOException {
 		String[] b = command.split(" ", 2)[1].split(Pattern.quote("$$"));//cut away prefix.. and separate to nicks
+		if (b.length > Hub.MAX_USERS) {
+			logger.warn("oplist too long: "+b.length);
+			return;
+		}
+		logger.debug("Oplist: "+b.length);
+		
 		for (String nick : b) {
 			nick = nick.trim();
 			if (!GH.isEmpty(nick)) {

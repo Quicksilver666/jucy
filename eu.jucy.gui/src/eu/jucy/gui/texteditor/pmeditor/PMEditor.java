@@ -114,7 +114,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 		ApplicationWorkbenchWindowAdvisor.get().getPopulation()
 			.registerUserChangedListener(this, getUser().getUserid());
 		
-		setTitleImage( Nick.getUserImage(getUser()));
+		setTitleImage( Nick.getUserImage(getUser(),true));
 		
 		setControlsForFontAndColour(text,pmText);
 		
@@ -136,6 +136,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 	
 	public void dispose() {
 		//textViewer.dispose();
+		openPMEditors--;
 		ApplicationWorkbenchWindowAdvisor.get().getPopulation()
 			.unregisterUserChangedListener(this, getUser().getUserid());
 		super.dispose();
@@ -227,7 +228,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 		if (messagesWaiting) {
 			setTitleImage(userOnline?newMessage:newMessageOffline);
 		} else {
-			setTitleImage( Nick.getUserImage(getUser()));
+			setTitleImage( Nick.getUserImage(getUser(),true));
 		}
 	}
 	
@@ -300,7 +301,11 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 		}
 	}
 	
-	private static final List<PrivateMessage> pair = Collections.synchronizedList(new ArrayList<PrivateMessage>()); 
+	private static final List<PrivateMessage> pair = 
+		Collections.synchronizedList(new ArrayList<PrivateMessage>()); 
+	
+	private static int openPMEditors = 0;
+	private static final int MAX_PMEDITORS_OPEN = 30; //security against ressource usage... 30 pms at most..
 	
 	
 	public static void addPM(PrivateMessage pm) {
@@ -309,7 +314,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 			new SUIJob() {
 				@Override
 				public void run() {
-					boolean showInMainchat = GUIPI.getBoolean(GUIPI.showPMsInMC);
+					boolean showInMainchat = openPMEditors > MAX_PMEDITORS_OPEN || GUIPI.getBoolean(GUIPI.showPMsInMC);
 					IWorkbenchPage page = getWindow().getActivePage();
 					boolean mayOpen =!showInMainchat && (SendingWriteline.checkOpenPopUpExecution(1500) || !GUIPI.getBoolean(GUIPI.openPMInForeground));
 					synchronized(pair) {
@@ -320,6 +325,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 							PMEditor pme = (PMEditor)page.findEditor(pmi);
 								
 							if ( pme == null && mayOpen) { 
+								openPMEditors++;
 								pme = PMEditor.openPMEditor(pmi);
 							}  
 							if (pme != null) {

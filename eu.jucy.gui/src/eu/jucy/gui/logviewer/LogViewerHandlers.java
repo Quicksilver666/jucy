@@ -12,6 +12,7 @@ import java.util.List;
 
 import logger.LoggerFactory;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -42,44 +43,52 @@ import uihelpers.SUIJob;
 
 public abstract class LogViewerHandlers extends AbstractHandler {
 	
-	private static final Logger logger = LoggerFactory.make();
+	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
 	
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IStructuredSelection selection = (IStructuredSelection) HandlerUtil.getCurrentSelectionChecked(event);
 		if (!selection.isEmpty()) {
-			run((DBLogger)selection.getFirstElement(),event);
+			boolean update = run((DBLogger)selection.getFirstElement(),event);
 			
 			IEditorPart part = HandlerUtil.getActiveEditor(event);
-			if (part instanceof LogViewerEditor) {
+			if (part instanceof LogViewerEditor && update) {
+				logger.debug("Running update");
 				((LogViewerEditor)part).update(true);
+				logger.debug("Running update done");
 			}
 			
 		}
 		return null;
 	}
 	
-	public abstract void run(DBLogger entity,ExecutionEvent event);
+	public abstract boolean run(DBLogger entity,ExecutionEvent event);
 	
 	public static class DeleteDBLogger extends  LogViewerHandlers {
 		public static final String COMMAND_ID = RemoveDownloadableFromQueueHandler.COMMAND_ID;
 
 		@Override
-		public void run(final DBLogger entity,ExecutionEvent event) {
+		public boolean run(final DBLogger entity,ExecutionEvent event) {
+			logger.debug("Delete called");
 			final LogViewerEditor part =(LogViewerEditor)HandlerUtil.getActiveEditor(event);
 			part.setFilter(entity);
 			
 			DCClient.execute(new Runnable() {
 				public void run() {
+					logger.debug("running delete");
 					entity.deleteEntity();
+					logger.debug("deleted");
 					new SUIJob() {
 						@Override
 						public void run() {
+							logger.debug("update start");
 							part.removeFilter(entity);
 							part.update(true);
+							logger.debug("update done");
 						}
 					}.schedule();
 				}
 			});
+			return false;
 		}
 	}
 	
@@ -87,7 +96,7 @@ public abstract class LogViewerHandlers extends AbstractHandler {
 		public static final String COMMAND_ID = "eu.jucy.gui.logviewer.exportlogs";
 
 		@Override
-		public void run(final DBLogger entity,ExecutionEvent event) {
+		public boolean run(final DBLogger entity,ExecutionEvent event) {
 			FileDialog fd = new FileDialog(HandlerUtil.getActiveShell(event),SWT.SAVE);
 			fd.setText("Save");
 			 
@@ -123,7 +132,10 @@ public abstract class LogViewerHandlers extends AbstractHandler {
 				job.setUser(true);
 				job.schedule();
 			}
+			
+			return false;
 		}
+		
 	}
 	
 	public static class ExportAllLogs extends AbstractHandler {

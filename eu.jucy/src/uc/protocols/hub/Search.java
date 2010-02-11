@@ -17,10 +17,10 @@ import org.apache.log4j.Logger;
 
 
 import uc.DCClient;
+import uc.IUser;
 import uc.User;
 import uc.crypto.HashValue;
 import uc.files.filelist.OwnFileList.SearchParameter;
-import uc.files.search.ComparisonEnum;
 import uc.files.search.FileSearch;
 import uc.files.search.SearchType;
 import uc.protocols.ConnectionProtocol;
@@ -164,21 +164,22 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 	 * @param search - the search command pattern
 	 */
 	public static void sendSearch(Hub hub,FileSearch search) {
-		DCClient dcc= DCClient.get();
+		DCClient dcc = hub.getDcc();
+		IUser self = hub.getSelf();
 		String command="$Search "+ 
 		(dcc.isActive() ?  
-				DCClient.get().getConnectionDeterminator().getPublicIP().getHostAddress()
-				+":"+dcc.getUdphandler().getPort()+" ":
+				self.getIp().getHostAddress()
+				+":"+self.getUdpPort()+" ":
 		"Hub:%[myNI] ");
 		if (search.getSize() == -1) {
 			command +=  "F?F?0"  ;
 		} else {
-			command += "T?"+(search.getComparisonEnum() == ComparisonEnum.ATMOST?"T":"F")+"?"+search.getSize();
+			command += "T?"+search.getComparisonEnum().getNMDCC()+"?"+search.getSize();
 		}
 		command += "?"+search.getSearchType().getNMDC()+"?";  
 
 
-		String[] words= DCProtocol.doReplaces(search.getSearchString()).split(" ");
+		String[] words = DCProtocol.doReplaces(search.getSearchString()).split(" ");
 		StringBuilder searchstring= new StringBuilder();
 		for (String word: words) {  //remove all strings starting with -
 			if (!word.startsWith("-")) {

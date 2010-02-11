@@ -20,6 +20,8 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.security.KeyManagementException;
 
+
+
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
@@ -36,6 +38,7 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+
 
 
 import uc.PI;
@@ -64,6 +67,7 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 	protected volatile CharsetEncoder charsetEncoder;
 	
 	static {
+		//Security.addProvider(new BouncyCastleProvider());
 		boolean[] bP = new boolean[]{false}; 
 		HashValue[] fPP = new HashValue[]{null};
 		TLS = loadTLS(bP,fPP);
@@ -89,7 +93,7 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 	
 	
 
-	private static SSLContext loadTLS(boolean[] tlsPointer,HashValue[] fingerPrintPointer) {
+	private static SSLContext loadTLS(boolean[] tlsPointer,HashValue[] fingerPrintPointer)  {
 		SSLContext tlsinit = null;
 		try {
 			TrustManager[] trustAllCerts = new TrustManager[]{
@@ -115,7 +119,8 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 			logger.error(nse, nse);
 		} catch (KeyManagementException kme) {
 			logger.error(kme, kme);
-		} 
+		}
+
 		return tlsinit;
 	}
 

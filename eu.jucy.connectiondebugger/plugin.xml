@@ -9,7 +9,8 @@
             class="eu.jucy.connectiondebugger.DebuggerView"
             icon="icons/debuggerview.16.gif"
             id="eu.jucy.connectiondebugger.debuggerview"
-            name="Connection Debugger">
+            name="Connection Debugger"
+            restorable="false">
       </view>
    </extension>
    
@@ -28,8 +29,17 @@
                locationURI="popup:eu.jucy.hub?before=eu.jucy.gui.hub.separator2">
             <command
                   commandId="eu.jucy.connectiondebugger.attachuser"
+                  icon="icons/debuggerview.16.gif"
+				  label="Connection Debugger"
                   style="push">
             </command>
+       </menuContribution>
+       <menuContribution
+             locationURI="popup:eu.jucy.connectiondebugger.debuggerview?after=additions">
+          <command
+                commandId="org.eclipse.ui.edit.copy"
+                style="push">
+          </command>
        </menuContribution>
    </extension>
    
@@ -56,6 +66,7 @@
                </reference>
             </activeWhen>
       </handler>
+      
       
      </extension>
      
@@ -92,7 +103,13 @@
          </with>
       </definition>
    </extension>
-  
+  <extension
+         point="eu.jucy.helpers.splashExtension">
+      <splashExtension
+            icon="icons/debuggericon.64.png"
+            id="eu.jucy.connectiondebugger">
+      </splashExtension>
+   </extension>
   
 
 

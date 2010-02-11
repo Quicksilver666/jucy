@@ -29,7 +29,7 @@ public class TestHubConnection implements IConnection {
 	private static final Logger logger = LoggerFactory.make();
 	
 	private final boolean encryption;
-	
+	private HashValue fingerp;
 	
 	private boolean open = false;
 	
@@ -42,10 +42,11 @@ public class TestHubConnection implements IConnection {
 	private final ConnectionProtocol cp;
 	private final String addy;
 	
-	public TestHubConnection(String addy, ConnectionProtocol connectionProt,boolean encryption) {
+	public TestHubConnection(String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerp) {
 		this.encryption = encryption;
 		this.cp = connectionProt;
 		this.addy = addy;
+		this.fingerp = fingerp;
 	}
 	
 	public void send(String toSend) throws IOException {
@@ -221,8 +222,13 @@ public class TestHubConnection implements IConnection {
 	}
 
 	public void setFingerPrint(HashValue hash) {
-		// TODO Auto-generated method stub
+		fingerp=hash;
 	}
+
+	public boolean isFingerPrintUsed() {
+		return fingerp !=null;
+	}
+	
 	
 	
 	

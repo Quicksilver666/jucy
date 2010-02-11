@@ -21,12 +21,16 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import logger.LoggerFactory;
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Platform;
 
 
 import uc.crypto.HashValue;
@@ -70,64 +74,6 @@ public class ConnectionHandler extends Observable<StatusObject>
 	private final Set<Object> active = 
 		Collections.synchronizedSet(new HashSet<Object>()); 
 
-//	private final Map<IUser,List<DebugTest>> debugList = new HashMap<IUser,List<DebugTest>>();
-//	
-//	private class DebugTest {
-//		public DebugTest(int action,Object o) {
-//			this.action = action;
-//			this.object = o == null? "null": ""+System.identityHashCode(o);
-//		}
-//		private final int action;
-//		private String object;
-//		
-//		public String toString() {
-//			return action+" "+object;
-//		}
-//	}
-//	
-//	private void checkAdd(IUser u,int action,Object o) {
-//		int before = -1;
-//		List<DebugTest> old = null;
-//		synchronized(debugList) {
-//			old = debugList.get(u);
-//			if (old == null) {
-//				old = new ArrayList<DebugTest>();
-//				debugList.put(u, old);
-//			} else {
-//				before = old.get(old.size()-1).action;
-//			}
-//			old.add(new DebugTest(action, o));
-//		}
-//		boolean allok = true;
-//		switch(before) {
-//		case -1:
-//			allok = action == STATEMACHINE_CREATED || action == USER_IDENTIFIED_IN_CONNECTION;
-//			break;
-//		case USER_IDENTIFIED_IN_CONNECTION:
-//			allok = action == TRANSFER_STARTED || action == CONNECTION_CLOSED;
-//			break;
-//		case TRANSFER_STARTED:
-//			allok = action == TRANSFER_FINISHED;
-//			break;
-//		case TRANSFER_FINISHED:
-//			allok = action == TRANSFER_STARTED ||  action == CONNECTION_CLOSED;
-//			break;
-//		case CONNECTION_CLOSED:
-//			allok = action == USER_IDENTIFIED_IN_CONNECTION ||  action == STATEMACHINE_DESTROYED || action == STATEMACHINE_CHANGED;
-//			break;
-//		}
-//		if (!allok) {
-//			String prnt = "strange order: "+u.getNick();
-//			for (int i = Math.max(0, old.size()-10);i < old.size(); i++) {
-//				prnt +=";"+old.get(i);
-//			}
-//			logger.info(prnt);
-//		}
-//	}
-	
-	//private final Object synchStatus = new Object();
-
-//	private final Observable<StatusObject> observable = new Observable<StatusObject>();
 
 	private final PreferenceChangedAdapter pca;
 
@@ -190,6 +136,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 	private final Set<ExpectedInfo> expectedToConnect = 
 		Collections.synchronizedSet(new HashSet<ExpectedInfo>());
 
+	private ScheduledFuture<?> expectedRefresher;
 
 	private final DCClient dcc;
 
@@ -224,6 +171,17 @@ public class ConnectionHandler extends Observable<StatusObject>
 		pca.reregister();
 		
 		dcc.getPopulation().registerUserChangedListener(this);
+		expectedRefresher = dcc.getSchedulerDir().scheduleWithFixedDelay(new Runnable() {
+			public void run() {
+				synchronized(expectedToConnect) {
+					for (Iterator<ExpectedInfo> it = expectedToConnect.iterator();it.hasNext();) {
+						if (it.next().isOld()) {
+							it.remove();
+						}
+					}
+				}
+			}
+		}, 60, 60, TimeUnit.SECONDS);
 	}
 	
 	void stop() {
@@ -231,6 +189,10 @@ public class ConnectionHandler extends Observable<StatusObject>
 		tls.close();
 		pca.dispose();
 		dcc.getPopulation().unregisterUserChangedListener(this);
+		if (expectedRefresher != null) {
+			expectedRefresher.cancel(false);
+			expectedToConnect.clear();
+		}
 	}
 	
 	
@@ -294,7 +256,11 @@ public class ConnectionHandler extends Observable<StatusObject>
 	 * 
 	 */
 	public void ctmSent(IUser target, CPType protocol, String token) {
-		expectedToConnect.add(new ExpectedInfo(target,protocol,token));
+		ExpectedInfo ei = new ExpectedInfo(target,protocol,token);
+		synchronized(expectedToConnect) {
+			expectedToConnect.remove(ei);
+			expectedToConnect.add(ei);
+		}
 	}
 	
 	
@@ -308,23 +274,35 @@ public class ConnectionHandler extends Observable<StatusObject>
 	 * @param ip the IP the connection has
 	 * @return the user that matches nick and if possible also IP
 	 */
-	public IUser getUserExpectedToConnect(String nick, InetAddress ip){
-		ArrayList<IUser> possibleUsers = new ArrayList<IUser>(1);
+	public IUser getUserExpectedToConnect(String nick, InetAddress ip) {
+		if (ip == null) {
+			throw new IllegalArgumentException();
+		}
+		ArrayList<ExpectedInfo> possibleUsers = new ArrayList<ExpectedInfo>(1);
+		
 		synchronized(expectedToConnect) {
 			for (ExpectedInfo ei : expectedToConnect) {
 				IUser usr = ei.getUser();
 				if (nick.equals(usr.getNick())) {
-					if (ip != null && ip.equals(usr.getIp())) {
-						return usr;
+					if (ip.equals(usr.getIp()) && usr.resolveDQEToUser() != null && !ei.isRemoved()) {
+						possibleUsers.clear();
+						possibleUsers.add(ei);
+						break;
+					} else {
+						possibleUsers.add(ei);
 					}
-					possibleUsers.add(usr);
 				}
 			}
-		}
-		if (possibleUsers.isEmpty()) {
-			return null;
-		} else {
-			return possibleUsers.get(GH.nextInt(possibleUsers.size()));
+			ExpectedInfo found = GH.getRandomElement(possibleUsers);
+			if (found != null) {
+				found.remove();
+				return found.getUser();
+			} else {
+				if (Platform.inDevelopmentMode()) {
+					logger.warn("not found EF for "+nick);
+				}
+				return null;
+			}
 		}
 	}
 	
@@ -335,15 +313,19 @@ public class ConnectionHandler extends Observable<StatusObject>
 	 * @return
 	 */
 	public ExpectedInfo getUserExpectedToConnect(HashValue cid,String token) {
+		if (token == null) {
+			throw new IllegalArgumentException();
+		}
 		synchronized(expectedToConnect) {
 			for (ExpectedInfo ei : expectedToConnect) {
-				if (token != null && token.equals(ei.token)) {
+				if (token.equals(ei.token)) {
 					if (cid == null || cid.equals(ei.user.getCID())) {
 						return ei;
 					}
 				}
 			}
 		}
+	
 		return null;
 	}
 
@@ -574,13 +556,6 @@ public class ConnectionHandler extends Observable<StatusObject>
 		}
 		//ClientProtocolStateMachine ccps = 
 		interesting.remove(usr);
-		/*if (ccps != null) {
-			active.remove(ccps);
-			notifyObservers(new StatusObject(ccps,ChangeType.REMOVED));
-		} else {
-			notifyObservers(new StatusObject(null,ChangeType.REMOVED)); //Trigger refresh.. //TODO shows error
-			logger.debug("State machine was null: "+usr.getNick());
-		} */
 		notifyOfChange(STATEMACHINE_DESTROYED, null, cpsm);
 		deleteObserver(cpsm);
 	}
@@ -589,8 +564,6 @@ public class ConnectionHandler extends Observable<StatusObject>
 		
 		interesting.put(usr, ccps);
 		addObserver(ccps);
-		//active.add(ccps);
-		//notifyObservers(new StatusObject(ccps,ChangeType.ADDED));
 		notifyOfChange(STATEMACHINE_CREATED, null, ccps);
 	}
 	
@@ -639,18 +612,35 @@ public class ConnectionHandler extends Observable<StatusObject>
 	 */
 	public static class ExpectedInfo {
 		
+		private static final long OLD_MILLIS = 5 *60 *1000;
+		
 		private final IUser user;
 		private final CPType protocol;
 		private final String token;
+		private final long created;
+		private boolean removed = false;
 		
 		public ExpectedInfo(IUser user,CPType protocol, String token) {
 			this.protocol = protocol;
 			this.token = token;
 			this.user = user;
+			this.created = System.currentTimeMillis();
 		}
 
 		public IUser getUser() {
 			return user;
+		}
+		
+		public boolean isOld() {
+			return System.currentTimeMillis() - created > OLD_MILLIS; 
+		}
+		
+		public synchronized boolean isRemoved() {
+			return removed;
+		}
+		
+		public synchronized void remove() {
+			removed = true;
 		}
 
 		public CPType getProtocol() {
@@ -665,6 +655,9 @@ public class ConnectionHandler extends Observable<StatusObject>
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
+			result = prime * result
+					+ ((protocol == null) ? 0 : protocol.hashCode());
+			result = prime * result + ((token == null) ? 0 : token.hashCode());
 			result = prime * result + ((user == null) ? 0 : user.hashCode());
 			return result;
 		}
@@ -678,6 +671,13 @@ public class ConnectionHandler extends Observable<StatusObject>
 			if (getClass() != obj.getClass())
 				return false;
 			ExpectedInfo other = (ExpectedInfo) obj;
+			if (protocol != other.protocol)
+				return false;
+			if (token == null) {
+				if (other.token != null)
+					return false;
+			} else if (!token.equals(other.token))
+				return false;
 			if (user == null) {
 				if (other.user != null)
 					return false;
@@ -685,6 +685,9 @@ public class ConnectionHandler extends Observable<StatusObject>
 				return false;
 			return true;
 		}
+
+
+		
 		
 		
 	}

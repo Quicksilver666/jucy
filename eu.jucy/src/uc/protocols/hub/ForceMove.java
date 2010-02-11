@@ -3,7 +3,8 @@ package uc.protocols.hub;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import uc.DCClient;
+
+import uc.FavHub;
 
 
 
@@ -29,9 +30,9 @@ public class ForceMove extends AbstractNMDCHubProtocolCommand {
 
 	@Override
 	public void handle(String command) throws IOException {
-		final String address = matcher.group(1);
+		final FavHub address = new FavHub(matcher.group(1));
 		//schedule this ... so later coming reasons can be received..
-		DCClient.getScheduler().schedule(
+		hub.getDcc().getSchedulerDir().schedule(
 				new Runnable() {
 					public void run() {
 						synchronized(hub) {

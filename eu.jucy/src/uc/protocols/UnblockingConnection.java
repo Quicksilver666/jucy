@@ -509,7 +509,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 							}
 							if (encryption) {
 								synchronized (inetAddySynch) {
-									if (problematic.contains(inetAddress.getAddress()) || !(target instanceof String)) {
+									if (problematic.contains(inetAddress.getAddress()) || !(target instanceof String) ) { 
 										List<String> s = Arrays.asList(engine.getEnabledCipherSuites());
 										s = GH.filter(s, "_DHE_");
 										s = GH.filter(s, "_ECDH_");
@@ -749,6 +749,13 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		this.fingerPrint = hash;
 	}
 
+
+	public boolean isFingerPrintUsed() {
+		return encryption && fingerPrint != null;
+	}
+
+
+
 	private void asynchClose() {
 		DCClient.execute(new Runnable() {
 			public void run() {
@@ -922,7 +929,6 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				logger.warn("reading from closed channel");
 			}
 			synchronized (bufferLock) {
-				
 				while (!varInBuffer.hasRemaining()) {
 					UnblockingConnection.this.read();
 					if (!encryption || engine.isInboundDone()) { //without encryption read is always successful... also we need a break if encryption is done..

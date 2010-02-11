@@ -18,6 +18,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.Lang;
 import eu.jucy.hublist.Column;
 import eu.jucy.hublist.HublistHub;
@@ -107,7 +108,7 @@ public abstract class HublistHubActions extends Action implements
 		
 		
 		protected void doWith(HublistHub hub) {
-			hub.connect();
+			hub.connect(ApplicationWorkbenchWindowAdvisor.get());
 		}
 	}
 	

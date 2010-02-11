@@ -122,8 +122,10 @@ public class UserContributionItem extends CompoundContributionItem implements
 				if (sel.nrOfFilesInQueue() > 0) {
 					contribs.add(create(RemoveUserFromQueueHandler.COMMAND_ID,null));
 				} 
-				
 				contribs.add(create(CopyNickToClipboardHandler.COMMAND_ID,null));
+				CopyContributionItem cci = new CopyContributionItem(usr);
+				cci.initialize(serviceLocator);
+				contribs.add(cci); 
 			}
 		}
 		

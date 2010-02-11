@@ -1,5 +1,6 @@
 package eu.jucy.gui.search;
 
+import helpers.GH;
 import helpers.SizeEnum;
 import helpers.StatusObject.ChangeType;
 
@@ -312,7 +313,11 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 			if (hub != null) {
 				TableItem ti = new TableItem(hubsToSearch,SWT.LEAD);
 				ti.setData(hub);
-				ti.setText(hub.getName());
+				String name = hub.getName();
+				if (GH.isNullOrEmpty(name)) {
+					name = hub.getFavHub().getSimpleHubaddy();
+				}
+				ti.setText(name);
 				ti.setChecked(true);
 			}
 		}

@@ -86,6 +86,9 @@ public class Hub extends DCProtocol implements IHub {
 	
 	private static Logger logger = LoggerFactory.make();
 	
+	public static final int MAX_USERS = 35000;
+	private volatile boolean maxUsersReached = false; 
+	
 	private static ConnectionInjector inject = new ConnectionInjector();
 	
 	public static void setConnectionInjector(ConnectionInjector ci) {
@@ -112,7 +115,7 @@ public class Hub extends DCProtocol implements IHub {
 	private DBLogger feedLoggerDB;
 
 	
-	private static enum ProtocolPrefix {
+	public static enum ProtocolPrefix {
 		DCHUB(false,true),NMDC(false,true),
 		NMDCS(true,true),DCHUBS(true,true),
 		ADC(false,false),ADCS(true,false);
@@ -122,6 +125,12 @@ public class Hub extends DCProtocol implements IHub {
 			this.nmdc = nmdc;
 		}
 		
+		/**
+		 * 
+		 * @param address
+		 * @return
+		 * @deprecated logic for parsing is in FavHub
+		 */
 		public static boolean matchesPrefix(String address) {
 			int index = address.indexOf("://");
 			if (index >= 0) {
@@ -134,6 +143,12 @@ public class Hub extends DCProtocol implements IHub {
 			return false;
 		}
 		
+		/**
+		 * 
+		 * @param whole
+		 * @return
+		 * @deprecated logic for parsing is in FavHub
+		 */
 		public static ProtocolPrefix parse(String whole) {
 			int index = whole.indexOf("://");
 			if (index >= 0) {
@@ -156,7 +171,7 @@ public class Hub extends DCProtocol implements IHub {
 	
 
 	
-	private final User self;
+	private volatile User self;
 	
 	/**
 	 * token used to create this hub..
@@ -164,21 +179,22 @@ public class Hub extends DCProtocol implements IHub {
 	private final FavHub favHub;
 	
 	
-	private volatile String hubaddy;
-	private volatile HashValue fingerPrint;
+//	private volatile String hubaddy;
+//	private volatile HashValue fingerPrint;
 	
 	/**
 	 * when a client receives signal for redirection
 	 * the received address is stored here.
 	 */
-	private volatile String redirectaddy;
+	private volatile FavHub redirectaddy;
 	
 	/**
 	 * contains only the hubs name .. not the topic
 	 */
-	private String hubname	=	"";
+	private String hubname	=	null;
 	
-	private final Set<String> othersSupports = new HashSet<String>(); // The SupportString of the other side 
+	private final Set<String> othersSupports = 
+		Collections.synchronizedSet(new HashSet<String>()); // The SupportString of the other side 
 	
 	/**
 	 * string containing only the name .. if possible not the whole topic
@@ -217,6 +233,8 @@ public class Hub extends DCProtocol implements IHub {
 	
 	private volatile boolean weWantToReconnect = true;  // Variable that tells if the client should automatically reconnect... i.e. set false on badpass or kick..
 	private volatile boolean reconnectRunning = false;
+
+
 	private volatile long waitTime = 10+ GH.nextInt(60); //how long to wait until reconnect
 	private volatile int unsuccessfulConnectionsInARow = 0;
 	
@@ -279,32 +297,52 @@ public class Hub extends DCProtocol implements IHub {
 		defaultPort = 411;
 		
 		this.favHub = favHuba;
+		if (!favHub.isValid()) {
+			throw new IllegalArgumentException("Hubaddress not valid: "+favHub.getHubaddy());
+		}
 		
-		String nickname = favHub.getNick() != null && !GH.isEmpty(favHub.getNick()) ? favHub.getNick() : PI.get(PI.nick); 
+		 
 	
-		setHubaddy(favHub.getHubaddy());
+	//	setHubaddy();
+		ProtocolPrefix p = favHub.getProtocolPrefix();
+		setProtocolNMDC(p.nmdc);
+		if (p.nmdc) {
+			this.defaultCommand = new MC(this);
+		} else {
+			this.defaultCommand = null;
+		}
 		
-		
-		logger.debug("creating hub: "+hubaddy);
+		logger.debug("creating hub: "+favHub.getHubaddy());
 
+		self = createSelf();
 		
-		/*
-		 * create a user that represents our self therefore 
-		 * some methods must be overwritten
-		 *  so this user proxy works properly
-		 *  
-		 */
-		self = new User(dcc,nickname,nmdc?nickToUserID(nickname,this ): CIDToUserID(dcc.getPID().hashOfHash(), favHub) ){
+		connection = inject.getConnection(favHub.getInetSocketaddress(), this,p.encrypted,favHub.getKeyPrint());
+	
+	}
+	
+	
+	private String getNickSelf() {
+		return GH.isNullOrEmpty(favHub.getNick())? PI.get(PI.nick):  favHub.getNick() ;
+	}
+	
+	/**
+	 * create a user that represents our self therefore 
+	 * some methods must be overwritten
+	 *  so this user proxy works properly 
+	 */
+	private User createSelf() {
+		String nickname = getNickSelf();
+		return new User(dcc,nickname,nmdc?nickToUserID(nickname,this ): CIDToUserID(dcc.getPID().hashOfHash(), favHub) ){
 
 			@Override
 			public HashValue getCID() { 
 				return getPD().hashOfHash();
 			}
 
-			@Override
-			public String getConnection() {
-				return dcc.getConnection();
-			}
+//			@Override
+//			public String getConnection() {
+//				return dcc.getConnection();
+//			}
 
 			@Override
 			public String getDescription() {
@@ -472,12 +510,21 @@ public class Hub extends DCProtocol implements IHub {
 			public HashValue getKeyPrint() {
 				return AbstractConnection.getFingerPrint();
 			}
+
+			private boolean changeInProgress = false;
+			@Override
+			public String getNick() {
+				if (!nmdc && !super.getNick().equals(getNickSelf()) && !changeInProgress) {
+					changeInProgress = true;
+					setProperty(INFField.NI, getNickSelf());
+					changeInProgress = false;
+				} 
+				return super.getNick();
+			}
 		    
 		};
-		
-		connection = inject.getConnection(hubaddy, this, ProtocolPrefix.parse(favHub.getHubaddy()).encrypted,fingerPrint);
-	
 	}
+	
 	
 	public synchronized void start() {
 		super.start();
@@ -492,7 +539,11 @@ public class Hub extends DCProtocol implements IHub {
 	 * @return - not the full "topic" string .. only the name
 	 */
 	public String getName() {
-		return hubname;
+		if (hubname == null) {
+			return favHub.getHubname();
+		} else {
+			return hubname;
+		}
 	}
 
 	public void beforeConnect() {
@@ -500,10 +551,10 @@ public class Hub extends DCProtocol implements IHub {
 		topic = ""; //delete topic
 		registered = false;
 		
-		
-		self.setProperty(INFField.CT, ""); //delete our OP status...
+		self = createSelf();
+		//self.setProperty(INFField.CT, ""); //delete our OP status...
 
-	
+		othersSupports.clear();
 		userIPReceived = false;
 
 		synchronized(loginTimeoutSynch) {
@@ -578,7 +629,7 @@ public class Hub extends DCProtocol implements IHub {
 	private void logMainchatMessage(final User usr,final String message) {
 		if (PI.getBoolean(PI.logMainChat)) {
 			if (mcLoggerDB == null) {
-				mcLoggerDB = new DBLogger(favHub, true);
+				mcLoggerDB = new DBLogger(favHub, true,dcc);
 			}
 			String mes = (usr != null ? "<" + usr.getNick()+ "> " : "")+ message;
 			mcLoggerDB.addLogEntry(mes, System.currentTimeMillis());
@@ -601,14 +652,17 @@ public class Hub extends DCProtocol implements IHub {
 		super.onDisconnect();
 		disconnectAllUsers();
 	
-        if (dcc.isRunningHub(favHub) && checkReconnect()) { //only reconnect if reconnect was requested by user.. or we already connected once... for security..
+        if (checkReconnect()) { //only reconnect if reconnect was requested by user.. or we already connected once... for security..
         	logger.debug("scheduling reconnect");
         	reconnectRunning = true;
         }
+        
 	}
 	
-	private boolean checkReconnect() {
-		return weWantToReconnect && (onceConnected|| waitTime <= 0 || favHub.getHubaddy().endsWith(hubaddy) );
+	public boolean checkReconnect() {
+		return dcc.isRunningHub(favHub) && 
+				weWantToReconnect && 
+				(onceConnected|| waitTime <= 0 || favHub.isFavHub(dcc.getFavHubs()) );
 	}
 	
 	
@@ -699,10 +753,12 @@ public class Hub extends DCProtocol implements IHub {
 	}
 	
 	public void requestUserIP() {
+		requestUserIP(getSelf());
+	}
+	
+	public void requestUserIP(IUser usr) {
 		if (nmdc) {
-			UserIP.sendUserIPRequest(this,getSelf());
-		} else {
-			//INF.sendIPRequestingINF(this);
+			UserIP.sendUserIPRequest(this,usr);
 		}
 	}
 	
@@ -713,6 +769,8 @@ public class Hub extends DCProtocol implements IHub {
 			return false;
 		}
 	}
+	
+	
 
 
 	/**
@@ -723,6 +781,13 @@ public class Hub extends DCProtocol implements IHub {
 	 * has his nick set
 	 */
 	void insertUser(User user) {
+		if (users.size() > MAX_USERS) {
+			if (!maxUsersReached) {
+				logger.warn("Hub tried adding too many users");
+				maxUsersReached = true;
+			}
+			return; //break .. hub 
+		}
 		users.put(user.getUserid(),user);
 		if (!nmdc) {
 			userBySid.put(user.getSid()  , user);
@@ -778,7 +843,7 @@ public class Hub extends DCProtocol implements IHub {
 	 */
 	private void logPMMessage(PrivateMessage pm) {
 		if (PI.getBoolean(PI.logPM)) {
-			new DBLogger(pm.getFrom()).addLogEntry(pm.toString(), pm.getTimeReceived());
+			new DBLogger(pm.getFrom(),dcc).addLogEntry(pm.toString(), pm.getTimeReceived());
 		}
 	}
 	
@@ -800,7 +865,7 @@ public class Hub extends DCProtocol implements IHub {
 	private void logFeed(FeedType ft,String message) {
 		if (PI.getBoolean(PI.logFeed)) {
 			if (feedLoggerDB == null) {
-				feedLoggerDB = new DBLogger(favHub,false);
+				feedLoggerDB = new DBLogger(favHub,false,dcc);
 			}
 			feedLoggerDB.addLogEntry(ft+message, System.currentTimeMillis());
 		}
@@ -832,6 +897,25 @@ public class Hub extends DCProtocol implements IHub {
 		}
 	}
 
+	public void requestConnection(IUser target,String token) {
+		boolean nmdc = isNMDC();
+		boolean encryption = target.hasSupportForEncryption() && 
+			dcc.currentlyTLSSupport();
+
+		CPType protocol = CPType.get(encryption, nmdc); 
+		if (dcc.isActive()) {
+			logger.debug("sending CTM "+target+ 
+					"  " + protocol+"  "+
+					dcc.getConnectionDeterminator().
+					getPublicIP().getHostAddress());
+
+			sendCTM(target, protocol ,token);
+		} else {
+			logger.debug("sending RCM "+target);
+			sendRCM(target, protocol ,token);
+		}
+	}
+	
 	/**
 	 * sends a CTM message 
 	 * 
@@ -869,6 +953,11 @@ public class Hub extends DCProtocol implements IHub {
 		}
 		//here may be tell user that he can't connect there..
 	}
+	
+	
+
+
+
 
 	/**
 	 * send a search to the hub.
@@ -885,18 +974,18 @@ public class Hub extends DCProtocol implements IHub {
 	}
 	   
 
-	/**
-	 * allows the UDP handler to pump a command into the normal command handling routine..
-	 * @param sr
-	 */
-	public void searchResultReceived(String sr) {
-		try {
-			receivedCommand(sr);
-		} catch (IOException pe) {
-			logger.debug(pe);
-		}
-		logger.debug("sr received: "+sr);
-	}
+//	/**
+//	 * allows the UDP handler to pump a command into the normal command handling routine..
+//	 * @param sr
+//	 */
+//	public void searchResultReceived(String sr) {
+//		try {
+//			receivedCommand(sr);
+//		} catch (IOException pe) {
+//			logger.debug(pe);
+//		}
+//		logger.debug("sr received: "+sr);
+//	}
 	   
 
 
@@ -1016,7 +1105,7 @@ public class Hub extends DCProtocol implements IHub {
     				//byte[] key = UDPEncryption.tokenStringToKey(sr.getToken());
     				packet = UDPEncryption.encryptMessage(packet, encryptionKey);
     				if (Platform.inDevelopmentMode()) {
-    					logger.warn("sending encrypted packet to: "+target+" in:"+getHubaddy());
+    					logger.warn("sending encrypted packet to: "+target+" in:"+favHub.getSimpleHubaddy());
     				}
     			}
     			dcc.getUdphandler().sendPacket(ByteBuffer.wrap(packet), searcherIp);
@@ -1134,11 +1223,13 @@ public class Hub extends DCProtocol implements IHub {
 		
 	}
 
-	void redirectReceived(String addy) {
-		redirectaddy = addy ;
-		statusMessage(String.format(LanguageKeys.RedirectReceived,addy),0);
-		if (PI.getBoolean(PI.autoFollowRedirect)) {
-			followLastRedirect();
+	void redirectReceived(FavHub addy) {
+		if (addy.isValid()) {
+			redirectaddy = addy ;
+			statusMessage(String.format(LanguageKeys.RedirectReceived,addy),0);
+			if (PI.getBoolean(PI.autoFollowRedirect)) {
+				followLastRedirect();
+			}
 		}
 	}
 
@@ -1147,51 +1238,56 @@ public class Hub extends DCProtocol implements IHub {
 	 * this function will 
 	 */
 	public void followLastRedirect() {
-		if (redirectaddy != null) {
-			setHubaddy(redirectaddy);
+		if (redirectaddy != null && redirectaddy.isValid()) {
+		//	setHubaddy(redirectaddy);
+			close();
+			redirectaddy.connect(dcc);
 			redirectaddy = null;
-			reconnect(0);
+		//	reconnect(0);
 		}
 	}
-	
-	private void setHubaddy(String hubaddy) {
-		logger.debug(this.hubaddy);
-		
-		if (!ProtocolPrefix.matchesPrefix(hubaddy)) {
-			hubaddy = "dchub://"+hubaddy;
-		}
-		
-		int pos = hubaddy.indexOf(':')+3;
-		fingerPrint = null;
-		ProtocolPrefix p = ProtocolPrefix.parse(hubaddy);
-		this.hubaddy = hubaddy.substring(pos);
-		int postfix = this.hubaddy.indexOf('/');
-		if (postfix >= 0) {
-			String kp = this.hubaddy.substring(postfix);
-			int i = kp.indexOf("kp=");
-			if ( i >= 0  ) {
-				kp = kp.substring(i+3);
-				try {
-					fingerPrint = HashValue.createHash(kp);
-				} catch(IllegalArgumentException iae) {
-					logger.warn(iae,iae);
-				}
-			}
-			this.hubaddy = this.hubaddy.substring(0, postfix);
-			logger.debug("hubaddy2: "+this.hubaddy);
-		}
-		setProtocolNMDC(p.nmdc);
-		if (p.nmdc) {
-			this.defaultCommand = new MC(this);
-		} else {
-			this.defaultCommand = null;
-		}
-		if (connection != null) {
-			connection.setFingerPrint(fingerPrint);
-		}
-		
-		
-		
+//	/**
+//	 * 
+//	 * @deprecated use functions in FavHub
+//	 */
+//	private void setHubaddy(String hubaddy) {
+//		logger.debug(this.hubaddy);
+//		
+//		if (!ProtocolPrefix.matchesPrefix(hubaddy)) {
+//			hubaddy = "dchub://"+hubaddy;
+//		}
+//		
+//		int pos = hubaddy.indexOf(':')+3;
+//		fingerPrint = null;
+//		ProtocolPrefix p = ProtocolPrefix.parse(hubaddy);
+//		this.hubaddy = hubaddy.substring(pos);
+//		int postfix = this.hubaddy.indexOf('/');
+//		if (postfix >= 0) {
+//			String kp = this.hubaddy.substring(postfix);
+//			int i = kp.indexOf("kp=");
+//			if ( i >= 0  ) {
+//				kp = kp.substring(i+3);
+//				try {
+//					fingerPrint = HashValue.createHash(kp);
+//				} catch(IllegalArgumentException iae) {
+//					logger.warn(iae,iae);
+//				}
+//			}
+//			this.hubaddy = this.hubaddy.substring(0, postfix);
+//			logger.debug("hubaddy2: "+this.hubaddy);
+//		}
+//		setProtocolNMDC(p.nmdc);
+//		if (p.nmdc) {
+//			this.defaultCommand = new MC(this);
+//		} else {
+//			this.defaultCommand = null;
+//		}
+//		if (connection != null) {
+//			connection.setFingerPrint(fingerPrint);
+//		}
+//		
+//		
+//		
 //		if (hubaddy.startsWith(NMDCPrefix) || hubaddy.startsWith(NMDCSPrefix)) {
 //			this.hubaddy = hubaddy.substring(pos);
 //			setProtocolNMDC(true);
@@ -1220,7 +1316,7 @@ public class Hub extends DCProtocol implements IHub {
 //			setHubaddy("dchub://"+hubaddy);
 //		}
 		//setCharSet(); //charset must be set especially for ADC hub..
-	}
+//	}
 	
 	/**
 	 * override to set charset to accommodate
@@ -1325,7 +1421,7 @@ public class Hub extends DCProtocol implements IHub {
 			if (dcc.isRunningHub(favHub)) { //reconnect if the hub didn't do this already..
 				logger.debug("reconnecting");
 				statusMessage(LanguageKeys.Reconnecting,0);
-				connection.reset(hubaddy);
+				connection.reset(favHub.getInetSocketaddress());
 			}
 			
 		}
@@ -1387,9 +1483,6 @@ public class Hub extends DCProtocol implements IHub {
 	private final CopyOnWriteArrayList<ICTMListener> ctmrl	= 
 		new CopyOnWriteArrayList<ICTMListener>();
 
-//	private final CopyOnWriteArrayList<IUserCommandListener> ucoml	= 
-//		new CopyOnWriteArrayList<IUserCommandListener>();
-
 
 	
 	public void registerCTMListener(ICTMListener  listener) {
@@ -1435,12 +1528,12 @@ public class Hub extends DCProtocol implements IHub {
 		return totalshare;
 	}
 
-	/**
-	 * @return the hubaddy
-	 */
-	public String getHubaddy() {
-		return hubaddy;
-	}
+//	/**
+//	 * @return the hubaddy
+//	 */
+//	public String getHubaddy() {
+//		return hubaddy;
+//	}
 
 	/**
 	 * @return the HubName without Topic
@@ -1524,9 +1617,9 @@ public class Hub extends DCProtocol implements IHub {
 	}
 	
 
-	public String getRedirectaddy() {
-		return redirectaddy;
-	}
+//	public String getRedirectaddy() {
+//		return redirectaddy;
+//	}
 
 
 	public boolean pendingReconnect() {
@@ -1621,5 +1714,8 @@ public class Hub extends DCProtocol implements IHub {
 		connection.setIncomingDecompression(Compression.ZLIB_FAST);
 	}
 	
+	public boolean isReconnectRunning() {
+		return reconnectRunning;
+	}
 	
 }

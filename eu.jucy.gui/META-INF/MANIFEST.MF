@@ -25,7 +25,8 @@ Export-Package: eu.jucy.gui,
  eu.jucy.gui.itemhandler,
  eu.jucy.gui.settings,
  eu.jucy.gui.texteditor,
- eu.jucy.gui.texteditor.hub
+ eu.jucy.gui.texteditor.hub,
+ eu.jucy.gui.transferview
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Activator: eu.jucy.gui.Activator

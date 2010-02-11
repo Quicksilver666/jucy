@@ -169,8 +169,11 @@ public class CommandInterpreter {
 				break;
 			case JOIN:
 				String addy = GetFirstWord(line);
-				if (!GH.isEmpty(addy)) {
-					ApplicationWorkbenchWindowAdvisor.get().getHub(new FavHub(addy),true);
+				FavHub fh1 = new FavHub(addy);
+				if (fh1.isValid()) {
+					fh1.connect(ApplicationWorkbenchWindowAdvisor.get());
+				} else {
+					logger.info("Invalid address: "+addy);
 				}
 				break;
 			case PM:
@@ -192,7 +195,7 @@ public class CommandInterpreter {
 			case PRUNEHASHES:
 				DCClient.execute(new Runnable() {
 					public void run() {
-						int i = DCClient.get().pruneHashes();
+						int i = ApplicationWorkbenchWindowAdvisor.get().pruneHashes();
 						hub.statusMessage(String.format(
 								"Deleted %d unused hashes", i), 0);
 					}

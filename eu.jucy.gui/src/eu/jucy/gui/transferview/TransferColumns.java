@@ -11,11 +11,14 @@ import helpers.SizeEnum;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
+
 import org.eclipse.swt.graphics.Image;
+
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import eu.jucy.gui.Application;
+import eu.jucy.gui.GuiHelpers;
 import eu.jucy.gui.IImageKeys;
 import eu.jucy.gui.Lang;
 
@@ -71,19 +74,30 @@ public abstract class TransferColumns extends ColumnDescriptor<Object> {
 
 		public static final Image 	
 		
-		EncIcon			=	AbstractUIPlugin.imageDescriptorFromPlugin(
+		ENC_ICON			=	AbstractUIPlugin.imageDescriptorFromPlugin(
 				Application.PLUGIN_ID, IImageKeys.ENCRYPTED).createImage(),
-
+		ENCKEYP_ICON =   AbstractUIPlugin.imageDescriptorFromPlugin(
+				Application.PLUGIN_ID, IImageKeys.ENCRYPTEDKEYP).createImage(),
 		
-		UploadIcon		=	AbstractUIPlugin.imageDescriptorFromPlugin(
+		UPLOAD_ICON		=	AbstractUIPlugin.imageDescriptorFromPlugin(
 				Application.PLUGIN_ID, IImageKeys.UPLOAD_ICON).createImage(),
-		UploadIconEnc	=	AbstractUIPlugin.imageDescriptorFromPlugin(
-						Application.PLUGIN_ID, IImageKeys.UPLOAD_ENC_ICON).createImage(),
+		UPLOAD_ENC_ICON =  GuiHelpers.addCornerIcon(UPLOAD_ICON,ENC_ICON)	,
+		UPLOAD_KEYP_ICON = GuiHelpers.addCornerIcon(UPLOAD_ICON, ENCKEYP_ICON),
+
 						
-		DownloadIcon 	=	AbstractUIPlugin.imageDescriptorFromPlugin(
+		DOWNLOAD_ICON 	=	AbstractUIPlugin.imageDescriptorFromPlugin(
 				Application.PLUGIN_ID, IImageKeys.DOWNLOAD_ICON).createImage(),
-		DownloadIconEnc =	AbstractUIPlugin.imageDescriptorFromPlugin(
-				Application.PLUGIN_ID, IImageKeys.DOWNLOAD_ENC_ICON).createImage();
+		DOWNLOAD_ENC_ICON =	GuiHelpers.addCornerIcon(DOWNLOAD_ICON ,ENC_ICON),
+		DOWNLOAD_KEYP_ICON = GuiHelpers.addCornerIcon(DOWNLOAD_ICON ,ENCKEYP_ICON)
+		;
+		
+		private static final Image[] ALL = new Image[]{null,ENC_ICON,ENCKEYP_ICON,
+			UPLOAD_ICON,UPLOAD_ENC_ICON,UPLOAD_KEYP_ICON,
+			DOWNLOAD_ICON,DOWNLOAD_ENC_ICON,DOWNLOAD_KEYP_ICON};
+		
+			//AbstractUIPlugin.imageDescriptorFromPlugin(
+			//	Application.PLUGIN_ID, IImageKeys.DOWNLOAD_ENC_ICON).createImage();
+		
 		
 		
 		
@@ -101,15 +115,27 @@ public abstract class TransferColumns extends ColumnDescriptor<Object> {
 			if (o instanceof ClientProtocol) {
 				ClientProtocol cp = (ClientProtocol)o;
 				IFileTransfer ft = cp.getFileTransfer();
-				if (ft == null) {
-					return cp.isEncrypted()? EncIcon: null;
-				} else if (ft.isUpload()){
-					return cp.isEncrypted()? UploadIconEnc: UploadIcon;
-				} else {
-					return cp.isEncrypted()? DownloadIconEnc:DownloadIcon;
-				}
+				int i = (cp.isEncrypted()?1:0)   + (cp.isFingerPrintUsed()?1:0);
+				i +=  ft == null? 0: (ft.isUpload()?3:6 );
+				return ALL[i];
+//				
+//				if (ft == null) {
+//					return cp.isEncrypted()? (cp.isFingerPrintUsed()?ENCKEYP_ICON:ENC_ICON): null;
+//				} else if (ft.isUpload()){
+//					if (cp.isEncrypted()) {
+//						return  cp.isFingerPrintUsed() ? UPLOAD_KEYP_ICON:UPLOAD_ENC_ICON ;
+//					} else {
+//						return UPLOAD_ICON;
+//					}
+//				} else {
+//					if (cp.isEncrypted()) {
+//						return  cp.isFingerPrintUsed() ?  DOWNLOAD_KEYP_ICON: DOWNLOAD_ENC_ICON ;
+//					} else {
+//						return DOWNLOAD_ICON;
+//					}
+//				}
 			} else {
-				return DownloadIcon;
+				return DOWNLOAD_ICON;
 			}
 		}
 

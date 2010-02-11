@@ -62,12 +62,12 @@ public class SR extends AbstractNMDCHubProtocolCommand {
 	 * used in search results as separator
 	 * this is the RegExp string for detection
 	 */
-	private static final String 	CHARFIVE= "\\x05";
+	private static final String 	CHARFIVE = "\\x05";
 	
 	/**
 	 * the same as char for sending 
 	 */
-	private static final char 		FIVESEP = (char) 0x05;
+	private static final char FIVESEP = (char) 0x05;
 
 	/*
 	 * 
@@ -77,28 +77,34 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 	/**
 	 * pattern that matches a SR that represents a directory
 	 */
-	private final Pattern 	directorySR;
+	private static final Pattern 	directorySR;
 	
 	/**pattern that matches a SR that represents a file
 	 * 
 	 */
-	private final Pattern 	fileSR;
+	private static final Pattern fileSR;
+	
+
+	
+	static {
+		String prefix = "^\\Q$SR\\E";
+		String filename = "(?:.{1,255})";
+		String slots = "(\\d{1,5})/(\\d{1,5})";
+		directorySR = Pattern.compile(prefix + " ("+NICK+") ("+filename+") "+slots+CHARFIVE+"(?:.*) \\("+IPv4+":"+PORT+"\\)");
+		fileSR = Pattern.compile(prefix +" ("+NICK+") ("+filename+")"+CHARFIVE+"("+FILESIZE+")"+" "+slots+CHARFIVE+"TTH:("+TTH+") \\("+IPv4+":"+PORT+"\\)");
+	}
 	
 	public SR(Hub hub) {
 		super(hub);
-		String FILENAME = "(?:.{1,255})";
-		String result =  FILENAME+"(?:"+CHARFIVE+FILESIZE+")?";
+		String filename = "(?:.{1,255})";
+		String result =  filename+"(?:"+CHARFIVE+FILESIZE+")?";
 		String hubname = "(?:TTH\\:"+TTH+"|(?:.*))";
 		String slots = "(\\d{1,5})/(\\d{1,5})";
 		setPattern(prefix + " "+NICK+" "+result+" "+slots+CHARFIVE+hubname+" \\("+IPv4+":"+PORT+"\\)",true);
 		
-		directorySR = Pattern.compile(prefix + " ("+NICK+") ("+FILENAME+") "+slots+CHARFIVE+"(?:.*) \\("+IPv4+":"+PORT+"\\)");
-		fileSR = Pattern.compile(prefix +" ("+NICK+") ("+FILENAME+")"+CHARFIVE+"("+FILESIZE+")"+" "+slots+CHARFIVE+"TTH:("+TTH+") \\("+IPv4+":"+PORT+"\\)");
-		
 	}
-
-	@Override
-	public void handle(String command) throws IOException {
+	
+	private static void receivedSR(Hub hub,String command) {
 		Matcher sr;
 		String path;
 		if ((sr = fileSR.matcher(command)).matches()) {
@@ -134,6 +140,11 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 			logger.info("invalid sr string: "+command);
 		}
 	}
+
+	@Override
+	public void handle(String command) throws IOException {
+		receivedSR(hub,command);
+	}
 	
 	private static String transformPath(String sent) {
 		return GH.replaceInvalidFilpath(sent.replace('\\', File.separatorChar)) ;
@@ -144,8 +155,8 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 		String fileSR = "$SR guywithfile lazgapo\\ashda\\strangefile.bmp"
 			+((char)0x05)+"4587 2/4"+((char)0x05)
 			+"TTH:4CLZLU7TCB6C4YTHN7JNOIA7F7VQVJV5762AYJA (89.48.59.86:6999)";
-		SR sr = new SR(null);
-		Matcher m = sr.fileSR.matcher(fileSR);
+	
+		Matcher m = SR.fileSR.matcher(fileSR);
 		boolean matches = m.matches();
 		
 		System.out.println(matches);
@@ -173,8 +184,8 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 		//partial sr string: $SR °^(AAA)Schnueffeltv2^° Musik\DJ Quicksilver - Bellissima.mp33708421 1/1TTH:YUMEHYMQI4XYDLS4YFAGH3ID2RMSWL44CU5HWXA (89.59.75.160:6999)
 	
 		InetSocketAddress isa = hub.getHubIPAndPort();
-		   
-		String srpart= "$SR "
+		
+		String srpart = "$SR "
 	   		+ sr.getUser().getNick() + " "
 	   		+ result + " "         
 	   		+ sr.getAvailabelSlots() +"/" + sr.getTotalSlots() + FIVESEP 	
@@ -260,7 +271,8 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
     				Hub hub = dcc.hubForNickAndIP(nick,hubip);
     				if (hub != null) {
     					if (hub.getCharset().equals(DCProtocol.NMDCCHARSET) || originalpacket == null ) {
-    						hub.searchResultReceived(sr);
+    						receivedSR(hub, sr);
+    					//	hub.searchResultReceived(sr);
     					} else {
     						receivedNMDCSR(from, hub.getCharset().decode(originalpacket) , null,dcc);
     					}

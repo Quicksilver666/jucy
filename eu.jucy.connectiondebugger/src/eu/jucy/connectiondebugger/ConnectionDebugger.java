@@ -1,6 +1,8 @@
 package eu.jucy.connectiondebugger;
 
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -25,36 +27,96 @@ import uc.protocols.IProtocolCommand;
 public class ConnectionDebugger extends Observable<StatusObject> implements IConnectionDebugger {
 
 	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
-	private int storeCommand = 500;
+	private int storeCommand = 3000;
+	
+	private InetAddress ia;
+	private ConnectionProtocol current;
 	
 	private final List<SentCommand> lastCommands = 
 		Collections.synchronizedList(new LinkedList<SentCommand>());
 	
-	private final Map<IProtocolCommand,Integer> commandCounter = 
-		new HashMap<IProtocolCommand,Integer>();
+	private final Map<IProtocolCommand,CommandStat> commandCounter = 
+		new HashMap<IProtocolCommand,CommandStat>();
 	
+	private long trafficTotal;
 	
-	public boolean autoAttached(InetAddress ia, ConnectionProtocol attachedTo) {
-		
-		logger.info("Attached : "+ia+"  connection: "+attachedTo);
-		return false;
+
+
+	public void notifyAttachable(InetAddress ia, ConnectionProtocol attacheTo) {
+		if (current != null) {
+			current.unregisterDebugger(this);
+		}
+		init(attacheTo);
+		logger.info("Attached : "+ia+"  connection: "+attacheTo);
+	}
+	
+	public void init(InetAddress ia) {
+		this.ia = ia;
+		ConnectionProtocol.addNotifyAttachable(ia, this);
+	}
+	public void init(ConnectionProtocol cp) {
+		current = cp;
+		current.registerDebugger(this);
+	}
+	
+	public void dispose() {
+		if (current != null) {
+			current.unregisterDebugger(this);
+		}
+		if (ia != null) {
+			ConnectionProtocol.removeNotifyAttachable(ia);
+		}
 	}
 
 	public void receivedCommand(IProtocolCommand commandHandler,
 			boolean wellFormed, String command) {
-		if (commandHandler != null) {
-			synchronized(commandCounter) {
-				GH.incrementMappedCounter(commandCounter, commandHandler, 1);
-			}
-		}
 		
 		ReceivedCommand rc = new ReceivedCommand(commandHandler, command, wellFormed);
+		
+		CommandStat cs;
+		synchronized(commandCounter) {
+			cs = commandCounter.get(rc.getCommandHandler());
+			if (cs == null) {
+				cs = new CommandStat(rc.getCommandHandler());
+				commandCounter.put(rc.getCommandHandler(), cs);
+				notifyObservers(new StatusObject(cs,ChangeType.ADDED));
+			}
+		
+			synchronized(cs) {
+				cs.frequency++;
+				cs.lastCommand = command;
+				try {
+					int traf = command.getBytes(current.getCharset().name()).length + 1; //\n/| char is one byte in size and not counted here otherwise..
+					trafficTotal += traf;
+					cs.trafficCommand += traf;
+				} catch (UnsupportedEncodingException e) {
+					throw new IllegalStateException();
+				}
+			}
+		}
+		notifyObservers(new StatusObject(cs,ChangeType.CHANGED));
+		
+		
+		
+		
 		add(rc);
 	}
 	
+	public long getTrafficTotal() {
+		synchronized (commandCounter) {
+			return trafficTotal;
+		}
+	}
+
+	public Collection<CommandStat> getCommandCounter() {
+		return Collections.unmodifiableCollection(commandCounter.values());
+	}
+
 	public void sentCommand(String sent) {
-		SentCommand sc = new SentCommand(sent,false);
-		add(sc);
+		if (!GH.isEmpty(sent)) {
+			SentCommand sc = new SentCommand(sent.substring(0, sent.length()-1),false);
+			add(sc);
+		}
 	}
 	
 	private void add(SentCommand sc) {
@@ -77,6 +139,36 @@ public class ConnectionDebugger extends Observable<StatusObject> implements ICon
 		return lastCommands;
 	}
 
-	
+	public static class CommandStat {
+		private  final String commandName;
+		
+
+		private int frequency;
+		private String lastCommand = "";
+		private long trafficCommand;
+		
+		public CommandStat(IProtocolCommand com) {
+			commandName = com.getClass().getSimpleName();
+		}
+		
+		
+		public String getCommandName() {
+			return commandName;
+		}
+
+		public synchronized int getFrequency() {
+			return frequency;
+		}
+		
+		public synchronized String getLastCommand() {
+			return lastCommand;
+		}
+		
+		public synchronized long getTrafficTotal() {
+			return trafficCommand;
+		}
+		
+
+	}
 	
 }

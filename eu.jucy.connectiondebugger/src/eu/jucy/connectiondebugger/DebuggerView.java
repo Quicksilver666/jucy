@@ -5,35 +5,39 @@ import helpers.IObservable;
 import helpers.StatusObject;
 import helpers.Observable.IObserver;
 
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import logger.LoggerFactory;
 
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
 
 
-
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.PlatformUI;
+
 
 import uc.IUser;
 import uc.protocols.ConnectionProtocol;
 import uihelpers.DelayedTableUpdater;
 import uihelpers.TableViewerAdministrator;
 
+import eu.jucy.connectiondebugger.ConnectionDebugger.CommandStat;
 import eu.jucy.connectiondebugger.SentCommandColumns.CommandCol;
+import eu.jucy.connectiondebugger.SentCommandColumns.CommandName;
 import eu.jucy.connectiondebugger.SentCommandColumns.DateCol;
+import eu.jucy.connectiondebugger.SentCommandColumns.Frequency;
+import eu.jucy.connectiondebugger.SentCommandColumns.LastCommand;
+import eu.jucy.connectiondebugger.SentCommandColumns.TrafficTotal;
 import eu.jucy.gui.UCView;
 
 
@@ -57,6 +61,8 @@ import eu.jucy.gui.UCView;
 
 public class DebuggerView extends UCView implements IObserver<StatusObject> {
 
+	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
+	
 	/**
 	 * maps secondary IDs of view to some input object
 	 * (view is used very much like an editor here..)
@@ -64,6 +70,7 @@ public class DebuggerView extends UCView implements IObserver<StatusObject> {
 	private static final Map<String,Object> VIEW_INPUT = new HashMap<String,Object>();
 	
 	public static void addInput(String secondaryID,Object o) {
+		logger.debug("adding Input: "+secondaryID+"  "+o);
 		VIEW_INPUT.put(secondaryID, o);
 	}
 	
@@ -73,12 +80,17 @@ public class DebuggerView extends UCView implements IObserver<StatusObject> {
 	 */
 	public static final String ID = "eu.jucy.connectiondebugger.debuggerview";
 
-	private TableViewer viewer;
+	private CTabFolder folder;
+	
+	private TableViewer commandsViewer;
 	private TableViewerAdministrator<SentCommand> tva;
 	private DelayedTableUpdater<SentCommand> update;
 	
-	private Action action1;
-	private Action action2;
+	
+	private TableViewer statsViewer;
+	private TableViewerAdministrator<CommandStat> tvaStats;
+	private DelayedTableUpdater<CommandStat> updateStats;
+	
 
 	private final ConnectionDebugger debugger = new ConnectionDebugger();
 	
@@ -99,9 +111,20 @@ public class DebuggerView extends UCView implements IObserver<StatusObject> {
 		}
 		public void dispose() {
 		}
-		public Object[] getElements(Object parent) {
-			return ((ConnectionDebugger)parent).getLastCommands().toArray();
+		public Object[] getElements(Object inputElement) {
+			return ((ConnectionDebugger)inputElement).getLastCommands().toArray();
 		}
+	}
+	
+	class StatsContentProvider implements IStructuredContentProvider {
+
+		public Object[] getElements(Object inputElement) {
+			return ((ConnectionDebugger)inputElement).getCommandCounter().toArray();
+		}
+		
+		public void dispose() {}
+		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
+		
 	}
 
 
@@ -112,108 +135,156 @@ public class DebuggerView extends UCView implements IObserver<StatusObject> {
 	 */
 	public void createPartControl(Composite parent) {
 		
-		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		tva = new TableViewerAdministrator<SentCommand>(viewer, 
-				Arrays.asList(new DateCol(),new CommandCol()), ID, 0);
-		
-		tva.apply();
-		update = new DelayedTableUpdater<SentCommand>(viewer);
-		
-		
-		viewer.setContentProvider(new ViewContentProvider());
+		folder = new CTabFolder(parent, SWT.BORDER);
+		folder.setSimple(false);
+		createCommandsTab(folder);
+		createStatsTab(folder);
+				
+		folder.setSelection(0);
 		
 		String secID = getViewSite().getSecondaryId();
 		Object o = VIEW_INPUT.get(secID);
 		
-		if (o instanceof ConnectionProtocol) {
-			((ConnectionProtocol)o).registerDebugger(debugger);
-		} else if (o instanceof IUser && ((IUser)o).getIp() != null) {
-			ConnectionProtocol.addAutoAttach(((IUser)o).getIp(), debugger);
-		} 
-		VIEW_INPUT.remove(secID);
 		
-		viewer.setInput(debugger);
 		debugger.addObserver(this);
 		
-		makeActions();
-		contributeToActionBars();
+		if (o instanceof ConnectionProtocol) {
+			logger.debug("attaching to connectionProtocol: "+o);
+			setPartName("Connection: "+ ((ConnectionProtocol)o ).getConnection().getInetSocketAddress());
+			debugger.init( (ConnectionProtocol)o );
+		} else if (o instanceof IUser && ((IUser)o).getIp() != null) {
+			logger.debug("attaching to ip of user: "+o);
+			setPartName("Connection: "+ ((IUser)o).getNick());
+			debugger.init(((IUser)o).getIp());
+		} else {
+			logger.debug("no attachment done: "+secID +"  "+o);
+		}
+		VIEW_INPUT.remove(secID);
+		
+		getSite().setSelectionProvider(commandsViewer); 
+		createContextPopup(ID, commandsViewer);		
+		
+		setControlsForFontAndColour(commandsViewer.getTable(),statsViewer.getTable());
+
+	}
+	
+	private void createCommandsTab(CTabFolder parent) {
+	
+		commandsViewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL |SWT.FULL_SELECTION);
+		commandsViewer.getTable().setHeaderVisible(true);
+		
+		tva = new TableViewerAdministrator<SentCommand>(commandsViewer, 
+				Arrays.asList(new DateCol(),new CommandCol()), ID+".command", -1);
+		
+		tva.apply();
+		update = new DelayedTableUpdater<SentCommand>(commandsViewer);
+		
+		
+		commandsViewer.setContentProvider(new ViewContentProvider());
+		commandsViewer.setInput(debugger);
+		
+		CTabItem connectionItem = new CTabItem(folder, SWT.NONE);
+		connectionItem.setText("Commands");
+		connectionItem.setControl(commandsViewer.getControl());
 	}
 	
 	
-
-//	private void hookContextMenu() {
-//		MenuManager menuMgr = new MenuManager("#PopupMenu");
-//		menuMgr.setRemoveAllWhenShown(true);
-//		menuMgr.addMenuListener(new IMenuListener() {
-//			public void menuAboutToShow(IMenuManager manager) {
-//				DebuggerView.this.fillContextMenu(manager);
-//			}
-//		});
-//		Menu menu = menuMgr.createContextMenu(viewer.getControl());
-//		viewer.getControl().setMenu(menu);
-//		getSite().registerContextMenu(menuMgr, viewer);
-//	}
+	
+	@SuppressWarnings("unchecked")
+	private void createStatsTab(CTabFolder parent) { 
+		statsViewer  = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL |SWT.FULL_SELECTION);
+		statsViewer.getTable().setHeaderVisible(true);
+		tvaStats = new TableViewerAdministrator<CommandStat>(statsViewer, 
+				Arrays.asList(new CommandName(),new Frequency(),new TrafficTotal(debugger),new LastCommand()), ID+".stat", -1);
+		tvaStats.apply();
+		updateStats = new DelayedTableUpdater<CommandStat>(statsViewer);
+		
+		statsViewer.setContentProvider(new StatsContentProvider());
+		statsViewer.setInput(debugger);
+		
+		CTabItem statsItem = new CTabItem(folder, SWT.NONE);
+		statsItem.setText("Stats");
+		statsItem.setControl(statsViewer.getControl());
+		
+	}
+	
 
 	public void update(IObservable<StatusObject> o, StatusObject arg) {
 		if (arg.getValue() instanceof SentCommand) {
 			update.put(arg.getType(), (SentCommand)arg.getValue());
+
+		}
+		if (arg.getValue() instanceof CommandStat ) {
+			updateStats.put(arg.getType(), (CommandStat)arg.getValue());
 		}
 	}
 
 
-
-	private void contributeToActionBars() {
-		IActionBars bars = getViewSite().getActionBars();
-		fillLocalPullDown(bars.getMenuManager());
-		fillLocalToolBar(bars.getToolBarManager());
-	}
-
-	private void fillLocalPullDown(IMenuManager manager) {
-		manager.add(action1);
-		manager.add(new Separator());
-		manager.add(action2);
-	}
-
-	
-	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(action1);
-		manager.add(action2);
-	}
-
-	private void makeActions() {
-		action1 = new Action() {
-			public void run() {
-				showMessage("Action 1 executed");
-			}
-		};
-		action1.setText("Action 1");
-		action1.setToolTipText("Action 1 tooltip");
-		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		
-		action2 = new Action() {
-			public void run() {
-				showMessage("Action 2 executed");
-			}
-		};
-		action2.setText("Action 2");
-		action2.setToolTipText("Action 2 tooltip");
-		action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-	}
-
-
-	private void showMessage(String message) {
-		MessageDialog.openInformation(
-			viewer.getControl().getShell(),
-			"Connection Debugger",
-			message);
-	}
+//
+//	private void contributeToActionBars() {
+//		IActionBars bars = getViewSite().getActionBars();
+//		fillLocalPullDown(bars.getMenuManager());
+//		fillLocalToolBar(bars.getToolBarManager());
+//	}
+//
+//	private void fillLocalPullDown(IMenuManager manager) {
+//		manager.add(action1);
+//		manager.add(new Separator());
+//		manager.add(action2);
+//	}
+//
+//	
+//	private void fillLocalToolBar(IToolBarManager manager) {
+//		manager.add(action1);
+//		manager.add(action2);
+//	}
+//
+//	private void makeActions() {
+//		action1 = new Action() {
+//			public void run() {
+//				showMessage("Action 1 executed");
+//			}
+//		};
+//		action1.setText("Action 1");
+//		action1.setToolTipText("Action 1 tooltip");
+//		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+//			getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER));
+//		
+//		action2 = new Action() {
+//			public void run() {
+//				showMessage("Action 2 executed");
+//			}
+//		};
+//		action2.setText("Action 2");
+//		action2.setToolTipText("Action 2 tooltip");
+//		action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
+//				getImageDescriptor(ISharedImages.IMG_OBJ_FILE));
+//	}
+//
+//
+//	private void showMessage(String message) {
+//		MessageDialog.openInformation(
+//			viewer.getControl().getShell(),
+//			"Connection Debugger",
+//			message);
+//	}
 
 	/**
 	 * Passing the focus request to the viewer's control.
 	 */
 	public void setFocus() {
-		viewer.getControl().setFocus();
+		commandsViewer.getControl().setFocus();
 	}
+
+
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		debugger.deleteObserver(this);
+		debugger.dispose();
+	}
+	
+	
+	
 }

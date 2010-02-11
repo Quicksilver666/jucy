@@ -38,7 +38,6 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 	@SuppressWarnings("serial")
 	private final Map<Integer,FavHub> favHubs = Collections.synchronizedMap(new HashMap<Integer,FavHub>() {
 
-
 		/**
 		 * make sure new Order is set to the hub..
 		 */
@@ -163,6 +162,21 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 		checkOrder();
 	}
 	
+	/**
+	 * exchanges 2 hubs with same order..
+	 * 
+	 * @param old
+	 * @param newHub
+	 */
+	public void exchange(FavHub old,FavHub newHub) {
+		if (old.getOrder() != newHub.getOrder()) {
+			throw new IllegalArgumentException();
+		}  else if (newHub.getOrder() == -1) {
+			addToFavorites(newHub);
+		} else {
+			favHubs.put(newHub.getOrder(), newHub);
+		}
+	}
 
 
 	/* (non-Javadoc)
@@ -190,8 +204,9 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 	 * @see uc.IFavHubs#contains(java.lang.String)
 	 */
 	public boolean contains(String hubaddress) {
+		FavHub fhNew = new FavHub(hubaddress);
 		for (FavHub fh: favHubs.values()) {
-			if (fh.getHubaddy().equals(hubaddress)) {
+			if (fh.equals(fhNew)) {
 				return true;
 			}
 		}
@@ -205,6 +220,22 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 	 */
 	public boolean contains(FavHub hub) {
 		return hub.equals(favHubs.get(hub.getOrder()));	
+	}
+	
+	/**
+	 * retrieves internal presentation of given  FavHub
+	 * i.e. if a hub with the given husb address exists that hub is returned..
+	 * 
+	 * @param fh
+	 * @return
+	 */
+	public FavHub internal(FavHub fh) {
+		for (FavHub present:getFavHubs()) {
+			if (fh.equals(present)) {
+				return present;
+			}
+		}
+		return fh;
 	}
 	
 	

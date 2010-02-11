@@ -8,7 +8,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import logger.LoggerFactory;
 
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -39,8 +43,11 @@ import uc.crypto.HashValue;
 import uc.files.IDownloadable;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry.IDownloadFinished;
 import uc.protocols.SendContext;
+import uc.protocols.hub.INFField;
 
 public abstract class UserHandlers extends AbstractHandler {
+	
+	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
 	
 	public static final String USER_BY_ID = "USER_BY_ID";
 	public static final String BY_ID_POSTFIX = "BYUSERID";
@@ -258,9 +265,22 @@ public abstract class UserHandlers extends AbstractHandler {
 
 	public static class CopyNickToClipboardHandler extends UserHandlers { //Lang.CopyNickToClipboard
 		public static final String COMMAND_ID = "eu.jucy.gui.copynicktoclipboard";
+		public static final String USE_INF = "USE_INF";
 		
 		protected void doWithUser(IUser usr,ExecutionEvent event){
-			GuiHelpers.copyTextToClipboard(usr.getNick());
+			String infname = event.getParameter(USE_INF);
+			if (infname == null) {
+				infname = INFField.NI.name();
+			}
+			logger.debug("INF: "+infname);
+			
+			INFField inf = INFField.parse(infname);
+			logger.debug("INFF: "+inf);
+			String s = inf.getProperty(usr);
+			logger.debug("s: "+s);
+			if (!GH.isNullOrEmpty(s)) {
+				GuiHelpers.copyTextToClipboard(s);
+			}
 		}	
 	}
 	

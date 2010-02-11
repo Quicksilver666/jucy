@@ -101,7 +101,7 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 		FileTransferInformation fti = client.getFti();
 		if (fti.isValidForGet()) {
 			logger.debug("valid fti for get");
-			client.addCommand(new MaxedOut(client)); //TODO maxedOut received should trigger warning if received on FileList
+			client.addCommand(new MaxedOut(client)); //TODO maxedOut received should trigger warning if received on FileList or tthl
 			switch(fti.getType()) {
 			case FILE:
 				client.addCommand(new ADCSND(client,fti.getHashValue(),fti.getStartposition(),fti.getLength()));
@@ -120,7 +120,8 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 			}
 			
 			 //bad workaround -> use simple connection for sending this and next command..
-
+			
+			
 			//client.setSimpleConnection();
 		//	SimpleConnection simple = (SimpleConnection)client.getConnection();
 			logger.debug("sending ADCGET channelIsOpen? " ); //+simple.retrieveChannel().isOpen());
@@ -131,6 +132,8 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 				+ fti.getLength() 
 				+ fti.getCompression() 
 				+ "|" ;
+
+			
 
 			client.sendUnmodifiedRaw(adcget);
 		//	simple.send(adcget);

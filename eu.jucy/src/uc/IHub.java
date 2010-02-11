@@ -4,7 +4,6 @@ import java.util.List;
 
 
 import uc.files.search.FileSearch;
-import uc.protocols.CPType;
 import uc.protocols.SendContext;
 
 
@@ -98,21 +97,29 @@ public interface IHub {
 	
 	
 	/**
-	 * 
-	 * @param target - to which user
-	 * @param protocol which protocol should be uses
-	 * @param token - token (ADC only)
+	 * requests a connection with the other user based 
+	 * (sending RCM or CTM depending on being passive..)
+	 * @param target 
+	 * @param token
 	 */
-	 void sendCTM(IUser target, CPType protocol,String token);
-
-	 
-		/**
-		 * 
-		 * @param target - to which user
-		 * @param protocol which protocol should be uses
-		 * @param token - token (ADC only)
-		 */
-	 void sendRCM(IUser target,CPType protocol,String token);
+	void requestConnection(IUser target,String token);
+	
+//	/**
+//	 * 
+//	 * @param target - to which user
+//	 * @param protocol which protocol should be uses
+//	 * @param token - token (ADC only)
+//	 */
+//	 void sendCTM(IUser target, CPType protocol,String token);
+//
+//	 
+//		/**
+//		 * 
+//		 * @param target - to which user
+//		 * @param protocol which protocol should be uses
+//		 * @param token - token (ADC only)
+//		 */
+//	 void sendRCM(IUser target,CPType protocol,String token);
 
 	 /**
 	  * 
@@ -124,4 +131,12 @@ public interface IHub {
 	 * @return time of last login
 	 */
 	long getLastLogin();
+	
+	/**
+	 * 
+	 * @return true if one can ask the hub for a user's IP
+	 */
+	boolean supportsUserIP();
+	
+	void requestUserIP(IUser usr);
 }

@@ -25,7 +25,7 @@ public class ZOn extends AbstractNMDCHubProtocolCommand {
 
 	@Override
 	public void handle(String command) throws IOException {
-		logger.debug("toggle line decompression "+hub.getHubaddy());
+		logger.debug("toggle line decompression "+hub.getFavHub().getSimpleHubaddy());
 		hub.enableDecompression();
 	}
 
@@ -38,7 +38,7 @@ public class ZOn extends AbstractNMDCHubProtocolCommand {
 		}
 		
 		public void handle(String command) throws ProtocolException,IOException {
-			logger.debug("toggle line decompression "+hub.getHubaddy());
+			logger.debug("toggle line decompression "+hub.getFavHub().getSimpleHubaddy());
 			hub.enableDecompression();
 			
 		}

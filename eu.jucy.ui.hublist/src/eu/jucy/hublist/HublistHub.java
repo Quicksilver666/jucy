@@ -32,9 +32,9 @@ public class HublistHub implements Iterable<String> {
 		return presentation;
 	}
 	
-	public void connect() {
+	public void connect(DCClient dcc) {
 		FavHub fh = getFavHub();
-		DCClient.get().getHub(fh,true);
+		fh.connect(dcc);
 	}
 	
 

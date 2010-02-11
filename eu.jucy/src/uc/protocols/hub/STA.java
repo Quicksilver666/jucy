@@ -127,7 +127,7 @@ public class STA extends AbstractADCHubCommand {
 		hub.sendUnmodifiedRaw("DSTA "+SIDToStr(hub.getSelf().getSid())+" "+SIDToStr(target.getSid())+" "
 				+sm.toADCString()+"\n");
 		if (Platform.inDevelopmentMode()) {
-			logger.warn(sm.toString());
+			logger.warn(sm.toString()+"  "+target,new Throwable());
 		}
 	}
 	

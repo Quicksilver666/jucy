@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GUIPI;
 import eu.jucy.gui.GuiHelpers;
 
@@ -245,7 +246,7 @@ public class StyledTextViewer {
 	
 	private void loadOldMessages(long loadBefore) {
 		if (pm) {
-			DBLogger entity = new DBLogger(usr);
+			DBLogger entity = new DBLogger(usr,ApplicationWorkbenchWindowAdvisor.get());
 			List<ILogEntry> logentry =  entity.loadLogEntrys(HISTORY, 0);
 			//we have a problem here... if this was just opened by a message.. the message is already logged..
 			//so we will receive that  message as old message.. -> remove last old message if it is way to new..

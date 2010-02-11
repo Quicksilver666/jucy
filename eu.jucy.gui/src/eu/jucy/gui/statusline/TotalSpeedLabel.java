@@ -62,7 +62,7 @@ public class TotalSpeedLabel extends CLabel implements IStatusLineComp {
 		setMenu(menu);
 		
 
-		setImage(up?UserColumn.UploadIcon:UserColumn.DownloadIcon);
+		setImage(up?UserColumn.UPLOAD_ICON:UserColumn.DOWNLOAD_ICON);
 	
 	}
 	

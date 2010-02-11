@@ -357,6 +357,10 @@ public class DownloadQueue extends Observable<StatusObject> {
 	public IDatabase getDatabase() {
 		return dcc.getDatabase();
 	}
+	
+	DCClient getDcc() {
+		return dcc;
+	}
 
 	/**
 	 * @return the root

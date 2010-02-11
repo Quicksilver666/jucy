@@ -24,6 +24,9 @@ public interface IFavHubs extends IObservable<FavHub> {
 	 */
 	boolean contains(String hubaddress);
 
+	/**
+	 * checks if exactly that hub (not a hub with same address is already favhub)
+	 */
 	boolean contains(FavHub hub);
 	
 	
@@ -33,5 +36,18 @@ public interface IFavHubs extends IObservable<FavHub> {
 	void addToFavorites(FavHub hub);
 	 
 	void removeFromFavorites(FavHub hub);
+	
+	void exchange(FavHub old,FavHub newHub);
+	
+	
+	/**
+	 * retrieves internal presentation of given  FavHub
+	 * i.e. if a hub with the given husb address exists that hub is returned..
+	 * 
+	 * @param fh
+	 * @return
+	 */
+	public FavHub internal(FavHub fh);
+	
 
 }

@@ -45,13 +45,15 @@ public class OpenDebuggerViewHandler extends AbstractHandler {
 	
 	public static void openDebugger(Object o,String id,IWorkbenchWindow window) {
 		IWorkbenchPage page = window.getActivePage();
+		id = id.replace(':', '|');
 		boolean exists	= page.findViewReference(DebuggerView.ID,id) != null;
-		if (exists) {
-			DebuggerView.addInput(id, o);
-		}
 		try {
-			page.showView(DebuggerView.ID,id,
-					exists? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_CREATE );
+			if (!exists) {
+				DebuggerView.addInput(id, o);
+				page.showView(DebuggerView.ID,id, IWorkbenchPage.VIEW_CREATE );
+			}
+			page.showView(DebuggerView.ID,id, IWorkbenchPage.VIEW_ACTIVATE);
+			
 		} catch (PartInitException e){
 		     MessageDialog.openError(window.getShell(),"Error" ,e.toString());
 		}

@@ -30,9 +30,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 
 
@@ -88,14 +88,12 @@ public class IconManager {
 			System.err.println("File: "+f);
 		}
 		if (unknownFileImage == null) {
-			unknownFileImage = AbstractUIPlugin.imageDescriptorFromPlugin(
-					IImageKeys.PLUGIN_ID, 
-					IImageKeys.UNKNOWNFILE_ICON).createImage();
+			unknownFileImage = PlatformUI.getWorkbench().getSharedImages().
+					getImageDescriptor(ISharedImages.IMG_OBJ_FILE).createImage();
 		}
 		if (folderImage == null) {
-			folderImage = AbstractUIPlugin.imageDescriptorFromPlugin(
-					IImageKeys.PLUGIN_ID, 
-					IImageKeys.FOLDER_ICON).createImage(); 
+			folderImage = PlatformUI.getWorkbench().getSharedImages().
+					getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER).createImage();
 		}
 		
 		

@@ -1,5 +1,6 @@
 package uihelpers;
 
+import helpers.GH;
 import helpers.PreferenceChangedAdapter;
 
 import java.util.ArrayList;
@@ -230,7 +231,7 @@ public class TableViewerAdministrator<T> {
 		viewer.setLabelProvider(new AdminLabelProvider());
 		if (defaultSortCol != NoSorting) {
 			boolean inverted = defaultSortCol < 0 ;
-			int col = inverted? (-defaultSortCol)+1: defaultSortCol;
+			int col = inverted? (-defaultSortCol)-1: defaultSortCol;
 			viewer.setComparator(descriptors.get(col).getComparator(inverted));
 		}
 	}
@@ -390,6 +391,40 @@ public class TableViewerAdministrator<T> {
 		public final int getStyle() {
 			return style;
 		}
+	}
+	
+	public abstract static class NumberColumnDescriptor<X> extends ColumnDescriptor<X> {
+		
+	
+
+		public NumberColumnDescriptor(int defaultColumnSize, String columnName,
+				int style) {
+			super(defaultColumnSize, columnName, style);
+		}
+
+		public NumberColumnDescriptor(int defaultColumnSize, String columnName) {
+			super(defaultColumnSize, columnName);
+		}
+
+		public abstract long getNumber(X x);
+		
+		public abstract String getTextFromNumber(long num);
+
+		@Override
+		public String getText(X x) {
+			return getTextFromNumber(getNumber(x));
+		}
+		@Override
+		public Comparator<X> getComparator() {
+			return new Comparator<X>() {
+				public int compare(X o1, X o2) {
+					return GH.compareTo(getNumber(o1), getNumber(o2));
+				}
+				
+			};
+		}
+		
+		
 		
 	}
 	

@@ -44,7 +44,7 @@ public class ConnectToMe extends AbstractNMDCHubProtocolCommand {
 	
 	
 	public static void sendCTM(Hub hub, IUser target,CPType type) {
-		DCClient dcc = DCClient.get();
+		DCClient dcc = hub.getDcc();
 		hub.sendRaw(	"$ConnectToMe %[userNI] %[myI4]:"
 				+ dcc.getCh().getPort(type.isEncrypted())
 				+ (type.isEncrypted()?"S":"") +"|",  

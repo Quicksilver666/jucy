@@ -270,7 +270,7 @@ public abstract class DCProtocol extends ConnectionProtocol {
 	 */
 	
 	public static HashValue nickToUserID(String nick, FavHub hub) {
-		return Tiger.tigerOfString(hub.getHubaddy() + "$$" + nick);
+		return Tiger.tigerOfString(hub.getSimpleHubaddy() + "$$" + nick);
 	}
 
 	public static HashValue nickToUserID(String nick, Hub hub) {
@@ -282,7 +282,7 @@ public abstract class DCProtocol extends ConnectionProtocol {
 	}
 	
 	public static HashValue CIDToUserID(HashValue cid, FavHub hub) {
-		return Tiger.tigerOfString(cid.toString()+"$"+hub.getHubaddy());
+		return Tiger.tigerOfString(cid.toString()+"$"+hub.getSimpleHubaddy());
 	}
 
 

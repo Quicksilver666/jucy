@@ -48,7 +48,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-import uc.DCClient;
+
 import uc.PI;
 import uc.User;
 import uc.crypto.HashValue;
@@ -409,7 +409,7 @@ public class FileList implements Iterable<IFileListItem> {
 	 * that are in DownloadQueue as well as in this FileList..
 	 */
 	public void match() {
-		DCClient.get().getDownloadQueue().match(this);
+		usr.getHub().getDcc().getDownloadQueue().match(this);
 	}
 	
 	/**

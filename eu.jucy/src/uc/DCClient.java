@@ -11,7 +11,6 @@ package uc;
 
 
 import helpers.GH;
-import helpers.SizeEnum;
 import helpers.Version;
 
 import java.io.File;
@@ -39,6 +38,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
@@ -103,14 +103,9 @@ import uc.protocols.hub.Hub;
  * -> does that work together with limiter? uploadlimiter maybe  but downloadlimiter?
  *
  *  TODO internationalisation in hublisteditor
+ *				
  *
- * TODO check ISharedImages PlatformUI.getWorkbench().
-					getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT); 
-					IMG_OBJ_FOLDER
-					IMG_OBJ_FILE   could both be interestign for default files and folders..
-					
- *
- * Presentation of magnet -> save as button .. or play button could be added / may be a view button also..
+ * Presentation of magnet -> save as button .. or play button could be added 
  
  * 
  * My Personal Bugtracker:
@@ -122,13 +117,14 @@ import uc.protocols.hub.Hub;
  *  
  *  TODO may be think about torrent support in dc client -> starting torrents downloaded..
  *  
+TODO
+2. "path" column in Finished Downloads folder.
 
+3. when you stuck mouse pointer on jucy icon in systray appears notification like "jucy v. 0.81... etc" (win). it'll be better to give more useful information here. for example current upload/download speed. (mac os version must have colored UP/DW digits on dock icon (i extremely love this feature in transmission)))
  *  
  * TODO implement some game.. i.e. Battleship or chess that could be played against other user..
  *  
- * TODO .. people with slot not Properly removed in SlotManager from slotqueue may cause not all slots filled up..
  * 
- * TODO UDP encryption change -> encrypt AES/ECB/PKCS5Padding with IV  then append Mesage with AES/CBC/PKCS5Padding
  *  
  * 
  * TODO after finished downloading file .. may be check if should be hashed and immediately shared..
@@ -152,6 +148,7 @@ import uc.protocols.hub.Hub;
  * 
  * TODO hideshare functionality.. -> better feature would be different filelists
  * on a per hub basis.. hideshare = no filelist..
+ * 
  * 
  * TODO .. adding massive ammount of DQ entries makes jucy unstable...
  * -> especially closing will result on failed restore operations...
@@ -246,6 +243,10 @@ public final class DCClient {
 	private static DCClient singleton;
 	private static final Object synchSingleton = new Object();
 	
+	/**
+	 * 
+	 * 
+	 */
 	public static DCClient get() {
 		synchronized(synchSingleton) {
 			return singleton;
@@ -407,7 +408,7 @@ public final class DCClient {
 			}
     	};
    
-
+    	
     	filelist = new OwnFileList(fileListSelf,this); 
         
         ch = new ConnectionHandler(this); 
@@ -707,14 +708,13 @@ public final class DCClient {
     	return new int[] {normal,registered,ophub};
     }
     
-    /**
-     * 
-     * @return the connection set by the user
-     * i.e. 0.02 or 50  
-     */
-    public String getConnection() {
-    	return SizeEnum.toShortSpeedString(PI.getLong(PI.connectionNew));
-    }
+//    /**
+//     * @return the connection set by the user
+//     * i.e. 0.02 or 50  
+//     */
+//    public String getConnection() {
+//    	return SizeEnum.toShortSpeedString(PI.getLong(PI.connectionNew));
+//    }
     
 
     
@@ -755,6 +755,7 @@ public final class DCClient {
     	synchronized (this) {
     		hub = hubs.get(favHub);
     		if (hub == null) {
+    			favHub = favHubs.internal(favHub);
     			hub = new Hub(favHub,this);
     			synchronized(hub) {
     				hubs.put(favHub, hub);
@@ -762,31 +763,31 @@ public final class DCClient {
     					hub.registerCTMListener(ch);
     				} 
     				final Hub hubf = hub; 
+    				final Semaphore sem = new Semaphore(0);
     				
     				Runnable finish = new Runnable() {
-    					int i = hublisteners.size();
-						public synchronized void run() {
-							if (--i <= 0) {
-								scheduler.schedule(new Runnable() {
-			    					public void run() {
-			    						synchronized(hubf) {
-			    							hubf.start();
-			    						}
-			    						notifyChangedInfo(InfoChange.Hubs);
-			    					}
-			    					//wait with starting some time (race condition though helps registering listeners)
-			    				}, 100, TimeUnit.MILLISECONDS);
-							}
+						public  void run() {
+							sem.release();
 						}
-    					
     				};
-    				if (hublisteners.isEmpty()) {
-    					DCClient.execute(finish);
-    				} else {
-	    				for (IHubCreationListener hubl:hublisteners) {
-	    					hubl.hubCreated(favHub,showInUI,finish);
-	    				}
-    				}
+	    			for (IHubCreationListener hubl:hublisteners) {
+	    				hubl.hubCreated(favHub,showInUI,finish);
+	    			}
+	    			
+    				DCClient.execute(new Runnable() {
+						public  void run() {
+							sem.acquireUninterruptibly(hublisteners.size());
+							scheduler.schedule(new Runnable() {
+								public void run() {
+									synchronized(hubf) {
+										hubf.start();
+									}
+									notifyChangedInfo(InfoChange.Hubs);
+								}
+    					//wait with starting some time (race condition though helps registering listeners)
+							}, 100, TimeUnit.MILLISECONDS);
+						}
+    				});   			
     			}
     		}
     	}

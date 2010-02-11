@@ -16,6 +16,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 
@@ -39,12 +40,6 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 		super(defaultColumnSize, columnName, style);
 	}
 
-	@Override
-	public Image getImage(IUser cur) {
-		return null;
-	}
-	
-
 	
 	public static class NameUserCol<X extends IHasUser> extends  ColumnDescriptor<X> {
 
@@ -63,74 +58,89 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 		
 		@Override
 		public Image getImage(X x) {
-			return Nick.getUserImage(x.getUser());
+			return Nick.getUserImage(x.getUser(),false);
 		}
 		
 	}
 
 	public static class Nick extends UserColumns {
 		
-		private static final Image NORM_ACTIVE;
-		private static final Image NORM_PASSIVE;
-		private static final Image NORM_OFFLINE;
+//		private static final Image NORM_ACTIVE;
+//		private static final Image NORM_PASSIVE;
+//		private static final Image NORM_OFFLINE;
+//		
+//		private static final Image OP_ACTIVE;
+//		private static final Image OP_PASSIVE;
+//		private static final Image OP_OFFLINE;
 		
-		private static final Image OP_ACTIVE;
-		private static final Image OP_PASSIVE;
-		private static final Image OP_OFFLINE;
+		private static final Image[] USERIMAGES = new Image[12];
+		
 		
 		
 		static {
-			NORM_ACTIVE  =	AbstractUIPlugin.imageDescriptorFromPlugin(
-					Application.PLUGIN_ID, IImageKeys.USER_ACTIVE).createImage();
-			NORM_PASSIVE =	AbstractUIPlugin.imageDescriptorFromPlugin(
-					Application.PLUGIN_ID, IImageKeys.USER_PASSIVE).createImage();
-			NORM_OFFLINE = AbstractUIPlugin.imageDescriptorFromPlugin(
-					Application.PLUGIN_ID, IImageKeys.USER_OFFLINE).createImage();
-			
+			Image norm = AbstractUIPlugin.imageDescriptorFromPlugin(
+					Application.PLUGIN_ID, IImageKeys.USER_ACTIVE2).createImage();
+			Image passive = AbstractUIPlugin.imageDescriptorFromPlugin(
+					Application.PLUGIN_ID, IImageKeys.USER_PASSIVE2).createImage();
+			Image offline = AbstractUIPlugin.imageDescriptorFromPlugin(
+					Application.PLUGIN_ID, IImageKeys.USER_OFFLINE2).createImage();
 			Image key = AbstractUIPlugin.imageDescriptorFromPlugin(
-					Application.PLUGIN_ID, IImageKeys.USER_OPKEY).createImage();
+					Application.PLUGIN_ID, IImageKeys.USER_OPKEY2).createImage();
 			
 			
-			OP_ACTIVE = copyWithKey(NORM_ACTIVE,key);
-			OP_PASSIVE = copyWithKey(NORM_PASSIVE, key);
-			OP_OFFLINE = copyWithKey(NORM_OFFLINE, key);
 			
-//			Image normCop = new Image(NORM_ACTIVE.getDevice(),NORM_ACTIVE,SWT.IMAGE_COPY);
-//			GC gc = new GC(normCop);
-//			gc.drawImage(key, 0 , 0);
-//			gc.dispose();
-//			ImageData id = normCop.getImageData();
-//			id.transparentPixel = id.palette.getPixel(new RGB(255,255,255));
-//			normCop.dispose();
-//			OP_ACTIVE = new Image(NORM_ACTIVE.getDevice(),id);
+//			NORM_ACTIVE  =	AbstractUIPlugin.imageDescriptorFromPlugin(
+//					Application.PLUGIN_ID, IImageKeys.USER_ACTIVE).createImage();
+//			NORM_PASSIVE =	AbstractUIPlugin.imageDescriptorFromPlugin(
+//					Application.PLUGIN_ID, IImageKeys.USER_PASSIVE).createImage();
+//			NORM_OFFLINE = AbstractUIPlugin.imageDescriptorFromPlugin(
+//					Application.PLUGIN_ID, IImageKeys.USER_OFFLINE).createImage();
 //			
-//			Image pasCop = new Image(NORM_PASSIVE.getDevice(),NORM_PASSIVE,SWT.IMAGE_COPY);
-//			GC gc2 = new GC(pasCop);
-//			gc2.drawImage(key, 0 , 0);
-//			gc2.dispose();
-//			OP_PASSIVE = pasCop;
-//			
-//			Image offlineOp = new Image(NORM_OFFLINE.getDevice(),NORM_OFFLINE,SWT.IMAGE_COPY);
-//			GC gc3 = new GC(offlineOp);
-//			gc3.drawImage(key, 0 , 0);
-//			gc3.dispose();
-//			OP_OFFLINE = offlineOp;
+//			Image key = AbstractUIPlugin.imageDescriptorFromPlugin(
+//					Application.PLUGIN_ID, IImageKeys.USER_OPKEY).createImage();
 			
+			for (int i = 0; i < USERIMAGES.length;i++) {
+				Image baseImage = i % 3 == 0? norm: (i% 3 == 1?passive:offline);
+				Image k = i%6 < 3 ?null:key;
+				int size =i<6?16:22;
+			//	System.out.println(i+": " +(i%3) +"  key:"+(k!= null) +"   size:"+size);
+				Image cop = copyWithKey(baseImage,k, size);
+				USERIMAGES[i] = cop;
+			}
+			
+//			NORM_ACTIVE = copyWithKey(norm,null,16);
+//			NORM_PASSIVE = 
+//			NORM_OFFLINE
+//			OP_ACTIVE = copyWithKey(NORM_ACTIVE,key);
+//			OP_PASSIVE = copyWithKey(NORM_PASSIVE, key);
+//			OP_OFFLINE = copyWithKey(NORM_OFFLINE, key);
+			
+			norm.dispose();
+			passive.dispose();
+			offline.dispose();
 			key.dispose();
 		}
 		
-		private static Image copyWithKey(Image original,Image addOn) {
-			Image normCop = new Image(original.getDevice(),original,SWT.IMAGE_COPY);
+		private static Image copyWithKey(Image original,Image addOn,int scale) {
+			ImageData id;
+			Rectangle r = original.getBounds();
+			Image normCop = new Image(null,scale,scale);
 			GC gc = new GC(normCop);
 			gc.setAdvanced(true);
 			gc.setInterpolation(SWT.HIGH);
 			gc.setAntialias(SWT.ON);
-			gc.drawImage(addOn, 0 , 0);
+			gc.drawImage(original, 0, 0,r.width,r.height,0,0,scale,scale);
+			if (addOn != null) {
+				gc.drawImage(addOn, 0 , 0,r.width,r.height,0,0,scale,scale);
+			}
 			gc.dispose();
-			ImageData id = normCop.getImageData();
+			id = normCop.getImageData();
+			id = id.scaledTo(scale, scale);
 			id.transparentPixel = id.palette.getPixel(new RGB(255,255,255));
+			
 			normCop.dispose();
-			return new Image(NORM_ACTIVE.getDevice(),id);
+			
+			return new Image(original.getDevice(),id);
 		}
 		
 		public Nick() {
@@ -150,32 +160,37 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 				};
 		}
 		
-		public static Image getUserImage(IUser usr) {
-			if (usr.isOnline()) {
-				if (usr.getModechar() == Mode.ACTIVE) {
-					if (usr.isOp()) {
-						return OP_ACTIVE;
-					} else {
-						return NORM_ACTIVE;
-					}
-				} else {
-					if (usr.isOp()) {
-						return OP_PASSIVE;
-					} else {
-						return NORM_PASSIVE;	
-					}
-				}
-			} else {
-				if (usr.isOp()) {
-					return OP_OFFLINE;
-				} else {
-					return NORM_OFFLINE;
-				}
-			}
+		public static Image getUserImage(IUser usr,boolean large) {
+			int i = large?6:0;
+			i += (usr.isOp()?3:0);
+			i += (usr.isOnline()? (usr.getModechar() == Mode.ACTIVE?0:1) :2) ;
+			return USERIMAGES[i];
+			
+//			if (usr.isOnline()) {
+//				if (usr.getModechar() == Mode.ACTIVE) {
+//					if (usr.isOp()) {
+//						return OP_ACTIVE;
+//					} else {
+//						return NORM_ACTIVE;
+//					}
+//				} else {
+//					if (usr.isOp()) {
+//						return OP_PASSIVE;
+//					} else {
+//						return NORM_PASSIVE;	
+//					}
+//				}
+//			} else {
+//				if (usr.isOp()) {
+//					return OP_OFFLINE;
+//				} else {
+//					return NORM_OFFLINE;
+//				}
+//			}
 		}
 		@Override
 		public Image getImage(IUser cur) {
-			return getUserImage(cur);
+			return getUserImage(cur,false);
 		}
 
 		@Override
@@ -301,11 +316,7 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 		@Override
 		public String getText(IUser x) {
 			IHub hub = x.getHub();
-			if (hub !=null) {
-				return hub.getName();
-			} else {
-				return "";
-			}
+			return hub == null? "": hub.getName();
 		}
 
 

@@ -2,6 +2,7 @@ package eu.jucy.gui.favhub;
 
 import logger.LoggerFactory;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -18,7 +19,7 @@ import uc.IFavHubs;
 
 public abstract class FavHubHandlers extends AbstractHandler {
 
-	private static final Logger logger = LoggerFactory.make();
+	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
 	
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		
@@ -44,7 +45,12 @@ public abstract class FavHubHandlers extends AbstractHandler {
 		protected void run(FavHub fh,IFavHubs favHubs, ExecutionEvent event) {
 			FavHubPropertiesDialog diag = new FavHubPropertiesDialog(HandlerUtil.getActiveShell(event),fh);
 			if (diag.open() == Dialog.OK) {
-				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
+				logger.debug("hub changed: ");
+				if (diag.getResult() != fh) {
+					logger.debug("exchangeing FavHubs: "+fh.getHubaddy()+"  "+diag.getResult().getHubaddy());
+					favHubs.exchange(fh, diag.getResult());
+				}
+				favHubs.store();
 			}
 		}
 	}

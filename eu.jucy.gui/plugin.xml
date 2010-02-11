@@ -49,7 +49,7 @@
             name="Hub"/>
       <editor
             class="eu.jucy.gui.texteditor.pmeditor.PMEditor"
-            icon="icons/user_green_active.gif"
+            icon="icons/ledgreen.png"
             id="eu.jucy.PM"
             name="PM"/>
       <editor
@@ -465,6 +465,11 @@
                   name="USER_BY_ID"
                   optional="true">
             </commandParameter>
+                <commandParameter
+                      id="USE_INF"
+                      name="USE_INF"
+                      optional="true">
+                </commandParameter>
          </command>
          <command
                id="eu.jucy.gui.selfdefinedcommand.user"
@@ -2059,6 +2064,22 @@
                 </reference>
              </activeWhen>
           </handler>
+           <handler
+             class="eu.jucy.gui.itemhandler.CopyFromTableHandler"
+             commandId="org.eclipse.ui.edit.copy">
+          <activeWhen>
+             <with
+                   variable="selection">
+                <iterate
+                      ifEmpty="false"
+                      operator="and">
+                   <instanceof
+                         value="java.lang.Object">
+                   </instanceof>
+                </iterate>
+             </with>
+          </activeWhen>
+       </handler>
       </extension>
       <extension
             point="org.eclipse.ui.bindings">

@@ -61,7 +61,7 @@ public class CTM extends AbstractADCHubCommand {
 		//protocols  ADC/1.0  or  ADCS/0.10
 		IUser self = hub.getSelf();
 		String ctm = "DCTM "+SIDToStr(self.getSid())+" "+SIDToStr(target.getSid())
-					+" "+doReplaces(protocol.toString())+" "+DCClient.get().getCh().getPort(protocol.isEncrypted())
+					+" "+doReplaces(protocol.toString())+" "+hub.getDcc().getCh().getPort(protocol.isEncrypted())
 					+" "+doReplaces(token)+"\n";
 		hub.sendUnmodifiedRaw(ctm);
 		logger.debug("Sending ctm: "+ctm);

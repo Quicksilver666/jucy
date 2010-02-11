@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SocketChannel;
 
-import uc.crypto.HashValue;
 
 public interface IConnection extends Closeable {
 
@@ -111,8 +110,14 @@ public interface IConnection extends Closeable {
 	boolean usesEncryption();
 	
 	
-	void setFingerPrint(HashValue hash);
 	
-
+	
+	//void setFingerPrint(HashValue hash);
+	
+	/**
+	 * 
+	 * @return true if fingerprint is in use..
+	 */
+	boolean isFingerPrintUsed();
 
 }

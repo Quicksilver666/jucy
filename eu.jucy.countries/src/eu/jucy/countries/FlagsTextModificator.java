@@ -3,15 +3,23 @@ package eu.jucy.countries;
 import geoip.GEOIP;
 import helpers.GH;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import logger.LoggerFactory;
 
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.eclipse.swt.custom.StyledText;
 
 import uc.DCClient;
 import uc.IHub;
 import uc.IUser;
+import uc.IUser.Mode;
 
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.texteditor.ITextModificator;
 import eu.jucy.gui.texteditor.StyledTextViewer;
 import eu.jucy.gui.texteditor.StyledTextViewer.ImageReplacement;
@@ -21,11 +29,10 @@ import eu.jucy.gui.texteditor.StyledTextViewer.TextReplacement;
 
 
 public class FlagsTextModificator implements ITextModificator {
-
 	
-//	private static final char  FLAGCHAR = (char)17;
-//	
-
+	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
+	
+	private final Set<IUser> askingForIP = new HashSet<IUser>();
 	
 	public FlagsTextModificator() {}
 
@@ -33,7 +40,7 @@ public class FlagsTextModificator implements ITextModificator {
 	public void init(StyledText st,StyledTextViewer viewer, IHub hub) {
 		DCClient.execute(new Runnable() {
 			public void run() {
-				GEOIP.get(); //force initialisation
+				GEOIP.get(); //force initialization
 			}
 		});
 	}
@@ -41,43 +48,37 @@ public class FlagsTextModificator implements ITextModificator {
 
 	public void dispose() {}
 
-//
-//	public void getStyleRange(String message, int startpos,
-//			Message originalMessage, List<StyleRange> ranges, List<ObjectPoint<Image>> images) {
-//		int i = message.indexOf(FLAGCHAR);
-//		if (i != -1) {
-//			ObjectPoint<Image> p = ObjectPoint.create(startpos+i , 1,"",  
-//					FlagStorage.get().getFlag(originalMessage.getUsr(),false,true), ranges);
-//			images.add(p);
-//		}
-//	}
-//	
-//	
-//	
-//
-//	public String modifyMessage(String message, Message original, boolean pm) {
-//		if (message.indexOf(FLAGCHAR) >= 0) {
-//			message = message.replace(FLAGCHAR, ' ');
-//		}
-//		IUser user = original.getUsr();
-//		if (user != null && user.getIp() != null) {
-//			return FLAGCHAR+message;
-//		}
-//		
-//		return message;
-//	}
 
 
 	public void getMessageModifications(Message original, boolean pm,List<TextReplacement> replacement) {
-		IUser user = original.getUsr();
-		if (user != null && user.getIp() != null) {
-			String cc = GEOIP.get().getCountryCode(user.getIp());
-			if (!GH.isNullOrEmpty(cc)) {
-				cc = "["+cc+"]";
-			} else {
-				cc= "";
+		final IUser user = original.getUsr();
+		if (user != null) {
+			if (user.getIp() != null) {
+				String cc = GEOIP.get().getCountryCode(user.getIp());
+				if (!GH.isNullOrEmpty(cc)) {
+					cc = "["+cc+"]";
+				} else {
+					cc= "";
+				}
+				replacement.add(new ImageReplacement(1,0,cc,FlagStorage.get().getFlag(user,false,true)));
+			} else if (!askingForIP.contains(user) && (ApplicationWorkbenchWindowAdvisor.get().isActive()|| user.getModechar() == Mode.ACTIVE||user.getHub().supportsUserIP()) && user.getShared() != 0 ) {
+				askingForIP.add(user);
+				DCClient.execute(new Runnable() {
+					public void run() {
+						IHub hub = user.getHub();
+						logger.debug("asking for user: " + user + "  "+ hub.getName()+"  "+hub.supportsUserIP());
+						if (hub.supportsUserIP()) {
+							hub.requestUserIP(user);
+						} else {
+							hub.requestConnection(user, ""+ System.currentTimeMillis());
+						}
+					}
+				});
+				if (askingForIP.size() > 10) {
+					askingForIP.clear();
+					logger.debug("clearing ask ");
+				}
 			}
-			replacement.add(new ImageReplacement(1,0,cc,FlagStorage.get().getFlag(user,false,true)));
 		}
 	}
 	

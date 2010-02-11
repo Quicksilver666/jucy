@@ -5,6 +5,9 @@ import helpers.GH;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import logger.LoggerFactory;
+import org.apache.log4j.Logger;
+
 
 import uc.User;
 import uc.crypto.HashValue;
@@ -13,7 +16,7 @@ import uc.protocols.DCProtocol;
 public class NickList extends AbstractNMDCHubProtocolCommand {
 
 	
-	
+	private static Logger logger = LoggerFactory.make();
 	
 	
 	public NickList(Hub hub) {
@@ -25,6 +28,11 @@ public class NickList extends AbstractNMDCHubProtocolCommand {
 		String[] b = command.split(" ", 2)[1].split(Pattern.quote("$$"));//cut away prefix.. and separate to nicks
 		
 		boolean sendGetinfo = !hub.getOthersSupports().contains("NoGetINFO");
+		if (b.length > Hub.MAX_USERS) {
+			logger.warn("nicklist too long: "+b.length);
+			return;
+		}
+		logger.debug("Nicklist: "+b.length);
 		for (String nick : b) {
 			nick = nick.trim();
 			if (!GH.isEmpty(nick)) {

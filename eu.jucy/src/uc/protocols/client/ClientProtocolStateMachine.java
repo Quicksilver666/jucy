@@ -32,8 +32,6 @@ import uc.files.IHasDownloadable;
 import uc.files.transfer.FileTransferInformation;
 import uc.listener.IUserChangedListener;
 
-import uc.protocols.CPType;
-
 
 
 /**
@@ -221,24 +219,7 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 			logger.debug("StateMachine found item");
 			IHub othershub = user.getHub();
 			if (othershub != null && user.isOnline()) {
-				boolean nmdc = othershub.isNMDC();
-				boolean encryption = user.hasSupportForEncryption() && 
-				dcc.currentlyTLSSupport();
-
-				CPType protocol = CPType.get(encryption, nmdc); 
-
-
-				if (dcc.isActive()) {
-					logger.debug("sending CTM "+user+ 
-							"  " + protocol+"  "+
-							dcc.getConnectionDeterminator().
-							getPublicIP().getHostAddress());
-
-					othershub.sendCTM(user, protocol ,token);
-				} else {
-					logger.debug("sending RCM "+user);
-					othershub.sendRCM(user, protocol ,token);
-				}
+				othershub.requestConnection(user, token);
 
 				//we expect a connect.. if don't get one.. redo this
 				sleepCounter = 60;

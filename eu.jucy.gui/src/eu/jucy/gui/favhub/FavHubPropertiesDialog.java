@@ -201,16 +201,13 @@ public class FavHubPropertiesDialog extends Dialog {
 		if (setResultIfValidForFHGeneration()) {
 			
 			result.setHubname(hubNameText.getText());
-			result.setHubaddy(hubAddress);
+			result = result.setHubaddy(hubAddress);
 			result.setDescription(hubDescriptionText.getText());
 			
 			result.setNick(nickText.getText());
 			result.setPassword(passwordText.getText());
 			result.setUserDescription(userDescriptionText.getText());
 			result.setEmail(emailText.getText());
-			
-			
-			
 			super.okPressed();
 		}
 	}
@@ -222,7 +219,6 @@ public class FavHubPropertiesDialog extends Dialog {
 				working = new FavHub(hubAddress);
 			}
 			result = working;
-			
 			return true;
 		}
 		return false;
