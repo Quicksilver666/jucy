@@ -36,17 +36,17 @@ public class INF extends AbstractADCClientProtocolCommand {
 			}
 		}
 		
-		if (other == null) { 
-			if (cid != null) {
-				other = getDCC().getUserForCID(cid);
-			} else {
-				STA.sendSTA(client, new ADCStatusMessage("No ID field",
-						ADCStatusMessage.FATAL,
-						ADCStatusMessage.ProtocolRequiredINFfieldBadMissing,
-						Flag.FM,INFField.ID.name()));
-				return;
-			}
-		}
+//		if (other == null) { 
+//			if (cid != null) {
+//				other = getDCC().getUserForCID(cid);
+//			} else {
+//				STA.sendSTA(client, new ADCStatusMessage("No ID field",
+//						ADCStatusMessage.FATAL,
+//						ADCStatusMessage.ProtocolRequiredINFfieldBadMissing,
+//						Flag.FM,INFField.ID.name()));
+//				return;
+//			}
+//		}
 		
 		if (other == null) {
 			STA.sendSTA(client, new ADCStatusMessage("User unknown",

@@ -17,7 +17,6 @@ import org.eclipse.swt.custom.StyledText;
 import uc.DCClient;
 import uc.IHub;
 import uc.IUser;
-import uc.IUser.Mode;
 
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.texteditor.ITextModificator;
@@ -61,7 +60,7 @@ public class FlagsTextModificator implements ITextModificator {
 					cc= "";
 				}
 				replacement.add(new ImageReplacement(1,0,cc,FlagStorage.get().getFlag(user,false,true)));
-			} else if (!askingForIP.contains(user) && (ApplicationWorkbenchWindowAdvisor.get().isActive()|| user.getModechar() == Mode.ACTIVE||user.getHub().supportsUserIP()) && user.getShared() != 0 ) {
+			} else if (!askingForIP.contains(user) && (ApplicationWorkbenchWindowAdvisor.get().isActive()|| user.isActive()||user.getHub().supportsUserIP()) && user.getShared() != 0 ) {
 				askingForIP.add(user);
 				DCClient.execute(new Runnable() {
 					public void run() {

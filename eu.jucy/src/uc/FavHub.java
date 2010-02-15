@@ -28,10 +28,10 @@ import uihelpers.ComplexListEditor.IPrefSerializer;
  */
 public class FavHub implements Comparable<FavHub> {
 	
-	private static final String ADDRESS = "(?:(dchubs?|nmdcs?|adcs?)://)?([^/:]+):?("+
+	public static final String ADDRESS = "(?:(dchubs?|nmdcs?|adcs?)://)?([^/:]+):?("+
 					IProtocolCommand.PORT+")?/?(?:\\?kp=SHA256/(.+))?";
 	
-	private static final Pattern ADDRESSP = Pattern.compile(ADDRESS);
+	public static final Pattern ADDRESSP = Pattern.compile(ADDRESS);
 	
 	public static void main(String... args) {
 		test("adcs://beta.indigosakura.com:24728/?kp=SHA256/BXL7GBLER72YOQFELQXFZJX6D757F7AJMVEZZKDLFBQ7KBZ2S6UA");

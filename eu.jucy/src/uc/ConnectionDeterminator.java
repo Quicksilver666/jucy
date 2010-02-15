@@ -8,10 +8,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.Proxy;
+import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
@@ -35,6 +37,7 @@ import net.sbbi.upnp.messages.UPNPResponseException;
 
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Platform;
 
 import eu.jucy.language.LanguageKeys;
 
@@ -136,8 +139,19 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	private final DCClient dcc;
 	private PreferenceChangedAdapter pca;
 
-	private volatile InetAddress current;
+	private volatile Inet4Address current;
 	
+	private volatile Inet6Address ip6FoundandWorking;
+	
+	/**
+	 * 
+	 * @return an IPv6Address .. if its tested and working..
+	 * null otherwise..
+	 */
+	public Inet6Address getIp6FoundandWorking() {
+		return ip6FoundandWorking; //TODO implement detection
+	}
+
 	public ConnectionDeterminator(DCClient dcc) {
 		this.dcc = dcc;
 		
@@ -165,7 +179,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 * @see uc.IConnectionDeterminator#start()
 	 */
 	public Future<?> start() {
-		return DCClient.getScheduler().submit(new Runnable() {
+		return dcc.getSchedulerDir().submit(new Runnable() {
 			public void run() {
 				init();
 			}
@@ -186,7 +200,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 			logger.debug(ioe,ioe);
 		}
 		try {
-			natPresent = current == null || GH.isLocaladdress(current);
+			natPresent = (current == null) || GH.isLocaladdress(current);
 			if (natPresent) {
 				current = getIP();
 			} 
@@ -197,11 +211,13 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 		if (current == null) {
 			logger.warn("Ip address detection failed.");
 			try {
-				current = InetAddress.getByName("127.0.0.1");
+				current = (Inet4Address)InetAddress.getByName("127.0.0.1");
 			} catch(IOException ioe) {
 				logger.debug(ioe,ioe);
 			}
 		}
+		determineIPv6Working();
+		
 		notifyObservers();
 		
 		//periodical checking if active port mappings are still active..
@@ -341,9 +357,9 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 * @see uc.IConnectionDeterminator#userIPReceived(java.net.InetAddress, uc.FavHub)
 	 */
 	public synchronized void userIPReceived(InetAddress ourIPAddress, FavHub whoTold) {
-		if (!GH.isLocaladdress(ourIPAddress)) {
+		if (!GH.isLocaladdress(ourIPAddress) && ourIPAddress instanceof Inet4Address) {
 			if (!ourIPAddress.equals(current)) {
-				current = ourIPAddress;
+				current = (Inet4Address)ourIPAddress;
 				logger.info("New Public IP: "+current.getHostAddress());
 				connectionsFailedInARow = 0;
 				notifyObservers();
@@ -373,24 +389,27 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	/* (non-Javadoc)
 	 * @see uc.IConnectionDeterminator#getPublicIP()
 	 */
-	public InetAddress getPublicIP()  {
+	public Inet4Address getPublicIP()  {
 		String ip = PI.get(PI.externalIp);
 		if (GH.isEmpty(ip)) {
 			return getDetectedIP();
 		} else {
 			try {
-				return InetAddress.getByName(ip);
+				InetAddress ia = InetAddress.getByName(ip);
+				if (ia instanceof Inet4Address) {
+					return (Inet4Address)ia;
+				}
 			} catch(UnknownHostException uhe) {
 				logger.warn(uhe.toString() + " : "+ip,uhe);
-				return getDetectedIP();
 			}
+			return getDetectedIP();
 		}
 	}
 	
 	/* (non-Javadoc)
 	 * @see uc.IConnectionDeterminator#getDetectedIP()
 	 */
-	public InetAddress getDetectedIP() {
+	public Inet4Address getDetectedIP() {
 		return current;
 	}
 	
@@ -408,7 +427,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 * @return IP as determined by the web...
 	 * @throws IOException
 	 */
-	private static InetAddress getIP() throws IOException {
+	private static Inet4Address getIP() throws IOException {
     	BufferedReader br = null;
   
     	try {
@@ -455,7 +474,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 				        if (m.find()) {
 				        	String ip = m.group(1);
 				        	logger.info(String.format(LanguageKeys.CDDeterminedIPOverWeb,ip));
-				        	return InetAddress.getByName(ip);
+				        	return (Inet4Address)InetAddress.getByName(ip);
 				        }
 			        }
 			        logger.debug("no ip found for url: "+url);
@@ -470,6 +489,31 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
     	}
     }
 	
+	private void determineIPv6Working() {
+		Socket s = null;
+		try {
+			String address = "ipv6.google.com"; // sue google to check for ip6..
+			s = new Socket();
+			s.connect(new InetSocketAddress(address, 80), 250);
+			InetAddress ia = s.getLocalAddress();
+			if (ia instanceof Inet6Address) {
+				this.ip6FoundandWorking = (Inet6Address)ia;
+				logger.info("IP6 connectivity found: "+ia);
+			}
+			s.close();
+		} catch(UnknownHostException uhe) {
+			if (Platform.inDevelopmentMode()) {
+				logger.info("no IPv6 connectivity DNS resolution failed");
+			}
+		} catch (IOException e) {
+			logger.warn(e,e);
+		} finally {
+			GH.close(s);
+		}
+	}
+	
+	
+	
 	/**
 	 * mechanism for retrieving own public IF .. if the computer has 
 	 * an interface with WAN access
@@ -478,7 +522,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 *  
 	 * @throws IOException
 	 */
-	private static InetAddress getLocalAddress() throws IOException {
+	private static Inet4Address getLocalAddress() throws IOException {
 
 		InetAddress addy = null;
 		for (Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();e.hasMoreElements();) {
@@ -486,13 +530,31 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 			for (Enumeration<InetAddress> x = next.getInetAddresses(); x.hasMoreElements();) {
 				addy = x.nextElement();
 				if (!GH.isLocaladdress(addy) && addy instanceof Inet4Address) {
-					return addy;
+					return (Inet4Address)addy;
 				}
 			}
 		}
-		return InetAddress.getLocalHost();
+		addy = InetAddress.getLocalHost();
+		if (addy instanceof Inet4Address) {
+			return (Inet4Address)addy;
+		}
+		return null;
 	}
 	
+//	private static List<Inet6Address> getAllInet6Addresses() throws IOException {
+//		List<Inet6Address> addys = new ArrayList<Inet6Address>();
+//		
+//		for (Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();e.hasMoreElements();) {
+//			NetworkInterface next = e.nextElement();
+//			for (Enumeration<InetAddress> x = next.getInetAddresses(); x.hasMoreElements();) {
+//				InetAddress addy = x.nextElement();
+//				if (!GH.isLocaladdress(addy) && addy instanceof Inet6Address) {
+//					addys.add((Inet6Address)addy);
+//				}
+//			}
+//		}
+//		return addys;
+//	}
 	
 	
 	public boolean isExternalIPSetByHand() {

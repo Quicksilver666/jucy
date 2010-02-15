@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import uc.DCClient;
 import uc.User;
 import uc.crypto.BASE32Encoder;
 import uc.crypto.HashValue;
@@ -72,9 +73,19 @@ TRACE Hub.java Line:463
 		if (flags.containsKey(Flag.TY)) {
 			onlyDirectories = flags.get(Flag.TY).equals("2");  //only files is currently ignored..
 		}
-		InetAddress ia = usr.getIp();
+		InetAddress ia = null;
+		int port = 0;
+		DCClient dcc = hub.getDcc();
+		if (dcc.isIPv6Used() && usr.getSupports().contains(User.UDP6)) {
+			ia = usr.getI6IP();
+			port = usr.getUDP6Port();
+		} else if (dcc.isIPv4Used() && usr.getSupports().contains(User.UDP4)) {
+			ia = usr.getIp();
+			port = usr.getUdpPort();
+		}
 		
-		boolean passive = !(ia != null  && usr.getUdpPort() != 0);
+		boolean passive = (ia == null)  || (port == 0);
+		
 		InetSocketAddress ias  = null;
 		if (!passive) {
 			ias = new InetSocketAddress(ia,usr.getUdpPort());
@@ -100,15 +111,16 @@ TRACE Hub.java Line:463
 	public static void sendSearch(Hub hub,FileSearch search) {
 		//BSCH KAZ4 TRTFMBXT6AFYHJJOGE4OPLFSEWTYJEFFYY6RDWNIA TOauto
 		StringBuilder sch= new StringBuilder();
-		if (hub.getDcc().isActive()) {
+		DCClient dcc = hub.getDcc();
+		if (dcc.isActive() || dcc.isIPv6Used()) {
 			sch.append("BSCH ").append(SIDToStr(hub.getSelf().getSid()));
 			//logger.info("hub encryption: "+hub.isEncrypted()+"  "+UDPEncryption.isUDPEncryptionSupported());
 			if (hub.isEncrypted() && UDPEncryption.isUDPEncryptionSupported()) {
 				appendToSB(sch,Flag.KY,BASE32Encoder.encode(search.getEncryptionKey()));
 			}
 		} else {
-			sch.append("FSCH ").append(SIDToStr(hub.getSelf().getSid()));
-			sch.append(" +").append(hub.getDcc().isIPv4Used()?User.TCP4:User.TCP6);
+			sch.append("FSCH ").append(SIDToStr(hub.getSelf().getSid()))
+				.append(" +").append(User.TCP4);
 		}
 			
 

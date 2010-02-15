@@ -96,7 +96,6 @@ public class IconManager {
 					getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER).createImage();
 		}
 		
-		
 		this.unknownFile = unknownFileImage;
 		this.folder = folderImage;
 	}
@@ -229,6 +228,7 @@ public class IconManager {
 	 * @return the image that was loaded..
 	 */
 	private Image loadImageFromFile(File f,Image defaultImage) {
+		
 		//System.out.println("f: "+f);
 	
 		Icon ic = GH.getFileSystemView().getSystemIcon(f);

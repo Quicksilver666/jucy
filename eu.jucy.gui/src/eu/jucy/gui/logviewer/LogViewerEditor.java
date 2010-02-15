@@ -324,6 +324,9 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 	
 
 	public void update(boolean both) {
+		if (tableViewer.getTable().isDisposed()) {
+			return;
+		}
 		if (both) {
 			tableViewer.refresh();
 		}

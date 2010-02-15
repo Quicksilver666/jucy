@@ -5,6 +5,7 @@ import helpers.GH;
 import helpers.SizeEnum;
 
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Set;
@@ -81,8 +82,8 @@ public class User implements IUser , IHasUser {
 	 */
 	private byte flag;
 	
-	private InetAddress ip;
-
+	private Inet4Address i4;
+	private Inet6Address i6;
 	
 	/**
 	 * replacement for Op field: 
@@ -171,6 +172,7 @@ public class User implements IUser , IHasUser {
 	
 	
 	private short udpPort;
+	private short udp6Port;
 	
 	//the hub the user is in if online .. the hub the user was last in if offline
 	private volatile Hub hub ;
@@ -213,10 +215,23 @@ public class User implements IUser , IHasUser {
 				cid = HashValue.createHash(val); 
 			break;
 			case I4:
+				try {
+					InetAddress ia = InetAddress.getByName(val);
+					if (ia instanceof Inet4Address) {
+						i4 = (Inet4Address)ia;
+						updateModecharBasedOnIPPort();
+					}
+				} catch (UnknownHostException uhe) {
+					logger.info("Could not resolve address: "+val+ " for user "+this);
+				}
+				break;
 			case I6:
 				try {
-					ip = InetAddress.getByName(val);
-					updateModecharBasedOnIPPort();
+					InetAddress ia = InetAddress.getByName(val);
+					if (ia instanceof Inet6Address) {
+						i6 = (Inet6Address)ia;
+						updateModecharBasedOnIPPort();
+					}
 				} catch (UnknownHostException uhe) {
 					logger.info("Could not resolve address: "+val+ " for user "+this);
 				}
@@ -260,6 +275,7 @@ public class User implements IUser , IHasUser {
 				break;
 			case SU:
 				supports = val.intern();
+				updateModecharBasedOnIPPort();
 				break;
 			case AM:
 				am = (byte) Integer.parseInt(val);
@@ -274,9 +290,10 @@ public class User implements IUser , IHasUser {
 				us =  Long.parseLong(val);
 				break;
 			case U4:
-			case U6:
 				udpPort = (short) Integer.parseInt(val);
-//				updateModecharBasedOnIPPort();
+				break;
+			case U6:
+				udp6Port = (short) Integer.parseInt(val);
 				break;
 			case PD: //PID is never sent to us, only interesting for the hub
 				break;
@@ -308,8 +325,11 @@ public class User implements IUser , IHasUser {
 			cid = null; 
 		break;
 		case I4:
+			i4 = null;
+			updateModecharBasedOnIPPort();
+			break;
 		case I6:
-			ip = null;
+			i6 = null;
 			updateModecharBasedOnIPPort();
 			break;
 		case SS:
@@ -365,9 +385,10 @@ public class User implements IUser , IHasUser {
 			us =  0;
 			break;
 		case U4:
+			udpPort = 0;;
+			break;
 		case U6:
-			udpPort = 0;
-	//		updateModecharBasedOnIPPort();
+			udp6Port = 0;
 			break;
 		case PD: //PID is never sent to us, only interesting for the hub
 			break;
@@ -390,7 +411,9 @@ public class User implements IUser , IHasUser {
 	 */
 	private void updateModecharBasedOnIPPort() {
 		if (isADCUser()) {
-			setModechar(ip != null ? Mode.ACTIVE : Mode.PASSIVE);
+			boolean ipv4 = i4 != null && supports.contains(TCP4) && dcc.isIPv4Used() ;
+			boolean ipv6 = i6 != null && supports.contains(TCP6) && dcc.isIPv6Used();
+			setModechar( ipv4 || ipv6? Mode.ACTIVE : Mode.PASSIVE);
 		}
 	}
 	
@@ -684,6 +707,10 @@ public class User implements IUser , IHasUser {
 	 */
 	public Mode getModechar() {
 		return modechar;
+	}
+	
+	public boolean isActive() {
+		return getModechar() == Mode.ACTIVE;
 	}
 
 	/**
@@ -1123,8 +1150,12 @@ public class User implements IUser , IHasUser {
 		dcc.getPopulation().internal_userChanged(this, type,detail);
 	}
 
-	public synchronized InetAddress getIp() {
-		return ip;
+	public synchronized Inet4Address getIp() {
+		return i4;
+	}
+	
+	public synchronized Inet6Address getI6IP() {
+		return i6;
 	}
 
 	public final void setIp(InetAddress ip) {
@@ -1221,6 +1252,10 @@ public class User implements IUser , IHasUser {
 	public int getUdpPort() {
 		return (udpPort & 0xffff);
 	}
+	
+	public int getUDP6Port() {
+		return (udp6Port & 0xffff);
+	}
 
 /*	public void setUdpPort(int udpPort) {
 		this.udpPort = (short)udpPort ;
@@ -1289,6 +1324,13 @@ public class User implements IUser , IHasUser {
 		return keyPrint;
 	}
 	
+	
+	
+	public DCClient getDcc() {
+		return dcc;
+	}
+
+
 	/**
 	 * takes value that might potantially be larger than short..
 	 * and cuts it down to short.max in worst case..
@@ -1320,6 +1362,8 @@ public class User implements IUser , IHasUser {
 		}
 		
 	}
+	
+	
 	
 	
 }

@@ -132,12 +132,12 @@ public abstract class UserHandlers extends AbstractHandler {
 
 
 
-		protected void doWithUser(final IUser usr,ExecutionEvent event){
+		protected void doWithUser(final IUser usr,final ExecutionEvent event){
 			final IDownloadable id = getDownloadableForUsr(usr, HandlerUtil.getCurrentSelection(event));
 			usr.downloadFilelist().addDoAfterDownload(new IDownloadFinished() {
 
 				public void finishedDownload(File f) {
-					FilelistHandler.openFilelist(usr,id);
+					FilelistHandler.openFilelist(usr,id,HandlerUtil.getActiveWorkbenchWindow(event));
 				}
 
 				@Override
@@ -176,7 +176,7 @@ public abstract class UserHandlers extends AbstractHandler {
 	public static class BrowseFilelistHandler extends UserHandlers {
 		public static final String COMMAND_ID = "eu.jucy.gui.browsefilelist";
 		protected void doWithUser(IUser usr,ExecutionEvent event) {
-			FilelistHandler.openFilelist(usr);
+			FilelistHandler.openFilelist(usr,HandlerUtil.getActiveWorkbenchWindow(event));
 		}
 	}
 	

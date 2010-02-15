@@ -221,8 +221,9 @@ public class TestHubConnection implements IConnection {
 		return ignoredPrefixes.remove(o);
 	}
 
-	public void setFingerPrint(HashValue hash) {
+	public boolean setFingerPrint(HashValue hash) {
 		fingerp=hash;
+		return true;
 	}
 
 	public boolean isFingerPrintUsed() {

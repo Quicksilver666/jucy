@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Set;
 
 import uc.crypto.HashValue;
-import uc.files.filelist.OwnFileList.FilelistNotReadyException;
 import uc.files.filelist.OwnFileList.SearchParameter;
 
 public interface IOwnFileList {
@@ -39,7 +38,7 @@ public interface IOwnFileList {
 	 * @param file a Filelist file
 	 * @return a real java.io.File
 	 */
-	File getFile(FileListFile file) throws FilelistNotReadyException;
+	File getFile(FileListFile file);
 
 	long getSharesize();
 

@@ -127,7 +127,9 @@ public class INF extends AbstractADCHubCommand {
 			List<INFField> fields = new ArrayList<INFField>(Arrays.asList(INFField.ID,INFField.PD,
 										INFField.NI,INFField.SL , 
 										INFField.SS,INFField.SF ,INFField.HN,INFField.HR,
-										INFField.HO, INFField.VE,INFField.SU,INFField.US));
+										INFField.HO, INFField.VE,INFField.SU,INFField.US,INFField.EM));
+			
+
 			
 			if (dcc.isActive()) {
 				fields.add(INFField.U4);
@@ -135,22 +137,27 @@ public class INF extends AbstractADCHubCommand {
 			if (AbstractConnection.getFingerPrint() != null) {
 				fields.add(INFField.KP);
 			}
+			if (dcc.isIPv6Used()) {
+				fields.add(INFField.I6);
+				fields.add(INFField.U6);
+			}
 
 			
 			for (INFField f: fields ) { //  currently
 				next.put(f,  f.getProperty(self));
 			}
 			if (forcenew && dcc.isActive()) { //on first connect we also add I4 so we get our IP set from hub if active
-				boolean ipv4 = dcc.isIPv4Used();
-				INFField which = ipv4? INFField.I4: INFField.I6;
-				String address;
-				if (dcc.getConnectionDeterminator().isExternalIPSetByHand()) {
-					address = dcc.getConnectionDeterminator().getPublicIP().getHostAddress();
-				} else {
-					address = ipv4?  "0.0.0.0":"::0";
+				if (dcc.isIPv4Used()) {
+					//INFField which =  INFField.I4;
+					String address;
+					if (dcc.getConnectionDeterminator().isExternalIPSetByHand()) {
+						address = dcc.getConnectionDeterminator().getPublicIP().getHostAddress();
+					} else {
+						address =  "0.0.0.0"; //:"::0";
+					}
+					
+					next.put(INFField.I4, address );
 				}
-				
-				next.put(which, address );
 			}
 			
 			next.entrySet().removeAll(last.entrySet()); //remove all duplicate info

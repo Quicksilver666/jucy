@@ -240,9 +240,14 @@ public class AdcHubTest {
 		//first check search with empty share
 		
 		//FSCH XCIY +TCP4 ANbug ANmafia ANsi ANluchian-la ANfurat TOmanual
-		String search = "BSCH "+SidPassiveUser+" ANIwakura TOauto";  //TRXKVJNWYEQYJQGUQ4CR2RI3YMTUHP2FKGVRKNMMQ
+		String searchPassive = "BSCH "+SidPassiveUser+" ANIwakura TOauto";  //TRXKVJNWYEQYJQGUQ4CR2RI3YMTUHP2FKGVRKNMMQ
+		String searchTTHmiss = "BSCH "+SidPassiveUser+" TRN7RLQKGSVAQOUWZKWYTCKGADQLSTP6K2CSOBBJI TOauto";
 		
-		hub.receivedCommand(search);
+		hub.receivedCommand(searchPassive);
+		Thread.sleep(500); // allow for time until search is executed..
+		assertTrue(thc.isMessageSentEmpty());
+		
+		hub.receivedCommand(searchTTHmiss);
 		Thread.sleep(500); // allow for time until search is executed..
 		assertTrue(thc.isMessageSentEmpty());
 		
@@ -251,7 +256,7 @@ public class AdcHubTest {
 		
 
 		//check passive search that hits..
-		hub.receivedCommand(search);
+		hub.receivedCommand(searchPassive);
 		//should produce 2 hits now
 		Thread.sleep(500); // allow for time until search is executed..
 		
@@ -265,13 +270,13 @@ public class AdcHubTest {
 		
 		// check passive search that fails..
 		
-		hub.receivedCommand(search+" ANSerial\nExperiments");
+		hub.receivedCommand(searchPassive+" ANSerial\nExperiments");
 		Thread.sleep(500);
 		assertTrue(thc.isMessageSentEmpty()); //either no message or just an INF
 
 	
 		// check active search that hits..
-		hub.receivedCommand(search.replace(SidPassiveUser, SidActiveUser));
+		hub.receivedCommand(searchPassive.replace(SidPassiveUser, SidActiveUser));
 		
 		assertTrue(tudpH.searchRSSent.tryAcquire(2, 500, TimeUnit.MILLISECONDS));
 		

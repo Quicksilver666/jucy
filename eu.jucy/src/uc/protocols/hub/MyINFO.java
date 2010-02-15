@@ -76,9 +76,6 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 	@Override
 	public void handle(String command) throws IOException {
 		//logger.debug("foundMyINFO: "+command+"  "+hub.getHubname());
-//		if (hub.getHubaddy().startsWith("connyconny")) {
-//			logger.debug("mi: "+command);
-//		}
 		boolean connected = false;
 		User current;
 	
@@ -122,10 +119,6 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 
 			current.setProperty(INFField.EM, m.group(5));
 			current.setProperty(INFField.SS, m.group(6));
-
-			
-			
-
 		}  else {
 			logger.debug("MyINFO not matched: "+command); 
 			String[] a = command.split(" ",3)[2].split(Pattern.quote("$"));
@@ -186,10 +179,6 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 			current.setProperty(INFField.HO, my.group(5));
 			current.setProperty(INFField.SL, my.group(6));
 			
-//			int i = tag.indexOf(',');
-//			if (i > 0 && i < tag.length()) {
-//				current.setProperty(INFField.VE,tag.substring(1, i));
-//			}
 
 		} else {
 			current.setModechar(Mode.ACTIVE); // set active so connects can still happen if we are passive..

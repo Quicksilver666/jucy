@@ -117,8 +117,19 @@ public class CommandInterpreter {
 						);
 				
 				//String number = GetFirstWord(line).trim();
-				
-				hub.sendMM("\n"+GH.getRandomElement(phrases)+"\n<"+DCClient.LONGVERSION+"> http://jucy.eu",false);
+				final String s = "\n"+GH.getRandomElement(phrases)+"\n<"+DCClient.LONGVERSION+"> http://jucy.eu";
+				if (usr != null) {
+					DCClient.execute(new Runnable() {
+						public void run() {
+							PMResult pmres = usr.sendPM(s, true, true);
+							if (pmres == PMResult.STORED) {
+								editor.storedPM(usr,s, true);
+							}
+						}
+					});
+				} else {
+					hub.sendMM(s,false);
+				}
 				break;
 			case CLEAR:
 				editor.clear();

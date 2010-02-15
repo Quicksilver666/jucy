@@ -9,6 +9,7 @@ import java.lang.management.ThreadMXBean;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.Socket;
 import java.net.SocketException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -128,6 +129,18 @@ public final class GH {
 			}
 		}
 	}
+	
+	public static void close(Socket s) {
+		try {
+			if (s != null) {
+				s.close();
+			}
+		} catch (IOException e) {
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	/**
 	 * 

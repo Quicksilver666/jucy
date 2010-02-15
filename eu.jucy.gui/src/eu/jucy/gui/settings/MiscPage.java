@@ -25,6 +25,13 @@ public class MiscPage extends UCPrefpage {
 		BooleanFieldEditor bfe3 = new BooleanFieldEditor(
 				PI.autoFollowRedirect,Lang.AutomaticallyFollowRedirects,getFieldEditorParent());
 		addField(bfe3);
+		
+		BooleanFieldEditor bfe4 = new BooleanFieldEditor(
+				PI.deleteFilelistsOnExit,"Delete filelists on exit",getFieldEditorParent());
+		addField(bfe4);
+		
+		
+		
 	}
 
 }

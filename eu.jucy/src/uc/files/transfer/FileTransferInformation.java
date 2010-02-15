@@ -10,7 +10,6 @@ import uc.crypto.HashValue;
 import uc.crypto.InterleaveHashes;
 
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
-import uc.files.filelist.OwnFileList.FilelistNotReadyException;
 import uc.protocols.Compression;
 import uc.protocols.TransferType;
 import uc.protocols.client.ClientProtocol;
@@ -304,7 +303,7 @@ public class FileTransferInformation  {
 	 * @param dcc  dcclient used to fill out information.. i.e. filelist/Interleave hashes
 	 * @return true if creation was successful
 	 */
-	public boolean setFileInterval(DCClient dcc) throws FilelistNotReadyException {
+	public boolean setFileInterval(DCClient dcc) {
 		if (isUpload()) {
 			File f = null;
 			switch(getType()) {
@@ -326,31 +325,9 @@ public class FileTransferInformation  {
 				}
 				break;
 			case FILELIST:
-				//f = DCClient.get().getFilelistself().getFilelistDescriptor().getFileListPath();
-			
 				byte[] filelist = dcc.getOwnFileList().writeFileList(fileListSubPath, recursive);
-
 				fileInterval = new ReadableFileInterval(filelist);
 				setLength(filelist.length);
-				
-			/*	if (f != null && f.canRead()) {
-					
-					
-					if (fileListSubPath == null || fileListSubPath.equals("/")) {
-						fileInterval = new ReadableFileInterval(f);
-						setLength(f.length());
-						logger.debug("file choosen as own filelist: "+f);
-					} else {
-						byte[] filelist = DCClient.get().getFilelistself()
-										.getFilelistDescriptor().getFilelist()
-										.writeFileList(fileListSubPath, recursive);
-						
-						fileInterval = new ReadableFileInterval(filelist);
-						setLength(filelist.length);
-					}
-				} else {
-					throw new IllegalStateException("could not set own FileList");
-				} */
 				break;
 			case TTHL:
 				InterleaveHashes interleaves = dcc.getDatabase().getInterleaves(getHashValue());

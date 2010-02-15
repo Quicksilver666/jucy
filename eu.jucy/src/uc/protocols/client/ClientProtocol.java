@@ -11,7 +11,6 @@ import uc.crypto.HashValue;
 import uc.files.IDownloadable;
 import uc.files.IHasDownloadable;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
-import uc.files.filelist.OwnFileList.FilelistNotReadyException;
 import uc.files.transfer.AbstractFileTransfer;
 import uc.files.transfer.FileTransferInformation;
 import uc.files.transfer.IFileTransfer;
@@ -584,6 +583,9 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 * @param other
 	 */
 	void otherIdentified(IUser other) {
+		if (isEncrypted() && other.getKeyPrint() != null) {
+			connection.setFingerPrint(other.getKeyPrint());
+		}
 		fti.setOther(other);
 		if (other != null) {
 			self = other.getHub().getSelf();
@@ -609,7 +611,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	void transfer() throws IOException {
 		logger.debug("in transfer()");
 
-		try {
+//		try {
 			boolean successful = fti.setFileInterval(ch.getDCC());
 //			if (Platform.inDevelopmentMode()) {
 //				logger.info(fti);
@@ -627,10 +629,10 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 									ADCStatusMessage.TransferFileNotAvailable));
 				}
 			}
-		} catch (FilelistNotReadyException flnre) { //ugly ugly.. though no longer in use..
-			disconnect(DisconnectReason.UNKNOWN);
-			logger.debug("disconnected because filelist was not ready");
-		}
+//		} catch (FilelistNotReadyException flnre) { //ugly ugly.. though no longer in use..
+//			disconnect(DisconnectReason.UNKNOWN);
+//			logger.debug("disconnected because filelist was not ready");
+//		}
 	}
 	
 	private void getSlotAndDoTransfer() {

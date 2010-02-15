@@ -16,7 +16,7 @@ import helpers.Version;
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.WeakReference;
-import java.net.Inet4Address;
+
 
 
 
@@ -125,6 +125,7 @@ TODO
  * TODO implement some game.. i.e. Battleship or chess that could be played against other user..
  *  
  * 
+ * TODO must have feature multiple notepads.. 2-5 
  *  
  * 
  * TODO after finished downloading file .. may be check if should be hashed and immediately shared..
@@ -1114,12 +1115,20 @@ public final class DCClient {
 	}
 
 	/**
-	 * place holder  should return if
-	 * IPv4 is used and not IPv6
+	 * place holder  should return true if
+	 * IPv4 is used 
 	 * @return true
 	 */
 	public boolean isIPv4Used() {
-		return connectionDeterminator.getPublicIP() instanceof Inet4Address;
+		return connectionDeterminator.getPublicIP() != null;
+	}
+	
+	/**
+	 * 
+	 * @return true if IPv6 connections are possible..
+	 */
+	public boolean isIPv6Used() {
+		return connectionDeterminator.getIp6FoundandWorking() != null;
 	}
 
 

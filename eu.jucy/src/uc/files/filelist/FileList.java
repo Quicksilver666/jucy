@@ -17,8 +17,10 @@ import java.io.PushbackInputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.ArrayList;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -35,6 +38,8 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 
 import logger.LoggerFactory;
@@ -42,8 +47,12 @@ import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 import org.apache.tools.bzip2.CBZip2InputStream;
 import org.apache.tools.bzip2.CBZip2OutputStream;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 
 
+import org.osgi.framework.Bundle;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -141,18 +150,17 @@ public class FileList implements Iterable<IFileListItem> {
 		long totalSize = 0;
 		for (FileListFile f:root) {
 			if (contents.put(f.getTTHRoot(),f) == null) {
-				totalSize+= f.getSize();
+				totalSize += f.getSize();
 			}
 		}
-		sharedSize = totalSize; 
-		
+		sharedSize = totalSize;
 	}
 
 	/**
 	 * @return the shared size
 	 */
 	public long getSharesize() {
-		return  sharedSize; //root.getContainedSize();
+		return sharedSize; 
 	}
 	
 	/**
@@ -188,7 +196,7 @@ public class FileList implements Iterable<IFileListItem> {
 	}
 	
 
-	public void readFilelist(InputStream  in)throws  IOException ,IllegalArgumentException {
+	public void readFilelist(InputStream in)throws  IOException ,IllegalArgumentException {
 		InputStreamReader isr = null;
 		try {
 
@@ -199,20 +207,18 @@ public class FileList implements Iterable<IFileListItem> {
 			SAXParserFactory saxFactory = SAXParserFactory.newInstance();
 			
 			
-	/*		SchemaFactory schFactory =  SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+			SchemaFactory schFactory =  SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		
 			schFactory.setFeature("http://apache.org/xml/features/validation/schema-full-checking", false);
-			Bundle bundle = Platform.getBundle(Application.PLUGIN_ID);
+			Bundle bundle = Platform.getBundle(PI.PLUGIN_ID);
 			Path path = new Path("XMLSchema/FilelistSchema.xml"); 
 
 			URL url = FileLocator.find(bundle, path, Collections.EMPTY_MAP);
 
 			Schema schema = schFactory.newSchema(url);
-			saxFactory.setSchema(schema); */
+			saxFactory.setSchema(schema); 
 
 			SAXParser saxParser = saxFactory.newSAXParser();
-
-
 
 			saxParser.parse(new InputSource(isr), new FileListParser(this));
 
@@ -281,52 +287,6 @@ public class FileList implements Iterable<IFileListItem> {
 	
 	
 	
-	/*
-	 * writes the FileList to the provided stream..
-	 * 
-	 * @param out - target where the FileList should be written to
-	 * @throws UnsupportedEncodingException
-	 * @throws IOException
-	 */
-//	private void writeFilelist(OutputStream out) throws UnsupportedEncodingException , IOException {
-	//	writeFilelist(out, "/", true);
-		/*
-		try {
-			StreamResult streamResult = new StreamResult(out);
-			SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory
-				.newInstance();
-			// SAX2.0 ContentHandler.
-			TransformerHandler hd = tf.newTransformerHandler();
-			Transformer serializer = hd.getTransformer();
-			serializer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
-			//serializer.setOutputProperty(OutputKeys.INDENT, "yes");
-			serializer.setOutputProperty(OutputKeys.VERSION, "1.0");
-			serializer.setOutputProperty(OutputKeys.STANDALONE, "yes");
-			hd.setResult(streamResult);
-			hd.startDocument();
-			AttributesImpl atts = new AttributesImpl();
-			// USERS tag.
-			atts.addAttribute("", "", "Version", "CDATA", "1");
-			atts.addAttribute("", "", "CID", "CDATA", cid);
-			atts.addAttribute("", "", "Base", "CDATA", "/");
-			atts.addAttribute("", "", "Generator", "CDATA", uc.DCClient.VERSION);
-		
-			hd.startElement("", "", "FileListing", atts);
-		//	root.writeToXML(hd, atts);
-			for (FileListFolder f:root.getSubfolders().values()) {
-				f.writeToXML(hd, atts,true,true);
-			}
-
-			hd.endElement("", "", "FileListing");
-			hd.endDocument();
-		
-			out.flush();
-		} catch(SAXException sax) {
-			throw new IOException(sax);
-		} catch (TransformerConfigurationException pce) {
-			throw new IOException(pce);
-		} */
-	//}
 	
 	/**
 	 * writes filelist to a byte[] array
@@ -409,7 +369,7 @@ public class FileList implements Iterable<IFileListItem> {
 	 * that are in DownloadQueue as well as in this FileList..
 	 */
 	public void match() {
-		usr.getHub().getDcc().getDownloadQueue().match(this);
+		usr.getDcc().getDownloadQueue().match(this);
 	}
 	
 	/**

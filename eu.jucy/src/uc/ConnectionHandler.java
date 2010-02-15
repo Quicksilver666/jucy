@@ -223,27 +223,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 		return tls.running;
 	}
 	
-	
-	/*
-	 * on disconnect this is called by the connection to unregister itself..
-	 * @param nmdcc - the protocol with a connection that just disconnected..
-	 *
-	public void removeCons(ClientProtocol nmdcc){
-		logger.debug("called removeCons("+nmdcc+")");
-	//	cons.remove(nmdcc);
-		nmdcc.unregisterProtocolStatusListener(this);
-	}
-	*
-	 * adds client client protocol to the list of collection
-	 * @param nmdcc - an nmdcc protocol that has just finished connecting
-	 *
-	public void addCons(ClientProtocol nmdcc){
-		logger.debug("called addCons("+nmdcc+")");
-		nmdcc.registerProtocolStatusListener(this);
-	} */
-	
 
-	
 
 	/**
 	 * function to add a user to the expected to connect list..

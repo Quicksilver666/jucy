@@ -10,7 +10,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import uc.IUser;
@@ -22,17 +21,16 @@ import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 
 public class FilelistHandler extends AbstractHandler {
 
-	public static void openFilelist(IUser usr) {
-		openFilelist(usr,null);
+	public static void openFilelist(IUser usr,IWorkbenchWindow window) {
+		openFilelist(usr,null,window);
 	}
 	
-	public static void openFilelist(final IUser usr,final IDownloadable initialSelection) {
-		if (usr != null && usr.getFilelistDescriptor() != null) {
+	public static void openFilelist(final IUser usr,final IDownloadable initialSelection,final IWorkbenchWindow window) {
+		if (usr != null && usr.getFilelistDescriptor() != null && window != null) {
 			final FileList fl = usr.getFilelistDescriptor().getFilelist(); // force loading Filelist outside of UI thread..
 			new SUIJob() {
 				public void run() {
 					FilelistEditorInput fei = new FilelistEditorInput(usr.getFilelistDescriptor(),initialSelection);
-					IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 					try {
 						window.getActivePage().openEditor(fei,FilelistEditor.ID);
 					} catch(PartInitException pie) {
@@ -49,10 +47,6 @@ public class FilelistHandler extends AbstractHandler {
 
 	
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
-		
-	
-		//if no user is provided .. open a fileDialog to open a stored filelist..
 		boolean ownfl = Boolean.parseBoolean(event.getParameter(OPEN_OWN_FILELIST));
 		IUser usr = null;
 		if (!ownfl) {
@@ -73,7 +67,7 @@ public class FilelistHandler extends AbstractHandler {
 		} else {
 			usr = ApplicationWorkbenchWindowAdvisor.get().getFilelistself();
 		}
-		openFilelist(usr);
+		openFilelist(usr,HandlerUtil.getActiveWorkbenchWindowChecked(event));
 		
 		
 		return null;

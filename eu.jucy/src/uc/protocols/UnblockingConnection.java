@@ -356,36 +356,12 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			
 		//	X509Certificate.getInstance(new byte[]{}).getPublicKey().getEncoded()
 			boolean tryValidation = fingerPrint != null && !connectSent;
-			if (tryValidation ) {
-				Certificate cert = null;
-				SSLSession ssle = engine.getSession();
-				boolean correct = false;
-				try {
-					cert = ssle.getPeerCertificates()[0]; // ssle.getPeerCertificateChain()[0];
-					if (fingerPrint != null) {
-						HashValue hash = HashValue.createHash( cert.getEncoded(), fingerPrint.magnetString());
-						correct = hash.equals(fingerPrint);
-//						logger.info("fingerprint correct: "+ correct +"  "+hash);
-//						logger.info("sha-1 fingerprint: "+ GH.getHex( GH.getHash(cert.getEncoded(),"SHA-1")));
-						if (!correct) {
-							logger.info("Bad Fingerprint found from "+getInetSocketAddress() 
-									+"\nFound: "+hash
-									+"\nExpected: "+fingerPrint);
-						}
-					}
-					
-				} catch (SSLPeerUnverifiedException e) {
-					logger.error(getInetSocketAddress()+ " did not present a valid certificate.");
-				} catch (CertificateEncodingException e) {
-					logger.warn(e,e);
-				}
-				if (!correct) {
-					asynchClose();
-					return;
-				}
-				
+			
+			if (tryValidation && !checkFingerprint()) {
+				return;
 			}
 			signalOnConnect();
+			
 			break;
 		case NEED_WRAP:
 			send(ByteBuffer.allocate(0));
@@ -633,8 +609,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 						engine.setUseClientMode(!serverSide);
 						
 						if (serverSide) {
-							engine.setNeedClientAuth(fingerPrint != null);
-							engine.setWantClientAuth(fingerPrint != null);
+							engine.setNeedClientAuth(true);
+							engine.setWantClientAuth(true);
 							engine.setEnableSessionCreation(true);
 						}
 	
@@ -742,11 +718,54 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			
 	}
 	
+	/**
+	 * will close if keyprint is not correct ..
+	 * @return true if correct.. false otherwise..
+	 */
+	private boolean checkFingerprint() {
+		if (fingerPrint == null) {
+			throw new IllegalStateException();
+		}
+		Certificate cert = null;
+		SSLSession ssle = engine.getSession();
+		boolean correct = false;
+		try {
+			cert = ssle.getPeerCertificates()[0]; // ssle.getPeerCertificateChain()[0];
+			if (fingerPrint != null) {
+				HashValue hash = HashValue.createHash( cert.getEncoded(), fingerPrint.magnetString());
+				correct = hash.equals(fingerPrint);
+//				logger.info("fingerprint correct: "+ correct +"  "+hash);
+//				logger.info("sha-1 fingerprint: "+ GH.getHex( GH.getHash(cert.getEncoded(),"SHA-1")));
+				if (!correct) {
+					logger.info("Bad Fingerprint found from "+getInetSocketAddress() 
+							+"\nFound: "+hash
+							+"\nExpected: "+fingerPrint);
+				}
+			}
+			
+		} catch (SSLPeerUnverifiedException e) {
+			logger.error(getInetSocketAddress()+ " did not present a valid certificate.");
+		} catch (CertificateEncodingException e) {
+			logger.warn(e,e);
+		}
+		if (!correct) {
+			asynchClose();
+		}
+		return correct;
+		
+	}
+	
 	
 	
 
-	public void setFingerPrint(HashValue hash) {
-		this.fingerPrint = hash;
+	public boolean setFingerPrint(HashValue hash) {
+		if (encryption && connectSent && this.fingerPrint == null) {
+			this.fingerPrint = hash;
+			return checkFingerprint();
+		} else {
+			this.fingerPrint = hash;
+			return true;
+		}
 	}
 
 
@@ -900,34 +919,15 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 *
 	 */
 	private class BlockingChannel implements ByteChannel {
-		
-		//private VarByteBuffer in,out;
-		//private int outBuffersize = 1000*1024;
-		
-		private BlockingChannel( /*VarByteBuffer in,VarByteBuffer out */) {
-		//	this.in = in;
-		//	this.out = out;
-			//synchronized (varOutBuffer) {} // after this constructor is finished.. only we will call this buffers..
-		}
+		private BlockingChannel() {}
 
 		public int write(ByteBuffer src) throws IOException {
-
-			//int toWrite = src.remaining();
-
 			UnblockingConnection.this.send(src);
-			
-
 			int toWrite = varOutBuffer.writeToChannel((SocketChannel)key.channel());
-
-			//logger.debug("remaining on write: "+varOutBuffer.remaining()+"  written: "+toWrite);
-			
 			return toWrite;
 		}
 
 		public int read(ByteBuffer dst) throws IOException {
-			if (!isOpen() && Platform.inDevelopmentMode()) {
-				logger.warn("reading from closed channel");
-			}
 			synchronized (bufferLock) {
 				while (!varInBuffer.hasRemaining()) {
 					UnblockingConnection.this.read();

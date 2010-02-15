@@ -124,14 +124,13 @@ public enum INFField {
 		case US:
 			return ""+usr.getUs();
 		case U4:
-		case U6:
 			return ""+usr.getUdpPort();
+		case U6:
+			return ""+usr.getUDP6Port();
 		case PD: //PID is never sent to us, only interesting for the hub
 			return usr.getPD().toString();
 		case RF: //Referrer field is also only interesting for the hub
 			break;
-	/*	case TO: //TOKEN for CTM
-			break; */
 		case VE:
 			return usr.getVersion();
 		case KP: 

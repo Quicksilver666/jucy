@@ -2,6 +2,8 @@ package uc;
 
 import helpers.IObservable;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
@@ -76,9 +78,20 @@ public interface IConnectionDeterminator extends IObservable<String>{
 	 * either as set in settings ..
 	 * or as found by detection..
 	 */
-	InetAddress getPublicIP();
+	Inet4Address getPublicIP();
 
-	InetAddress getDetectedIP();
+	/**
+	 * 
+	 * @return ip that ws detected.
+	 */
+	Inet4Address getDetectedIP();
+	
+	/**
+	 * 
+	 * @return ipv6 address if working
+	 * null otherwise
+	 */
+	Inet6Address getIp6FoundandWorking();
 
 	
 	void stop();

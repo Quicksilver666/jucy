@@ -14,7 +14,7 @@ import uc.protocol.hub.NmdcHubTest;
 public class AllTests implements IApplication {
 
 	private static final Class<?>[] TEST_CASES= new Class[] {BloomFilterTest.class,
-		NmdcHubTest.class,
+		//NmdcHubTest.class,
 		AdcHubTest.class};
 	
 	public Object start(IApplicationContext context) throws Exception {
@@ -27,14 +27,11 @@ public class AllTests implements IApplication {
 				for (Failure f: res.getFailures()) {
 					System.out.println(f.getDescription().getDisplayName());
 					f.getException().printStackTrace();
-					break;
 				}
 				System.out.println("Failure: "+c.getSimpleName());
+				break;
 			}
 		}
-		
-		
-
 		
 		return Status.OK_STATUS;
 	}

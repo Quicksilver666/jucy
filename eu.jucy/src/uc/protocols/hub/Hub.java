@@ -23,7 +23,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
 import java.nio.ByteBuffer;
@@ -51,7 +52,6 @@ import uc.IUser;
 import uc.InfoChange;
 import uc.PI;
 import uc.User;
-import uc.IUser.Mode;
 import uc.crypto.HashValue;
 import uc.crypto.UDPEncryption;
 import uc.database.DBLogger;
@@ -125,51 +125,10 @@ public class Hub extends DCProtocol implements IHub {
 			this.nmdc = nmdc;
 		}
 		
-//		/**
-//		 * 
-//		 * @param address
-//		 * @return
-//		 * @deprecated logic for parsing is in FavHub
-//		 */
-//		public static boolean matchesPrefix(String address) {
-//			int index = address.indexOf("://");
-//			if (index >= 0) {
-//				String prefix  = address.substring(0, index).toUpperCase();
-//				try {
-//					ProtocolPrefix p = valueOf(prefix);
-//					return p != null;
-//				} catch (Exception e) {}
-//			}
-//			return false;
-//		}
 		
 		public String toString() {
 			return name().toLowerCase();
 		}
-		
-//		/**
-//		 * 
-//		 * @param whole
-//		 * @return
-//		 * @deprecated logic for parsing is in FavHub
-//		 */
-//		public static ProtocolPrefix parse(String whole) {
-//			int index = whole.indexOf("://");
-//			if (index >= 0) {
-//				String prefix = whole.substring(0, index).toUpperCase();
-//				logger.debug("prefix: "+prefix);
-//				try {
-//					ProtocolPrefix p = valueOf(prefix);
-//					if (p != null) {
-//						return p;
-//					}
-//				} catch (Exception e) {
-//					logger.debug(e,e);
-//				}
-//			}
-//			return DCHUB;
-//		}
-		
 		private final boolean encrypted,nmdc; 
 	}
 	
@@ -362,10 +321,14 @@ public class Hub extends DCProtocol implements IHub {
 			}
 
 			@Override
-			public InetAddress getIp() {
+			public Inet4Address getIp() {
 				return dcc.getConnectionDeterminator().getPublicIP();
 			}
 			
+			@Override
+			public synchronized Inet6Address getI6IP() {
+				return dcc.getConnectionDeterminator().getIp6FoundandWorking();
+			}
 
 			@Override
 			public long getShared() {
@@ -423,15 +386,16 @@ public class Hub extends DCProtocol implements IHub {
 			@Override
 			public String getSupports() {
 				List<String> sup = new ArrayList<String>();
-				if (dcc.isActive()) {
-					if (dcc.isIPv4Used()) {
-						sup.add(User.TCP4);
-						sup.add(User.UDP4);
-					} else {
-						sup.add(User.TCP6);
-						sup.add(User.UDP6);
-					}
+			
+				if (dcc.isIPv4Used() && dcc.isActive()) {
+					sup.add(User.TCP4);
+					sup.add(User.UDP4);
+				} 
+				if (dcc.isIPv6Used()) {
+					sup.add(User.TCP6);
+					sup.add(User.UDP6);
 				}
+				
 				if (dcc.currentlyTLSSupport()) {
 					sup.add(User.ADCS_SUPPORT);
 					if (AbstractConnection.getFingerPrint() != null) {
@@ -454,6 +418,11 @@ public class Hub extends DCProtocol implements IHub {
 			
 			@Override
 			public int getUdpPort() {
+				return dcc.getUdphandler().getPort();
+			}
+
+			@Override
+			public int getUDP6Port() {
 				return dcc.getUdphandler().getPort();
 			}
 
@@ -674,7 +643,7 @@ public class Hub extends DCProtocol implements IHub {
 		super.onLogIn();
 		//now information if we are registered or operator may have changed
 		dcc.notifyChangedInfo(InfoChange.Hubs); 
-		DCClient.getScheduler().schedule(
+		dcc.getSchedulerDir().schedule(
 		new Runnable() {
 			public void run() {
 				logger.debug("requesting userip1");
@@ -940,14 +909,11 @@ public class Hub extends DCProtocol implements IHub {
 	}
 
 	public void sendRCM(IUser target,CPType protocol,String token) {
-		if (!favHub.isChatOnly()) {		
-			Mode m = target.getModechar();
-			if (m == Mode.ACTIVE) {
-				if (nmdc) {
-					RevConnectToMe.sendRCM(this, target);
-				} else {
-					RCM.sendRCM(this, target, protocol, token);
-				}
+		if (!favHub.isChatOnly() && target.isActive()) {		
+			if (nmdc) {
+				RevConnectToMe.sendRCM(this, target);
+			} else {
+				RCM.sendRCM(this, target, protocol, token);
 			}
 		}
 		//here may be tell user that he can't connect there..

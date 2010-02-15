@@ -571,15 +571,15 @@ public class OwnFileList implements IOwnFileList  {
 	}
 
 
-	/**
-	 * indicates that the FileList can currently not be used..
-	 * used for a faster startup..
-	 * 
-	 * @author Quicksilver
-	 */
-	public static class FilelistNotReadyException extends Exception {
-		private static final long serialVersionUID = 1L;
-	}
+//	/**
+//	 * indicates that the FileList can currently not be used..
+//	 * used for a faster startup..
+//	 * 
+//	 * @author Quicksilver
+//	 */
+//	public static class FilelistNotReadyException extends Exception {
+//		private static final long serialVersionUID = 1L;
+//	}
 	
 	
 	class RefreshJob extends Job {

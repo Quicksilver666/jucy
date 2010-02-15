@@ -23,7 +23,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import uc.IHasUser;
 import uc.IHub;
 import uc.IUser;
-import uc.IUser.Mode;
 import uihelpers.TableViewerAdministrator.ColumnDescriptor;
 
 
@@ -87,33 +86,16 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 			Image key = AbstractUIPlugin.imageDescriptorFromPlugin(
 					Application.PLUGIN_ID, IImageKeys.USER_OPKEY2).createImage();
 			
-			
-			
-//			NORM_ACTIVE  =	AbstractUIPlugin.imageDescriptorFromPlugin(
-//					Application.PLUGIN_ID, IImageKeys.USER_ACTIVE).createImage();
-//			NORM_PASSIVE =	AbstractUIPlugin.imageDescriptorFromPlugin(
-//					Application.PLUGIN_ID, IImageKeys.USER_PASSIVE).createImage();
-//			NORM_OFFLINE = AbstractUIPlugin.imageDescriptorFromPlugin(
-//					Application.PLUGIN_ID, IImageKeys.USER_OFFLINE).createImage();
-//			
-//			Image key = AbstractUIPlugin.imageDescriptorFromPlugin(
-//					Application.PLUGIN_ID, IImageKeys.USER_OPKEY).createImage();
+
 			
 			for (int i = 0; i < USERIMAGES.length;i++) {
 				Image baseImage = i % 3 == 0? norm: (i% 3 == 1?passive:offline);
-				Image k = i%6 < 3 ?null:key;
+				Image keyUsed = i%6 < 3 ?null:key;
 				int size =i<6?16:22;
-			//	System.out.println(i+": " +(i%3) +"  key:"+(k!= null) +"   size:"+size);
-				Image cop = copyWithKey(baseImage,k, size);
+				Image cop = copyWithKey(baseImage,keyUsed, size);
 				USERIMAGES[i] = cop;
 			}
-			
-//			NORM_ACTIVE = copyWithKey(norm,null,16);
-//			NORM_PASSIVE = 
-//			NORM_OFFLINE
-//			OP_ACTIVE = copyWithKey(NORM_ACTIVE,key);
-//			OP_PASSIVE = copyWithKey(NORM_PASSIVE, key);
-//			OP_OFFLINE = copyWithKey(NORM_OFFLINE, key);
+
 			
 			norm.dispose();
 			passive.dispose();
@@ -163,7 +145,7 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 		public static Image getUserImage(IUser usr,boolean large) {
 			int i = large?6:0;
 			i += (usr.isOp()?3:0);
-			i += (usr.isOnline()? (usr.getModechar() == Mode.ACTIVE?0:1) :2) ;
+			i += (usr.isOnline()? (usr.isActive()?0:1) :2) ;
 			return USERIMAGES[i];
 			
 //			if (usr.isOnline()) {

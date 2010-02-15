@@ -131,6 +131,12 @@ public interface IUser  {
 	
 	Mode getModechar();
 	
+	/**
+	 * simple way to ask if Mode == Active
+	 * @return true if active
+	 */
+	boolean isActive();
+	
 	String getConnection();
 	
 	int getNumberOfSharedFiles();
@@ -154,6 +160,7 @@ public interface IUser  {
 	long getDs();
 	long getUs();
 	int getUdpPort();
+	int getUDP6Port();
 	String getVersion();
 	HashValue getPD();
 	
