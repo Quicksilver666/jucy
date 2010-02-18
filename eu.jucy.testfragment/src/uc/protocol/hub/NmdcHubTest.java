@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import uc.DCClient;
 import uc.FavHub;
+import uc.ICryptoManager;
 import uc.IUDPHandler;
 import uc.IUser;
 import uc.DCClient.Initializer;
@@ -45,7 +46,7 @@ public class NmdcHubTest {
 		dcc.start(new NullProgressMonitor());
 		Hub.setConnectionInjector(new ConnectionInjector() {
 			@Override
-			public IConnection getConnection(String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
+			public IConnection getConnection(ICryptoManager manager,String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
 				return new TestHubConnection(addy, connectionProt, encryption,fingerPrint);
 			}
 		});

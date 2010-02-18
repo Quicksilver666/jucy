@@ -19,7 +19,8 @@ enum ColumnType implements Comparator<String> {
 		try {
 			switch(this) {
 			case BYTES:
-				return SizeEnum.getReadableSize(GH.isEmpty(value) ? 0 : Long.parseLong(value));
+				long val = GH.isEmpty(value) ? 0L : (long)Double.parseDouble(value);
+				return SizeEnum.getReadableSize(val);
 			case PERCENT:
 				return (GH.isEmpty(value) ? "" :value+" %");
 			}
@@ -32,12 +33,11 @@ enum ColumnType implements Comparator<String> {
 		try {
 			switch(this) {
 			case BYTES:
-				return 	(GH.isEmpty(o1) ? Long.valueOf(0) :Long.valueOf(o1)).compareTo(
-						(GH.isEmpty(o2) ? Long.valueOf(0) :Long.valueOf(o2)));
 			case PERCENT:
 			case INT:
-				return (GH.isEmpty(o1) ? Integer.valueOf(0): Integer.valueOf(o1)).compareTo(
-						GH.isEmpty(o2) ? Integer.valueOf(0): Integer.valueOf(o2));
+				long lone = GH.isEmpty(o1) ?0:Long.parseLong(o1);
+				long ltwo = GH.isEmpty(o2) ?0:Long.parseLong(o2);
+				return GH.compareTo(lone, ltwo);
 			case STRING:
 				return o1.compareTo(o2);
 			}

@@ -13,7 +13,7 @@ import java.util.Map;
 
 import logger.LoggerFactory;
 
-import org.apache.log4j.Level;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.service.prefs.BackingStoreException;
@@ -30,7 +30,7 @@ import uihelpers.ComplexListEditor;
  */
 public class FavHubs extends Observable<FavHub> implements IFavHubs {
 
-	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
+	private static final Logger logger = LoggerFactory.make();
 	
 
 	

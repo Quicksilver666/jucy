@@ -8,14 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 
 
-import uc.DCClient;
 import uc.IUser;
 import uc.protocols.ADCStatusMessage;
 import uc.protocols.CPType;
 
 public class CTM extends AbstractADCHubCommand {
 
-	//public static final String ADC1 = "ADC/1.0";
 	
 	/**
 	 * supported protocols
@@ -51,6 +49,7 @@ public class CTM extends AbstractADCHubCommand {
 					ADCStatusMessage.RECOVERABLE,
 					ADCStatusMessage.ProtocolTransferProtocolUnsupported,flags);
 			STA.sendSTAtoUser(hub, other,adcsm);
+			logger.info("command: "+command);
 		} else if (isa != null) {
 			hub.ctmReceived(isa,other,CPType.fromString(protocol), token);
 		}	

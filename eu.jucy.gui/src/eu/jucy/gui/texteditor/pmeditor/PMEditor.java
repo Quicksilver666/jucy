@@ -210,13 +210,8 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 		final UserChange type = uce.getType();
 		if (!type.equals(UserChange.CHANGED)) {
 			userOnline = type == UserChange.CONNECTED;
-			append("*** "+type+" ***",null,System.currentTimeMillis());
-			new SUIJob(feedLabel) {
-				public void run() {
-					labelViewer.addMessage("*** "+type+" ***");
-					setCurrentimage();
-				}
-			}.schedule();
+			statusMessage(type.toString(),0);
+
 			fireTopicChangedListeners();
 		}
 		
@@ -240,12 +235,20 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 		}.schedule();		
 	}
 	
-
-	
+	@Override
+	public void statusMessage(final String message,  int severity) {
+		append( "*** " +message,null,System.currentTimeMillis());		
+		new SUIJob(feedLabel) {
+			public void run() {
+				labelViewer.addMessage("*** "+message+" ***");
+				setCurrentimage();
+			}
+		}.schedule();
+	}
 	
 	@Override
 	public void storedPM(IUser usr,String message, boolean me) {
-		append("*** stored PM: "+message,null,System.currentTimeMillis()); //TODO internationalize
+		statusMessage("stored PM: "+message, 0); //TODO internationalize
 	}
 
 

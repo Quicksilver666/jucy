@@ -12,7 +12,7 @@ public interface IMCReceivedListener {
 	 * 
 	 * ex: <Niclas> hello|     --> sender Niclas     message hello
 	 **/
-	void mcReceived(IUser sender , String message);
+	void mcReceived(IUser sender , String message,boolean me);
 	
 	/**
 	 * if no user can be determined... or malformed input ..

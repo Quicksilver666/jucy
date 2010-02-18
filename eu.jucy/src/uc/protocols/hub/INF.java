@@ -21,7 +21,6 @@ import uc.crypto.HashValue;
 import uc.listener.IUserChangedListener.UserChange;
 import uc.listener.IUserChangedListener.UserChangeEvent;
 import uc.protocols.ADCStatusMessage;
-import uc.protocols.AbstractConnection;
 import uc.protocols.ConnectionState;
 import uc.protocols.DCProtocol;
 
@@ -46,7 +45,8 @@ public class INF extends AbstractADCHubCommand {
 		if (!GH.isEmpty(sids)) { 
 			logger.debug("Received inf2 " );
 			int sid = SIDToInt(sids);
-			if (hub.getSelf().getSid() == sid &&  ConnectionState.CONNECTED.equals(hub.getState()) ) {
+			boolean self = hub.getSelf().getSid() == sid ;
+			if ( self &&  ConnectionState.CONNECTED.equals(hub.getState()) ) {
 				hub.onLogIn();
 			}
 			
@@ -134,7 +134,7 @@ public class INF extends AbstractADCHubCommand {
 			if (dcc.isActive()) {
 				fields.add(INFField.U4);
 			}
-			if (AbstractConnection.getFingerPrint() != null) {
+			if (self.getKeyPrint() != null) {
 				fields.add(INFField.KP);
 			}
 			if (dcc.isIPv6Used()) {
@@ -170,9 +170,6 @@ public class INF extends AbstractADCHubCommand {
 				inf += reverseINFMap( next);
 				
 				hub.sendUnmodifiedRaw(inf + "\n");
-//				if (Platform.inDevelopmentMode()) {
-//					logger.info("INF: "+inf);
-//				}
 			}
 		}
 	}

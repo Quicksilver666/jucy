@@ -53,14 +53,14 @@ public class DownloadQueue extends Observable<StatusObject> {
 
 	private final PreferenceChangedAdapter pfa;
 	
-	public DownloadQueue(DCClient dcc) {
-		this.dcc = dcc;
+	public DownloadQueue(DCClient dcclient) {
+		this.dcc = dcclient;
 		
 		pfa = new PreferenceChangedAdapter(PI.get(),PI.tempDownloadDirectory){
 			@Override
 			public void preferenceChanged(String preference,String oldvalue,String newValue) {
 				if (!tthRoots.isEmpty()) { //restart if the DownloadQueue is not empty..
-					logger.info("restarting: " + PlatformUI.getWorkbench().restart());
+					dcc.logEvent("restarting: " + PlatformUI.getWorkbench().restart());
 				}
 			}
 		};
@@ -96,9 +96,9 @@ public class DownloadQueue extends Observable<StatusObject> {
 		if (!PI.get(PI.tempDownloadDirectory).equals(oldDir)) {
 			File old = new File(oldDir);
 			File actual = PI.getTempDownloadDirectory();
-			logger.info("Moving files to new Temp Download directory");
+			dcc.logEvent("Moving files to new Temp Download directory");
 			move(old,actual);
-			logger.info("Finished Moving files");
+			dcc.logEvent("Finished Moving files");
 			//delete moving notification
 			PI.put(PI.changedTempDownloadDirectory,PI.get(PI.tempDownloadDirectory));
 		}
@@ -302,7 +302,7 @@ public class DownloadQueue extends Observable<StatusObject> {
 				}
 			}
 		}
-		logger.info(String.format(LanguageKeys.MatchedXFilesWithUserY,count,f.getUsr().getNick()));
+		dcc.logEvent(String.format(LanguageKeys.MatchedXFilesWithUserY,count,f.getUsr().getNick()));
 	}
 	
 	/**

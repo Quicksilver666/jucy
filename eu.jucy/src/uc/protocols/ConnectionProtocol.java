@@ -101,7 +101,7 @@ public abstract class ConnectionProtocol {
 	 */
 	protected volatile ConnectionState state = ConnectionState.CONNECTING ; 
 
-	private volatile long lastLogin;
+	private volatile long lastLogin = 0; 
 
 
 
@@ -205,7 +205,7 @@ public abstract class ConnectionProtocol {
 	public void onLogIn() throws IOException {
 		if (state != ConnectionState.CONNECTED) {
 			if (Platform.inDevelopmentMode()) {
-				logger.info("Bad state: "+state);
+				logger.warn("Bad state: "+state);
 			}
 			return;
 		}

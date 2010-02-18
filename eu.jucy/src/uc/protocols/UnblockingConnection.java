@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.Platform;
 
 import logger.LoggerFactory;
 import uc.DCClient;
+import uc.ICryptoManager;
 import uc.crypto.HashValue;
 import uc.protocols.MultiStandardConnection.IUnblocking;
 
@@ -56,6 +57,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	
 	private final boolean encryption;
 	private final boolean serverSide;
+	
 	
 	private volatile SSLEngine engine;
 	private volatile HashValue fingerPrint;
@@ -102,8 +104,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	/**
 	 * used for client as well as server mode.
 	 */
-	public UnblockingConnection(SocketChannel soChan, ConnectionProtocol connectionProt,boolean encryption, boolean serverSide,HashValue fingerPrint) {
-		super(connectionProt);
+	public UnblockingConnection(ICryptoManager cryptoManager,SocketChannel soChan, ConnectionProtocol connectionProt,boolean encryption, boolean serverSide,HashValue fingerPrint) {
+		super(cryptoManager,connectionProt);
 		this.encryption = encryption;
 		this.serverSide = serverSide;
 		this.target = soChan;
@@ -119,8 +121,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 * @param encryption
 	 * @param allowDH - can forbid DH keys due to problems with DH and other clients... especially apex..
 	 */
-	public UnblockingConnection(String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
-		super(connectionProt);
+	public UnblockingConnection(ICryptoManager cryptoManager,String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
+		super(cryptoManager,connectionProt);
 		this.encryption = encryption;
 		this.target = addy;
 		serverSide = false;
@@ -136,8 +138,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			reset((InetSocketAddress)target);
 		}
 	}
-	public UnblockingConnection(InetSocketAddress isa, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint){
-		super(connectionProt);
+	public UnblockingConnection(ICryptoManager cryptoManager,InetSocketAddress isa, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint){
+		super(cryptoManager,connectionProt);
 		this.target = isa;
 		this.encryption = encryption;
 		this.serverSide = false;
@@ -232,7 +234,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	public void onDisconnect() throws IOException{
 	/*	if (printLifetime) {
 			synchronized(bufferLock) {
-			logger.info("Lifetime in Seconds: "+ ((System.currentTimeMillis()-connectionCreated)/1000)+ "  "+varInBuffer.remaining());
+			logger.debug("Lifetime in Seconds: "+ ((System.currentTimeMillis()-connectionCreated)/1000)+ "  "+varInBuffer.remaining());
 			}
 		} */
 		logger.debug("onDisconnect()");
@@ -448,7 +450,6 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 */
 	public void connected() {
 		disconnectSent = false;
-		//logger.info("disconnect cleared 1");
 		final SocketChannel sochan =(SocketChannel)key.channel();
 		synchronized (inetAddySynch) {
 			inetAddress = null;
@@ -583,8 +584,6 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 */
 	public void reset(SocketChannel soChan) {
 		disconnectSent = false;
-		//logger.info("disconnect cleared 2");
-		//executingCommands = false;
 		connectSent = false;
 		logger.debug("in reset(sochan)");
 
@@ -605,7 +604,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			try {
 				synchronized(bufferLock) {
 		
-						engine = TLS.createSSLEngine();
+						engine =  cryptoManager.createSSLEngine();
 						engine.setUseClientMode(!serverSide);
 						
 						if (serverSide) {
@@ -734,8 +733,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			if (fingerPrint != null) {
 				HashValue hash = HashValue.createHash( cert.getEncoded(), fingerPrint.magnetString());
 				correct = hash.equals(fingerPrint);
-//				logger.info("fingerprint correct: "+ correct +"  "+hash);
-//				logger.info("sha-1 fingerprint: "+ GH.getHex( GH.getHash(cert.getEncoded(),"SHA-1")));
+//				logger.debug("fingerprint correct: "+ correct +"  "+hash);
+//				logger.debug("sha-1 fingerprint: "+ GH.getHex( GH.getHash(cert.getEncoded(),"SHA-1")));
 				if (!correct) {
 					logger.info("Bad Fingerprint found from "+getInetSocketAddress() 
 							+"\nFound: "+hash
@@ -785,9 +784,6 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 
 	@Override
 	public void close() {
-		//logger.info("disconnect cleared 3");
-		//disconnectSent = false;
-		
 		Runnable r = new Runnable() {
 			public void run() {
 				if (key != null) {

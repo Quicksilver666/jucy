@@ -360,7 +360,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 		if (!GH.isLocaladdress(ourIPAddress) && ourIPAddress instanceof Inet4Address) {
 			if (!ourIPAddress.equals(current)) {
 				current = (Inet4Address)ourIPAddress;
-				logger.info("New Public IP: "+current.getHostAddress());
+				dcc.logEvent("New Public IP: "+current.getHostAddress());
 				connectionsFailedInARow = 0;
 				notifyObservers();
 			}
@@ -427,67 +427,59 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 * @return IP as determined by the web...
 	 * @throws IOException
 	 */
-	private static Inet4Address getIP() throws IOException {
-    	BufferedReader br = null;
-  
-    	try {
-    		
-    		List<String> urls =  new ArrayList<String>(Arrays.asList(
-    				"http://checkip.dyndns.org:8245/",
-    				"http://www.ipchicken.com/", 
-    			//	"http://www.myip.dk/",
-    				"http://www.ip-adress.com/ip_lokalisieren/",
-    				"http://www.myip.ch/",
-    			//	"http://www.cmyip.com/",  TODO test again .. seems offline
-    			//	"http://www.showmyip.com/",
-    				"http://ipswift.com/"
-    				)); 
-    		Collections.shuffle(urls);
-    		urls.add(0, "http://jucy.eu/ip.php"); //own address always first..
-    		
-    		Pattern p = Pattern.compile("("+IProtocolCommand.IPv4+")");
-    		
-    		try {
-    			for (String url:urls) {
-    				URL u = new URL(url);
-    				URLConnection uc;
-    				InetAddress ia = AbstractConnection.getBindAddress(PI.get(PI.bindAddress));
-    				if (!Socks.isEnabled() && ia != null) { //if no proxy is enabled use this trick to bind the address..
-    	  				Proxy proxy = new Proxy(Proxy.Type.DIRECT, 
-        					    new InetSocketAddress( 
-        					        ia, 0));
-    	  				uc = u.openConnection(proxy);
-    				} else {
-    					uc = u.openConnection();
-    				}
-  
+	private Inet4Address getIP() throws IOException {
+		BufferedReader br = null;
 
-    				
-			         //   
-			        br = new BufferedReader(new InputStreamReader(uc.getInputStream()));
-			 
+		try {
 
-			        String line;
-			       
-			        while ((line = br.readLine()) != null) {
-			        	Matcher m = p.matcher(line);
-				        if (m.find()) {
-				        	String ip = m.group(1);
-				        	logger.info(String.format(LanguageKeys.CDDeterminedIPOverWeb,ip));
-				        	return (Inet4Address)InetAddress.getByName(ip);
-				        }
-			        }
-			        logger.debug("no ip found for url: "+url);
-	    		}
-    		} catch(IOException ioe) {
-    			logger.info(ioe);
-    		}
+			List<String> urls =  new ArrayList<String>(Arrays.asList(
+					"http://checkip.dyndns.org:8245/",
+					"http://www.ipchicken.com/", 
+					//	"http://www.myip.dk/",
+					"http://www.ip-adress.com/ip_lokalisieren/",
+					"http://www.myip.ch/",
+					//	"http://www.cmyip.com/",  TODO test again .. seems offline
+					//	"http://www.showmyip.com/",
+					"http://ipswift.com/"
+			)); 
+			Collections.shuffle(urls);
+			urls.add(0, "http://jucy.eu/ip.php"); //own address always first..
 
-	        throw new IOException("IP address detection failed");
-    	} finally {
-    		GH.close(br);
-    	}
-    }
+			Pattern p = Pattern.compile("("+IProtocolCommand.IPv4+")");
+
+
+			for (String url:urls) {
+				URL u = new URL(url);
+				URLConnection uc;
+				InetAddress ia = AbstractConnection.getBindAddress(PI.get(PI.bindAddress));
+				if (!Socks.isEnabled() && ia != null) { //if no proxy is enabled use this trick to bind the address..
+					Proxy proxy = new Proxy(Proxy.Type.DIRECT, 
+							new InetSocketAddress( 
+									ia, 0));
+					uc = u.openConnection(proxy);
+				} else {
+					uc = u.openConnection();
+				}
+				br = new BufferedReader(new InputStreamReader(uc.getInputStream()));
+
+
+				String line;
+
+				while ((line = br.readLine()) != null) {
+					Matcher m = p.matcher(line);
+					if (m.find()) {
+						String ip = m.group(1);
+						dcc.logEvent(String.format(LanguageKeys.CDDeterminedIPOverWeb,ip));
+						return (Inet4Address)InetAddress.getByName(ip);
+					}
+				}
+				logger.debug("no ip found for url: "+url);
+			}
+			throw new IOException("IP address detection failed");
+		} finally {
+			GH.close(br);
+		}
+	}
 	
 	private void determineIPv6Working() {
 		Socket s = null;
@@ -498,12 +490,12 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 			InetAddress ia = s.getLocalAddress();
 			if (ia instanceof Inet6Address) {
 				this.ip6FoundandWorking = (Inet6Address)ia;
-				logger.info("IP6 connectivity found: "+ia);
+				dcc.logEvent("IP6 connectivity found: "+ia);
 			}
 			s.close();
 		} catch(UnknownHostException uhe) {
 			if (Platform.inDevelopmentMode()) {
-				logger.info("no IPv6 connectivity DNS resolution failed");
+				dcc.logEvent("no IPv6 connectivity DNS resolution failed");
 			}
 		} catch (IOException e) {
 			logger.warn(e,e);
@@ -769,10 +761,10 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 				if (mapped) {
 					setActive(tcp,new PortMapping(portnumber,tcp,igd),state);
 					upnpMappingCreated++;
-					logger.info("Created Portmapping via UPnP");
+					dcc.logEvent("Created Portmapping via UPnP");
 					upnpErrorDescription = null;
 				} else {
-					logger.info("Unable to create Port mapping via UPnP");
+					dcc.logEvent("Unable to create Port mapping via UPnP");
 				}
 				logger.debug("mapped: "+mapped+" ");
 

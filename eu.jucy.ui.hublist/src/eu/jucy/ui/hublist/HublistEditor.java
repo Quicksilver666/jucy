@@ -6,7 +6,6 @@ import java.util.List;
 
 import logger.LoggerFactory;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
@@ -55,9 +54,7 @@ import eu.jucy.ui.hublist.HublistHubActions.CopyAddressAction;
 public class HublistEditor extends UCEditor {
 	
 	private static Logger logger = LoggerFactory.make();
-	static {
-		logger.setLevel(Level.ALL);
-	}
+
 	
 	public static final String ID = "eu.jucy.ui.hublist";
 
@@ -75,7 +72,7 @@ public class HublistEditor extends UCEditor {
 		connectAction,
 		copyAddressAction;	
 
-	//private HubList hublist;
+
 
 
 

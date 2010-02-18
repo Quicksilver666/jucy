@@ -18,21 +18,13 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
-import java.security.KeyManagementException;
 
-
-
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 
 
 import java.util.Enumeration;
 import java.util.regex.Pattern;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+
 
 import logger.LoggerFactory;
 
@@ -41,9 +33,10 @@ import org.apache.log4j.Logger;
 
 
 
+
+import uc.ICryptoManager;
 import uc.PI;
-import uc.crypto.CertGenerator;
-import uc.crypto.HashValue;
+
 
 
 /**
@@ -54,10 +47,6 @@ import uc.crypto.HashValue;
  */
 public abstract class AbstractConnection implements Closeable, IConnection {
 
-	
-	protected static final SSLContext TLS;
-	
-
 	private static Logger logger = LoggerFactory.make(Level.DEBUG); 
 	
 	
@@ -66,66 +55,11 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 	protected volatile CharsetDecoder charsetDecoder;
 	protected volatile CharsetEncoder charsetEncoder;
 	
-	static {
-		//Security.addProvider(new BouncyCastleProvider());
-		boolean[] bP = new boolean[]{false}; 
-		HashValue[] fPP = new HashValue[]{null};
-		TLS = loadTLS(bP,fPP);
-		tlsInitialised = bP[0];
-		fingerPrint= fPP[0];
-	}
-	
-	private static final boolean tlsInitialised;
-	private static final HashValue fingerPrint;
+	protected final ICryptoManager cryptoManager;
 	
 	
-	public static HashValue getFingerPrint() {
-		return fingerPrint;
-	}
-
-
-
-
-	public static boolean isTLSInitialized() {
-		return tlsInitialised;
-	}
-	
-	
-	
-
-	private static SSLContext loadTLS(boolean[] tlsPointer,HashValue[] fingerPrintPointer)  {
-		SSLContext tlsinit = null;
-		try {
-			TrustManager[] trustAllCerts = new TrustManager[]{
-					new X509TrustManager() {
-						public X509Certificate[] getAcceptedIssuers() {
-							return new X509Certificate[0];
-						}
-						public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-						public void checkServerTrusted(X509Certificate[] certs, String authType) {
-							//here Certificate of a hub could be checked..
-						}
-					}
-			};
-			
-			
-			tlsinit = SSLContext.getInstance("TLSv1");
-			KeyManager[] managers = PI.getBoolean(PI.allowTLS)? CertGenerator.loadManager(fingerPrintPointer):null;
-			tlsinit.init(managers,trustAllCerts , null);
-			
-			tlsPointer[0]= managers != null && managers.length > 0 ;
-			logger.debug("tls initialized: "+tlsPointer[0]);
-		} catch (NoSuchAlgorithmException nse) {
-			logger.error(nse, nse);
-		} catch (KeyManagementException kme) {
-			logger.error(kme, kme);
-		}
-
-		return tlsinit;
-	}
-
-	
-	public AbstractConnection(ConnectionProtocol cp) {
+	public AbstractConnection(ICryptoManager cryptoManager,ConnectionProtocol cp) {
+		this.cryptoManager = cryptoManager;
 		this.cp = cp;
 	}
 	

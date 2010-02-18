@@ -33,6 +33,7 @@ import eu.jucy.testfragment.TestHubConnection;
 import uc.Command;
 import uc.DCClient;
 import uc.FavHub;
+import uc.ICryptoManager;
 import uc.IUDPHandler;
 import uc.IUser;
 import uc.PI;
@@ -138,7 +139,7 @@ public class AdcHubTest {
 		dcc.start(new NullProgressMonitor());
 		Hub.setConnectionInjector(new ConnectionInjector() {
 			@Override
-			public IConnection getConnection(String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
+			public IConnection getConnection(ICryptoManager manager,String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
 				return new TestHubConnection(addy, connectionProt, encryption,fingerPrint);
 			}
 		});
@@ -330,7 +331,7 @@ public class AdcHubTest {
 			
 			public void statusChanged(ConnectionState newStatus,ConnectionProtocol cp) {}
 
-			public void mcReceived(IUser sender, String message) {
+			public void mcReceived(IUser sender, String message,boolean me) {
 				m[0] = message; 
 				u[0] = sender;
 			}

@@ -21,7 +21,7 @@ import java.util.Set;
 
 import logger.LoggerFactory;
 
-import org.apache.log4j.Level;
+
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.SimpleAnalyzer;
 import org.apache.lucene.document.Document;
@@ -58,7 +58,7 @@ import uc.crypto.HashValue;
 
 public class TextIndexer {
 
-	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
+	private static final Logger logger = LoggerFactory.make();
 	
 	
 	private static final int MAX_TOTALSIZE = 100*1024*1024; //max size to be indexed..
@@ -121,17 +121,7 @@ public class TextIndexer {
 				int size = ir.numDocs();
 				long timestart = System.currentTimeMillis();
 				logger.debug("Read "+size+" filehashes");
-				FieldSelector fs = new FieldSelector() {
-					private static final long serialVersionUID = 1L;
-
-					public FieldSelectorResult accept(String fieldName) {
-						if (fieldName.equals(FIELD_HASH)) {
-							return FieldSelectorResult.LOAD;
-						} else {
-							return FieldSelectorResult.NO_LOAD;
-						}
-					}
-				};
+				FieldSelector fs = new HashFieldSelector();
 				for (int i = 0; i < size; i++) {
 					Document doc = ir.document(i, fs);
 					byte[] hashB = doc.getBinaryValue(FIELD_HASH);
@@ -165,8 +155,6 @@ public class TextIndexer {
 		if (!matches(f.getName(),f.length())) {
 			return;
 		}
-		
-		
 		try {
 			storeDocument(f, hashOfFile);
 			presentHashes.add(hashOfFile);
@@ -246,9 +234,7 @@ public class TextIndexer {
 	public synchronized void stop() {
 		if (w != null) {
 			try {	
-				if (job != null) {
-					job.cancel();
-				}
+				blockingstop();
 				w.commit();
 				w.close();
 				w = null;
@@ -258,7 +244,7 @@ public class TextIndexer {
 		}
 	}
 	
-	private void index(OwnFileList list) {
+	private void blockingstop() {
 		if (job != null) {
 			job.cancel();
 			try {
@@ -267,10 +253,26 @@ public class TextIndexer {
 				logger.warn(e,e);
 			}
 		}
+	}
+	
+	private void index(OwnFileList list) {
+		blockingstop();
 		job = new IndexTextFiles(list);
 		job.schedule();
 	}
 	
+	private static final class HashFieldSelector implements FieldSelector {
+		private static final long serialVersionUID = 1L;
+
+		public FieldSelectorResult accept(String fieldName) {
+			if (fieldName.equals(FIELD_HASH)) {
+				return FieldSelectorResult.LOAD;
+			} else {
+				return FieldSelectorResult.NO_LOAD;
+			}
+		}
+	}
+
 	class IndexTextFiles extends Job {
 		private final IOwnFileList list;
 		

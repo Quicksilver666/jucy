@@ -15,7 +15,7 @@ import uc.protocols.hub.IFeedListener.FeedType;
  */
 public class MC extends AbstractNMDCHubProtocolCommand {
 
-	private static final Pattern USER = Pattern.compile("<("+NICK+")> ("+TEXT+")");
+	private static final Pattern USER = Pattern.compile("<?("+NMDCNICK+")>? ("+TEXT+")");
 	
 	public MC(Hub hub) {
 		super(hub);
@@ -37,8 +37,7 @@ public class MC extends AbstractNMDCHubProtocolCommand {
 					//is kicking because:  is sort of the a message targeting at feed..
 					hub.feedReceived(FeedType.KICK,message);	
 				} else {
-					
-					hub.mcMessageReceived(usr, message,false);
+					hub.mcMessageReceived(usr, message,command.charAt(0) != '<');
 				}
 			} else {
 				hub.mcMessageReceived(null, DCProtocol.reverseReplaces(command),true);

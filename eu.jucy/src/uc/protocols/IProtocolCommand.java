@@ -12,7 +12,7 @@ public interface IProtocolCommand {
 	/**
 	 * pattern describing a nick..
 	 */
-	public static final String NICK = "(?:[^\\s\\$]+)";
+	public static final String NMDCNICK = "(?:[^\\s\\$<>]+)";
 	
 	public static final String BASE32CHAR = "[A-Z2-7]";
 	
@@ -28,7 +28,12 @@ public interface IProtocolCommand {
 	
 	public static final String BYTE 	= "(?:(?:25[0-5])|(?:2[0-4]\\d)|(?:[01]?\\d\\d?))"; 
 	public static final String IPv4 	=  "(?:(?:"+BYTE+"\\.){3}"+BYTE+")";
+	public static final String TWOHEXBYTES =  "(?:[a-fA-F0-9]{0,4})";
+	public static final String IPv6		= 
+		"(?:"+TWOHEXBYTES+"(?::"+TWOHEXBYTES+"){0,5}(?(?::"+TWOHEXBYTES+"){2}|(?::"+IPv4+")))"; //simple IPv6 with embedded IPv4
+	
 		
+	   
 	public static final String PORT	= "(?:(?:6553[0-5])|(?:655[0-2]\\d)|(?:65[0-4]\\d\\d)|(?:6[0-4]\\d{3})|(?:[1-5]?\\d{1,4}))";
 
 	public static final String FILESIZE = "(?:\\d{1,18})"; //nearly a long ... though should be enough for any kind of files..

@@ -9,3 +9,5 @@ Require-Bundle: eu.jucy.gui,
  eu.jucy.helpers
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Localization: notepad
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .

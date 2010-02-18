@@ -46,6 +46,7 @@ import eu.jucy.language.LanguageKeys;
 import uc.Command;
 import uc.DCClient;
 import uc.FavHub;
+import uc.ICryptoManager;
 import uc.IHub;
 import uc.IOperatorPlugin;
 import uc.IUser;
@@ -68,7 +69,6 @@ import uc.listener.IPMReceivedListener;
 import uc.listener.IUserChangedListener;
 import uc.listener.IUserChangedListener.UserChangeEvent;
 import uc.protocols.ADCStatusMessage;
-import uc.protocols.AbstractConnection;
 import uc.protocols.CPType;
 import uc.protocols.Compression;
 import uc.protocols.ConnectionProtocol;
@@ -103,8 +103,8 @@ public class Hub extends DCProtocol implements IHub {
 	 *
 	 */
 	public static class ConnectionInjector {
-		public IConnection getConnection(String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
-			return new UnblockingConnection(addy,connectionProt, encryption,fingerPrint);
+		public IConnection getConnection(ICryptoManager cryptoManager,String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
+			return new UnblockingConnection(cryptoManager,addy,connectionProt, encryption,fingerPrint);
 		}
 	}
 	
@@ -279,7 +279,7 @@ public class Hub extends DCProtocol implements IHub {
 
 		self = createSelf();
 		
-		connection = inject.getConnection(favHub.getInetSocketaddress(), this,p.encrypted,favHub.getKeyPrint());
+		connection = inject.getConnection(dcc.getCryptoManager(),favHub.getInetSocketaddress(), this,p.encrypted,favHub.getKeyPrint());
 	
 	}
 	
@@ -294,6 +294,10 @@ public class Hub extends DCProtocol implements IHub {
 	 *  so this user proxy works properly 
 	 */
 	private User createSelf() {
+		if (self != null && getUserBySID(self.getSid()) == self ) {
+			logger.info("User still found by sid ");
+		}
+		
 		String nickname = getNickSelf();
 		return new User(dcc,nickname,nmdc?nickToUserID(nickname,this ): CIDToUserID(dcc.getPID().hashOfHash(), favHub) ){
 
@@ -398,7 +402,7 @@ public class Hub extends DCProtocol implements IHub {
 				
 				if (dcc.currentlyTLSSupport()) {
 					sup.add(User.ADCS_SUPPORT);
-					if (AbstractConnection.getFingerPrint() != null) {
+					if (getKeyPrint() != null) {
 						sup.add(User.KEYP);
 					}
 				}
@@ -467,7 +471,7 @@ public class Hub extends DCProtocol implements IHub {
 				switch(inf) {
 				case CT: setWeAreOp(super.isOp()); break;
 				case I4: 
-				case I6: 
+					logger.debug("getting IP set by hub: "+favHub.getHubaddy(),new Throwable());
 					dcc.getConnectionDeterminator().userIPReceived(super.getIp(), favHub); //super call important -> otherwise it gets the IP from COnnection determinator..
 					userIPReceived = true;
 					break;
@@ -476,7 +480,7 @@ public class Hub extends DCProtocol implements IHub {
 
 			@Override
 			public HashValue getKeyPrint() {
-				return AbstractConnection.getFingerPrint();
+				return dcc.getCryptoManager().getFingerPrint();
 			}
 
 			private boolean changeInProgress = false;
@@ -488,6 +492,29 @@ public class Hub extends DCProtocol implements IHub {
 					changeInProgress = false;
 				} 
 				return super.getNick();
+			}
+			
+			@Override
+			public int hashCode() {
+				final int PRIME = 31;
+				int result = 1;
+				result = PRIME * result + ((getUserid() == null) ? 0 : getUserid().hashCode());
+				return result;
+			}
+
+			@Override
+			public boolean equals(Object obj) {
+				if (this == obj)
+					return true;
+				if (obj == null)
+					return false;
+				if (getClass() != obj.getClass())
+					return false;
+				final User other = (User) obj;
+
+				if (!getUserid().equals(other.getUserid()))
+					return false;
+				return true;
 			}
 		    
 		};
@@ -578,28 +605,26 @@ public class Hub extends DCProtocol implements IHub {
 	 */
 	void mcMessageReceived(User usr, String message, boolean me) {
 		
-		if (!me && usr != null) {
+		if (usr != null) {
 			for (IMCReceivedListener listener : hubl) {
-				listener.mcReceived(usr, message);
+				listener.mcReceived(usr, message,me);
 			}
 		} else {
-			if (usr != null) { //ADC version ...has to do this on its own..
-				message = "*"+usr.getNick()+" "+message+"*";
-			}
+			
 			for (IMCReceivedListener listener : hubl) {
 				listener.mcReceived( message);
 			}
 		}
 
-		logMainchatMessage(usr,message);
+		logMainchatMessage(usr,message,me);
 	}
 	
-	private void logMainchatMessage(final User usr,final String message) {
+	private void logMainchatMessage(final User usr,final String message,boolean me) {
 		if (PI.getBoolean(PI.logMainChat)) {
 			if (mcLoggerDB == null) {
 				mcLoggerDB = new DBLogger(favHub, true,dcc);
 			}
-			String mes = (usr != null ? "<" + usr.getNick()+ "> " : "")+ message;
+			String mes = (usr != null ? (me?"*":"<") + usr.getNick()+ (me?" ":"> ") : "")+ message;
 			mcLoggerDB.addLogEntry(mes, System.currentTimeMillis());
 		}
 	}
@@ -1283,7 +1308,7 @@ public class Hub extends DCProtocol implements IHub {
 //			int postfix = this.hubaddy.indexOf('/');
 //			if (postfix > 0) {
 //				this.hubaddy = this.hubaddy.substring(0, postfix);
-//				logger.info("hubaddy2: "+this.hubaddy);
+//				
 //			}
 //			setProtocolNMDC(false);
 //			this.defaultCommand = null;

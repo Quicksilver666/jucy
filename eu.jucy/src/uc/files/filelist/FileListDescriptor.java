@@ -80,7 +80,7 @@ public class FileListDescriptor {
 			filelistreferent = new WeakReference<FileList>( fileList);
 			boolean readSuccess = fileList.readFilelist(fileListPath);
 			if (!readSuccess) {
-				logger.info("Problems reading Filelist of user "+usr.getNick());
+				usr.getDcc().logEvent("Problems reading Filelist of user "+usr.getNick());
 			}
 			
 			for (IFilelistProcessor ifp: DCClient.get().getFilelistProcessors()) {

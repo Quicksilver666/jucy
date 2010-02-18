@@ -13,6 +13,7 @@ import logger.LoggerFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Image;
 
 import uc.DCClient;
 import uc.IHub;
@@ -20,6 +21,7 @@ import uc.IUser;
 
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.texteditor.ITextModificator;
+import eu.jucy.gui.texteditor.SendingWriteline;
 import eu.jucy.gui.texteditor.StyledTextViewer;
 import eu.jucy.gui.texteditor.StyledTextViewer.ImageReplacement;
 import eu.jucy.gui.texteditor.StyledTextViewer.Message;
@@ -59,8 +61,16 @@ public class FlagsTextModificator implements ITextModificator {
 				} else {
 					cc= "";
 				}
-				replacement.add(new ImageReplacement(1,0,cc,FlagStorage.get().getFlag(user,false,true)));
-			} else if (!askingForIP.contains(user) && (ApplicationWorkbenchWindowAdvisor.get().isActive()|| user.isActive()||user.getHub().supportsUserIP()) && user.getShared() != 0 ) {
+				Image flag = FlagStorage.get().getFlag(user,false,true);
+				replacement.add(new ImageReplacement(1,0,cc,flag));
+				
+			} else if (!askingForIP.contains(user) 
+					&& SendingWriteline.lastTypingOccurred(300000)  //only ask for users if we are on the keyboard..-> prevents spamming..
+					&& (ApplicationWorkbenchWindowAdvisor.get().isActive() 
+							|| user.isActive()
+							|| user.getHub().supportsUserIP()) 
+					&& user.getShared() != 0 ) {
+				
 				askingForIP.add(user);
 				DCClient.execute(new Runnable() {
 					public void run() {

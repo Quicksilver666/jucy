@@ -11,7 +11,6 @@ import java.nio.charset.CharsetDecoder;
 
 import logger.LoggerFactory;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 
@@ -20,9 +19,7 @@ public class VarByteBuffer {
 
 	private static Logger logger = LoggerFactory.make(); 
 	
-	static {
-		logger.setLevel(Level.DEBUG);
-	}
+
 	
 	
 	private byte[] current = new byte[1024];
@@ -248,7 +245,7 @@ public class VarByteBuffer {
 				logger.debug("used ZON for eof");
 				decompression = null;
 			}
-			logger.info("read compressed: "+cb);
+			logger.debug("read compressed: "+cb);
 			
 			return cb.toString();
 		}

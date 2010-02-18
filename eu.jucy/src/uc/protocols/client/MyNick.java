@@ -18,7 +18,7 @@ public class MyNick extends AbstractNMDCClientProtocolCommand {
 	
 	public MyNick(ClientProtocol client) {
 		super(client);
-		setPattern(prefix+" ("+NICK+")",true);
+		setPattern(prefix+" ("+NMDCNICK+")",true);
 	}
 
 	

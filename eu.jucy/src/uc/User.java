@@ -222,7 +222,7 @@ public class User implements IUser , IHasUser {
 						updateModecharBasedOnIPPort();
 					}
 				} catch (UnknownHostException uhe) {
-					logger.info("Could not resolve address: "+val+ " for user "+this);
+					logger.debug("Could not resolve address: "+val+ " for user "+this);
 				}
 				break;
 			case I6:
@@ -233,7 +233,7 @@ public class User implements IUser , IHasUser {
 						updateModecharBasedOnIPPort();
 					}
 				} catch (UnknownHostException uhe) {
-					logger.info("Could not resolve address: "+val+ " for user "+this);
+					logger.debug("Could not resolve address: "+val+ " for user "+this);
 				}
 				break;
 			case SS:

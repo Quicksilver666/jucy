@@ -16,19 +16,20 @@ import org.osgi.service.prefs.BackingStoreException;
 import uihelpers.SUIJob;
 
 import eu.jucy.gui.UCMessageEditor;
+import eu.jucy.notepad.NPI;
 
 
 
 public class Notepad extends UCMessageEditor {
 
-	private static final String PLUGIN_ID = "eu.jucy.notepad" ;
+	
 	
 	/**
 	 * editor id
 	 */
 	public static final String ID = "eu.jucy.notepad"; //Editor id
 	
-	private static final String notepad0  = "notepad0"; // may be later add more notepads
+	public static final String notepad0  = "notepad0"; // default notepad..
 	
 	private StyledText text;
 	private volatile String textstr = "";
@@ -80,10 +81,12 @@ public class Notepad extends UCMessageEditor {
 				checkSave();
 				schedule(10000);
 			}
-		}.schedule(1000);
+		}.schedule(10000);
 	}
 	
-	
+	private String getNPID() {
+		return ((NotepadInput)getEditorInput()).getNotepadID();
+	}
 
 	@Override
 	public void clear() {
@@ -111,13 +114,13 @@ public class Notepad extends UCMessageEditor {
 	
 	
 	
-	public static String get() {
-		return new InstanceScope().getNode(PLUGIN_ID).get(notepad0, "");
+	private String get() {
+		return NPI.get(getNPID());
 	}
 	
-	public static boolean put(String value) {
-		IEclipsePreferences is = new InstanceScope().getNode(PLUGIN_ID);
-		is.put(notepad0, value);
+	private  boolean put(String value) {
+		IEclipsePreferences is = new InstanceScope().getNode(NPI.PLUGIN_ID);
+		is.put(getNPID(), value);
 		try {
 			is.flush();
 		} catch(BackingStoreException bse) {

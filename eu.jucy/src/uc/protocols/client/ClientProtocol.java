@@ -193,10 +193,10 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		
 		HashValue fingerPrint = other != null? other.getKeyPrint(): null;
 
-		if (addyOrSC instanceof SocketChannel) {
-			connection = new UnblockingConnection((SocketChannel)addyOrSC, this,encryption,incoming,fingerPrint);
+		if (addyOrSC instanceof SocketChannel) { //TOOD provide crypto manager from hub.. hubguessing
+			connection = new UnblockingConnection(ch.getDCC().getCryptoManager(), (SocketChannel)addyOrSC, this,encryption,incoming,fingerPrint);
 		} else {
-			connection = new UnblockingConnection((InetSocketAddress)addyOrSC, this,encryption,fingerPrint);
+			connection = new UnblockingConnection(ch.getDCC().getCryptoManager(),(InetSocketAddress)addyOrSC, this,encryption,fingerPrint);
 		}
 	}
 	
@@ -275,7 +275,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 
 		if (fti.isDownload()) { // Here call the connection handler to know what
 								// we want... if we want something..
-		//	logger.info("in fti.isDownload() if");
+	
 			// register state machine.. so it gets notified when this connection closes  
 			cpsm = ch.getStateMachine(fti.getOther());
 			if (cpsm == null) {
@@ -613,9 +613,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 
 //		try {
 			boolean successful = fti.setFileInterval(ch.getDCC());
-//			if (Platform.inDevelopmentMode()) {
-//				logger.info(fti);
-//			}
+
 			if (successful) {
 				getSlotAndDoTransfer();
 			} else {

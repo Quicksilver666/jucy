@@ -96,7 +96,7 @@ public class StatusComposite extends ContributionItem {
 			GC gc = new GC(c);
 			int cWidth = gc.getFontMetrics().getAverageCharWidth();
 			gc.dispose();
-			rd.width = (int)(cWidth * sc.getNumberOfCharacters()*1.1d); // 10% security margin..
+			rd.width = (int)(cWidth * sc.getNumberOfCharacters()*1.15d+0.5d); // 15% security margin..+rounding
 			c.setLayoutData(rd);
 		}
 		

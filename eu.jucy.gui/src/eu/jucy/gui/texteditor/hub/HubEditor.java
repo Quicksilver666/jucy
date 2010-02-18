@@ -470,7 +470,8 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		case CONNECTED:
 			updater.add(uce.getChanged());
 			if (shouldJoinPartBeShown(uce.getChanged())) {
-				statusMessage(String.format(Lang.UserJoins,uce.getChanged().getNick()), 0);
+				String joinmes = "*** "+String.format(Lang.UserJoins,uce.getChanged().getNick())+" ***";
+				appendText( joinmes ,uce.getChanged());	
 			}
 			break;
 		case CHANGED:
@@ -479,8 +480,9 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		case DISCONNECTED:
 		case QUIT:
 			updater.remove(uce.getChanged());
-			if (shouldJoinPartBeShown(uce.getChanged())){
-				statusMessage(String.format(Lang.UserParts,uce.getChanged().getNick()), 0); 
+			if (shouldJoinPartBeShown(uce.getChanged())) {
+				String partMessage = "*** "+String.format(Lang.UserParts,uce.getChanged().getNick())+" ***";
+				appendText(partMessage, uce.getChanged());
 			}
 			break;
 		}
@@ -493,7 +495,8 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	}
 
 	private boolean logInRecent() {
-		return System.currentTimeMillis()- hub.getLastLogin() < 20000;
+		long lastlogin = hub.getLastLogin();
+		return lastlogin == 0 ||  System.currentTimeMillis() - lastlogin < 10000 ;
 	}
 
 	
@@ -510,7 +513,6 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	@Override
 	public void storedPM(IUser usr,String message, boolean me) {
 		statusMessage("stored PM for "+usr.getNick()+": "+message,0); // TODO internationalize
-		
 	}
 
 
@@ -548,8 +550,14 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	/* (non-Javadoc)
 	 * @see UC.listener.IMCReceived#mcReceived(UC.datastructures.User, java.lang.String)
 	 */
-	public void mcReceived(final IUser sender, final String message) {
-		appendText("<"+sender.getNick()+"> "+message,sender);
+	public void mcReceived(final IUser sender, String message,boolean me) {
+		String mes;
+		if (me) { 
+			mes = "*"+sender.getNick()+" "+message+"*";
+		} else {
+			mes = "<"+sender.getNick()+"> "+message;
+		}
+		appendText(mes,sender);
 	}
 	
 	/**

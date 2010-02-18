@@ -247,7 +247,7 @@ public class SlotManager implements ISlotManager {
 	}
 	
 	public void printQueue() {
-		logger.info(waitingQueue.toString());
+		dcc.logEvent(waitingQueue.toString());
 	}
 	
 	

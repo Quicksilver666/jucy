@@ -87,7 +87,7 @@ Note that GET can also be used by extensions for binary transfers between hub an
 			
 			client.transfer();
 		}  else {
-			logger.info("invalid GET received "+command);
+			logger.debug("invalid GET received "+command);
 		}
 
 	}

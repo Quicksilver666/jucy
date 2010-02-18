@@ -82,22 +82,21 @@ public class TTHLDQE extends AbstractFileDQE {
 				public void run() {
 					synchronized (TTHLDQE.this) {
 						FileDQE fdqe = new FileDQE(dq,target,ih,file, 255/2,getAdded());
-					//	logger.info("file created now: "+ file.getTTHRoot());
+	
 						//add all users and actions
 						for (IDownloadFinished idf : downloadFinished) {
 							fdqe.addDoAfterDownload(idf);
 						}
-					//	logger.info("2");
+				
 						List<IUser> users = new ArrayList<IUser>(TTHLDQE.this.users);
-					//	logger.info("3");
+				
 					
 						remove(); 
-					//	logger.info("4");
+				
 						dq.addDownloadQueueEntry(fdqe); //add the FDQE now to the queue..
 					
-					//	logger.info("5");
+			
 						dq.getDatabase().addOrUpdateDQE(new DQEDAO(fdqe,ih),true);
-				//		logger.info("tth in db now: "+ file.getTTHRoot());
 						for (IUser user : users) { //add users afterwards so they are persisted again
 							logger.debug("adding user to FileDQE: " + users);
 							user.addDQE(fdqe);

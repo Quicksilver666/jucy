@@ -66,7 +66,7 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	
 	
 	public abstract void storedPM(IUser receiver,String message,boolean me);
-
+	public abstract void statusMessage(final String message,  int severity);
 	
 	
 	@Override

@@ -74,8 +74,7 @@ public class FileDQE extends AbstractFileDQE {
 	
 	protected FileDQE(DownloadQueue dq,File target, InterleaveHashes ih, IDownloadableFile file,int priority,Date added) {
 		super(dq,TransferType.FILE,target, file, priority,added); 
-		//this.ih = ih;
-	//	logger.info("1 set Blockinfo for: "+file.getName());
+
 		logger.debug("restoring file: "+file.getName());
 		
 		if (getTempPath().isFile() || file.getSize() <= MAX_SIZE_NO_INTERLEAVES) {
@@ -312,7 +311,6 @@ public class FileDQE extends AbstractFileDQE {
 	public InterleaveHashes getIh() {
 		synchronized(synch) {
 			if (bi == null) {
-				//logger.info("IH retrieved: "+getTTHRoot());
 				return dq.getDatabase().getInterleaves(getTTHRoot());
 			} else {
 				return bi.ih;

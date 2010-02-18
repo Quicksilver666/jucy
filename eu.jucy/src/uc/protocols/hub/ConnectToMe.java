@@ -30,7 +30,7 @@ public class ConnectToMe extends AbstractNMDCHubProtocolCommand {
 
 	public ConnectToMe(Hub hub) {
 		super(hub);
-		setPattern(prefix+" "+NICK+"(?: "+NICK+")?"+" ("+IPv4+":?"+PORT+"?)(\\D?)",true); //may be non digit is after port for specifying encryption..
+		setPattern(prefix+" "+NMDCNICK+"(?: "+NMDCNICK+")?"+" ("+IPv4+":?"+PORT+"?)(\\D?)",true); //may be non digit is after port for specifying encryption..
 	}
 
 	@Override

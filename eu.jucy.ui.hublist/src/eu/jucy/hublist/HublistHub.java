@@ -41,7 +41,6 @@ public class HublistHub implements Iterable<String> {
 	
 	public void addToFavorites() {
 		getFavHub().addToFavHubs(ApplicationWorkbenchWindowAdvisor.get().getFavHubs());		
-		
 	}
 	
 	private FavHub getFavHub() {

@@ -24,8 +24,8 @@ public class QuickConnectHandler extends AbstractHandler implements IHandler {
 				Lang.Address,"",(IInputValidator)null);
 		dialog.setBlockOnOpen(true);
 		
-		if (dialog.open() != Dialog.CANCEL) {
-			String address = dialog.getValue();
+		if (dialog.open() == Dialog.OK) {
+			String address = dialog.getValue().trim();
 			if (!GH.isEmpty(address)) {
 				new FavHub(address).connect(ApplicationWorkbenchWindowAdvisor.get());
 			}

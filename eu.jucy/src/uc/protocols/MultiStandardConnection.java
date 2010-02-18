@@ -239,7 +239,7 @@ public class MultiStandardConnection implements Runnable {
                 // An error occurred; handle it
                 // Unregister the channel with this selector
                 // notify disconnect..
-            	logger.info("no success in connection"+sChannel.isConnectionPending());
+            	logger.debug("no success in connection"+sChannel.isConnectionPending());
                 ((IUnblocking)selKey.attachment()).onDisconnect();
             } else {
             	selKey.interestOps(SelectionKey.OP_READ);

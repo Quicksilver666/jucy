@@ -279,7 +279,7 @@ public class OwnFileList implements IOwnFileList  {
 				} 
 				monitor.worked(1);
 				
-				logger.info( LanguageKeys.FinishedFilelistRefresh);
+				dcc.logEvent( LanguageKeys.FinishedFilelistRefresh);
 				
 			} finally {
 				refresh.release();
@@ -288,7 +288,7 @@ public class OwnFileList implements IOwnFileList  {
 			checkSharedDirs(); //finally updating the SharedDirs..
 			
 		} else {
-			logger.info( LanguageKeys.FilelistRefreshAlreadyInProgress);
+			dcc.logEvent( LanguageKeys.FilelistRefreshAlreadyInProgress);
 		}
 	}
 	
@@ -482,18 +482,13 @@ public class OwnFileList implements IOwnFileList  {
 		}
 		
 		if (pdfIndex.isCreated() && res.isEmpty() && TextIndexer.matchesSomeEnding(sp.fileendings)) {
-			if (Platform.inDevelopmentMode()) {
-				logger.info("searching for: "+ GH.toString(sp.keys.toArray()));
-			}
+
 			Set<HashValue> found = pdfIndex.search(sp.keys, sp.excludes,sp.fileendings);
 			res = new HashSet<IFileListItem>(); //res might not support adding... empty..
 			for (HashValue h : found) {
 				FileListFile found2 = search(h);
 				
 				if (found2 != null && fileFilter.filter(found2)) { 
-					if (Platform.inDevelopmentMode()) {
-						logger.info("found pdf file: "+found2);
-					}
 					res.add(found2);
 				}
 			}

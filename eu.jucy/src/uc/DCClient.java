@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 
 
 
+
 import logger.LoggerFactory;
 
 
@@ -67,6 +68,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 
 import uc.IUser.Mode;
 import uc.InfoChange.IInfoChanged;
+import uc.crypto.CryptoManager;
 import uc.crypto.HashValue;
 import uc.crypto.IHashEngine;
 import uc.crypto.Tiger;
@@ -322,6 +324,8 @@ public final class DCClient {
 	private final Population population;
 	private final StoredPM storedPM;
 	private final DownloadQueue downloadQueue;
+	
+	private final ICryptoManager cryptoManager;
 
 
 	private final Object infSynch = new Object();
@@ -392,6 +396,7 @@ public final class DCClient {
     	
     	database = init.loadDB(this);
     	pid = loadPID();
+    	cryptoManager = new CryptoManager(this);
     	
     	hashEngine = init.loadHashEngine();
     	filelistProcessors = init.loadFilelistProcessors();
@@ -425,6 +430,7 @@ public final class DCClient {
 						pref.equals(PI.connectionNew)||
 						pref.equals(PI.passive) ||
 						pref.equals(PI.uploadLimit) ||
+						pref.equals(PI.nick) ||
 						pref.startsWith("socksProxy")) {
 					
 					notifyChangedInfo(InfoChange.Misc);
@@ -508,7 +514,7 @@ public final class DCClient {
     	Map<File,HashedFile> pruned =  database.pruneUnusedHashedFiles();
     	if (logger.isDebugEnabled()) {
     		for (File f:pruned.keySet()) {
-    			logger.info("Deleted hash for: "+f.getPath());
+    			logger.debug("Deleted hash for: "+f.getPath());
     		}
     	}
     	return pruned.size();
@@ -563,7 +569,7 @@ public final class DCClient {
     	ch.start();
     	monitor.worked(1);
     	
-    	logger.info("loading DownloadQueue");
+    	logEvent("Loading DownloadQueue");
     	downloadQueue.loadDQ(); //loads the download queue 
     	monitor.worked(2);
     	
@@ -578,7 +584,7 @@ public final class DCClient {
     	}
     	storedPM.init();
     	
-    	logger.info("starting hubs");
+    	logEvent("starting hubs");
     	//downloads can be started..
     	favHubs.openAutoStartHubs();
     	monitor.worked(3);
@@ -634,7 +640,7 @@ public final class DCClient {
      * a new DCClient object..
      */
     public void stop(boolean shutDownExec) {
-    	logger.info(LONGVERSION+" is stopping");
+    	logEvent(LONGVERSION+" is stopping");
     	if (PI.getBoolean(PI.deleteFilelistsOnExit)) {
     		FileList.deleteFilelists();
     	}
@@ -657,7 +663,7 @@ public final class DCClient {
     	logger.debug("shut down executors");
     	database.shutdown();
     	logger.debug("shut down database");
-    	logger.info(LONGVERSION+" stopped");
+    	logEvent(LONGVERSION+" stopped");
     	
     }
     
@@ -954,6 +960,10 @@ public final class DCClient {
     	}
     }
     
+    public void logEvent(String event) {
+    	logger.info(event); //TODO replace wtih some listener...
+    }
+    
     /**
      * determines hub by nick of sender and hub-ip
      * @param nick - nick of SR sender
@@ -1009,8 +1019,13 @@ public final class DCClient {
 	}
 	
 
+	
  
 
+
+	public ICryptoManager getCryptoManager() {
+		return cryptoManager;
+	}
 
 	/**
 	 * @return the hashEngine
@@ -1020,7 +1035,7 @@ public final class DCClient {
 	}
 
 	/**
-	 * @return the ch
+	 * @return the ConnectionHandler
 	 */
 	public ConnectionHandler getCh() {
 		return ch;
@@ -1296,7 +1311,7 @@ public final class DCClient {
 			IConfigurationElement[] configElements = reg
 			.getConfigurationElementsFor(IOperatorPlugin.PointID);
 
-			List<IOperatorPlugin> opPlugins = new ArrayList<IOperatorPlugin>(configElements.length);
+			List<IOperatorPlugin> opPlugins = new ArrayList<IOperatorPlugin>();
 			
 			for (IConfigurationElement element : configElements) {
 				try {

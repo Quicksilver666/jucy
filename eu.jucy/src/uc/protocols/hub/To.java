@@ -26,8 +26,8 @@ public class To extends AbstractNMDCHubProtocolCommand {
 	
 	public To(Hub hub) {
 		super(hub);
-		normalPM = Pattern.compile( prefix +" "+NICK+" From: ("+NICK+") \\$(?:<("+NICK+")> )?("+TEXT+")");
-		hubMM = Pattern.compile(prefix +" "+NICK+" From: Hub \\$("+TEXT+")");
+		normalPM = Pattern.compile( prefix +" "+NMDCNICK+" From: ("+NMDCNICK+") \\$(?:<("+NMDCNICK+")> )?("+TEXT+")");
+		hubMM = Pattern.compile(prefix +" "+NMDCNICK+" From: Hub \\$("+TEXT+")");
 	}
 
 	@Override

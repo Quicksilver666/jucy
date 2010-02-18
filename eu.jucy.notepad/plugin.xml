@@ -18,6 +18,11 @@
             description="%command.description"
             id="eu.jucy.notepad.command1"
             name="%command.name">
+         <commandParameter
+               id="NOTEPAD_PARM"
+               name="NOTEPAD_PARM"
+               optional="true">
+         </commandParameter>
       </command>
    </extension>
    <extension
@@ -31,6 +36,85 @@
                   icon="icons/notepad.22.png"
                   style="push"
                   tooltip="%command.description">
+               <parameter
+                     name="NOTEPAD_PARM"
+                     value="notepad0">
+               </parameter>
+               <visibleWhen
+                     checkEnabled="false">
+                  <systemTest
+                        property="eu.jucy.notepad.padnr0"
+                        value="true">
+                  </systemTest>
+               </visibleWhen>
+            </command>
+             <command
+                  commandId="eu.jucy.notepad.command1"
+                  icon="icons/notepad.22.png"
+                  style="push"
+                  tooltip="%command.description">
+               <parameter
+                     name="NOTEPAD_PARM"
+                     value="notepad1">
+               </parameter>
+               <visibleWhen
+                     checkEnabled="false">
+                  <systemTest
+                        property="eu.jucy.notepad.padnr1"
+                        value="true">
+                  </systemTest>
+               </visibleWhen>
+            </command>
+             <command
+                  commandId="eu.jucy.notepad.command1"
+                  icon="icons/notepad.22.png"
+                  style="push"
+                  tooltip="%command.description">
+               <parameter
+                     name="NOTEPAD_PARM"
+                     value="notepad2">
+               </parameter>
+               <visibleWhen
+                     checkEnabled="false">
+                  <systemTest
+                        property="eu.jucy.notepad.padnr2"
+                        value="true">
+                  </systemTest>
+               </visibleWhen>
+            </command>
+             <command
+                  commandId="eu.jucy.notepad.command1"
+                  icon="icons/notepad.22.png"
+                  style="push"
+                  tooltip="%command.description">
+               <parameter
+                     name="NOTEPAD_PARM"
+                     value="notepad3">
+               </parameter>
+               <visibleWhen
+                     checkEnabled="false">
+                  <systemTest
+                        property="eu.jucy.notepad.padnr3"
+                        value="true">
+                  </systemTest>
+               </visibleWhen>
+            </command>
+             <command
+                  commandId="eu.jucy.notepad.command1"
+                  icon="icons/notepad.22.png"
+                  style="push"
+                  tooltip="%command.description">
+               <parameter
+                     name="NOTEPAD_PARM"
+                     value="notepad4">
+               </parameter>
+               <visibleWhen
+                     checkEnabled="false">
+                  <systemTest
+                        property="eu.jucy.notepad.padnr4"
+                        value="true">
+                  </systemTest>
+               </visibleWhen>
             </command>
          </toolbar>
       </menuContribution>
@@ -56,8 +140,24 @@
          point="eu.jucy.helpers.splashExtension">
       <splashExtension
             icon="icons/notepad.64.png"
-            id="eu.jucy.notepad.splashExtension1">
+            id="eu.jucy.notepad.splashExtension1"
+            loader="eu.jucy.notepad.Activator">
       </splashExtension>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="eu.jucy.notepad.NPI">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="eu.jucy.gui.Misc"
+            class="eu.jucy.notepad.editors.NotepadPrefPage"
+            id="eu.jucy.notepad.page1"
+            name="%NotepadInput">
+      </page>
    </extension>
 
 </plugin>

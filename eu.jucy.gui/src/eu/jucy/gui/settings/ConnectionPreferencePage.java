@@ -57,6 +57,10 @@ public class ConnectionPreferencePage extends UCPrefpage {
 		}
 		socksGroup.setEnabled(newValue); 
 	}
+	
+	private void updateTLS(boolean newValue) {
+		tcpTLSPort.setEnabled(newValue,activeGroup);
+	}
 
 	@Override
 	protected void createFieldEditors() {
@@ -123,7 +127,7 @@ public class ConnectionPreferencePage extends UCPrefpage {
 				activeGroup) {
 			protected void valueChanged(boolean oldValue,
 					boolean newValue) {
-				tcpTLSPort.setEnabled(newValue, activeGroup);  
+				updateTLS(newValue); 
 			}
 		};
 		addField(allowTLS);
@@ -203,6 +207,7 @@ public class ConnectionPreferencePage extends UCPrefpage {
 
 		
 		updatePassive(PI.getBoolean(PI.passive));
+		updateTLS(PI.getBoolean(PI.tlsPort));
 		
 	}
 
@@ -210,6 +215,7 @@ public class ConnectionPreferencePage extends UCPrefpage {
 	protected void performDefaults() {
 		super.performDefaults();
 		updatePassive(passive.getBooleanValue());
+		
 	}
 
 	

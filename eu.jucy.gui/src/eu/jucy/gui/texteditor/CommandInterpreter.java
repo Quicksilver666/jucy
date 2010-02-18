@@ -123,6 +123,7 @@ public class CommandInterpreter {
 						public void run() {
 							PMResult pmres = usr.sendPM(s, true, true);
 							if (pmres == PMResult.STORED) {
+								
 								editor.storedPM(usr,s, true);
 							}
 						}

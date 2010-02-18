@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 
 import logger.LoggerFactory;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import uc.User;
@@ -53,7 +52,7 @@ import uc.protocols.SendContext;
 
 public class MyINFO extends AbstractNMDCHubProtocolCommand {
 
-	private static Logger logger = LoggerFactory.make(Level.DEBUG);
+	private static Logger logger = LoggerFactory.make();
 	
 	private static final Pattern FLOATNUMBER = Pattern.compile("\\d+\\.?\\d*");
 	
@@ -64,7 +63,7 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 	
 	
 	private static final Pattern myinfo = Pattern.compile(
-			"\\$MyINFO \\$ALL ("+NICK+") ("+TEXT_NODOLLAR+")\\$.\\$("+TEXT_NODOLLAR+
+			"\\$MyINFO \\$ALL ("+NMDCNICK+") ("+TEXT_NODOLLAR+")\\$.\\$("+TEXT_NODOLLAR+
 			")(.)\\$("+TEXT_NODOLLAR+")\\$("+FILESIZE+")\\$",Pattern.DOTALL); //DOTALL needed as flag might be newline value
 	
 	private static Map<Hub,String> lastSent = Collections.synchronizedMap(new WeakHashMap<Hub,String>());  
@@ -82,7 +81,7 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 		Matcher m = myinfo.matcher(command);
 		if (m.matches()) {
 			String nick = m.group(1);
-			HashValue userid= DCProtocol.nickToUserID(nick,hub );
+			HashValue userid = DCProtocol.nickToUserID(nick,hub );
 			current = hub.getUser(userid);  // look if the user is known
 			if (current == null) { 
 				connected = true;
@@ -217,11 +216,13 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 	}
 	
 	private static String toBperStoMBit(long speed) {
-		double speedM = speed *8 / (1000d*1000d);
+		double speedM = speed * 8 / (1000d*1000d);
 		if (speedM >= 10) {
 			return  Integer.toString((int)speedM);
 		} else {
-			return String.format("%5.3f", speedM);
+			int thousandTimes = (int)(speedM * 1000);
+			String s = String.format("%d.%03d",thousandTimes/1000 ,thousandTimes%1000);
+			return s;
 		}
 	}
 	

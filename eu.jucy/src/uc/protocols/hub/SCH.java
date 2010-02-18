@@ -114,7 +114,6 @@ TRACE Hub.java Line:463
 		DCClient dcc = hub.getDcc();
 		if (dcc.isActive() || dcc.isIPv6Used()) {
 			sch.append("BSCH ").append(SIDToStr(hub.getSelf().getSid()));
-			//logger.info("hub encryption: "+hub.isEncrypted()+"  "+UDPEncryption.isUDPEncryptionSupported());
 			if (hub.isEncrypted() && UDPEncryption.isUDPEncryptionSupported()) {
 				appendToSB(sch,Flag.KY,BASE32Encoder.encode(search.getEncryptionKey()));
 			}
@@ -152,7 +151,6 @@ TRACE Hub.java Line:463
 		if (search.getToken() != null) {
 			appendToSB(sch,Flag.TO,search.getToken());
 		}
-	//	logger.info(sch +"  "+hub.getHubaddy());
 		sch.append('\n');
 		hub.sendUnmodifiedRaw(sch.toString());
 	}

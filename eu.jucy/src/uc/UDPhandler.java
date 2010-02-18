@@ -114,7 +114,7 @@ public class UDPhandler implements IUDPHandler {
 	    	datagramChannel = DatagramChannel.open();
 	    	datagramChannel.socket().bind( new InetSocketAddress(port));
 	    	datagramChannel.configureBlocking(true);
-	    	logger.info("UDP handler gone up on Port: "+port);
+	    	dcc.logEvent("UDP handler gone up on Port: "+port);
 		} catch (SecurityException se) {
 			if (port <= 1024 && (Platform.getOS().equals(Platform.OS_MACOSX) || Platform.getOS().equals(Platform.OS_LINUX)) ) {
 				throw new missing16api.IOException("Unix based OS need root rights to use ports lower than 1024!",se );

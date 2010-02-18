@@ -52,7 +52,7 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 		String tthending 		= "(?:(9)\\?TTH:("+TTH+"))";		//capture for TTH
 		
 		String activewho  		= "(?:"+IPv4+":"+PORT+")";
-		String passivewho 		= "(?:Hub:"+NICK+")"; 
+		String passivewho 		= "(?:Hub:"+NMDCNICK+")"; 
 		String who 				= "(?:"+activewho+"|"+passivewho+")";
 
 		

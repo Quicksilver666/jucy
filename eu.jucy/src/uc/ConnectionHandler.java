@@ -144,8 +144,8 @@ public class ConnectionHandler extends Observable<StatusObject>
 	/**
 	 * 
 	 */
-	public ConnectionHandler(DCClient dcc) {
-		this.dcc = dcc;
+	public ConnectionHandler(DCClient dcclient) {
+		this.dcc = dcclient;
 		
 		//register a port changed listener with the settings
 		pca = new PreferenceChangedAdapter(PI.get(),PI.inPort,PI.bindAddress,PI.tlsPort) {
@@ -154,10 +154,9 @@ public class ConnectionHandler extends Observable<StatusObject>
 				if (PI.inPort.equals(preference) || PI.bindAddress.equals(PI.bindAddress)) {
 					normal.changePort();
 				} 
-				if (PI.tlsPort.equals(preference) || PI.bindAddress.equals(preference)) {
-					if (AbstractConnection.isTLSInitialized()) {
-						tls.changePort();
-					}
+				if ((PI.tlsPort.equals(preference) || PI.bindAddress.equals(preference)) && 
+						dcc.getCryptoManager().isTLSInitialized()) {
+					tls.changePort();
 				}
 			}
 		};
@@ -165,7 +164,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 	
 	void start() {
 		register(normal);
-		if (AbstractConnection.isTLSInitialized()) {
+		if (dcc.getCryptoManager().isTLSInitialized()) {
 			register(tls);
 		}
 		pca.reregister();
@@ -402,7 +401,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 				}
 
 			});
-			logger.info("Started "+(ssi.encrypted?"encrypted":"normal")+ " connection handler on TCP-Port: "+ssi.ssc.socket().getLocalPort());
+			dcc.logEvent("Started "+(ssi.encrypted?"encrypted":"normal")+ " connection handler on TCP-Port: "+ssi.ssc.socket().getLocalPort());
 
 		} catch(ClosedByInterruptException ie) {
 			logger.debug("Connection handler socket closed by interruption");
@@ -454,74 +453,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 		notifyObservers(so);
 	}
 
-	
 
-	/*
-	public void addObserver(IObserver<StatusObject> o) {
-		observable.addObserver(o);
-	}
-
-	public void deleteObserver(IObserver<StatusObject> o) {
-		observable.deleteObserver(o);
-	} */
-
-	/*
-	 * listener implementation for status changes..
-	 * 
-	 * forwards events to the listeners registered with ConnectionHandler
-	 * 
-	 * 
-	 *
-	public void statusChanged(ConnectionState newStatus, ConnectionProtocol cp) {
-		synchronized (synchStatus) {
-			logger.debug("status changed called by client protocol: "+newStatus);
-			if (cp instanceof ClientProtocol) {
-				synchronized(active) {
-					ClientProtocol conp = (ClientProtocol)cp;
-					ClientProtocolStateMachine cpsm = conp.getStateMachine();
-					switch(newStatus) {
-					case CLOSED:
-					case DESTROYED:
-						active.remove(cp);
-						notifyObservers(new StatusObject(cp,ChangeType.REMOVED));
-						
-				//		if (conp.getUser()!= null && conp.getUser().getNick().contains("list"))
-				//			logger.info(newStatus+": "+conp.getUser());
-						
-						if (cpsm  != null) {
-							active.add(cpsm);
-							notifyObservers(new StatusObject(cpsm,ChangeType.ADDED));
-					//		if (cpsm.getUser().getNick().contains("list"))
-					//			logger.info(newStatus+" Added cpsm: "+cpsm.getUser());
-						}
-						break;
-					case LOGGEDIN:
-						if (cpsm  != null) {
-							active.remove(cpsm);
-							notifyObservers(new StatusObject(cpsm,ChangeType.REMOVED));
-				//			if (cpsm.getUser().getNick().contains("list"))
-				//				logger.info(newStatus+" Removed cpsm: "+cpsm.getUser());
-						}
-						active.add(cp);
-						notifyObservers(new StatusObject(cp,ChangeType.ADDED));
-				//		if (conp.getUser()!= null &&conp.getUser().getNick().contains("list"))
-				//			logger.info(newStatus+": "+conp.getUser());
-						break;
-					case TRANSFERSTARTED:
-						notifyObservers(new StatusObject(cp,ChangeType.CHANGED));
-			//			if (conp.getUser()!= null &&conp.getUser().getNick().contains("list"))
-			//				logger.info(newStatus+": "+conp.getUser());
-						break;
-					}
-				}
-			}
-		}
-	} */
-	
-/*	public void notifyObservers(StatusObject arg) {
-		setChanged();
-		super.notifyObservers(arg);
-	} */
 
 	
 	public ClientProtocolStateMachine getStateMachine(IUser usr) {

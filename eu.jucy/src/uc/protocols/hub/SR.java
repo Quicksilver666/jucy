@@ -90,8 +90,8 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 		String prefix = "^\\Q$SR\\E";
 		String filename = "(?:.{1,255})";
 		String slots = "(\\d{1,5})/(\\d{1,5})";
-		directorySR = Pattern.compile(prefix + " ("+NICK+") ("+filename+") "+slots+CHARFIVE+"(?:.*) \\("+IPv4+":"+PORT+"\\)");
-		fileSR = Pattern.compile(prefix +" ("+NICK+") ("+filename+")"+CHARFIVE+"("+FILESIZE+")"+" "+slots+CHARFIVE+"TTH:("+TTH+") \\("+IPv4+":"+PORT+"\\)");
+		directorySR = Pattern.compile(prefix + " ("+NMDCNICK+") ("+filename+") "+slots+CHARFIVE+"(?:.*) \\("+IPv4+":"+PORT+"\\)");
+		fileSR = Pattern.compile(prefix +" ("+NMDCNICK+") ("+filename+")"+CHARFIVE+"("+FILESIZE+")"+" "+slots+CHARFIVE+"TTH:("+TTH+") \\("+IPv4+":"+PORT+"\\)");
 	}
 	
 	public SR(Hub hub) {
@@ -100,7 +100,7 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 		String result =  filename+"(?:"+CHARFIVE+FILESIZE+")?";
 		String hubname = "(?:TTH\\:"+TTH+"|(?:.*))";
 		String slots = "(\\d{1,5})/(\\d{1,5})";
-		setPattern(prefix + " "+NICK+" "+result+" "+slots+CHARFIVE+hubname+" \\("+IPv4+":"+PORT+"\\)",true);
+		setPattern(prefix + " "+NMDCNICK+" "+result+" "+slots+CHARFIVE+hubname+" \\("+IPv4+":"+PORT+"\\)",true);
 		
 	}
 	
@@ -137,7 +137,7 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 				
 			}
 		} else {
-			logger.info("invalid sr string: "+command);
+			logger.debug("invalid sr string: "+command);
 		}
 	}
 

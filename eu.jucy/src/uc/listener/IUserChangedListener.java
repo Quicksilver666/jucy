@@ -43,7 +43,7 @@ public interface IUserChangedListener {
 	 * 
 	 * @param changed - the user that changed...
 	 */
-	void changed(UserChangeEvent uce); //IUser changed, UserChange typeOfChange);
+	void changed(UserChangeEvent uce); 
 	
 	
 

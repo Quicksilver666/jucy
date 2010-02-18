@@ -54,7 +54,11 @@ public abstract class SendingWriteline  {
 	 * @return  true if last key pressed was enter ... or nothing was typed for provided time..
 	 */
 	public static boolean checkOpenPopUpExecution(long timedifmillis) {
-		return lastKeyWasEnter || lastKeyPressed + timedifmillis < System.currentTimeMillis();
+		return lastKeyWasEnter || lastTypingOccurred(timedifmillis);
+	}
+	
+	public static boolean lastTypingOccurred(long timedifmillis) {
+		return lastKeyPressed + timedifmillis < System.currentTimeMillis();
 	}
 	
 	
