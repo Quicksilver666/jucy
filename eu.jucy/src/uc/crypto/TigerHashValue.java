@@ -66,21 +66,22 @@ public class TigerHashValue extends HashValue {
 	}
 	
 	public static void main(String[] args) {
-		byte[] startWith = BASE32Encoder.decode("JUCYR"); 
+		byte[] startWithCID = BASE32Encoder.decode("JUCYR"); 
+		byte[] startWithPID = BASE32Encoder.decode("LOVEA"); 
 		int maxLengthFound = 0;
 		Random rand = new SecureRandom();
 		byte[] hash = new byte[digestlength];
 		TigerHashValue pid = new TigerHashValue(hash);
 		byte[] cid = null;
-		while (maxLengthFound < startWith.length) {
+		while (maxLengthFound < startWithCID.length) {
 			rand.nextBytes(hash);
-			for (int x = 0; x < startWith.length;x++) {
-				hash[x] = startWith[x];
+			for (int x = 0; x < startWithPID.length;x++) {
+				hash[x] = startWithPID[x];
 			}
 			cid = pid.hashOfHash().getRaw();
 			int i = 0;
-			for (i=0; i < startWith.length;i++) {
-				if (cid[i] != startWith[i]) {
+			for (i=0; i < startWithCID.length;i++) {
+				if (cid[i] != startWithCID[i]) {
 					if (i > maxLengthFound) {
 						System.out.println("PID :"+ BASE32Encoder.encode(hash)+"  CID:"+BASE32Encoder.encode(cid));
 						maxLengthFound = i;
@@ -88,7 +89,7 @@ public class TigerHashValue extends HashValue {
 					break;
 				}
 			}
-			if (i == startWith.length) {
+			if (i == startWithCID.length) {
 				break;
 			}
 		}

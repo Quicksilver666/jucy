@@ -23,6 +23,7 @@ import uc.protocols.Compression;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.DCProtocol;
 import uc.protocols.IConnection;
+import uc.protocols.ICryptoInfo;
 
 public class TestHubConnection implements IConnection {
 
@@ -228,6 +229,10 @@ public class TestHubConnection implements IConnection {
 
 	public boolean isFingerPrintUsed() {
 		return fingerp !=null;
+	}
+
+	public void getCryptoInfo(ICryptoInfo cryptoInfo) {
+		throw new IllegalStateException();
 	}
 	
 	

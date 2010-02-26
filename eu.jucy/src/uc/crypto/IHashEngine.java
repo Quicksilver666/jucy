@@ -36,6 +36,11 @@ public interface IHashEngine {
 	void init();
 	
 	/**
+	 * request all hashjobs being stopped for shutdown of client...
+	 */
+	void stop();
+	
+	/**
 	 * registers  listener to be notified on all completed hashFile
 	 * operations .. this is used by the UI to fill the StatusBar
 	 * @param listener

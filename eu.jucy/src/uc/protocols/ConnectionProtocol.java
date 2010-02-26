@@ -448,7 +448,7 @@ public abstract class ConnectionProtocol {
 	public boolean isEncrypted() {
 		return connection.usesEncryption();
 	}
-	
+
 	/**
 	 * 
 	 * @return true if KEYP is in use for this connection
@@ -482,12 +482,14 @@ public abstract class ConnectionProtocol {
 	 */
 	public void registerDebugger(IConnectionDebugger conDebug) {
 		debuggers.add(conDebug);
+		registerProtocolStatusListener(conDebug);
 	}
 	/**
 	 * @param conDebug - unregister Debugger that then gets notified of connections
 	 */
 	public void unregisterDebugger(IConnectionDebugger conDebug) {
 		debuggers.remove(conDebug);
+		unregisterProtocolStatusListener(conDebug);
 	}
 	
 }

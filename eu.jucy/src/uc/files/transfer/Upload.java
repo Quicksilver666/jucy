@@ -129,12 +129,13 @@ public class Upload extends AbstractFileTransfer {
 		ByteBuffer bb = ByteBuffer.allocate(1024);
 		bb.clear();
 		
-		notifyObservers( TransferChange.STARTED);
+		
 	//	fireListeners(TransferChange.STARTED);
 		int written;
 		int toAcquire = 0;
 //		runningUploads.add(this);
 		try {
+			notifyObservers( TransferChange.STARTED);
 			while ( source.read(bb) >= 0 || bb.position() != 0) { 
 				bb.flip();
 				if ((written = target.write(bb)) < 0) { 
@@ -158,9 +159,11 @@ public class Upload extends AbstractFileTransfer {
 		} finally {
 		//	runningUploads.remove(this);
 			GH.close(source); //target is no longer closed.. but must be flushed somehow..
+			notifyObservers(TransferChange.FINISHED);
+			
 			fw.finnish();			//flush ..
 			
-			notifyObservers(TransferChange.FINISHED);
+			
 		}
 		logger.debug("finished upload");
 	}

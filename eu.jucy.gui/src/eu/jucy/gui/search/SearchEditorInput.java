@@ -40,6 +40,15 @@ public class SearchEditorInput extends UCEditorInput {
 	public String getAlternate() {
 		return alternate;
 	}
+	@Override
+	public int hashCode() {
+		return System.identityHashCode(this);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		return obj == this;
+	}
 
+	
 
 }

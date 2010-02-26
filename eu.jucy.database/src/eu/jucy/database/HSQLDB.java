@@ -90,7 +90,7 @@ public class HSQLDB implements IDatabase {
 		
 		if (!logTableExists()) {
 			createLogTables();
-			setProperties(); // in same version added as LogTables.. -> should also be moved 
+		//	setProperties(); // in same version added as LogTables.. -> should also be moved 
 		} else {
 			loadLogEntitys();
 		}
@@ -99,17 +99,17 @@ public class HSQLDB implements IDatabase {
 	
 	
 	
-	private void setProperties() {
-		try {
-			Statement s = c.createStatement();
-			s.execute("SET PROPERTY \"hsqldb.cache_scale\" 8"); //minimum cache
-			s.close();
-			logger.debug("Set Properties sent");
-		
-		} catch (SQLException e) {
-			logger.warn(e, e);
-		}
-	}
+//	private void setProperties() {
+//		try {
+//			Statement s = c.createStatement();
+//			s.execute("SET PROPERTY \"hsqldb.cache_scale\" 8"); //minimum cache
+//			s.close();
+//			logger.debug("Set Properties sent");
+//		
+//		} catch (SQLException e) {
+//			logger.warn(e, e);
+//		}
+//	}
 	
 	public synchronized void shutdown() {
 		disconnect();
@@ -220,7 +220,7 @@ public class HSQLDB implements IDatabase {
 					+ "tthroot CHARACTER("+TigerHashValue.serializedDigestLength+"), " //the rootTTH
 					     //bewares integrity.. so no files without hashes are stored..
 					+ "date BIGINT, "			   // the date when the file was hashed
-					+ "path VARCHAR PRIMARY KEY,  " //, + // all the tths building the merkletree
+					+ "path VARCHAR(32767) PRIMARY KEY,  "  // artificial upper limit of path..
 			+ "FOREIGN KEY ( tthroot ) "
 			+ "REFERENCES interleaves (tthroot) ON DELETE CASCADE ) ");  
 				
@@ -234,7 +234,7 @@ public class HSQLDB implements IDatabase {
 					
 					+ "tthroot CHARACTER("+TigerHashValue.serializedDigestLength+") PRIMARY KEY,"   //the rootTTH
 					+ "date BIGINT, "				// the date when the dqe was added
-					+ "path VARCHAR, "				// the path where the file should be downloaded to
+					+ "path VARCHAR(32767), "				// the path where the file should be downloaded to
 					+ "priority INTEGER, " 			//	
 					+ "size BIGINT"
 					+ " )");
@@ -243,7 +243,7 @@ public class HSQLDB implements IDatabase {
 			createUserTable.execute("CREATE CACHED TABLE users ("  //subject to change
 					
 					+ "userid  CHARACTER("+TigerHashValue.serializedDigestLength+") PRIMARY KEY ,"// the id of the user
-					+ "nick VARCHAR ,"
+					+ "nick VARCHAR(1024) ,"
 					+ "favuser BOOLEAN DEFAULT FALSE , "
 					+ "autoGrant BIGINT DEFAULT 0"
 					+ " )");
@@ -273,7 +273,7 @@ public class HSQLDB implements IDatabase {
 				createLogentityTable.execute("CREATE CACHED TABLE logEntitys (" 
 						
 						+ "entityid CHARACTER("+TigerHashValue.serializedDigestLength+"), " 
-						+ "name VARCHAR,"
+						+ "name VARCHAR(1024),"
 						+ "PRIMARY KEY ( entityid) "
 						+ " )");
 				
@@ -283,7 +283,7 @@ public class HSQLDB implements IDatabase {
 					
 					+ "entityid CHARACTER("+TigerHashValue.serializedDigestLength+"), " 
 					+ "timestamp  BIGINT, " 
-					+ "message VARCHAR,"
+					+ "message VARCHAR("+ILogEntry.MAX_MESSAGELENGTH+"),"
 					+ "FOREIGN KEY ( entityid ) "
 					+ " REFERENCES logEntitys (entityid) ON DELETE CASCADE "
 					+ " )");

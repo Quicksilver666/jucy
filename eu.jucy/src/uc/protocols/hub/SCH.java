@@ -50,7 +50,7 @@ TRACE Hub.java Line:463
 		Set<String> endings  = new HashSet<String>();
 		
 		for (String s:flagstr.split(" ")) { //AN,NO,EX
-			String val = revReplaces(s.substring(2));
+			String val = s.length() > 2? revReplaces( s.substring(2)):"";
 			if (s.startsWith("AN")) {
 				includes.add(val);
 			} else if(s.startsWith("NO")) {
@@ -58,6 +58,7 @@ TRACE Hub.java Line:463
 			} else if (s.startsWith("EX")) {
 				endings.add(val);
 			}
+			
 		}
 		long minsize = 0,maxsize = Long.MAX_VALUE,equalssize = -1;
 		if (flags.containsKey(Flag.LE)) {

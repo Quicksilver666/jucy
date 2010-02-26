@@ -10,6 +10,8 @@ import uc.crypto.HashValue;
  */
 public interface ILogEntry {
 
+	public static final int MAX_MESSAGELENGTH = 131072;
+	
 	/**
 	 * 
 	 * @return the message being logged..

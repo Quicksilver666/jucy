@@ -2,7 +2,7 @@ package uc.protocols;
 
 import java.net.InetAddress;
 
-public interface IConnectionDebugger {
+public interface IConnectionDebugger extends IProtocolStatusChangedListener {
 	
 	/**
 	 * called when ever a command was received from  protocol
@@ -16,6 +16,8 @@ public interface IConnectionDebugger {
 	void receivedCommand(IProtocolCommand commandHandler,boolean wellFormed,String command);
 	
 	void sentCommand(String sent);
+	
+
 
 	/**
 	 * called when ever a connection with before specified IP was created..

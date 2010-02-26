@@ -111,9 +111,8 @@ public interface IConnection extends Closeable {
 
 	boolean usesEncryption();
 	
-	
-	
-	
+
+	void getCryptoInfo(ICryptoInfo cryptoInfo);
 	
 	/**
 	 * 

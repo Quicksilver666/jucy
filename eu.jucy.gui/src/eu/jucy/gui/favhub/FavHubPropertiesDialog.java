@@ -246,7 +246,7 @@ public class FavHubPropertiesDialog extends Dialog {
 	
 
 	private boolean alreadyExists(String hubAddress) {
-		if (working != null && working.getHubaddy().equals(hubAddress)) {
+		if (working != null && working.getSimpleHubaddy().equals(new FavHub(hubAddress).getSimpleHubaddy())) {
 			return false;
 		}
 		return ApplicationWorkbenchWindowAdvisor.get().getFavHubs().contains(hubAddress);

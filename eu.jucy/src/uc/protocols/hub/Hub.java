@@ -98,9 +98,7 @@ public class Hub extends DCProtocol implements IHub {
 	public static final boolean ZLIF = false;
 	
 	/**
-	 * 
 	 * Used for inserting different connections for Unit-tests..
-	 *
 	 */
 	public static class ConnectionInjector {
 		public IConnection getConnection(ICryptoManager cryptoManager,String addy, ConnectionProtocol connectionProt,boolean encryption,HashValue fingerPrint) {
@@ -142,8 +140,6 @@ public class Hub extends DCProtocol implements IHub {
 	private final FavHub favHub;
 	
 	
-//	private volatile String hubaddy;
-//	private volatile HashValue fingerPrint;
 	
 	/**
 	 * when a client receives signal for redirection
@@ -205,12 +201,12 @@ public class Hub extends DCProtocol implements IHub {
 	private int timerLogintimeout;
 	
 	private static final long noCommandReceivedTimeout = 45*1000;
-	private final Object lastReceivedSynch = new Object();
-	private long lastCommandReceived;
+	private final Object lastCommandSynch = new Object();
+	private long lastCommandTime;
 	
 	{
-		synchronized (lastReceivedSynch) {
-			lastCommandReceived = System.currentTimeMillis()+45 * 1000 ;
+		synchronized (lastCommandSynch) {
+			lastCommandTime = System.currentTimeMillis()+45 * 1000 ;
 		}
 	}
 	
@@ -713,10 +709,12 @@ public class Hub extends DCProtocol implements IHub {
 	 */
 	synchronized void sendUnmodifiedRaw(String mes) {
 		super.sendRaw(mes);
+		setLastCommand();
 	}
 	
 	synchronized void sendUnmodifiedRaw(byte[] mes) {
 		super.sendRaw(mes);
+		setLastCommand();
 	}
 	
 	void passwordRequested() {
@@ -776,25 +774,25 @@ public class Hub extends DCProtocol implements IHub {
 	void insertUser(User user) {
 		if (users.size() > MAX_USERS) {
 			if (!maxUsersReached) {
-				logger.warn("Hub tried adding too many users");
+				dcc.logEvent("Hub tried adding too many users");
 				maxUsersReached = true;
 			}
-			return; //break .. hub 
+		} else {
+			users.put(user.getUserid(),user);
+			if (!nmdc) {
+				userBySid.put(user.getSid()  , user);
+			}
+			userPrefix.put(GetPrefix(user), user);
+			if (user.getHub() != this) { //increase ShareSize if needed.. (potential problem user came from another hub we are in? -> need to create unique ID independent of CID)
+				increaseSharesize(user.getShared());
+			}
+			user.userConnected(this);
 		}
-		users.put(user.getUserid(),user);
-		if (!nmdc) {
-			userBySid.put(user.getSid()  , user);
-		}
-		userPrefix.put(GetPrefix(user), user);
-		if (user.getHub() != this) { //increase ShareSize if needed.. (potential problem user came from another hub we are in? -> need to create unique ID independent of CID)
-			increaseSharesize(user.getShared());
-		}
-		user.userConnected(this);
 	}
 	
 	public void internal_userChangedNick(User user,String newNick) {
 		if (nmdc) {
-			throw new IllegalStateException("In nmdc nick change is not allowed");
+			throw new IllegalStateException("In NMDC nick change is not allowed");
 		}
 		userPrefix.remove(GetPrefix(user));
 		user.internal_setNick(newNick);
@@ -1398,11 +1396,11 @@ public class Hub extends DCProtocol implements IHub {
 				connection.close();
 			}
 		}
-		if (isLastReceivedTimeOut()) {
-			synchronized(lastReceivedSynch) {
-				logger.debug("no command received for long time - checking connection: " + (System.currentTimeMillis()-lastCommandReceived) );
+		if (isNoTrafficTimeOut() && getState() != ConnectionState.CLOSED) {
+			synchronized(lastCommandSynch) {
+				logger.debug("no command received for long time - checking connection: " + (System.currentTimeMillis()-lastCommandTime) );
 			}
-			setLastReceived() ; //reset timer..
+			
 			
 			if (nmdc) {
 				MyINFO.sendMyINFO(this,true); 
@@ -1429,15 +1427,15 @@ public class Hub extends DCProtocol implements IHub {
 	}
 	    
 
-	private void setLastReceived() {
-		synchronized(lastReceivedSynch) {
-			lastCommandReceived = System.currentTimeMillis();
+	private void setLastCommand() {
+		synchronized(lastCommandSynch) {
+			lastCommandTime = System.currentTimeMillis();
 		}
 	}
 	
-	private boolean isLastReceivedTimeOut() {
-		synchronized(lastReceivedSynch) {
-			return System.currentTimeMillis()-lastCommandReceived > noCommandReceivedTimeout;
+	private boolean isNoTrafficTimeOut() {
+		synchronized(lastCommandSynch) {
+			return System.currentTimeMillis() - lastCommandTime > noCommandReceivedTimeout;
 		}
 	}
 
@@ -1612,7 +1610,7 @@ public class Hub extends DCProtocol implements IHub {
 	public void receivedCommand(String command) throws IOException,
 	ProtocolException {
 		logger.debug("receivedCommand("+command+")");
-		setLastReceived();
+		setLastCommand();
 		super.receivedCommand(command);
 
 	}

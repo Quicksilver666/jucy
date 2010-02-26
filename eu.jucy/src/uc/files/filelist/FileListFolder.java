@@ -207,11 +207,11 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 		 * 
 		 * @throws IOException - errors that occur on writing to out are thrown
 		 */
-		public void writeToXML(TransformerHandler hd,AttributesImpl atts,boolean recursive,boolean writeout) throws  SAXException {
+		public void writeToXML(TransformerHandler hd,AttributesImpl atts,boolean recursive,boolean isBase,boolean writeout) throws  SAXException {
 			atts.clear();
 			
 			//root doesn't write itself.. and any empty directory doesn't write itself
-			boolean writeSelf = parent != null && !(subfolders.isEmpty() && files.isEmpty()); 
+			boolean writeSelf = !isBase && !(subfolders.isEmpty() && files.isEmpty()); 
 			
 			if (writeSelf) {
 				atts.addAttribute("", "", "Name", "CDATA", foldername);
@@ -225,7 +225,7 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 			if (writeout) {
 				
 				for (FileListFolder f: subfolders) {
-					f.writeToXML(hd,atts,recursive,recursive?true:false);
+					f.writeToXML(hd,atts,recursive,false,recursive?true:false);
 				}
 				
 				for (FileListFile f: files) {

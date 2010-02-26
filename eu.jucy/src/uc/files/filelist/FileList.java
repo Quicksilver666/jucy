@@ -71,6 +71,7 @@ public class FileList implements Iterable<IFileListItem> {
 		
 	protected String cid 		= "NONE";
 	protected String generator	= "NONE";
+	protected Exception readProblem;
 	
 	
 	protected final User usr; //the owner
@@ -168,7 +169,7 @@ public class FileList implements Iterable<IFileListItem> {
 	 * @param path - the path where the filelist resides on the disc..
 	 * @return true if successful .. false implies problem reading..
 	 */
-	public boolean readFilelist(File path){
+	public boolean readFilelist(File path) {
 		InputStream in = null;
 		try {
 			in = new FileInputStream(path);
@@ -187,7 +188,8 @@ public class FileList implements Iterable<IFileListItem> {
 			readFilelist(in);
 			
 		} catch(Exception e){
-			logger.debug(e,e);
+			logger.warn(e,e);
+			readProblem = e;
 			return false;
 		} finally {
 			GH.close(in);
@@ -196,7 +198,7 @@ public class FileList implements Iterable<IFileListItem> {
 	}
 	
 
-	public void readFilelist(InputStream in)throws  IOException ,IllegalArgumentException {
+	public void readFilelist(InputStream in)throws  IOException ,SAXException {
 		InputStreamReader isr = null;
 		try {
 
@@ -224,9 +226,8 @@ public class FileList implements Iterable<IFileListItem> {
 
 		} catch(ParserConfigurationException pce){
 			logger.error(pce,pce);
-		} catch(SAXException saxe){
-			logger.error(saxe,saxe);
-		} 
+		}
+		
 		calcSharesizeAndBuildTTHMap();
 	}
 	
@@ -269,7 +270,7 @@ public class FileList implements Iterable<IFileListItem> {
 			FileListFolder parentFolder = root.getByPath(path.replace('/', File.separatorChar));
 			
 			if (parentFolder != null) {
-				parentFolder.writeToXML(hd, atts,recursive,true);	
+				parentFolder.writeToXML(hd, atts,recursive,true,true);	
 			} else {
 				logger.debug("Path requested. Though not found: "+path);
 			}

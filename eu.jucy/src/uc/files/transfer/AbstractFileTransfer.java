@@ -5,6 +5,8 @@ package uc.files.transfer;
 
 
 
+
+import helpers.GH;
 import helpers.IObservable;
 import helpers.Observable;
 
@@ -18,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import logger.LoggerFactory;
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Platform;
 
 import uc.DCClient;
 import uc.IUser;
@@ -39,7 +42,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 	private static final Logger logger = LoggerFactory.make();
 	
 	
-
+	private static boolean debugBool = Platform.inDevelopmentMode();
 	
 	private static CopyOnWriteArrayList<AbstractFileTransfer> active = 
 		new CopyOnWriteArrayList<AbstractFileTransfer>();
@@ -52,11 +55,19 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 	 */
 	public static long getTotalSpeed(boolean upload) {
 		long totalSpeed = 0;
+		int counted = 0;
 		for (AbstractFileTransfer c: active) {
 			if (c.isUpload() == upload) {
 				totalSpeed += c.getSpeed();
+				counted++;
 			}
 		}
+		if (upload && counted > 10 && debugBool) {
+			debugBool = false;
+			logger.info(GH.concat(active, ",", ""));
+		}
+		//logger.info("counted: "+counted+"  "+active.size());
+	//	
 		return totalSpeed;
 	}
 	

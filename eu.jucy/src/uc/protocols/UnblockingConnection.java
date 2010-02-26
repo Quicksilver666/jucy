@@ -324,6 +324,9 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		}
 	}
 	
+	/**
+	 * signals on connect if not already done so..
+	 */
 	private void signalOnConnect() {
 		if (!connectSent) {
 			connectSent = true;
@@ -332,7 +335,11 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 					synchronized (cp) {
 						try {
 							if (cp.getState() == ConnectionState.CONNECTING) {
-								cp.onConnect();
+								if (getInetSocketAddress() != null) { // check one last time for socket addy being set..
+									cp.onConnect();
+								} else {
+									asynchClose();
+								}
 							} else if (Platform.inDevelopmentMode() && cp.getState() != ConnectionState.DESTROYED) {//TODO remove here .. only debug
 								 logger.warn("bad connection state: "+cp.getState()+"  "+cp.getClass().getSimpleName());
 							}
@@ -441,6 +448,16 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		}
 	}
 	
+	private boolean trySetInetAddy(SocketChannel sochan) {
+		synchronized (inetAddySynch) {
+			if (getInetSocketAddress() != null) {
+				return true;
+			}
+			return !((inetAddress = (InetSocketAddress)sochan.socket().getRemoteSocketAddress()) == null ||   
+				inetAddress.getAddress() == null);
+		}
+	}
+	
 	/**
 	 * when a socket has finished connecting
 	 * this method is called by MultiStandardConnection
@@ -451,26 +468,17 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	public void connected() {
 		disconnectSent = false;
 		final SocketChannel sochan =(SocketChannel)key.channel();
-		synchronized (inetAddySynch) {
-			inetAddress = null;
-			inetAddress = (InetSocketAddress)sochan.socket().getRemoteSocketAddress();
-		}
+		trySetInetAddy(sochan);
 		
 		DCClient.execute(new Runnable(){
 			public void run() {
-				long startconnect;
-				synchronized(inetAddySynch) {
-					startconnect = System.currentTimeMillis();
-				}
+				long startconnect = System.currentTimeMillis();
 				try {
-					while (((inetAddress = (InetSocketAddress)sochan.socket().getRemoteSocketAddress()) == null ||   
-							inetAddress.getAddress() == null )    
-							&& sochan.isOpen()) {
-
+					while (!trySetInetAddy(sochan) && sochan.isOpen()) {
 						if (sochan.isConnectionPending()) {
 							sochan.finishConnect();
 						}
-						GH.sleep(25);
+						GH.sleep(50);
 						synchronized(cp) {
 							if (startconnect + cp.getSocketTimeout() < System.currentTimeMillis()) {
 								sochan.close();
@@ -773,6 +781,12 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	}
 
 
+	public void getCryptoInfo(ICryptoInfo info) {
+		if (!encryption) {
+			throw new IllegalStateException();
+		}
+		info.setInfo(engine);
+	}
 
 	private void asynchClose() {
 		DCClient.execute(new Runnable() {
@@ -808,8 +822,18 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		};
 		if (blocking) {
 			if (key != null) {
+				if (encryption && key.channel().isOpen()) {
+					engine.closeOutbound();
+					send(ByteBuffer.allocate(0)); //used for wrapping remaining data..
+					try {
+						varOutBuffer.writeToChannel((SocketChannel)key.channel());
+					} catch(IOException ioe) {
+						if (Platform.inDevelopmentMode()) {
+							logger.warn(ioe, ioe);
+						}
+					}
+				}
 				GH.close(key.channel());
-				key.cancel();
 				try {
 					if (!key.isValid()) {
 						onDisconnect();
@@ -851,6 +875,9 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	@Override
 	public InetSocketAddress getInetSocketAddress() {
 		synchronized (inetAddySynch) {
+			if (inetAddress == null || inetAddress.getAddress() == null) {
+				return null;
+			}
 			return inetAddress;
 		}
 	}
@@ -945,7 +972,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		
 	}
 	
-	
+
 	
 	
 }

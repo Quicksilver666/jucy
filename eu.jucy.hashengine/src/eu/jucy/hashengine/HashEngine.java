@@ -113,6 +113,10 @@ public class HashEngine implements IHashEngine {
 		execThread(r);	
 	}
 
+	public void stop() {
+		blocksToVerify.clear();
+		clearFileJobs();
+	}
 	
 
 

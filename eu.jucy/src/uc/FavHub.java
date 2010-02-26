@@ -86,6 +86,8 @@ public class FavHub implements Comparable<FavHub> {
 	/**
 	 * loads a single hub
 	 * @param p - the node where all of the hubs information is stored
+	 * -> old method no longer in use!!
+	 * use FavHub translater instead... onlypresent to load 
 	 */
 	static FavHub loadHub(Preferences p) {
 		FavHub fh = new FavHub(new Integer(p.name()), p.get(PI.favHubhubaddy, "unknown"));
@@ -269,12 +271,8 @@ public class FavHub implements Comparable<FavHub> {
 		if (-1 != (i = unifiedaddy.indexOf("/?kp="))) {
 			unifiedaddy = unifiedaddy.substring(0,i);
 		}
-		
 		return unifiedaddy;
 	}
-	
-	
-	
 
 	/**
 	 * @param hubaddy the hubaddy to set
@@ -513,12 +511,12 @@ public class FavHub implements Comparable<FavHub> {
 	 * used solyly to create ids for DBLoggers..
 	 */
 	public HashValue getEntityID(boolean mc) {
-		String hubaddy = getHubaddy(); 
-		if (hubaddy.indexOf("://") != -1) {
-			hubaddy = hubaddy.substring(hubaddy.indexOf(':')+3);
-		}
+//		String hubaddy = getHubaddy(); 
+//		if (hubaddy.indexOf("://") != -1) {
+//			hubaddy = hubaddy.substring(hubaddy.indexOf(':')+3);
+//		}
 		
-		return Tiger.tigerOfString((mc?"mc://":"feed://")+hubaddy);
+		return Tiger.tigerOfString((mc?"mc://":"feed://")+getInetSocketaddress());
 	}
 	
 	public static class FavHubTranslater implements IPrefSerializer<FavHub> {

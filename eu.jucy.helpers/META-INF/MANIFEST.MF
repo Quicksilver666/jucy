@@ -4,11 +4,11 @@ Bundle-Name: Helpers Plug-in
 Bundle-SymbolicName: eu.jucy.helpers;singleton:=true
 Bundle-Version: 1.1.6
 Bundle-Localization: helpers
-Export-Package: com.jcraft.jzlib,
- helpers,
+Export-Package: helpers,
  missing16api,
  uihelpers
 Require-Bundle: org.eclipse.ui,
  eu.jucy.logging,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ lib.com.jcraft.jzlib;bundle-version="1.0.7"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

@@ -198,9 +198,8 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 
 	
 		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false, useCustomCancelImage? 1 : 2 , 1);
-	//	gd.widthHint = 220;
 		searchForText.setLayoutData(gd);
-		//searchForText.setVisibleItemCount(25);
+	
 		
 		final Label distanceholder = new Label(sideBarComposite, SWT.NONE);
 		distanceholder.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));

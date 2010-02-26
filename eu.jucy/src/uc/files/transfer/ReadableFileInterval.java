@@ -83,7 +83,6 @@ public class ReadableFileInterval extends AbstractFileInterval {
 						public void run() {
 							synchronized(cachedFiles) {
 								if (fch.readingFrom.isEmpty()) {
-								//	logger.debug("final closeing file: "+source);
 									GH.close(fch.fc);
 									cachedFiles.remove(source);
 								}
@@ -106,6 +105,9 @@ public class ReadableFileInterval extends AbstractFileInterval {
 	 */
 	
 	private final byte[] directBytes;
+	
+
+	
 	/**
 	 * 
 	 * @param f - the whole file will be transferred..

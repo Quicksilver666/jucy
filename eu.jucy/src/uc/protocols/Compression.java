@@ -18,7 +18,7 @@ import java.nio.channels.WritableByteChannel;
 import org.apache.tools.bzip2.CBZip2InputStream;
 import org.apache.tools.bzip2.CBZip2OutputStream;
 
-import com.jcraft.jzlib.ZInputStream;
+
 
 
 
@@ -184,7 +184,6 @@ public enum Compression {
 			this(chan,null);
 		}
 		public FinishWrapper(WritableByteChannel chan, FDeflaterOutputStream flush /*,Deflater def*/) {
-	//		this.def = def;
 			this.chan = chan;
 			this.flush = flush;
 		}
@@ -196,15 +195,14 @@ public enum Compression {
 		public void finnish() throws IOException {
 			if (flush != null) {
 				flush.finish();
-			//	flush.flush();
 			}
 			
 		}
 		public long getCompIO() {
-			return flush== null? 1 : flush.getTotalOut(); //  .getBytesWritten();
+			return flush== null? 1L : flush.getTotalOut(); //  .getBytesWritten();
 		}
 		public long getIO() {
-			return flush == null? 1 : flush.getTotalIn();  //def.getBytesRead();
+			return flush == null? 1L : flush.getTotalIn();  //def.getBytesRead();
 		}
 		
 		
@@ -213,7 +211,7 @@ public enum Compression {
 	
 	public static class CompressionWrapper implements ICompIO {
 		
-		private final ZInputStream inf;
+		private final FInflaterInputStream inf;
 		
 		private final ReadableByteChannel rbc;
 		
@@ -226,18 +224,18 @@ public enum Compression {
 		 * @param inf
 		 * 
 		 */
-		public CompressionWrapper(ReadableByteChannel rbc, ZInputStream inf) {
+		public CompressionWrapper(ReadableByteChannel rbc, FInflaterInputStream inf) {
 			this.inf = inf;
 			this.rbc = rbc;
 		}
 
 		
 		public long getCompIO() {
-			return inf == null? 1: inf.getTotalIn();
+			return inf != null? inf.getTotalIn(): 1L ;
 		}
 
 		public long getIO() {
-			return inf == null? 1: inf.getTotalOut(); // .getBytesWritten();
+			return inf != null? inf.getTotalOut(): 1L ; 
 		}
 		
 		public ReadableByteChannel getRbc() {

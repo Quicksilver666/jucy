@@ -21,6 +21,7 @@ import helpers.StatusObject;
 import helpers.StatusObject.ChangeType;
 
 import uc.protocols.ConnectionProtocol;
+import uc.protocols.ConnectionState;
 import uc.protocols.IConnectionDebugger;
 import uc.protocols.IProtocolCommand;
 
@@ -31,6 +32,8 @@ public class ConnectionDebugger extends Observable<StatusObject> implements ICon
 	
 	private InetAddress ia;
 	private ConnectionProtocol current;
+	
+	private CryptoInfo currentCI;
 	
 	private final List<SentCommand> lastCommands = 
 		Collections.synchronizedList(new LinkedList<SentCommand>());
@@ -57,6 +60,11 @@ public class ConnectionDebugger extends Observable<StatusObject> implements ICon
 	public void init(ConnectionProtocol cp) {
 		current = cp;
 		current.registerDebugger(this);
+		if (current.isEncrypted()) {
+			currentCI = new CryptoInfo();
+			cp.getConnection().getCryptoInfo(currentCI);
+			notifyObservers(new StatusObject(currentCI,ChangeType.CHANGED));
+		}
 	}
 	
 	public void dispose() {
@@ -119,6 +127,21 @@ public class ConnectionDebugger extends Observable<StatusObject> implements ICon
 		}
 	}
 	
+	
+	public void statusChanged(ConnectionState newStatus, ConnectionProtocol cp) {
+		if (newStatus == ConnectionState.CONNECTED) {
+			if (cp.isEncrypted()) {
+				currentCI = new CryptoInfo();
+			
+				cp.getConnection().getCryptoInfo(currentCI);
+				logger.info("Connected: "+newStatus);
+				notifyObservers(new StatusObject(currentCI,ChangeType.CHANGED));
+			}
+		}
+		
+	}
+
+	
 	private void add(SentCommand sc) {
 		lastCommands.add(sc);
 		notifyObservers(new StatusObject(sc,ChangeType.ADDED));
@@ -138,6 +161,9 @@ public class ConnectionDebugger extends Observable<StatusObject> implements ICon
 	public List<SentCommand> getLastCommands() {
 		return lastCommands;
 	}
+	
+	
+	
 
 	public static class CommandStat {
 		private  final String commandName;

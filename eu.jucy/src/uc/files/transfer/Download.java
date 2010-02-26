@@ -12,8 +12,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import logger.LoggerFactory;
-
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import uc.DCClient;
@@ -61,9 +59,7 @@ public class Download extends AbstractFileTransfer {
 	
 	private static final Logger logger = LoggerFactory.make(); 
 	
-	static {
-		logger.setLevel( Level.INFO);
-	}
+
 	
 	private volatile long bytesDownloaded;
 	
@@ -82,9 +78,7 @@ public class Download extends AbstractFileTransfer {
 
 
 	public void cancel() {
-	//	try { //done because the jzlib stream might throw an ArrayIndexOutOfBounds or NullPointer exception
-			GH.close(socketChannel,source);
-	//	} catch(RuntimeException re) {}
+		GH.close(socketChannel,source);
 	}
 
 
@@ -116,7 +110,6 @@ public class Download extends AbstractFileTransfer {
 		bb.clear();
 		try {
 			notifyObservers(TransferChange.STARTED);
-		//	fireListeners(TransferChange.STARTED);
 			logger.debug("start transferring");
 			int written;
 			int toAcquire = 0;

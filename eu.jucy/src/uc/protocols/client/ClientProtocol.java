@@ -79,7 +79,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	
 	private final ConnectionHandler ch;
 
-	private volatile boolean incoming;
+	private final boolean incoming;
 
 	//private UnblockingConnection normal;
 
@@ -189,6 +189,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		setProtocolNMDC(protocol == null? null : protocol.isNmdc());
 		this.token = token;
 		
+		Assert.isTrue(incoming || self != null );
 		Assert.isTrue(incoming || protocol.isNmdc() || token != null  , " token should not be null for ADC connections");
 		
 		HashValue fingerPrint = other != null? other.getKeyPrint(): null;
@@ -224,13 +225,14 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 
 	public void onConnect() throws IOException {
 		logger.debug("called OnConnect");
-		super.onConnect();
 		InetSocketAddress isa = null;
 		
 		isa = connection.getInetSocketAddress();
 		if (isa == null) {
 			throw new IOException("Socketaddress not set");
 		}
+		super.onConnect();
+		
 		otherip = isa.getAddress();
 		
 		Assert.isNotNull(otherip);
@@ -454,8 +456,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 
 
 	/**
-	 * @param otherwantsToDownload if the other requests to download - does not matter for ADC
-	 * @param token - the token in ADC - null for NMDC
+	 * @param otherwantsToDownload if the other requests to download -(does not matter for ADC)
 	 */
 	void setDownload(boolean otherwantsToDownload) throws IOException {
 		if (othersNumber == -1) {
@@ -799,9 +800,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		return incoming;
 	}
 
-	public void setIncoming(boolean incoming) {
-		this.incoming = incoming;
-	}
+
 
 
 	ConnectionHandler getCh() {

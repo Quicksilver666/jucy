@@ -24,6 +24,9 @@ public class LogEntry implements ILogEntry {
 		super();
 		this.date = date;
 		this.entityID = entityID;
+		if (message.length() > MAX_MESSAGELENGTH) {
+			message = message.substring(0, MAX_MESSAGELENGTH);
+		}
 		this.message = message;
 		this.name = name;
 	}

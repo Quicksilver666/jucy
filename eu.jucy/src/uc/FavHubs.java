@@ -4,6 +4,7 @@ import helpers.Observable;
 
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,7 +29,9 @@ import uihelpers.ComplexListEditor;
  * @author Quicksilver
  *
  */
-public class FavHubs extends Observable<FavHub> implements IFavHubs {
+public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger logger = LoggerFactory.make();
 	
@@ -50,10 +53,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs {
 		}
 	});
 	
-/*	private final Set<IFavHubsChangedListener> listeners = 
-		Collections.synchronizedSet(new HashSet<IFavHubsChangedListener>()); */
-	
-	private final DCClient dcc;
+	private final transient DCClient dcc;
 	
 	public FavHubs(DCClient dcc) {
 		this.dcc = dcc;

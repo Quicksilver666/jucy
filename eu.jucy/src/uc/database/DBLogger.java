@@ -25,7 +25,11 @@ public class DBLogger {
 	private final IDatabase database;
 	
 
-	
+	/**
+	 * 
+	 * @param usr
+	 * @param dcc
+	 */
 	public DBLogger(IUser usr,DCClient dcc) {
 		this(usr.getNick(),usr.getUserid(),dcc.getDatabase());
 	}
@@ -33,7 +37,6 @@ public class DBLogger {
 
 	
 	/**
-	 * 
 	 * @param favHub - the hub for which to create..
 	 * @param mc - true for a mc logger.. false for a feedlogger..
 	 */
@@ -47,7 +50,6 @@ public class DBLogger {
 		this.name = name;
 		this.entityID = entityId;
 		this.database = database;
-		
 	}
 
 	

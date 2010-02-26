@@ -29,7 +29,7 @@ public class INF extends AbstractADCHubCommand {
 
 	
 	
-	private static final Map<FavHub,Map<INFField,String>> LastINF =  
+	private static final Map<FavHub,Map<INFField,String>> LAST_INF =  
 				new HashMap<FavHub,Map<INFField,String>>();
 	
 	public INF(Hub hub) {
@@ -78,7 +78,7 @@ public class INF extends AbstractADCHubCommand {
 					return;
 				}
 			} else {
-				attribs.remove(INFField.ID); //ignore any ids we get.. TODO implement.. remove later..
+				attribs.remove(INFField.ID); //ignore IDS of present users...
 			}
 			
 			for (Entry<INFField,String> attr : attribs.entrySet()) {
@@ -108,11 +108,11 @@ public class INF extends AbstractADCHubCommand {
 	public static void sendINF(Hub hub, boolean forcenew) {
 		DCClient dcc = hub.getDcc();
 		Map<INFField,String> last ;
-		synchronized (LastINF) {
-			last = LastINF.get(hub.getFavHub());
+		synchronized (LAST_INF) {
+			last = LAST_INF.get(hub.getFavHub());
 			if (last == null) {
 				last = new LinkedHashMap<INFField,String>();
-				LastINF.put(hub.getFavHub(), last);
+				LAST_INF.put(hub.getFavHub(), last);
 			}
 		}
 		synchronized(last) {
@@ -133,32 +133,39 @@ public class INF extends AbstractADCHubCommand {
 			
 			if (dcc.isActive()) {
 				fields.add(INFField.U4);
+			}  else {
+				checkAdd(next,last,INFField.U4,"");
 			}
+			
 			if (self.getKeyPrint() != null) {
 				fields.add(INFField.KP);
+			} else {
+				checkAdd(next,last,INFField.KP,"");
 			}
 			if (dcc.isIPv6Used()) {
 				fields.add(INFField.I6);
 				fields.add(INFField.U6);
+			} else {
+				checkAdd(next,last,INFField.I6,"");
+				checkAdd(next,last,INFField.U6,"");
 			}
 
-			
 			for (INFField f: fields ) { //  currently
-				next.put(f,  f.getProperty(self));
+				String prop = f.getProperty(self);
+				checkAdd(next,last,f,prop);
 			}
-			if (forcenew && dcc.isActive()) { //on first connect we also add I4 so we get our IP set from hub if active
-				if (dcc.isIPv4Used()) {
-					//INFField which =  INFField.I4;
-					String address;
-					if (dcc.getConnectionDeterminator().isExternalIPSetByHand()) {
-						address = dcc.getConnectionDeterminator().getPublicIP().getHostAddress();
-					} else {
-						address =  "0.0.0.0"; //:"::0";
-					}
-					
-					next.put(INFField.I4, address );
+			
+			if (forcenew && dcc.isActive() && dcc.isIPv4Used()) { //on first connect we also add I4 so we get our IP set from hub if active
+				String address;
+				if (dcc.getConnectionDeterminator().isExternalIPSetByHand()) {
+					address = dcc.getConnectionDeterminator().getPublicIP().getHostAddress();
+				} else {
+					address =  "0.0.0.0"; //:"::0";
 				}
+				next.put(INFField.I4, address );
+				
 			}
+			
 			
 			next.entrySet().removeAll(last.entrySet()); //remove all duplicate info
 			for (Entry<INFField,String> e :next.entrySet()) {//add to last all new Info
@@ -173,6 +180,13 @@ public class INF extends AbstractADCHubCommand {
 			}
 		}
 	}
+	
+	private static void checkAdd(Map<INFField,String> next,Map<INFField,String> check,INFField add,String val) {
+		if (!GH.isEmpty(val) || check.containsKey(add)) {
+			next.put(add,  val);
+		}
+	}
+
 	
 
 

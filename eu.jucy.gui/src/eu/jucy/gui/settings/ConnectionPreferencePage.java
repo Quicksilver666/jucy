@@ -35,7 +35,7 @@ import uc.PI;
  */
 public class ConnectionPreferencePage extends UCPrefpage {
 
-	private static final int MaxPortnumber = (int)Math.pow(2, 16)-1; 
+	private static final int MAX_PORT_NUMBER = (int)Math.pow(2, 16)-1; 
 	private Group activeGroup; 
 	private Group socksGroup; 
 	private IntegerFieldEditor tcpTLSPort;
@@ -60,6 +60,7 @@ public class ConnectionPreferencePage extends UCPrefpage {
 	
 	private void updateTLS(boolean newValue) {
 		tcpTLSPort.setEnabled(newValue,activeGroup);
+	
 	}
 
 	@Override
@@ -118,7 +119,7 @@ public class ConnectionPreferencePage extends UCPrefpage {
 		IntegerFieldEditor udpport = new IntegerFieldEditor(PI.udpPort,
 				Lang.UDPPort,
 				activeGroup);
-		udpport.setValidRange(1, MaxPortnumber);
+		udpport.setValidRange(1, MAX_PORT_NUMBER);
 		addField(udpport);
 
 		
@@ -146,7 +147,7 @@ public class ConnectionPreferencePage extends UCPrefpage {
 				}
 			}
 		};
-		tcpTLSPort.setValidRange(1, MaxPortnumber);
+		tcpTLSPort.setValidRange(1, MAX_PORT_NUMBER);
 		addField(tcpTLSPort);
 		
 		
@@ -177,7 +178,7 @@ public class ConnectionPreferencePage extends UCPrefpage {
 		IntegerFieldEditor socksPort = new IntegerFieldEditor(PI.socksProxyPort,
 				"Socks Port",
 				socksGroup);
-		socksPort.setValidRange(1, MaxPortnumber);
+		socksPort.setValidRange(1, MAX_PORT_NUMBER);
 		addField(socksPort);
 		
 		StringFieldEditor socksUsername = new StringFieldEditor(PI.socksProxyUsername,
@@ -207,7 +208,7 @@ public class ConnectionPreferencePage extends UCPrefpage {
 
 		
 		updatePassive(PI.getBoolean(PI.passive));
-		updateTLS(PI.getBoolean(PI.tlsPort));
+		updateTLS(PI.getBoolean(PI.allowTLS));
 		
 	}
 

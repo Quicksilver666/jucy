@@ -3,6 +3,7 @@ package uc;
 import java.util.List;
 
 
+import uc.crypto.HashValue;
 import uc.files.search.FileSearch;
 import uc.protocols.SendContext;
 
@@ -89,6 +90,14 @@ public interface IHub {
 	 * @return null if none found else the user
 	 */
 	IUser getUserByNick(String nick);
+	
+	/**
+	 * 
+	 * @param cid - cid searched
+	 * @return the suer that is searched.
+	 * works only on ADC
+	 */
+	IUser getUserByCID(HashValue cid);
 	
 	/**
 	 * @return FavHub token used to create that hub

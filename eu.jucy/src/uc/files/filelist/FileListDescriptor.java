@@ -3,16 +3,14 @@ package uc.files.filelist;
 import java.io.File;
 import java.lang.ref.WeakReference;
 
-import logger.LoggerFactory;
 
-import org.apache.log4j.Logger;
 
 import uc.DCClient;
 import uc.User;
 
 public class FileListDescriptor {
 
-	private static final Logger logger = LoggerFactory.make();
+
 	
 	private final User usr;
 	
@@ -79,11 +77,12 @@ public class FileListDescriptor {
 			fileList = new FileList(usr);
 			filelistreferent = new WeakReference<FileList>( fileList);
 			boolean readSuccess = fileList.readFilelist(fileListPath);
+			DCClient dcc = usr.getDcc();
 			if (!readSuccess) {
-				usr.getDcc().logEvent("Problems reading Filelist of user "+usr.getNick());
+				dcc.logEvent("Problems reading Filelist of user "+usr.getNick());
 			}
 			
-			for (IFilelistProcessor ifp: DCClient.get().getFilelistProcessors()) {
+			for (IFilelistProcessor ifp: dcc.getFilelistProcessors()) {
 				ifp.processFilelist(fileList,onDownload);
 			}
 		}

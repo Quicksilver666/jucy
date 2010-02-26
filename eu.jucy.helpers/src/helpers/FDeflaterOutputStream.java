@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import com.jcraft.jzlib.JZlib;
 import com.jcraft.jzlib.ZOutputStream;
 
+
 public class FDeflaterOutputStream extends ZOutputStream {
 
 	public FDeflaterOutputStream(OutputStream out,boolean fastEncryption) {
@@ -44,9 +45,5 @@ public class FDeflaterOutputStream extends ZOutputStream {
 			throw new IOException();
 		}
 	}
-	
-	
-	
-	
 
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 
+
 import uc.DCClient;
 import uc.IUser;
 import uc.crypto.HashValue;
@@ -23,6 +24,7 @@ import uc.protocols.client.ClientProtocol;
 public class FileTransferInformation  {
 
 
+//	private static Logger logger = LoggerFactory.make(Level.DEBUG);
 	
 	/**
 	 * transfer will happen with this user
@@ -326,6 +328,7 @@ public class FileTransferInformation  {
 				break;
 			case FILELIST:
 				byte[] filelist = dcc.getOwnFileList().writeFileList(fileListSubPath, recursive);
+
 				fileInterval = new ReadableFileInterval(filelist);
 				setLength(filelist.length);
 				break;

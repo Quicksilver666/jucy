@@ -392,7 +392,9 @@ public final class GH {
 			return ret.toString();
 		}
 	}
-	
+	public static String concat(Object[] terms,String between,String emptyMap) {
+		return concat(Arrays.asList(terms), between, emptyMap);
+	}
 	
 	/**
 	 * 

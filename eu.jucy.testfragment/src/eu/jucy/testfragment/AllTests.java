@@ -9,7 +9,7 @@ import org.junit.runner.notification.Failure;
 
 import uc.crypto.BloomFilterTest;
 import uc.protocol.hub.AdcHubTest;
-import uc.protocol.hub.NmdcHubTest;
+
 
 public class AllTests implements IApplication {
 

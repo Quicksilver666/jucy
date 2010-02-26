@@ -28,7 +28,9 @@ import org.eclipse.swt.SWT;
 
 import uc.IUser;
 import uc.protocols.ConnectionProtocol;
+import uc.protocols.IConnection;
 import uihelpers.DelayedTableUpdater;
+import uihelpers.SUIJob;
 import uihelpers.TableViewerAdministrator;
 
 import eu.jucy.connectiondebugger.ConnectionDebugger.CommandStat;
@@ -91,6 +93,8 @@ public class DebuggerView extends UCView implements IObserver<StatusObject> {
 	private TableViewerAdministrator<CommandStat> tvaStats;
 	private DelayedTableUpdater<CommandStat> updateStats;
 	
+	
+	private CryptoComposite cryptoComposite;
 
 	private final ConnectionDebugger debugger = new ConnectionDebugger();
 	
@@ -139,6 +143,7 @@ public class DebuggerView extends UCView implements IObserver<StatusObject> {
 		folder.setSimple(false);
 		createCommandsTab(folder);
 		createStatsTab(folder);
+		createCryptoTab(folder);
 				
 		folder.setSelection(0);
 		
@@ -150,8 +155,10 @@ public class DebuggerView extends UCView implements IObserver<StatusObject> {
 		
 		if (o instanceof ConnectionProtocol) {
 			logger.debug("attaching to connectionProtocol: "+o);
-			setPartName("Connection: "+ ((ConnectionProtocol)o ).getConnection().getInetSocketAddress());
+			IConnection con = ((ConnectionProtocol)o ).getConnection();
+			setPartName("Connection: "+ con.getInetSocketAddress());
 			debugger.init( (ConnectionProtocol)o );
+			
 		} else if (o instanceof IUser && ((IUser)o).getIp() != null) {
 			logger.debug("attaching to ip of user: "+o);
 			setPartName("Connection: "+ ((IUser)o).getNick());
@@ -164,7 +171,10 @@ public class DebuggerView extends UCView implements IObserver<StatusObject> {
 		getSite().setSelectionProvider(commandsViewer); 
 		createContextPopup(ID, commandsViewer);		
 		
-		setControlsForFontAndColour(commandsViewer.getTable(),statsViewer.getTable());
+		setControlsForFontAndColour(commandsViewer.getTable()
+				,statsViewer.getTable()
+				,cryptoComposite.getTable()
+				,cryptoComposite.getText());
 
 	}
 	
@@ -208,17 +218,35 @@ public class DebuggerView extends UCView implements IObserver<StatusObject> {
 		
 	}
 	
+	private void createCryptoTab(CTabFolder parent) {
+		cryptoComposite = new CryptoComposite(parent, SWT.BORDER);
+	
+		CTabItem statsItem = new CTabItem(folder, SWT.NONE);
+		statsItem.setText("Crypto");
+		statsItem.setControl(cryptoComposite);
+	}
+	
 
-	public void update(IObservable<StatusObject> o, StatusObject arg) {
+	public void update(IObservable<StatusObject> o, final StatusObject arg) {
 		if (arg.getValue() instanceof SentCommand) {
 			update.put(arg.getType(), (SentCommand)arg.getValue());
-
 		}
 		if (arg.getValue() instanceof CommandStat ) {
 			updateStats.put(arg.getType(), (CommandStat)arg.getValue());
 		}
+		if (arg.getValue() instanceof CryptoInfo) {
+			
+			new SUIJob(cryptoComposite) {
+				@Override
+				public void run() {
+					cryptoComposite.setCryptoInfo((CryptoInfo)arg.getValue());
+				}
+			}.schedule();
+		}
+		
 	}
 
+	
 
 //
 //	private void contributeToActionBars() {

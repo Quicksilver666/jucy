@@ -28,25 +28,28 @@ public class INF extends AbstractADCClientProtocolCommand {
 		if (fields.containsKey(INFField.ID)) {
 			cid		= HashValue.createHash(fields.get(INFField.ID));
 		}
-		String token = fields.get(INFField.TO);
-		if (token != null && client.isIncoming()) {
-			ExpectedInfo ei = client.getCh().getUserExpectedToConnect(cid, token);
-			if (ei != null) {
-				other	= ei.getUser(); 
+		
+		
+		if (client.isIncoming()) {
+			String token = fields.get(INFField.TO);
+			if (token != null) {
+				ExpectedInfo ei = client.getCh().getUserExpectedToConnect(cid, token);
+				if (ei != null) {
+					other = ei.getUser(); 
+				}
+				client.setToken(token);
+			} else {
+				STA.sendSTA(client, new ADCStatusMessage("No Token field",
+						ADCStatusMessage.FATAL,
+						ADCStatusMessage.ProtocolRequiredINFfieldBadMissing,
+						Flag.FM,INFField.TO.name()));
+				return;
+			}
+		} else {
+			if (cid != null) {
+				other = client.getSelf().getHub().getUserByCID(cid);
 			}
 		}
-		
-//		if (other == null) { 
-//			if (cid != null) {
-//				other = getDCC().getUserForCID(cid);
-//			} else {
-//				STA.sendSTA(client, new ADCStatusMessage("No ID field",
-//						ADCStatusMessage.FATAL,
-//						ADCStatusMessage.ProtocolRequiredINFfieldBadMissing,
-//						Flag.FM,INFField.ID.name()));
-//				return;
-//			}
-//		}
 		
 		if (other == null) {
 			STA.sendSTA(client, new ADCStatusMessage("User unknown",
@@ -56,19 +59,11 @@ public class INF extends AbstractADCClientProtocolCommand {
 		} 
 		client.otherIdentified(other);
 		
+		
 		if (!client.isIncoming()) {
 			sendINFOutgoing();	
-		} else {
-			if (token != null) {
-				client.setToken(token);
-			} else {
-				STA.sendSTA(client, new ADCStatusMessage("No Token field",
-						ADCStatusMessage.FATAL,
-						ADCStatusMessage.ProtocolRequiredINFfieldBadMissing,
-						Flag.FM,INFField.TO.name()));
-				return;
-			}
-		}
+		} 
+		
 		client.setDownload(false);
 		
 		client.onLogIn();

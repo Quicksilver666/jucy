@@ -99,23 +99,23 @@ import uc.protocols.hub.Hub;
 
 
 /** 
- * TODO might be nice to have different model for connections..
- * i.e. instead of getting a stream from unblocking connection and read from it with a thread
- * -> set a ammount of bytes to be read max .. do unpacking in a connection...
- * -> does that work together with limiter? uploadlimiter maybe  but downloadlimiter?
+ * TODO icon in bottom bar showing current away state
+ *  clickable for setting away state..
+ *  
+ *  
+ *  TODO identity management (adding identities i.e. a identity includes different FileList / CID / TCP/SSL-Ports / Certificate(KeyPrint) )
  *
  *  TODO internationalisation in hublisteditor
  *				
  *
- * Presentation of magnet -> save as button .. or play button could be added 
- 
+ * TODO Presentation of magnet -> save as button could be added 
+ *
  * 
  * My Personal Bugtracker:
  * 
  * 
  * TODO remove change Lang.LineSpeed to accomodate for now different display of speeds..
  *  
- *  TODO join/part colouring
  *  
  *  TODO may be think about torrent support in dc client -> starting torrents downloaded..
  *  
@@ -127,7 +127,6 @@ TODO
  * TODO implement some game.. i.e. Battleship or chess that could be played against other user..
  *  
  * 
- * TODO must have feature multiple notepads.. 2-5 
  *  
  * 
  * TODO after finished downloading file .. may be check if should be hashed and immediately shared..
@@ -153,8 +152,7 @@ TODO
  * on a per hub basis.. hideshare = no filelist..
  * 
  * 
- * TODO .. adding massive ammount of DQ entries makes jucy unstable...
- * -> especially closing will result on failed restore operations...
+ * TODO .. change with new DB adding already TTH to DB should work better..
  * 
  * 
  * TODO always reconnecting peer requesting the same interval over and over and over have to be stopped..
@@ -206,7 +204,7 @@ public final class DCClient {
 					try {
 						r.run();
 					} catch(Throwable e) {
-						logger.error("execution of runnable failed.."+e+" isShutdown:"+exec.isShutdown(), e);
+						logger.warn("execution of runnable failed.."+e+" isShutdown:"+exec.isShutdown(), e);
 					}
 				}
 			}); 
@@ -235,7 +233,7 @@ public final class DCClient {
 	 * cached Thread pool executor with  CallerRunsPolicy to better find problems..
 	 * at least better than discard policy..
 	 */
-	private static final ExecutorService exec = new ThreadPoolExecutor(0, 250,
+	private static final ExecutorService exec = new ThreadPoolExecutor(0, 150,
             60L, TimeUnit.SECONDS,
             new SynchronousQueue<Runnable>(),
             new CallerRunsPolicy() 
@@ -608,6 +606,41 @@ public final class DCClient {
     }
     
     /**
+     * called to on closing by the GUI....hopefully..
+     * @param shutDownExec .. if set to false
+     * executor is let alive.. making it possible to create
+     * a new DCClient object..
+     */
+    public void stop(boolean shutDownExec) {
+    	logEvent(LONGVERSION+" is stopping");
+    	if (PI.getBoolean(PI.deleteFilelistsOnExit)) {
+    		FileList.deleteFilelists();
+    	}
+    	storedPM.dispose();
+    	ch.stop();
+    	downloadQueue.stop();
+    	altSearch.stop();
+    	filelist.stop();
+    	hashEngine.stop();
+    	
+    	if (shutDownExec) {
+    		exec.shutdown();
+    	}
+    	scheduler.shutdown();
+    	
+    	
+    	udphandler.stop();
+    	connectionDeterminator.stop();
+    	
+    	population.unregisterUserChangedListener(databaseUserChanges);
+    	logger.debug("shut down executors");
+    	database.shutdown();
+    	logger.debug("shut down database");
+    	logEvent(LONGVERSION+" stopped");
+    	
+    }
+    
+    /**
      * creates some UUID for this client 
      */
     private static HashValue loadPID() {
@@ -633,39 +666,7 @@ public final class DCClient {
     	return pid;
     }
     
-    /**
-     * called to on closing by the GUI....hopefully..
-     * @param shutDownExec .. if set to false
-     * executor is let alive.. making it possible to create
-     * a new DCClient object..
-     */
-    public void stop(boolean shutDownExec) {
-    	logEvent(LONGVERSION+" is stopping");
-    	if (PI.getBoolean(PI.deleteFilelistsOnExit)) {
-    		FileList.deleteFilelists();
-    	}
-    	storedPM.dispose();
-    	ch.stop();
-    	downloadQueue.stop();
-    	altSearch.stop();
-    	filelist.stop();
-    	
-    	if (shutDownExec) {
-    		exec.shutdown();
-    	}
-    	scheduler.shutdown();
-    	
-    	
-    	udphandler.stop();
-    	connectionDeterminator.stop();
-    	
-    	population.unregisterUserChangedListener(databaseUserChanges);
-    	logger.debug("shut down executors");
-    	database.shutdown();
-    	logger.debug("shut down database");
-    	logEvent(LONGVERSION+" stopped");
-    	
-    }
+  
     
 
 	/**
@@ -883,20 +884,20 @@ public final class DCClient {
     	return null;
     }
     
-    public IUser getUserForCID(HashValue cid) {
-    	synchronized(hubs){
-    		for (Hub hub : hubs.values()) {
-    			if (!hub.isNMDC()) {
-	    			User usr = hub.getUserByCID(cid);
-	    			if (usr != null) {
-	    				return usr;
-	    			}
-    			}
-    		}
-    	}
-    	
-    	return null;
-    }
+//    public IUser getUserForCID(HashValue cid) {
+//    	synchronized(hubs){
+//    		for (Hub hub : hubs.values()) {
+//    			if (!hub.isNMDC()) {
+//	    			User usr = hub.getUserByCID(cid);
+//	    			if (usr != null) {
+//	    				return usr;
+//	    			}
+//    			}
+//    		}
+//    	}
+//    	
+//    	return null;
+//    }
     
     public List<IUser> getUsersForCID(HashValue cid) {
     	List<IUser> users = new ArrayList<IUser>();

@@ -211,7 +211,7 @@ public class CommandInterpreter {
 			case PRUNEHASHES:
 				DCClient.execute(new Runnable() {
 					public void run() {
-						int i = ApplicationWorkbenchWindowAdvisor.get().pruneHashes();
+						int i = hub.getDcc().pruneHashes();
 						hub.statusMessage(String.format(
 								"Deleted %d unused hashes", i), 0);
 					}
