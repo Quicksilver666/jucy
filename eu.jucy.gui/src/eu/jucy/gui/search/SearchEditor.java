@@ -308,16 +308,19 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 		List<FavHub> fHubs = new ArrayList<FavHub>(hubs.keySet());
 		Collections.sort(fHubs);
 		for (FavHub e: fHubs ) {
-			Hub hub = hubs.get(e);
-			if (hub != null) {
+			IHub hub = hubs.get(e);
+			if (hub != null && !hub.getFavHub().isChatOnly()) {
 				TableItem ti = new TableItem(hubsToSearch,SWT.LEAD);
 				ti.setData(hub);
+				
 				String name = hub.getName();
 				if (GH.isNullOrEmpty(name)) {
 					name = hub.getFavHub().getSimpleHubaddy();
 				}
 				ti.setText(name);
+				
 				ti.setChecked(true);
+				
 			}
 		}
 		tc.pack();
@@ -550,7 +553,7 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 			if (ti.getChecked() && o instanceof IHub ) {
 				logger.debug("sending seach to hub: "+ ((IHub)o).getName());
 				IHub hub =(IHub)o;
-				if (!onlyHubsWhereOp || hub.getSelf().isOp()) {
+				if ( (!onlyHubsWhereOp || hub.getSelf().isOp()) && !hub.getFavHub().isChatOnly() ) {
 					usedHubs.add(hub);
 				}
 			}

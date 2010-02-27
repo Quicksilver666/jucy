@@ -24,13 +24,11 @@ import uc.protocols.client.ClientProtocol;
 
 public class Upload extends AbstractFileTransfer {
 
-	private static final int DRAINTIME = 20;
+	private static final int DRAINTIME = 50;
 	private static final int UPDATES_PER_SECOND = 10;
 	private static Semaphore globalUploads = new Semaphore(1);
 	private static volatile int maxSpeed;
 	
-//	private static final List<Upload> runningUploads = new CopyOnWriteArrayList<Upload>();
-//	private final Semaphore localUpload = new Semaphore(1,false);
 	
 	
 	private static void update() {
@@ -56,26 +54,12 @@ public class Upload extends AbstractFileTransfer {
 			public void run() {
 				if (++i % DRAINTIME == 0 ) {
 					globalUploads.drainPermits();
-//					for (Upload up:runningUploads) {
-//						int k = up.localUpload.drainPermits();
-//						overDue+=k;
-//					}
 				}
 				int releaseGlobal = maxSpeed+overDue;
 				int globalDiv = UPDATES_PER_SECOND;
 				globalUploads.release(releaseGlobal / globalDiv);
-				
-			
-//				int release = maxSpeed/2;
-//				int localdiv = runningUploads.size() * UPDATES_PER_SECOND ;
-//				
-//				
-//				
-//				for (Upload up:runningUploads) {
-//					up.localUpload.release(release/localdiv);
-//				}
-				
-				overDue = releaseGlobal % globalDiv; //+ release % localdiv;	
+
+				overDue = releaseGlobal % globalDiv; 
 				
 			}
 				

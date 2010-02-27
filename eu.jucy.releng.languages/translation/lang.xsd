@@ -13,6 +13,7 @@
                     <xs:element name="en" type="xs:string" />
                     <xs:element minOccurs="0" name="hu" type="xs:string" />
                     <xs:element minOccurs="0" name="it" type="xs:string" />
+                    <xs:element minOccurs="0" name="ru" type="xs:string" />
                   </xs:sequence>
                   <xs:attribute name="id" type="xs:string" use="required" />
                 </xs:complexType>
