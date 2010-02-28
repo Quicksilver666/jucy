@@ -1,4 +1,4 @@
-package uc.files.transfer;
+package uc.files.downloadqueue;
 
 
 import java.io.File;
@@ -15,11 +15,9 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 
-import uc.DCClient;
 import uc.crypto.HashValue;
 import uc.crypto.IBlock;
 import uc.crypto.IHashEngine.VerifyListener;
-import uc.files.downloadqueue.FileDQE;
 
 
 /**
@@ -35,15 +33,58 @@ public class Block implements IBlock {
 	
 	
 	private static final Logger logger = LoggerFactory.make();
-	/**
-	 * holds FileChannels for reuse
-	 */
-	private static Map<File,FileChannel> fcmap = new HashMap<File,FileChannel>();
 	
-	/**
-	 * counts how often a FileChannel is in use..
-	 */
-	private static Map<File,Integer> fcCounter = new HashMap<File,Integer>();
+	public static class FileChannelManager {
+		
+		
+		
+		/**
+		 * holds FileChannels for reuse
+		 */
+		private  Map<File,FileChannel> fcmap = new HashMap<File,FileChannel>();
+		
+		/**
+		 * counts how often a FileChannel is in use..
+		 */
+		private  Map<File,Integer> fcCounter = new HashMap<File,Integer>();
+		
+		private synchronized  FileChannel getFC(File f) throws IOException {
+			FileChannel fc = fcmap.get(f);
+			if (fc == null || !fc.isOpen()) {
+				fc = new RandomAccessFile(f,"rw").getChannel();
+				fcmap.put(f, fc);
+			}
+			changeFCCounter(f,1);
+					
+			return fc;
+		}
+		
+		private int changeFCCounter(File f,int howmuch) {
+			Integer count = fcCounter.get(f);
+			if (count == null) {
+				count = 0;
+			}
+			count += howmuch;
+			fcCounter.put(f, count);
+			return count;
+		}
+		
+		private synchronized  void returnFC(File f) throws IOException {
+			int count = changeFCCounter(f,-1);
+			if (count <= 0) {
+				if (count < 0) {
+					throw new IllegalStateException("counter can't be smaller than zero");
+				}
+				
+				FileChannel fc = fcmap.remove(f);
+				fc.force(true);
+				fc.close();
+			}
+		}
+		
+	}
+	
+
 	
 	/**
 	 * where this block belongs to
@@ -68,39 +109,7 @@ public class Block implements IBlock {
 	private final HashValue hashOfBlock;
 
 	
-	private synchronized static FileChannel getFC(File f) throws IOException {
-		FileChannel fc = fcmap.get(f);
-		if (fc == null || !fc.isOpen()) {
-			fc = new RandomAccessFile(f,"rw").getChannel();
-			fcmap.put(f, fc);
-		}
-		changeFCCounter(f,1);
-				
-		return fc;
-	}
-	
-	private static int changeFCCounter(File f,int howmuch) {
-		Integer count = fcCounter.get(f);
-		if (count == null) {
-			count = 0;
-		}
-		count += howmuch;
-		fcCounter.put(f, count);
-		return count;
-	}
-	
-	private synchronized static void returnFC(File f) throws IOException {
-		int count = changeFCCounter(f,-1);
-		if (count <= 0) {
-			if (count < 0) {
-				throw new IllegalStateException("counter can't be smaller than zero");
-			}
-			
-			FileChannel fc = fcmap.remove(f);
-			fc.force(true);
-			fc.close();
-		}
-	}
+
 	
 	public Block(FileDQE dqe,int blocknumber,HashValue hashOfBlock) {
 		this.hashOfBlock = hashOfBlock;
@@ -146,7 +155,7 @@ public class Block implements IBlock {
 		
 	
 		
-		final FileChannel fc =  getFC(dqe.getTempPath()); 
+		final FileChannel fc = dqe.getFileChannelManager().getFC(dqe.getTempPath()); 
 		
 		return new ReadableByteChannel() {
 			private long currentpos = getStartPosition();
@@ -156,7 +165,7 @@ public class Block implements IBlock {
 			
 			public void close() throws IOException {
 				if (open) {
-					returnFC(dqe.getTempPath());
+					dqe.getFileChannelManager().returnFC(dqe.getTempPath());
 					open = false;
 				}
 			}
@@ -226,7 +235,7 @@ public class Block implements IBlock {
 		if (state != BlockState.EMPTY) {
 			throw new IllegalStateException("current state: "+state+" this is not legal");
 		}
-		final FileChannel fc =  getFC(dqe.getTempPath());  
+		final FileChannel fc =  dqe.getFileChannelManager().getFC(dqe.getTempPath());  
 		setState(BlockState.WRITEINPROGRESS);
 		
 		return new WritableByteChannel() {
@@ -237,7 +246,7 @@ public class Block implements IBlock {
 			
 			public void close() throws IOException {
 				if (open) {
-					returnFC(dqe.getTempPath());	
+					dqe.getFileChannelManager().returnFC(dqe.getTempPath());	
 					open = false;
 					if (bytesleft == 0) {
 						verify();
@@ -299,11 +308,10 @@ public class Block implements IBlock {
 	 */
 	private void verify() { 
 		setState(BlockState.UNVERIFIED);
-		DCClient.get().getHashEngine().checkBlock(this, new VerifyListener(){
+		dqe.getDCC().getHashEngine().checkBlock(this, new VerifyListener(){
 			public void checked(boolean verified) {
 				setState(verified?BlockState.FINISHED:BlockState.EMPTY );
 			}
-			
 		});
 	}
 	

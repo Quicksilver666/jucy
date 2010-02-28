@@ -77,6 +77,7 @@ public class MagnetLink extends AbstractDownloadableFile implements IDownloadabl
 				hash.magnetString(),hash,filesize,filename.replace(' ', '+'));
 	}
 	
+	@Override
 	public AbstractDownloadQueueEntry download(File target) {
 		AbstractDownloadQueueEntry adqe = super.download(target);
 		DCClient.get().search( new FileSearch(hash)); //always search for alternatives..

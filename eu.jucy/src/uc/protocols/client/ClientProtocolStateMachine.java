@@ -10,6 +10,7 @@ import helpers.Observable.IObserver;
 
 
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import logger.LoggerFactory;
@@ -84,33 +85,63 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 	private volatile Runnable sleepTask; 
 	
 	
-	private static final CopyOnWriteArrayList<ClientProtocolStateMachine> all =   
-		new CopyOnWriteArrayList<ClientProtocolStateMachine>();
 	
-	static {
-		/**
-		 * schedule a timer call.. for every second..
-		 * it will execute sleep commands when SleepTime is up..
-		 */
-		DCClient.getScheduler().scheduleAtFixedRate(new Runnable() {
-			public void run() {
-				for (ClientProtocolStateMachine m: all) {
-					synchronized(m) {
-						if (--m.sleepCounter < 0 && m.sleepTask != null) {
-							Runnable r = m.sleepTask;
-							m.sleepTask	= null; 
-							DCClient.execute( r ); 
+	/**
+	 * 
+	 * antipattern? remmove?
+	 *
+	 */
+	public static class CPSMManager {
+		private final CopyOnWriteArrayList<ClientProtocolStateMachine> all =   
+			new CopyOnWriteArrayList<ClientProtocolStateMachine>();
+		
+		private final DCClient dcc;
+		private ScheduledFuture<?> task;
+		public CPSMManager(DCClient dcc) {
+			this.dcc = dcc;
+		}
+		
+		public void start() {
+			task = dcc.getSchedulerDir().scheduleAtFixedRate(new Runnable() {
+				public void run() {
+					for (ClientProtocolStateMachine m: all) {
+						synchronized(m) {
+							if (--m.sleepCounter < 0 && m.sleepTask != null) {
+								Runnable r = m.sleepTask;
+								m.sleepTask	= null; 
+								DCClient.execute( r ); 
+							}
+							
+							if (m.sleepCounter % 10 == 0) {
+								logger.debug("sleepCounter: "+ m.sleepCounter+"  "+m.user);
+							}	
 						}
-						
-						if (m.sleepCounter % 10 == 0) {
-							logger.debug("sleepCounter: "+ m.sleepCounter+"  "+m.user);
-						}	
 					}
 				}
 			}
+			, 1, 1 , TimeUnit.SECONDS);
 		}
-		, 1, 1 , TimeUnit.SECONDS);
+		
+		public void stop() {
+			if (task != null) {
+				task.cancel(false);
+			}
+		}
+
+		public boolean remove(Object o) {
+			return all.remove(o);
+		}
+
+		public boolean addIfAbsent(ClientProtocolStateMachine element) {
+			return all.addIfAbsent(element);
+		}
+
+		public int size() {
+			return all.size();
+		}	
 	}
+	
+
 
 	
 	private final IUser user;
@@ -149,8 +180,8 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 	public ClientProtocolStateMachine(IUser usr,ConnectionHandler ch) {
 		this.user = usr;
 		this.ch = ch;
-		logger.debug("created statemachine: "+all.size());
-		token = Math.abs(GH.nextInt())+"";
+		logger.debug("created statemachine: "+ch.getCpsmManager().size());
+		token = Integer.toHexString(Math.abs(GH.nextInt()));
 		ch.getDCC().getPopulation().registerUserChangedListener(this, usr.getUserid());
 		ch.addStatemachine(usr, this);
 	}
@@ -165,7 +196,7 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 			case ConnectionHandler.USER_IDENTIFIED_IN_CONNECTION:
 				current = (ClientProtocol)arg.getValue(); 
 				sleepTask = null; //clear sleeptask..
-				all.remove(this);
+				ch.getCpsmManager().remove(this);
 				break;
 			case ConnectionHandler.CONNECTION_CLOSED:
 			case ConnectionHandler.STATEMACHINE_CREATED:
@@ -178,7 +209,7 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 				}
 				logger.debug("sleep counter is set to: "+sleepCounter);
 				sleepTask = this;
-				all.addIfAbsent(this);
+				ch.getCpsmManager().addIfAbsent(this);
 				break;
 			}
 			if (!user.weWantSomethingFromUser() || !user.isOnline()) { //remove immediately after disconnect..if nothing more is needed..by this user..
@@ -200,7 +231,7 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 					user.hasSupportForEncryption() && dcc.currentlyTLSSupport());
 		}
 
-		logger.debug("StateMachine. executing sleeptask: "+all.size());
+		logger.debug("StateMachine. executing sleeptask: "+ch.getCpsmManager().size());
 		//TODO user.resolveDQE returns null if user has download running.. this is unclear..
 		if (null == user.resolveDQEToUser() || ch.getNrOfRunningDownloads() >= MaxDOWNLOADS) {
 			logger.debug("no DQE found.." +user);
@@ -385,7 +416,7 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 	 *
 	 */
 	private synchronized void remove() {
-		if (all.remove(this) ) {
+		if (ch.getCpsmManager().remove(this) ) {
 			running = false;
 			ch.removeStatemachine(user,this);
 			ch.getDCC().getPopulation().unregisterUserChangedListener(this, user.getUserid());

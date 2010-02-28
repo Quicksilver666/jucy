@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.Dialog;
@@ -110,7 +111,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     }
 
     public ActionBarAdvisor createActionBarAdvisor(IActionBarConfigurer configurer) {
-        return   new ApplicationActionBarAdvisor(configurer);
+        return new ApplicationActionBarAdvisor(configurer);
     }
     
     public void preWindowOpen() {
@@ -130,7 +131,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     public void postWindowOpen() {
     	super.postWindowOpen();
 		
-    	final IWorkbenchWindow window = getWindowConfigurer().getWindow();
+    	IWorkbenchWindow window = getWindowConfigurer().getWindow();
     	
     	if (logger.isDebugEnabled()) {
     		GUIPI.get().addPreferenceChangeListener(new IPreferenceChangeListener() {
@@ -141,8 +142,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 			});
     	}
 
-    	GuiAppender.get().initialize(getWindowConfigurer().getActionBarConfigurer().getStatusLineManager());
-    	LoggerFactory.addAppender(GuiAppender.get());
+    	IStatusLineManager manager = getWindowConfigurer().getActionBarConfigurer().getStatusLineManager();
+    	GuiAppender.get().initialize(manager);
+    	
     	
     	
     	//handle tray icon
@@ -298,7 +300,6 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     			if (GUIPI.getBoolean(GUIPI.minimizeToTray)) {
     				window.getShell().setVisible(false);
     			}
-    		//	trayItem.setVisible(true);
     			if (!dcc.isAway() && GUIPI.getBoolean(GUIPI.setAwayOnMinimize)) {
     				dcc.setAway(true);
     			}
@@ -354,10 +355,10 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 	    	}
 	    	TrayItem trayItem = new TrayItem(tray,SWT.NONE);
 	    	trayItem.setImage(trayImage);
-	    	trayItem.setToolTipText(DCClient.LONGVERSION+"- Direct Connect Client");
+	    	trayItem.setToolTipText(DCClient.LONGVERSION+" - Direct Connect Client");
+	    	
 	    	trayItem.setVisible(true);
-	    	
-	    	
+
 	    
 	    	return trayItem;
 	    

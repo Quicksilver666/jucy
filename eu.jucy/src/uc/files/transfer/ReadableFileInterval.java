@@ -77,8 +77,7 @@ public class ReadableFileInterval extends AbstractFileInterval {
 				if (fch.closer != null) {
 					fch.closer.cancel(false);
 				}
-				if (fch.readingFrom.isEmpty()) {
-				//	logger.debug("scheduleing closer: "+source);
+				if (fch.readingFrom.isEmpty()) { //Delayed close -> better caching for os if lots of stopping reads..
 					fch.closer = DCClient.getScheduler().schedule(new Runnable() {
 						public void run() {
 							synchronized(cachedFiles) {

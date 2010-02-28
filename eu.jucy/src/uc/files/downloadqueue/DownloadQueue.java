@@ -34,6 +34,7 @@ import uc.crypto.HashValue;
 import uc.database.IDatabase;
 import uc.files.IDownloadable;
 import uc.files.IDownloadable.IDownloadableFile;
+import uc.files.downloadqueue.Block.FileChannelManager;
 import uc.files.filelist.FileList;
 import uc.protocols.TransferType;
 
@@ -51,6 +52,11 @@ public class DownloadQueue extends Observable<StatusObject> {
 	
 	private final DCClient dcc;
 
+	private final FileChannelManager fileChannelManager;
+
+
+
+
 	private final PreferenceChangedAdapter pfa;
 	
 	public DownloadQueue(DCClient dcclient) {
@@ -64,6 +70,7 @@ public class DownloadQueue extends Observable<StatusObject> {
 				}
 			}
 		};
+		fileChannelManager = new FileChannelManager();
 	}
 	
 	
@@ -78,6 +85,10 @@ public class DownloadQueue extends Observable<StatusObject> {
 	
 	private final CopyOnWriteArrayList<File> recommendedFolders = new CopyOnWriteArrayList<File>(); 
 	
+	public FileChannelManager getFileChannelManager() {
+		return fileChannelManager;
+	}
+
 	
 	/**
 	 * loads the download queue from the disc ..
@@ -431,13 +442,13 @@ public class DownloadQueue extends Observable<StatusObject> {
 	}
 	
 
-	private static void move(File sourceFolder , File targetFolder) {
+	private void move(File sourceFolder , File targetFolder) {
 		if (sourceFolder.isDirectory()) {
 			for (File f:sourceFolder.listFiles()) {
 				if (f.isFile()) {
 					logger.debug("sourcefile: "+f);
 					try {
-						AbstractDownloadQueueEntry.moveFile(f, new File(targetFolder,f.getName()));
+						AbstractDownloadQueueEntry.moveFile(f, new File(targetFolder,f.getName()),dcc);
 					} catch(IOException ioe) {
 						logger.warn(ioe, ioe);
 					}

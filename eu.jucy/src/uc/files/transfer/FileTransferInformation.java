@@ -288,9 +288,7 @@ public class FileTransferInformation  {
 			switch(t) {
 			case FILE:
 			case TTHL:
-			//	try {
-					f = DCClient.get().getFilelist().getFile(getHashValue());
-			//	} catch (FilelistNotReadyException fnre) {}
+				f = DCClient.get().getFilelist().getFile(getHashValue());
 			}
 		} else if (isDownload()) {
 			f = dqe.getTargetPath();
@@ -306,6 +304,7 @@ public class FileTransferInformation  {
 	 * @return true if creation was successful
 	 */
 	public boolean setFileInterval(DCClient dcc) {
+		fileInterval = null;
 		if (isUpload()) {
 			File f = null;
 			switch(getType()) {

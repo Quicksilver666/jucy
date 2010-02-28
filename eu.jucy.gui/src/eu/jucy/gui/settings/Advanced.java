@@ -37,7 +37,7 @@ public class Advanced extends UCPrefpage {
 		IntegerFieldEditor filelistRefreshInterval= new IntegerFieldEditor(PI.filelistRefreshInterval,
 				Lang.FilelistRefreshInterval,
 				getFieldEditorParent());
-		filelistRefreshInterval.setValidRange(5, 60*6); //max six hours..
+		filelistRefreshInterval.setValidRange(5, 60*24*3); //max 3 days
 		addField(filelistRefreshInterval);
 		
 		

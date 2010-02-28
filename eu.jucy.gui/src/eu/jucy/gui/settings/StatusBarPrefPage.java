@@ -20,12 +20,14 @@ public class StatusBarPrefPage extends UCPrefpage {
 				GUIPI.shareSizeContrib,GUIPI.hubsContrib,
 				GUIPI.slotsContrib,GUIPI.downContrib,
 				GUIPI.upContrib,GUIPI.downSpeedContrib,
-				GUIPI.upSpeedContrib,GUIPI.connectionStatusContrib};
+				GUIPI.upSpeedContrib,GUIPI.connectionStatusContrib,
+				GUIPI.awayContrib};
 		
 		String[] labels = new String[] {Lang.ShowSharesize,Lang.ShowHubs,
 				Lang.ShowSlots,Lang.ShowDownTotal,
 				Lang.ShowUpTotal,Lang.ShowDownSpeed,
-				Lang.ShowUpSpeed,Lang.ShowConnStatus};
+				Lang.ShowUpSpeed,Lang.ShowConnStatus,
+				"Away Status"};
 		
 		for (int i =0 ; i < prefs.length; i++) {
 			BooleanFieldEditor bfe = new BooleanFieldEditor(prefs[i],labels[i],getFieldEditorParent());

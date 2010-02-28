@@ -45,6 +45,9 @@ public class IImageKeys {
 								
     // Tray icon
 								TRAYICON			, 
+								
+								
+								OFFLINE_16			=	"icons/offline.16.gif",
 
 								
 	// misc			

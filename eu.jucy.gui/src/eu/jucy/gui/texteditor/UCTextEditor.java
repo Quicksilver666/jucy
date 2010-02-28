@@ -2,12 +2,20 @@ package eu.jucy.gui.texteditor;
 
 
 
+import java.io.File;
+
 import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Point;
@@ -16,10 +24,15 @@ import org.eclipse.swt.widgets.Text;
 
 import uc.IHub;
 import uc.IUser;
+import uc.files.MagnetLink;
+import uc.files.filelist.FileListFile;
+import uc.files.filelist.IOwnFileList.AddedFile;
 
+import uihelpers.SUIJob;
 import uihelpers.SelectionProviderIntermediate;
 
 
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.UCMessageEditor;
 import eu.jucy.gui.UCWorkbenchPart;
 import eu.jucy.gui.texteditor.hub.ItemSelectionProvider;
@@ -62,8 +75,26 @@ public abstract class UCTextEditor extends UCMessageEditor {
 		getSite().setSelectionProvider(spi);
 		
 		UCWorkbenchPart.createContextPopups(getSite(), TEXT_POPUP_ID, tus, getText());
+		
+		
+		DropTarget target = new DropTarget(getText(),  DND.DROP_DEFAULT | DND.DROP_MOVE);
+		target.setTransfer(new Transfer[] { FileTransfer.getInstance() });
+		target.addDropListener(new MagnetDropAdapter(false));
+		
+		DropTarget target2 = new DropTarget(getSendingWriteline().getWriteline(),  DND.DROP_DEFAULT | DND.DROP_MOVE);
+		target2.setTransfer(new Transfer[] { FileTransfer.getInstance() });
+		target2.addDropListener(new MagnetDropAdapter(true));
+		
 	}
 	
+	protected void addedFile(FileListFile file,boolean append,boolean addedOutsideShare) {
+		MagnetLink ml = new MagnetLink(file);
+		if (append) {
+			getSendingWriteline().getWriteline().append(ml.toString());
+		} else {
+			getSendingWriteline().send(ml.toString());
+		}
+	}
 	
 	public abstract void storedPM(IUser receiver,String message,boolean me);
 	public abstract void statusMessage(final String message,  int severity);
@@ -79,6 +110,38 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	public abstract IHub getHub();
 	
 	
+	private final class MagnetDropAdapter extends DropTargetAdapter {
+		private final boolean append;
+		public MagnetDropAdapter(boolean append) {
+			this.append = append;
+		}
+		public void drop(DropTargetEvent event) {
+			String fileList[] = null;
+			FileTransfer ft = FileTransfer.getInstance();
+			if (ft.isSupportedType(event.currentDataType)) {
+				fileList = (String[])event.data;
+				for (String file:fileList) {
+					File f = new File(file);
+					if (f.isFile()) {
+						ApplicationWorkbenchWindowAdvisor.get().getFilelist()
+							.immediatelyAddFile(f, true, new AddedFile() {
+								@Override
+								public void addedFile(final FileListFile file,final boolean addedOutsideShare) {
+									new SUIJob(getText()) {
+										@Override
+										public void run() {
+											UCTextEditor.this.addedFile(file,append,addedOutsideShare);
+										}
+									}.schedule();
+								}
+						});
+					}
+				}
+			}
+		}
+	}
+
+
 	/**
 	 * selects user if a nick is under the mousepointer
 	 * otherwise selects the text currently selected

@@ -201,7 +201,9 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		}
 	}
 	
-	
+	public DCClient getDcc() {
+		return ch.getDCC();
+	}
 
 	public synchronized void start() {
 		connection.start();

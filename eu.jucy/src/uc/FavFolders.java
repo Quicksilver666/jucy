@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import logger.LoggerFactory;
 
-import org.apache.log4j.Level;
+
 import org.apache.log4j.Logger;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -28,7 +28,7 @@ import uihelpers.ComplexListEditor.IPrefSerializer;
  */
 public class FavFolders {
 
-	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
+	private static final Logger logger = LoggerFactory.make();
 	
 		
 	private final List<SharedDir> sharedDirs;

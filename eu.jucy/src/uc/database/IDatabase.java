@@ -13,7 +13,6 @@ import uc.IUser;
 import uc.crypto.HashValue;
 import uc.crypto.InterleaveHashes;
 import uc.files.downloadqueue.DQEDAO;
-import uc.files.filelist.HashedFile;
 
 /**
  * interface defining a plug-in used for persistence of 
@@ -51,7 +50,7 @@ public interface IDatabase {
 	 * @param inter - the interleave hashes..
 	 * @param hashed - when the file was hashed last time
 	 */
-	void addOrUpdateFile(File file ,HashValue tthroot , InterleaveHashes inter,Date hashed);
+	void addOrUpdateFile(HashedFile hf , InterleaveHashes inter);
 	
 	
 
@@ -71,6 +70,12 @@ public interface IDatabase {
 	 * @return  mapping of all Files to their hash information
 	 */
 	Map<File,HashedFile> getAllHashedFiles();
+	
+	/**
+	 * 
+	 * @return single hashed file form the database
+	 */
+	HashedFile getHashedFile(File f);
 	
 	
 	/**

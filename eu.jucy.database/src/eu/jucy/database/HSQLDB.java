@@ -35,11 +35,11 @@ import uc.crypto.HashValue;
 import uc.crypto.InterleaveHashes;
 import uc.crypto.TigerHashValue;
 import uc.database.DBLogger;
+import uc.database.HashedFile;
 import uc.database.IDatabase;
 import uc.database.ILogEntry;
 import uc.database.LogEntry;
 import uc.files.downloadqueue.DQEDAO;
-import uc.files.filelist.HashedFile;
 
 
 
@@ -327,19 +327,19 @@ public class HSQLDB implements IDatabase {
 	  * @param Date  the time when it was hashed...
 	  */
 	 
-	 public synchronized void addOrUpdateFile(File file, HashValue tth, InterleaveHashes inter, Date hashed) {
+	 public synchronized void addOrUpdateFile(HashedFile hf, InterleaveHashes inter) {
 		
-		 if (file.exists()) {
+		 if (hf.getPath().exists()) {
 			 try {
 				 ensureConnectionIsOpen();
 				 
-				 addOrUpdateInterleave(tth,inter); //first add interleaves..
+				 addOrUpdateInterleave(hf.getTTHRoot(),inter); //first add interleaves..
 				 
 				 PreparedStatement updateFile = 
 					 c.prepareStatement("UPDATE hashes SET tthroot = ? , date = ? WHERE path = ? " );
-				 updateFile.setString(1, tth.toString());
-				 updateFile.setLong(2, hashed.getTime());
-				 updateFile.setString(3, file.getAbsolutePath());
+				 updateFile.setString(1, hf.getTTHRoot().toString());
+				 updateFile.setLong(2, hf.getLastChanged().getTime());
+				 updateFile.setString(3, hf.getPath().getAbsolutePath());
 				 
 				 int count = updateFile.executeUpdate();
 				 
@@ -352,7 +352,7 @@ public class HSQLDB implements IDatabase {
 					 PreparedStatement updateFile2 = 
 						 c.prepareStatement("Select * FROM hashes WHERE tthroot = ? " );
 
-				 	updateFile2.setString(1, tth.toString());
+				 	updateFile2.setString(1,  hf.getTTHRoot().toString());
 				 	ResultSet rs = updateFile2.executeQuery();
 				 	while (rs.next()) {
 				 		logger.debug("fount item: "+rs.getString("path")+"  : "+rs.getLong("date"));
@@ -363,9 +363,9 @@ public class HSQLDB implements IDatabase {
 					 PreparedStatement addFile = 
 						 c.prepareStatement("INSERT INTO hashes (tthroot, date, path) VALUES ( ?, ?, ?) ");
 					 
-					 addFile.setString(1, tth.toString());
-					 addFile.setLong(2, hashed.getTime());
-					 addFile.setString(3, file.getAbsolutePath());
+					 addFile.setString(1,  hf.getTTHRoot().toString());
+					 addFile.setLong(2, hf.getLastChanged().getTime());
+					 addFile.setString(3, hf.getPath().getAbsolutePath());
 					 
 					 addFile.execute();
 					 addFile.close();
@@ -818,20 +818,38 @@ public class HSQLDB implements IDatabase {
 					files.remove(h.getPath());
 				}
 			}
-			
-			
 			prepst.close();
 			
 		} catch (SQLException e) {
-			logger.warn(e,e);
+			logger.error(e,e);
 		}
 		
 		return files;
 	}
-	
-	
-	
-	
+
+
+	public HashedFile getHashedFile(File f) {
+		try {
+			ensureConnectionIsOpen();
+			PreparedStatement prepst = 
+				c.prepareStatement("SELECT * FROM hashes WHERE path = ? " );
+			prepst.setString(1, f.getAbsolutePath());
+			ResultSet rs = prepst.executeQuery();
+			
+			while (rs.next()) { //tthroot , date , path
+				long date = rs.getLong("date");
+				String path = rs.getString("path");
+				String tthRoot = rs.getString("tthroot");
+				
+				HashedFile h = new HashedFile(new Date(date),HashValue.createHash(tthRoot), new File(path));
+				return h;
+			}
+		} catch (SQLException e) {
+			logger.error(e,e);
+		}
+		return null;
+	}
+
 	public Map<File, HashedFile> pruneUnusedHashedFiles() {
 		int count =0;
 		Map<File,HashedFile> files = getAllHashedFiles();

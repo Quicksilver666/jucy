@@ -58,7 +58,7 @@ public class ADLFileListProcessor implements IFilelistProcessor {
 					if (entry.matches(file)) {
 						FileListFolder folder = fileList.getRoot().getChildPerName(entry.getTargetFolder());
 						if (folder == null) {
-							folder = new FileListFolder(fileList,fileList.getRoot(),entry.getTargetFolder());
+							folder = new FileListFolder(fileList.getRoot(),entry.getTargetFolder());
 						}
 						new ADLFileListFile(folder,file.getName(),file.getSize(),file.getTTHRoot(),file);
 						if (entry.isDownloadMatches() && onDownload) {

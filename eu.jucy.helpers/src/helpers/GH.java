@@ -25,6 +25,8 @@ import java.util.Map.Entry;
 
 import javax.swing.filechooser.FileSystemView;
 
+import org.eclipse.core.runtime.Platform;
+
 /**
  * Global Helpers that are useful for everyone..
  * 
@@ -38,6 +40,11 @@ public final class GH {
 	
 	private static final FileSystemView chooser = FileSystemView.getFileSystemView();
 	
+	private static final boolean USE_FILE_SYSTEM_VIEW;
+	static {
+		boolean win = Platform.getOS().equals(Platform.OS_WIN32);
+		USE_FILE_SYSTEM_VIEW = !win;
+	}
 	/*
     *
     * @see java.util.Random#nextInt(int)
@@ -74,29 +81,36 @@ public final class GH {
 	 *  -> done as normal FileSystemView has a memory leak on that method..
 	 */
 	public static File[] getFiles(File parent,boolean useHidden) {
-		File[] files = parent.listFiles();
-		if (files == null) return new File[0];
-			
-		if (useHidden) {
-		//	int length = files.length;
-			int k = 0;
-			for (int i = 0; i+k < files.length; i++) {
-				while (i+k < files.length && files[i+k].isHidden()) {
-					k++;
-				} 
-				if (i+k < files.length) {
-					files[i] = files[i+k];	
+		File[] files;
+		if (USE_FILE_SYSTEM_VIEW) {
+			files = chooser.getFiles(parent, useHidden);
+			if (files == null) return new File[0];
+			return files;
+		} else {
+			files = parent.listFiles();
+			if (files == null) return new File[0];
+				
+			if (useHidden) {
+				int k = 0;
+				for (int i = 0; i+k < files.length; i++) {
+					while (i+k < files.length && files[i+k].isHidden()) {
+						k++;
+					} 
+					if (i+k < files.length) {
+						files[i] = files[i+k];	
+					}
+				}
+				
+				if (k != 0) {
+					File[] onlyVisible = new File[files.length - k];
+					System.arraycopy(files, 0, onlyVisible, 0, onlyVisible.length );
+					return onlyVisible;
 				}
 			}
-			
-			if (k != 0) {
-				File[] onlyVisible = new File[files.length - k];
-				System.arraycopy(files, 0, onlyVisible, 0, onlyVisible.length );
-				return onlyVisible;
-			}
+			return files;
 		}
-		return files;
 	}
+	
 	
 	
 	@SuppressWarnings("unchecked")

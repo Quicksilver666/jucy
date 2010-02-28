@@ -92,6 +92,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 	upSpeedContrib		=	"upSpeedContrib",
 	shareSizeContrib	=	"shareSizeContrib",
 	connectionStatusContrib="connectionStatusContrib",
+	awayContrib			=	"awayContrib",
 	
 	
 	//Nick Colourer
@@ -195,6 +196,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 		defaults.putBoolean(upSpeedContrib, true);
 		defaults.putBoolean(shareSizeContrib, false);
 		defaults.putBoolean(connectionStatusContrib, true);
+		defaults.putBoolean(awayContrib	, true);
 		
 		defaults.put(userCommands,"Kick user\\n6\\nop\\n$Kick %[nick]|\\ntrue\\n\n"+
 			"Redirect\\n2\\nop\\n$OpForceMove $Who:%[userNI]$Where:%[line:Address?]$Msg:%[line:Reason?]|\\ntrue\\n");

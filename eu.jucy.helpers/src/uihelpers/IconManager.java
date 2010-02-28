@@ -58,7 +58,9 @@ public class IconManager {
 	
 	private static final Map<String,File> fileEnding = Collections.synchronizedMap(new HashMap<String,File>());
 	
+	
 	private final Map<String,Image> imageCache = new HashMap<String,Image>();
+	
 	
 	private IconManager() {
 		//load unknown file icon and unknown folder icon
@@ -195,14 +197,13 @@ public class IconManager {
 		if (!sourcefolder.isDirectory()) {
 			throw new IllegalArgumentException("provided path is not an existing folder "+sourcefolder);
 		}
-		File[] children =sourcefolder.listFiles();
-		if (children != null) {
-			for (File f:children) {
-				if (f.isFile()) {
-					checkFileForLoading(f);
-				} else if (f.isDirectory()) {
-					loadImageSources(f);
-				}
+		File[] children = GH.getFiles(sourcefolder, false);
+		
+		for (File f:children) {
+			if (f.isFile()) {
+				checkFileForLoading(f);
+			} else if (f.isDirectory()) {
+				loadImageSources(f);
 			}
 		}
 	}
@@ -230,19 +231,16 @@ public class IconManager {
 	private Image loadImageFromFile(File f,Image defaultImage) {
 		
 		//System.out.println("f: "+f);
-	
-		Icon ic = GH.getFileSystemView().getSystemIcon(f);
-
-			
-		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		try {	
-			
-			return convert(window.getShell().getDisplay(),toBufferedImage(ic));  // toBufferedImage(i.getImage()));
-			
-		} catch(Exception e) {
-			e.printStackTrace();
+		if (f != null && f.exists()) {
+			try {	
+				Icon ic = GH.getFileSystemView().getSystemIcon(f);
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				return convert(window.getShell().getDisplay(),toBufferedImage(ic)); 
+				
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
-	
 		return defaultImage ;
 	}
 	
@@ -389,17 +387,15 @@ public class IconManager {
 	 * @return IMagedescriptor.. or null
 	 */
 	public ImageDescriptor getImageDescriptorFromFile(File f) {
-		 Image img = null;
-		 if (f.exists()) {
-			 img = loadImageFromFile(f, null);
-
-		 } else {
-			 String ending = f.getName();
-			 int i = ending.lastIndexOf('.');
-			 if (i != -1) {
-				 ending = ending.substring(i+1);
+		 Image img = imageCache.get(f.getPath());
+		 
+		 if (img == null) {
+			 if (f.exists()) {
+				 img = loadImageFromFile(f, null);
+				 imageCache.put(f.getPath(), img);
+			 } else {
+				 img = getIconByFilename(f.getName());
 			 }
-			 img = getIcon(ending);
 		 }
 		 if (img != null) {
 			 return ImageDescriptor.createFromImage(img);
@@ -407,24 +403,5 @@ public class IconManager {
 			 return null;
 		 }
 	 }
-	 /*public static class FSImageDescriptor extends ImageDescriptor {
-
-		 private final File f;
-		public FSImageDescriptor(File f) {
-			this.f= f;
-		}
-		@Override
-		public ImageData getImageData() {
-			Image img = IconManager.get().loadImageFromFile(f, null);
-			if (img == null) {
-				return null;
-			}
-			ImageData imgd = img.getImageData();
-			img.dispose();
-			
-			return imgd;
-		}
-		 
-	 } */
 	 
 }

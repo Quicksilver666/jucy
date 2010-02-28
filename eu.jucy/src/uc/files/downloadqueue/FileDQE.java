@@ -18,11 +18,12 @@ import uc.PI;
 import uc.crypto.InterleaveHashes;
 import uc.files.IDownloadable.IDownloadableFile;
 
+import uc.files.downloadqueue.Block.BlockState;
+import uc.files.downloadqueue.Block.FileChannelManager;
+import uc.files.filelist.IOwnFileList.AddedFile;
 import uc.files.transfer.AbstractWritableFileInterval;
-import uc.files.transfer.Block;
 import uc.files.transfer.FileTransferInformation;
 import uc.files.transfer.AbstractWritableFileInterval.FileWriteInterval;
-import uc.files.transfer.Block.BlockState;
 import uc.protocols.TransferType;
 
 public class FileDQE extends AbstractFileDQE {
@@ -352,6 +353,8 @@ public class FileDQE extends AbstractFileDQE {
 
 				//remove.. from the queue
 				remove();
+				//try immediately adding it to the filelist if possible..
+				dq.getDcc().getFilelist().immediatelyAddFile(getTargetPath(),false,new AddedFile());
 			}
 			logger.debug("in FileDQE.blockValidated() and end of finishing");
 		
@@ -423,6 +426,8 @@ public class FileDQE extends AbstractFileDQE {
 	}
 
 	
-	
+	public FileChannelManager getFileChannelManager() {
+		return dq.getFileChannelManager();
+	}
 
 }

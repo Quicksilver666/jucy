@@ -9,6 +9,7 @@ import java.nio.channels.WritableByteChannel;
 
 
 import uc.crypto.InterleaveHashes;
+import uc.files.downloadqueue.Block;
 import uc.files.downloadqueue.FileDQE;
 import uc.files.downloadqueue.FileListDQE;
 import uc.files.downloadqueue.TTHLDQE;

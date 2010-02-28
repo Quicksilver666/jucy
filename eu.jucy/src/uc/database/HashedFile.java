@@ -1,4 +1,4 @@
-package uc.files.filelist;
+package uc.database;
 
 import java.io.File;
 import java.util.Date;
@@ -29,6 +29,14 @@ public class HashedFile {
 
 	public Date getLastChanged() {
 		return new Date(lastChanged.getTime());
+	}
+	
+	/**
+	 * 
+	 * @return true if this hashed file is still up to date
+	 */
+	public boolean isValid() {
+		return path.lastModified() == lastChanged.getTime();
 	}
 
 	public HashValue getTTHRoot() {

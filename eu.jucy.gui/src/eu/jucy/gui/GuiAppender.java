@@ -11,9 +11,12 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import logger.LoggerFactory;
+
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -27,6 +30,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import uc.DCClient.ILogEventListener;
 import uihelpers.SUIJob;
 
 import eu.jucy.gui.logeditor.LogEditor;
@@ -40,7 +44,7 @@ import eu.jucy.gui.logeditor.OpenLogEditorHandler;
  * 
  * @author Quicksilver
  */
-public class GuiAppender extends AppenderSkeleton {
+public class GuiAppender extends AppenderSkeleton implements ILogEventListener {
 	
 	private static final int KEPT_MESSAGES = 100;
 	
@@ -136,9 +140,81 @@ public class GuiAppender extends AppenderSkeleton {
 				}
 			});
 		}
-		
+		LoggerFactory.addAppender(this);
+		ApplicationWorkbenchWindowAdvisor.get().addLogEventListener(this);
 	}
 	
+	
+	private final Logger logger = LoggerFactory.make();
+	
+	private static final Level GUI = new Level(Level.INFO.toInt(),"GUI",Level.INFO.getSyslogEquivalent()){
+		private static final long serialVersionUID = 7946573916583631244L;
+		} ;
+	
+	public void logEvent(String event) {
+		logger.log(GUI, event);
+	}
+
+	private void appendLE(final LoggingEvent event) {
+		new SUIJob() {
+			public void run() {
+				lastMessages.add(event);
+				while (lastMessages.size() > KEPT_MESSAGES) {
+					lastMessages.remove(0);
+				} 
+
+				if (window == null) {
+					return;
+				}
+				IWorkbenchPage page = window.getActivePage();
+				if (page == null) {
+					return;
+				}
+				LogEditor le =(LogEditor)page.findEditor(new LogEditorInput());
+
+				if (event.getLevel().isGreaterOrEqual(Level.WARN)) {
+					statusline.setErrorMessage(severe.format(event));  //event.getRenderedMessage());
+
+					if (le == null) {
+						OpenLogEditorHandler.openSystemLogEditor();
+						if (event.getLevel().isGreaterOrEqual(Level.ERROR)) {
+							MessageDialog.openError(window.getShell(), event.getLevel().toString(), severe.format(event));
+						}
+					}
+
+					if (errorClear != null) {
+						errorClear.cancel();
+					}
+					errorClear = new SUIJob() { // "clear Error"
+						public void run() {
+							errorClear = null;
+							statusline.setErrorMessage(null);
+						}
+
+					};
+					errorClear.schedule(1000 * 60 *5);
+				} else {
+					statusline.setMessage(getMessage(event));
+				}
+
+				String tooltip = null;
+				for (int i = Math.max(lastMessages.size()-MessagesShownInTooltip, 0); i < lastMessages.size(); i++) {
+					if (tooltip == null) {
+						tooltip = getMessage(lastMessages.get(i));
+					} else {
+						tooltip += "\n"+getMessage(lastMessages.get(i));
+					}
+				}
+				setToolTipToStatusLine(tooltip);
+
+
+				if (le != null) {
+					le.append(event);
+				}
+			}
+		}.schedule();
+
+	}
 	
 	/**
 	 * 
@@ -151,66 +227,9 @@ public class GuiAppender extends AppenderSkeleton {
 	 */
 	@Override
 	protected void append(final LoggingEvent event) {
-		if (event.getLevel().isGreaterOrEqual(Level.INFO))
-			new SUIJob() {
-			public void run() {
-				lastMessages.add(event);
-				while (lastMessages.size() > KEPT_MESSAGES) {
-					lastMessages.remove(0);
-				} 
-				
-				if (window == null) {
-					return;
-				}
-				IWorkbenchPage page = window.getActivePage();
-				if (page == null) {
-					return;
-				}
-				LogEditor le =(LogEditor)page.findEditor(new LogEditorInput());
-				
-				if (event.getLevel().isGreaterOrEqual(Level.WARN)) {
-					statusline.setErrorMessage(severe.format(event));  //event.getRenderedMessage());
-					
-					if (le == null) {
-						OpenLogEditorHandler.openSystemLogEditor();
-						if (event.getLevel().isGreaterOrEqual(Level.ERROR)) {
-							MessageDialog.openError(window.getShell(), event.getLevel().toString(), severe.format(event));
-						}
-					}
-					
-					if (errorClear != null) {
-						errorClear.cancel();
-					}
-					errorClear = new SUIJob() { // "clear Error"
-						public void run() {
-							errorClear = null;
-							statusline.setErrorMessage(null);
-						}
-						
-					};
-					errorClear.schedule(1000 * 60 *5);
-				} else {
-					statusline.setMessage(getMessage(event));
-				}
-				
-				String tooltip = null;
-				for (int i = Math.max(lastMessages.size()-MessagesShownInTooltip, 0); i < lastMessages.size(); i++) {
-					if (tooltip == null) {
-						tooltip = getMessage(lastMessages.get(i));
-					} else {
-						tooltip += "\n"+getMessage(lastMessages.get(i));
-					}
-				}
-				setToolTipToStatusLine(tooltip);
-				
-				
-				if (le != null) {
-					le.append(event);
-				}
-				
-				//return Status.OK_STATUS;
-			}
-		}.schedule();
+		if (event.getLevel().isGreaterOrEqual(Level.INFO) || event.getLevel().equals(GUI)) {
+			appendLE(event);
+		}
 	}
 
 	@Override

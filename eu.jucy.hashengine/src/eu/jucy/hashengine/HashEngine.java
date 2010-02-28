@@ -38,6 +38,7 @@ import uc.crypto.HashValue;
 import uc.crypto.IBlock;
 import uc.crypto.IHashEngine;
 import uc.crypto.InterleaveHashes;
+import uc.database.HashedFile;
 
 
 
@@ -53,8 +54,8 @@ public class HashEngine implements IHashEngine {
 	private static final Logger logger = LoggerFactory.make();
 
 
-	private final BlockingQueue<HashJob> blocksToVerify = new LinkedBlockingQueue<HashJob>();
-	private final BlockingQueue<HashJob> filesForHashing = new LinkedBlockingQueue<HashJob>();
+	private final BlockingQueue<HashJob> highPriorityQueue = new LinkedBlockingQueue<HashJob>();
+	private final BlockingQueue<HashJob> lowPriorityQueue = new LinkedBlockingQueue<HashJob>();
 	
 	/**
 	 * set to check if the HashJob is not already present in the 
@@ -81,12 +82,12 @@ public class HashEngine implements IHashEngine {
 			public void run() {
 				try {
 					while(true) {
-						HashJob h = blocksToVerify.poll(); //by first trying blocks and then files.. but after all waiting on blocks.. its waitfree for blocks and fair for files
+						HashJob h = highPriorityQueue.poll(); //by first trying blocks and then files.. but after all waiting on blocks.. its waitfree for blocks and fair for files
 						if (h == null) {
-							h = filesForHashing.poll();
+							h = lowPriorityQueue.poll();
 						}
 						if (h == null) {
-							h = blocksToVerify.poll(10, TimeUnit.SECONDS);
+							h = highPriorityQueue.poll(10, TimeUnit.SECONDS);
 						}
 						currentlyHashed = h;
 						if (h != null) {
@@ -114,7 +115,7 @@ public class HashEngine implements IHashEngine {
 	}
 
 	public void stop() {
-		blocksToVerify.clear();
+		highPriorityQueue.clear();
 		clearFileJobs();
 	}
 	
@@ -132,12 +133,12 @@ public class HashEngine implements IHashEngine {
 	 * enqueues a file to be hashed.
 	 */
 
-	public void hashFile(File f, IHashedFileListener listener) {
+	public void hashFile(File f,boolean highPriority, IHashedFileListener listener) {
 
 		HashFileJob hfj = new HashFileJob(f,listener);
 		synchronized(filesToBeHashed) {
 			if (!filesToBeHashed.contains(hfj) && !hfj.equals(currentlyHashed)) {
-				filesForHashing.offer(hfj);
+				(highPriority? highPriorityQueue: lowPriorityQueue).offer(hfj);
 				filesToBeHashed.add(hfj);
 				sizeLeftForHashing += f.length();
 			}
@@ -155,7 +156,7 @@ public class HashEngine implements IHashEngine {
 //			while (filesTohash.peekLast() instanceof HashFileJob) {
 //				filesTohash.pollLast();
 //			}
-			filesForHashing.clear();
+			lowPriorityQueue.clear();
 			filesToBeHashed.clear();
 			sizeLeftForHashing = 0;
 			if (currentlyHashed instanceof HashFileJob) {
@@ -183,7 +184,7 @@ public class HashEngine implements IHashEngine {
 
 
 	public void checkBlock(IBlock block, VerifyListener checkListener) {
-		blocksToVerify.offer( new VerifyBlock(block,checkListener) ); //hash with high priority..
+		highPriorityQueue.offer( new VerifyBlock(block,checkListener) ); //hash with high priority..
 	}
 
 	
@@ -307,7 +308,8 @@ public class HashEngine implements IHashEngine {
 						listener.hashed(file, after.getTime()- before.getTime(),sizeLeftForHashing-file.length());
 					}
 				}	
-				listener.hashedFile(file, root, inter,datechanged);
+				HashedFile hf = new HashedFile(datechanged,root,file);
+				listener.hashedFile( hf, inter);
 				  
 	
 			} catch(FileNotFoundException fnfe) {

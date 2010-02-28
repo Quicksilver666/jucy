@@ -79,7 +79,7 @@ public class FileList implements Iterable<IFileListItem> {
 	protected volatile boolean completed = false;
 
 	private volatile long sharedSize;
-	protected final FileListFolder root = new FileListFolder(this,null, "");
+	protected final FileListFolder root = new FileListFolder(this);
 
 	private final Map<HashValue,FileListFile> contents = new HashMap<HashValue,FileListFile>();
 
@@ -146,16 +146,34 @@ public class FileList implements Iterable<IFileListItem> {
 		return root.getContainedFiles();
 	}
 	
-	void calcSharesizeAndBuildTTHMap() {
-		contents.clear();
-		long totalSize = 0;
-		for (FileListFile f:root) {
-			if (contents.put(f.getTTHRoot(),f) == null) {
-				totalSize += f.getSize();
-			}
+	void addFileToSharesizeIfNotPresent(FileListFile f) {
+		FileListFile old = null;
+		if ((old = contents.put(f.getTTHRoot(),f)) == null) {
+			sharedSize += f.getSize();
+		} else {
+			contents.put(old.getTTHRoot(),old); 
 		}
-		sharedSize = totalSize;
 	}
+	
+	void removeFileFromShareSize(FileListFile f) {
+		FileListFile old= null;
+		if ((old = contents.remove(f.getTTHRoot())) == f) {
+			sharedSize -= f.getSize();
+		} else {
+			contents.put(old.getTTHRoot(),old); 
+		}
+	}
+	
+//	void calcSharesizeAndBuildTTHMap() {
+//		contents.clear();
+//		long totalSize = 0;
+//		for (FileListFile f:root) {
+//			if (contents.put(f.getTTHRoot(),f) == null) {
+//				totalSize += f.getSize();
+//			}
+//		}
+//		sharedSize = totalSize;
+//	}
 
 	/**
 	 * @return the shared size
@@ -228,7 +246,7 @@ public class FileList implements Iterable<IFileListItem> {
 			logger.error(pce,pce);
 		}
 		
-		calcSharesizeAndBuildTTHMap();
+		//calcSharesizeAndBuildTTHMap();
 	}
 	
 	/**

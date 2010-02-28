@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<Translation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:noNamespaceSchemaLocation="lang.xsd">
+<Translation xmlns="http://jucy.eu/lang"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://jucy.eu/lang platform:/resource/eu.jucy.releng.languages/translation/lang.xsd" >
 <Plugin id="eu.jucy.adlsearch" name="adl">
 <Trl id="ADL.ADLSearch">
 <de>Automatische DateiListen Suche (ADL)</de>

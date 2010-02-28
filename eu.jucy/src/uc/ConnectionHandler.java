@@ -41,6 +41,7 @@ import uc.protocols.MultiStandardConnection;
 import uc.protocols.MultiStandardConnection.ISocketReceiver;
 import uc.protocols.client.ClientProtocolStateMachine;
 import uc.protocols.client.ClientProtocol;
+import uc.protocols.client.ClientProtocolStateMachine.CPSMManager;
 import uc.protocols.hub.ICTMListener;
 
 
@@ -140,12 +141,16 @@ public class ConnectionHandler extends Observable<StatusObject>
 
 	private final DCClient dcc;
 
+	private final CPSMManager cpsmManager;
+	
+
 
 	/**
 	 * 
 	 */
 	public ConnectionHandler(DCClient dcclient) {
 		this.dcc = dcclient;
+		cpsmManager = new CPSMManager(dcc);
 		
 		//register a port changed listener with the settings
 		pca = new PreferenceChangedAdapter(PI.get(),PI.inPort,PI.bindAddress,PI.tlsPort) {
@@ -168,7 +173,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 			register(tls);
 		}
 		pca.reregister();
-		
+		cpsmManager.start();
 		dcc.getPopulation().registerUserChangedListener(this);
 		expectedRefresher = dcc.getSchedulerDir().scheduleWithFixedDelay(new Runnable() {
 			public void run() {
@@ -187,6 +192,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 		normal.close();
 		tls.close();
 		pca.dispose();
+		cpsmManager.stop();
 		dcc.getPopulation().unregisterUserChangedListener(this);
 		if (expectedRefresher != null) {
 			expectedRefresher.cancel(false);
@@ -299,6 +305,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 			for (ExpectedInfo ei : expectedToConnect) {
 				if (token.equals(ei.token)) {
 					if (cid == null || cid.equals(ei.user.getCID())) {
+						ei.remove();
 						return ei;
 					}
 				}
@@ -327,7 +334,6 @@ public class ConnectionHandler extends Observable<StatusObject>
 	 * starts created protocol and registers listener to it..
 	 */
 	private void clientProtocolCreated(ClientProtocol ctcp) {
-		//ctcp.registerProtocolStatusListener(this);
 		ctcp.start();
 	}
 	
@@ -513,6 +519,9 @@ public class ConnectionHandler extends Observable<StatusObject>
 		return dcc.getSlotManager();
 	}
 
+	public CPSMManager getCpsmManager() {
+		return cpsmManager;
+	}
 
 
 	/**

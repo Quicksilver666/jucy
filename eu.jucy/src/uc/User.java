@@ -1189,9 +1189,9 @@ public class User implements IUser , IHasUser {
 		return cid;
 	}
 
-	public void setCid(HashValue cid) {
-		this.cid = cid;
-	}
+//	void setCID(HashValue cid) {
+//		this.cid = cid;
+//	}
 
 	public int getNumberOfSharedFiles() {
 		return numberOfSharedFiles;

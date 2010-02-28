@@ -111,7 +111,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 			throw new IOException("could not create a transfer from a non valid transfer info");
 		}
 		
-		addObserver(new ServiceListener());
+		addObserver(new ServiceListener(cp.getDcc()));
 //		registerTransferListener();
 	}
 	
@@ -258,8 +258,11 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 			}
 		};
 		private ScheduledFuture<?> sf;
+		private final DCClient dcc;
 		
-		public ServiceListener(){}
+		public ServiceListener(DCClient dcc){
+			this.dcc = dcc;
+		}
 		
 
 		/**
@@ -274,7 +277,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 			switch(change) {
 			case STARTED:
 				logger.debug("started has fired.."+getOther()+"  "+AbstractFileTransfer.this.cp.getState());
-				sf = DCClient.getScheduler().scheduleAtFixedRate(update, 100, 500, TimeUnit.MILLISECONDS);
+				sf = dcc.getSchedulerDir().scheduleAtFixedRate(update, 100, 500, TimeUnit.MILLISECONDS);
 				starttime = new Date();
 				active.addIfAbsent(AbstractFileTransfer.this);
 				break;

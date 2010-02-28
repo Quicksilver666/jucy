@@ -38,9 +38,6 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 	private final int size;
 	
 	
-	public ConnectionStatus(Composite comp) {
-		this(comp,SWT.NONE);
-	}
 	
 	public ConnectionStatus(Composite comp, int size) {
 		super(comp,SWT.NONE);

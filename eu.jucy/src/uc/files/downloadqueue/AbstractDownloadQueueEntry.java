@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import logger.LoggerFactory;
@@ -102,6 +103,8 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	
 	protected final DownloadQueue dq;
 	
+
+
 	/**
 	 * base constructor for the DownloadQueueEntry
 	 * @param type
@@ -344,7 +347,7 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		logger.debug("destfile"+dest);
 		
 		try {
-			moveFile(source,dest);
+			moveFile(source,dest,dq.getDcc());
 		} catch(IOException ioe) {
 			logger.warn(ioe,ioe);
 			return false;
@@ -382,7 +385,7 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		if (getTempPath().isFile()) {
 			if (!getTempPath().delete()) {
 				getTempPath().deleteOnExit();
-				scheduledDeletion(getTempPath());
+				scheduledDeletion(getTempPath(),dq.getDcc());
 			}
 		}
 	}
@@ -441,7 +444,7 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	 * @param dest - to
 	 * @return if moving was successful.
 	 */
-	public static boolean moveFile(final File source, File dest) throws IOException {
+	public static boolean moveFile(final File source, File dest,DCClient dcc) throws IOException {
 		
 		if (dest.isFile()) {
 			if (!dest.delete()) {
@@ -486,7 +489,7 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 				//delete the temp file finally   and if we can't .. mark for deletion on exit ...
 				if (!source.delete()) {
 					source.deleteOnExit();
-					scheduledDeletion(source);
+					scheduledDeletion(source,dcc);
 				}
 
 			} catch (IOException ioe) {
@@ -503,12 +506,13 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	 * creates a scheduler for an undeleted file that tries to delete it
 	 * @param toDelete
 	 */
-	public static void scheduledDeletion(final File toDelete) {
-		if (!DCClient.getScheduler().isShutdown()) {
-			DCClient.getScheduler().schedule(new Runnable() {
+	private static void scheduledDeletion(final File toDelete,DCClient dcc) {
+		final ScheduledExecutorService ses = dcc.getSchedulerDir();
+		if (!ses.isShutdown()) {
+			ses.schedule(new Runnable() {
 				public void run() {
-					if (toDelete.exists() && !toDelete.delete() && !DCClient.getScheduler().isShutdown()) {
-						DCClient.getScheduler().schedule(this,30,TimeUnit.SECONDS);
+					if (toDelete.isFile() && !toDelete.delete() && !ses.isShutdown()) {
+						ses.schedule(this,30,TimeUnit.SECONDS);
 					} 
 				}
 			}, 30, TimeUnit.SECONDS);
@@ -696,5 +700,8 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		}
 	}
 
+	DownloadQueue getDq() {
+		return dq;
+	}
 	
 }

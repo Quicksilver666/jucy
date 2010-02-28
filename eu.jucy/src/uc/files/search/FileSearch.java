@@ -123,7 +123,7 @@ public class FileSearch implements ISearchResultListener {
 		this.size = size;
 		
 		encryptionKey = UDPEncryption.getRandomKey();
-		this.token = ""+getNextNonce();
+		this.token = Integer.toHexString(getNextNonce());
 		startOfSearch = System.currentTimeMillis();
 	}
 	

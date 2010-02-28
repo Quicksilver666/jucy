@@ -14,9 +14,9 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
+import uc.files.downloadqueue.Block;
 import uc.files.downloadqueue.FileDQE;
 import uc.files.transfer.AbstractFileInterval;
-import uc.files.transfer.Block;
 import uc.files.transfer.IFileTransfer;
 import uihelpers.SUIJob;
 import eu.jucy.gui.downloadqueue.DownloadQueueColumns.DQDownloaded;

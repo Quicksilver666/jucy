@@ -18,7 +18,7 @@ import uc.DCClient;
  */
 public class InterleaveHashes {
 
-private final List<HashValue> interleaves;
+	private final List<HashValue> interleaves;
 
 	/**
 	 * used for small files < 64 KiB

@@ -142,6 +142,10 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 				};
 		}
 		
+		public static Image getDefaultUserImage() {
+			return USERIMAGES[0];
+		}
+		
 		public static Image getUserImage(IUser usr,boolean large) {
 			int i = large?6:0;
 			i += (usr.isOp()?3:0);

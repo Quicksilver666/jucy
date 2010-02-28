@@ -47,8 +47,24 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 	private final List<FileListFolder> subfolders = new CopyOnWriteArrayList<FileListFolder>();
 	private final List<FileListFile> files = new CopyOnWriteArrayList<FileListFile>();
 	
-			
-	public FileListFolder(FileList f, FileListFolder parent, String foldername /*, int incompleteness*/){
+	/**
+	 * 
+	 * constructor only used by root element
+	 */
+	FileListFolder(FileList rootElementConstructor) {
+		this(rootElementConstructor,null,"");
+	}
+	
+	/**
+	 * normal constructor
+	 * @param parent - parent folder
+	 * @param foldername - name of folder
+	 */
+	public FileListFolder(FileListFolder parent, String foldername ) {
+		this(parent.getFilelist(),parent,foldername);
+	}
+	
+	private FileListFolder(FileList f, FileListFolder parent, String foldername ) {
 		this.fileList	= f;
 		this.parent		= parent;
 		this.foldername	= foldername;
@@ -77,11 +93,16 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 	}
 
 
-	private void addSizeToFolderparent(long size){
-		containedSize += size;
-		containedFiles++;
-		if (parent!= null) {
-			parent.addSizeToFolderparent(size);
+	/**
+	 * 
+	 * @param size
+	 * @param add false for removeal
+	 */
+	private void addSizeToFolderparent(long size,boolean add){
+		containedSize += add?size:-1;
+		containedFiles+= add?1:-1;
+		if (parent != null) {
+			parent.addSizeToFolderparent(size,add);
 		}
 	}
 
@@ -94,7 +115,8 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 		int found = Collections.binarySearch(files, a);
 		if (found < 0) {
 			files.add(-(found+1) , a);
-			addSizeToFolderparent(a.getSize());
+			addSizeToFolderparent(a.getSize(),true);
+			fileList.addFileToSharesizeIfNotPresent(a);
 		}
 	}
 		
@@ -119,6 +141,7 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 			for (FileListFile  f: files) {
 				if (f.getName().equals(filename)) {
 					files.remove( f );
+					fileList.removeFileFromShareSize(f);
 				}
 			}
 			

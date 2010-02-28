@@ -11,6 +11,7 @@ package uc;
 
 
 import helpers.GH;
+import helpers.Observable;
 import helpers.Version;
 
 import java.io.File;
@@ -74,13 +75,13 @@ import uc.crypto.IHashEngine;
 import uc.crypto.Tiger;
 
 
+import uc.database.HashedFile;
 import uc.database.IDatabase;
 import uc.files.IUploadQueue;
 import uc.files.UploadQueue;
 import uc.files.downloadqueue.DownloadQueue;
 
 import uc.files.filelist.FileList;
-import uc.files.filelist.HashedFile;
 import uc.files.filelist.IFilelistProcessor;
 import uc.files.filelist.IOwnFileList;
 import uc.files.filelist.OwnFileList;
@@ -99,11 +100,14 @@ import uc.protocols.hub.Hub;
 
 
 /** 
- * TODO icon in bottom bar showing current away state
- *  clickable for setting away state..
- *  
+ * TODO remove Drag and drop file over Remove handler if selected file instance of SpecialFileListFile
+ * 
+
+ *  TODO animated smilies
  *  
  *  TODO identity management (adding identities i.e. a identity includes different FileList / CID / TCP/SSL-Ports / Certificate(KeyPrint) )
+ *
+ * TODO immediately adding files downloaded to share if downloaded in the right directory..
  *
  *  TODO internationalisation in hublisteditor
  *				
@@ -271,6 +275,7 @@ public final class DCClient {
 	private final Object synchAway = new Object();
 	private  boolean away = false;
 	private String awayMessage;
+	private final Observable<String> awayObservable = new Observable<String>();
 	
 	/**
 	 * running hubs..
@@ -300,6 +305,9 @@ public final class DCClient {
 	
 	private final CopyOnWriteArrayList<IInfoChanged> changedInfo =
 		new CopyOnWriteArrayList<IInfoChanged>();
+	
+	private final CopyOnWriteArrayList<ILogEventListener> logEventListener=
+		new CopyOnWriteArrayList<ILogEventListener>();
 	
 	private final Set<InfoChange> changes = 
 		Collections.synchronizedSet(new HashSet<InfoChange>());
@@ -410,10 +418,19 @@ public final class DCClient {
 			public String getNick() { 
 				return PI.get(PI.nick);
 			}
+			@Override
+			public HashValue getCID() {
+				return pid.hashOfHash();
+			}
+			@Override
+			public HashValue getPD() {
+				return pid;
+			}
+			
     	};
    
     	
-    	filelist = new OwnFileList(fileListSelf,this); 
+    	filelist = new OwnFileList(fileListSelf,database,hashEngine,this); 
         
         ch = new ConnectionHandler(this); 
      
@@ -961,8 +978,14 @@ public final class DCClient {
     	}
     }
     
+    public static interface ILogEventListener {
+    	void logEvent(String event);
+    }
+    
     public void logEvent(String event) {
-    	logger.info(event); //TODO replace wtih some listener...
+    	for (ILogEventListener loel:logEventListener) {
+    		loel.logEvent(event);
+    	}
     }
     
     /**
@@ -995,8 +1018,13 @@ public final class DCClient {
     	hublisteners.remove(hubl);
     }
     
+	public boolean addLogEventListener(ILogEventListener element) {
+		return logEventListener.addIfAbsent(element);
+	}
 
-	
+	public boolean removeLogEventListener(ILogEventListener element) {
+		return logEventListener.remove(element);
+	}
 
 	public void registerSRL(ISearchReceivedListener listener) {
 		srl.addIfAbsent(listener);
@@ -1106,6 +1134,7 @@ public final class DCClient {
 		} else {
 			synchronized(synchAway) {
 				this.away = false;
+				awayObservable.notifyObservers(awayMessage);
 			}
 		}
 	}
@@ -1118,11 +1147,14 @@ public final class DCClient {
 		synchronized(synchAway) {
 			this.awayMessage = awayMessage;
 			this.away = true;
+			awayObservable.notifyObservers(awayMessage);
 		}
 	}
 
 
-
+	public Observable<String> getAwayObservable() {
+		return awayObservable;
+	}
 
 	public String getAwayMessage() {
 		synchronized(synchAway) {

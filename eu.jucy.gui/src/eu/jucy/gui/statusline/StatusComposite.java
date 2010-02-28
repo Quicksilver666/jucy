@@ -49,6 +49,11 @@ public class StatusComposite extends ContributionItem {
 		
 		comp.setLayout(rl);
 		
+		if (GUIPI.getBoolean(GUIPI.awayContrib)) {
+			AwayStatus as = new AwayStatus(comp);
+			as.setLayoutData(new RowData(SWT.DEFAULT,SWT.DEFAULT));
+		}
+		
 		if (GUIPI.getBoolean(GUIPI.shareSizeContrib)) {
 			SharesizeLabel sz = new SharesizeLabel(comp);
 			labels.add(sz);

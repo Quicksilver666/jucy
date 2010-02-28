@@ -821,27 +821,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			}
 		};
 		if (blocking) {
-			if (key != null) {
-				if (encryption && key.channel().isOpen()) {
-					engine.closeOutbound();
-					send(ByteBuffer.allocate(0)); //used for wrapping remaining data..
-					try {
-						varOutBuffer.writeToChannel((SocketChannel)key.channel());
-					} catch(IOException ioe) {
-						if (Platform.inDevelopmentMode()) {
-							logger.warn(ioe, ioe);
-						}
-					}
-				}
-				GH.close(key.channel());
-				try {
-					if (!key.isValid()) {
-						onDisconnect();
-					}
-				} catch(IOException ioe){
-					logger.warn(ioe, ioe);
-				}
-			}
+			r.run();
 		} else {
 			MultiStandardConnection.get().synchExec(r);
 		}
@@ -849,27 +829,41 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	
 	
 	@Override
-	public boolean flush(int miliseconds) {
-		int sleptTotal = 0;
-		boolean hasRemaining;
-		synchronized(bufferLock) {
-			hasRemaining = varOutBuffer.hasRemaining();
-		}
-		while (hasRemaining && sleptTotal < miliseconds) {
-			int sleep = miliseconds - sleptTotal;
-			if (sleep > 20 ) {
-				sleep = Math.min(100, sleep);
-			} else {
-				sleep = 100;
+	public boolean flush(int milliseconds) {
+		if (blocking) {
+			try {
+				((SocketChannel)key.channel()).socket().setSoTimeout(milliseconds);
+				varOutBuffer.writeToChannel((SocketChannel)key.channel());
+				((SocketChannel)key.channel()).socket().setSoTimeout(cp.getSocketTimeout());
+			} catch(IOException ioe) {
+				if (Platform.inDevelopmentMode()) {
+					logger.warn(ioe + toString(),ioe);
+				}
 			}
-			sleptTotal += sleep;
-			GH.sleep(sleep );
+			return varOutBuffer.hasRemaining();
 			
+		} else {
+			int sleptTotal = 0;
+			boolean hasRemaining;
 			synchronized(bufferLock) {
 				hasRemaining = varOutBuffer.hasRemaining();
 			}
+			while (hasRemaining && sleptTotal < milliseconds) {
+				int sleep = milliseconds - sleptTotal;
+				if (sleep > 20 ) {
+					sleep = Math.min(100, sleep);
+				} else {
+					sleep = 100;
+				}
+				sleptTotal += sleep;
+				GH.sleep(sleep );
+				
+				synchronized(bufferLock) {
+					hasRemaining = varOutBuffer.hasRemaining();
+				}
+			}
+			return hasRemaining;
 		}
-		return hasRemaining;
 	}
 
 	@Override

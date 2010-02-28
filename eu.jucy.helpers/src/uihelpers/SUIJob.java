@@ -33,7 +33,11 @@ public abstract class SUIJob implements Runnable {
 		exec = new Runnable() {
 			public void run() {
 				if (!cancel) {
-					SUIJob.this.run();
+					try {
+						SUIJob.this.run();
+					} catch(RuntimeException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		};
@@ -43,7 +47,11 @@ public abstract class SUIJob implements Runnable {
 		exec = new Runnable() {
 			public void run() {
 				if (!cancel && !testDisposed.isDisposed()) {
-					SUIJob.this.run();
+					try {
+						SUIJob.this.run();
+					} catch(RuntimeException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		};

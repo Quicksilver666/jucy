@@ -1,7 +1,8 @@
 package uc.crypto;
 
 import java.io.File;
-import java.util.Date;
+
+import uc.database.HashedFile;
 
 
 
@@ -66,9 +67,11 @@ public interface IHashEngine {
 	/**
 	 * requests to hash a file ...
 	 * @param f - the file to hash
+	 * @param highPriority - false for normal priority -> 
+	 * 			high priority for same priority as Block verification
 	 * @param listener - a listener for call-back when done
 	 */
-	void hashFile(File f,IHashedFileListener listener);
+	void hashFile(File f,boolean highPriority,IHashedFileListener listener);
 	
 	
 	/**
@@ -112,7 +115,7 @@ public interface IHashEngine {
 		 * @param ilh - the interleave hashes of the file
 		 * @param before
 		 */
-		void hashedFile(File f,HashValue root,InterleaveHashes ilh,Date before);
+		void hashedFile(HashedFile hashedFile,InterleaveHashes ilh);
 		
 	}
 	

@@ -16,6 +16,7 @@ public enum InfoChange {
 	CurrentSlots(), //if the current amount of slots changed (not total slots)
 	Hubs(20), //change of normal to OP-hub or change on amount of hubs
 	Sharesize(60),   //different share size
+	SHARESIZE_MANUAL(5),//manually added file to share -> vary fast update..
 	Slots(10), //change in total slots..
 	Misc(10) ; //change in miscellaneous stuff 
 	 	//,Description .. email .. and alike user initiated.. therefore faster updated than it would need..

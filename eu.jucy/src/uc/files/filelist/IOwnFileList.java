@@ -49,5 +49,21 @@ public interface IOwnFileList {
 	void initialise();
 	
 	FileList getFileList();
+	
+	/**
+	 * immediately add given file to The own filelist
+	 * @param file - the file to be added.. possibly something downloaded
+	 * @param if true the file will be added even if the location is not shared..
+	 * @param callback - called when adding is finished 
+	 * 
+	 * @return true if the file will be added to normal share
+	 * 
+	 */
+	void immediatelyAddFile(File file,boolean force,AddedFile callback);
+	
+	
+	public static class AddedFile {
+		public void addedFile(FileListFile file,boolean addedOutsideOfShare){}
+	}
 
 }
