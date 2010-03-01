@@ -784,7 +784,7 @@ public class OwnFileList implements IOwnFileList  {
 		}
 		
 		public void remove() {
-			getParent().removeChild(getName());
+			getParent().removeChild(this);
 		}
 		
 		@Override

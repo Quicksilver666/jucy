@@ -102,7 +102,8 @@ import uc.protocols.hub.Hub;
 /** 
  * TODO remove Drag and drop file over Remove handler if selected file instance of SpecialFileListFile
  * 
-
+ * TODO warning popup before adding a file via Drag and Drop to share..
+ * 
  *  TODO animated smilies
  *  
  *  TODO identity management (adding identities i.e. a identity includes different FileList / CID / TCP/SSL-Ports / Certificate(KeyPrint) )

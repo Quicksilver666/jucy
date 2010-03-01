@@ -3,6 +3,9 @@ package uc.files.filelist;
 
 import helpers.FilterLowerBytes;
 import helpers.GH;
+import helpers.Observable;
+import helpers.StatusObject;
+import helpers.StatusObject.ChangeType;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -16,7 +19,6 @@ import java.io.OutputStream;
 import java.io.PushbackInputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -65,7 +67,7 @@ import uc.crypto.TigerHashValue;
 
 
 
-public class FileList implements Iterable<IFileListItem> {
+public class FileList extends Observable<StatusObject> implements Iterable<IFileListItem> {
 
 	private static final Logger logger= LoggerFactory.make();
 		
@@ -83,11 +85,11 @@ public class FileList implements Iterable<IFileListItem> {
 
 	private final Map<HashValue,FileListFile> contents = new HashMap<HashValue,FileListFile>();
 
-	/**
-	 * holds a Link to full FileLists in upload preventing 
-	 * too much ram need if FileList is uploaded multiple times simultaneously..
-	 */
-	private WeakReference<byte[]> fullFileListinUpload = new WeakReference<byte[]>(null);
+//	/**
+//	 * holds a Link to full FileLists in upload preventing 
+//	 * too much ram need if FileList is uploaded multiple times simultaneously..
+//	 */
+//	private WeakReference<byte[]> fullFileListinUpload = new WeakReference<byte[]>(null);
 	
 	/**
 	 * creates an empty FileList for the specified user..
@@ -138,6 +140,28 @@ public class FileList implements Iterable<IFileListItem> {
 			
 		};
 	}
+	
+	void addedOrRemoved(boolean added,IFileListItem item) {
+		if (item.isFile()) {
+			if (added) {
+				addFileToSharesizeIfNotPresent((FileListFile)item);
+			} else {
+				removeFileFromShareSize((FileListFile)item);
+			}
+		}
+		FileListFolder parent = item.getParent();
+		notifyObservers(
+				new StatusObject(item, 
+						added?ChangeType.ADDED:ChangeType.REMOVED, 0, 
+						parent));
+		
+		while (parent.getParent() != null) {
+			notifyObservers(
+					new StatusObject(parent, ChangeType.CHANGED, 0, 
+							parent.getParent()));
+			parent = parent.getParent();
+		}
+	}
 
 	/**
 	 * @return the numberOfFiles
@@ -146,7 +170,8 @@ public class FileList implements Iterable<IFileListItem> {
 		return root.getContainedFiles();
 	}
 	
-	void addFileToSharesizeIfNotPresent(FileListFile f) {
+	
+	private void addFileToSharesizeIfNotPresent(FileListFile f) {
 		FileListFile old = null;
 		if ((old = contents.put(f.getTTHRoot(),f)) == null) {
 			sharedSize += f.getSize();
@@ -155,7 +180,7 @@ public class FileList implements Iterable<IFileListItem> {
 		}
 	}
 	
-	void removeFileFromShareSize(FileListFile f) {
+	private void removeFileFromShareSize(FileListFile f) {
 		FileListFile old= null;
 		if ((old = contents.remove(f.getTTHRoot())) == f) {
 			sharedSize -= f.getSize();
@@ -314,14 +339,14 @@ public class FileList implements Iterable<IFileListItem> {
 	public byte[] writeFileList(String path, boolean recursive)  {
 		logger.debug("("+(path == null? "null":path)+")" );
 		
-		if (path == null) { //try load filelist from reference... if filelist is currently in upload..
-			synchronized (this) {
-				byte[] present = fullFileListinUpload.get();
-				if (present != null) {
-					return present;
-				}
-			}
-		}
+//		if (path == null) { //try load filelist from reference... if filelist is currently in upload..
+//			synchronized (this) {
+//				byte[] present = fullFileListinUpload.get();
+//				if (present != null) {
+//					return present;
+//				}
+//			}
+//		}
 		ByteArrayOutputStream baos = null;
 		OutputStream out = null;
 		try {
@@ -341,12 +366,12 @@ public class FileList implements Iterable<IFileListItem> {
 		}
 		byte[] fileList = baos.toByteArray();
 		
-		
-		if (path == null) { //store fileList in ref ..
-			synchronized (this) {
-				fullFileListinUpload = new WeakReference<byte[]>(fileList);
-			}
-		}
+//		
+//		if (path == null) { //store fileList in ref ..
+//			synchronized (this) {
+//				fullFileListinUpload = new WeakReference<byte[]>(fileList);
+//			}
+//		}
 		
 		return fileList;
 	}

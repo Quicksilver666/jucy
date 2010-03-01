@@ -1318,7 +1318,16 @@
          </menuContribution>
          <menuContribution
                locationURI="popup:eu.jucy.Filelist?after=additions">
-                           <command
+           <command 
+                  commandId="eu.jucy.gui.Remove"
+                  style="push">
+                  <visibleWhen>
+                     <reference
+                           definitionId="eu.jucy.gui.filelist.onlySpecialFilesSelected">
+                     </reference>
+                  </visibleWhen>
+            </command>
+            <command
                   commandId="eu.jucy.gui.downloadable.download"
                   style="push">
             </command>
@@ -2065,6 +2074,16 @@
              </activeWhen>
           </handler>
            <handler
+                class="eu.jucy.gui.filelist.RemoveSpecialFileFromFilelistHandler"
+                commandId="eu.jucy.gui.Remove">
+             <activeWhen>
+                 <reference
+                           definitionId="eu.jucy.gui.filelist.onlySpecialFilesSelected">
+                 </reference>
+             </activeWhen>
+          </handler>
+          
+           <handler
              class="eu.jucy.gui.itemhandler.CopyFromTableHandler"
              commandId="org.eclipse.ui.edit.copy">
          <activeWhen>
@@ -2642,6 +2661,19 @@
                 </iterate>
              </and>
           </with>
+       </definition>
+       <definition
+           id="eu.jucy.gui.filelist.onlySpecialFilesSelected">
+                <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                      <instanceof
+                           value="uc.files.filelist.OwnFileList$SpecialFileListFile">
+                  	</instanceof>
+                  </iterate>
+               </with>
        </definition>
    </extension>
 

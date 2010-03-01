@@ -92,6 +92,21 @@ public class DelayedTreeUpdater<V> {
 		ensureUpdate();
 	}
 	
+	public void put(ChangeType ct,V value,Object parent) {
+		switch(ct) {
+		case ADDED:
+			add(value, parent);
+			break;
+		case CHANGED:
+			change(value, parent);
+			break;
+		case REMOVED:
+			remove(value, parent);
+			break;
+
+		}
+	}
+	
 	private void ensureUpdate() {
 
 		new SUIJob(viewer.getControl()) { //"bulkupdate"
@@ -119,18 +134,7 @@ public class DelayedTreeUpdater<V> {
 							List<DTEntry<V>> delayCopy = delayed;
 							delayed = new ArrayList<DTEntry<V>>();
 							for (DTEntry<V> dt:delayCopy) {
-								switch(dt.ct) {
-								case ADDED:
-									add(dt.value, dt.parent);
-									break;
-								case CHANGED:
-									change(dt.value, dt.parent);
-									break;
-								case REMOVED:
-									remove(dt.value, dt.parent);
-									break;
-
-								}
+								put(dt.ct,dt.value,dt.parent);
 							}
 						}
 					}

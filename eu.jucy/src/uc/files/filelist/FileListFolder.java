@@ -99,7 +99,7 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 	 * @param add false for removeal
 	 */
 	private void addSizeToFolderparent(long size,boolean add){
-		containedSize += add?size:-1;
+		containedSize += add? size:-size;
 		containedFiles+= add?1:-1;
 		if (parent != null) {
 			parent.addSizeToFolderparent(size,add);
@@ -116,7 +116,7 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 		if (found < 0) {
 			files.add(-(found+1) , a);
 			addSizeToFolderparent(a.getSize(),true);
-			fileList.addFileToSharesizeIfNotPresent(a);
+			fileList.addedOrRemoved(true, a);
 		}
 	}
 		
@@ -125,32 +125,56 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 		 * @param a - a Folder that should eb added to thisfolder
 		 */
 		void addChild(FileListFolder a) {
-			//List<FileListFolder> f = new ArrayList<FileListFolder>(subfolders);
 			int found = Collections.binarySearch(subfolders, a);
 			if (found < 0) {
 				subfolders.add(-(found+1) , a);
+				fileList.addedOrRemoved(true, a);
 			}
-			//f.add(a);
-			//Collections.sort(f);
-			//subfolders.clear();
-			//subfolders.addAll(f);
+		}
+		
+		void removeChild(FileListFile a) {
+			int found = Collections.binarySearch(files, a);
+			if (found >= 0) {
+				files.remove(found);
+				addSizeToFolderparent(a.getSize(),false);
+				fileList.addedOrRemoved(false, a);
+			}
+		}
+		
+		void removeChild(FileListFolder a) {
+			int found = Collections.binarySearch(subfolders, a);
+			if (found >= 0) {
+				a.clear();
+				subfolders.remove(found);
+				fileList.addedOrRemoved(false, a);
+			}
+		}
+		
+		/**
+		 * removes  all children from the folder -> clears it
+		 */
+		private void clear() {
+			for (FileListFile f:files) {
+				removeChild(f);
+			}
+			for (FileListFolder ff:subfolders) {
+				removeChild(ff);
+			}
 		}
 		
 		
 		public void removeChild(String filename) {
 			for (FileListFile  f: files) {
 				if (f.getName().equals(filename)) {
-					files.remove( f );
-					fileList.removeFileFromShareSize(f);
+					removeChild(f);
 				}
 			}
-			
 		}
 		
 		public void removeFolder(String foldername) {
 			for (FileListFolder f: subfolders) {
 				if (f.getName().equals(foldername)) {
-					subfolders.remove( f );
+					removeChild(f);
 				}
 			}
 		}
