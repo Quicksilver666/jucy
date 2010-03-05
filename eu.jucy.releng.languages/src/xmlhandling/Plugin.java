@@ -22,6 +22,7 @@ public class Plugin implements Comparable<Plugin> {
 
 	public static final String qNamePlugin= "Plugin";
 				
+	public static final String DISABLED = "DISABLED";
 	private String id;
 	private String propertiesname;
 	private String langFileName;
@@ -35,12 +36,14 @@ public class Plugin implements Comparable<Plugin> {
 	}
 	
 	public void writeLangFile(File basepath) throws IOException {
-		File pluginPath = new File(basepath,id);
-		List<String> s = new ArrayList<String>();
-		for (Entry e:entries) {
-			s.add(e.name);
+		if (DISABLED.equals(langFileName)) {
+			File pluginPath = new File(basepath,id);
+			List<String> s = new ArrayList<String>();
+			for (Entry e:entries) {
+				s.add(e.name);
+			}
+			CreateLangFiles.createLangFile(pluginPath, langFileName, s, propertiesname);
 		}
-		CreateLangFiles.createLangFile(pluginPath, langFileName, s, propertiesname);
 	}
 	
 	public void addEntry(Entry e) {

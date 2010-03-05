@@ -2233,7 +2233,7 @@ UPnP: %s</ru>
 <ru>Да</ru>
 </Trl>
 </Plugin>
-<Plugin id="eu.jucy.helpers" name="helpers" langclass="helpers.Lang">
+<Plugin id="eu.jucy.helpers" name="helpers" langclass="DISABLED">
 <Trl id="Tables">
 <de>Tabellen</de>
 <en>Tables</en>
@@ -2241,7 +2241,7 @@ UPnP: %s</ru>
 <ru>Таблицы</ru>
 </Trl>
 </Plugin>
-<Plugin id="eu.jucy.language" name="language" langclass="eu.jucy.language.LanguageKeys">
+<Plugin id="eu.jucy" name="language" langclass="uc.LanguageKeys">
 <Trl id="ActionMen">
 <de>Aktion</de>
 <en>Action</en>
@@ -3960,7 +3960,7 @@ UPnP: %s</ru>
 <ru>Блокнот</ru>
 </Trl>
 </Plugin>
-<Plugin id="eu.jucy.product1" name="product"  langclass="eu.jucy.product1.splashHandlers.PrLang">
+<Plugin id="eu.jucy.product1" name="product"  langclass="DISABLED">
 <Trl id="aboutText">
 <de>
 

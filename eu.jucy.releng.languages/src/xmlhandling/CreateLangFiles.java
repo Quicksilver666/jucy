@@ -45,7 +45,7 @@ public class CreateLangFiles {
 		String concreteLang = String.format(langTemplate
 				, packagename
 				, classname
-				, concat(list,"\n,","")
+				, concat(list,"\n\t\t,","")
 				, propertiesname
 				,classname);
 		 
@@ -65,7 +65,7 @@ public class CreateLangFiles {
 			builder.append((char)c);
 		}
 		reader.close();
-		return reader.toString();
+		return builder.toString();
 	}
 	
 	private static void write(File target,String contents) throws IOException {
