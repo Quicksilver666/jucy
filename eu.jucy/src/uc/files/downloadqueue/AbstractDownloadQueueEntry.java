@@ -7,10 +7,7 @@ import helpers.Observable.IObserver;
 import helpers.StatusObject.ChangeType;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -462,41 +459,17 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		boolean renameWorked = source.renameTo(dest);
 
 		if (!renameWorked) { 
-			//rename didn't work .. so open the channels and copy
-			FileInputStream in = null;
-			FileChannel sourcec = null; 
-			FileChannel destc  = null;
+			//rename didn't work .. so  copy
 			try {
-				in = new FileInputStream(source);
-				sourcec = in.getChannel();
-				destc = new RandomAccessFile(dest,"rw").getChannel();
-				
-				long left = source.length();
-				long position= 0;
-				long count;
-	
-				while(-1 != (count = sourcec.transferTo(position, Math.min(left,1024*64) , destc))){
-					position += count;
-					left -= count;
-					if (left == 0) {
-						break;
-					}
-				}
-				
-				//close the files
-				destc.force(true);
-				GH.close(sourcec,in); //otherwise deletion can't work
+				GH.copy(source, dest);
 				//delete the temp file finally   and if we can't .. mark for deletion on exit ...
 				if (!source.delete()) {
 					source.deleteOnExit();
 					scheduledDeletion(source,dcc);
 				}
-
 			} catch (IOException ioe) {
 				throw ioe;
-			} finally {
-				GH.close(destc,sourcec,in);
-			}	
+			} 
 		}
 		
 		return true;

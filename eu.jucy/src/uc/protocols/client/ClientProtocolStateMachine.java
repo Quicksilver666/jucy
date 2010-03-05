@@ -27,6 +27,7 @@ import uc.DCClient;
 import uc.IHasUser;
 import uc.IHub;
 import uc.IUser;
+import uc.Identity;
 import uc.PI;
 import uc.files.IDownloadable;
 import uc.files.IHasDownloadable;
@@ -222,13 +223,13 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 	}
 
 	public synchronized void run() {
-		DCClient dcc = ch.getDCC();
-		if (getState() == CPSMState.WAITING_FOR_CONNECT && dcc.isActive() ) { 
-			//if this is called in waiting for connect it means no 
-			//successful connection was created..
-			//TODO may be wrong if an upload was running..
-			dcc.getConnectionDeterminator().connectionTimedOut(user,
-					user.hasSupportForEncryption() && dcc.currentlyTLSSupport());
+		final IHub hub = user.getHub();
+		Identity id = hub != null? hub.getIdentity(): null;
+		if (getState() == CPSMState.WAITING_FOR_CONNECT && id != null && id.isActive() ) { 
+			
+			id.getConnectionDeterminator().connectionTimedOut(user,
+				user.hasSupportForEncryption() &&  id.currentlyTLSSupport());
+			
 		}
 
 		logger.debug("StateMachine. executing sleeptask: "+ch.getCpsmManager().size());
@@ -248,9 +249,9 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 		} else {
 			// if we need something send a ctm or rcm
 			logger.debug("StateMachine found item");
-			IHub othershub = user.getHub();
-			if (othershub != null && user.isOnline()) {
-				othershub.requestConnection(user, token);
+	
+			if (hub != null && user.isOnline()) {
+				hub.requestConnection(user, token);
 
 				//we expect a connect.. if don't get one.. redo this
 				sleepCounter = 60;

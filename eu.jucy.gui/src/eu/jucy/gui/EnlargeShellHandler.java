@@ -6,6 +6,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 
 
@@ -20,9 +21,10 @@ public class EnlargeShellHandler extends AbstractHandler {
 	public static final String CommandID = "eu.jucy.gui.maximizeGUI";
 	
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		final IWorkbenchWindow window = //HandlerUtil.getActiveWorkbenchWindowChecked(event);
-		PlatformUI.getWorkbench().getWorkbenchWindows()[0];	//may work better... might return non active windows..
-
+		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
+		if (window == null) {
+			window = PlatformUI.getWorkbench().getWorkbenchWindows()[0];	//may work better... might return non active windows..
+		}
 		
 		Shell shell = window.getShell();
 		boolean iconify = GUIPI.getBoolean(GUIPI.minimizeToTray);

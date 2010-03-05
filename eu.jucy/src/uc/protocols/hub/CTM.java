@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
+import uc.ConnectionHandler;
 import uc.IUser;
 import uc.protocols.ADCStatusMessage;
 import uc.protocols.CPType;
@@ -58,9 +59,10 @@ public class CTM extends AbstractADCHubCommand {
 
 	public static void sendCTM(Hub hub,IUser target,CPType protocol,String token) {
 		//protocols  ADC/1.0  or  ADCS/0.10
+		ConnectionHandler ch = hub.getIdentity().getConnectionHandler();
 		IUser self = hub.getSelf();
 		String ctm = "DCTM "+SIDToStr(self.getSid())+" "+SIDToStr(target.getSid())
-					+" "+doReplaces(protocol.toString())+" "+hub.getDcc().getCh().getPort(protocol.isEncrypted())
+					+" "+doReplaces(protocol.toString())+" "+ch.getPort(protocol.isEncrypted())
 					+" "+doReplaces(token)+"\n";
 		hub.sendUnmodifiedRaw(ctm);
 		logger.debug("Sending ctm: "+ctm);

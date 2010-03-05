@@ -70,6 +70,7 @@ public class UDPhandler implements IUDPHandler {
 	
 	private Thread udpThread;
 	private volatile boolean running = true;
+	private final PreferenceChangedAdapter pca;
 	
 	private volatile DatagramChannel datagramChannel;
 	
@@ -93,7 +94,7 @@ public class UDPhandler implements IUDPHandler {
     	adcencoder.onMalformedInput(CodingErrorAction.REPLACE);
    
     	//listener for port changes in the settings
-    	new PreferenceChangedAdapter(PI.get(),PI.udpPort) {
+    	pca = new PreferenceChangedAdapter(PI.get(),PI.udpPort) {
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
 				portchanged = true;	
@@ -133,6 +134,7 @@ public class UDPhandler implements IUDPHandler {
 			}
     	},"UDP-Handler");
     	udpThread.start();
+    	pca.reregister();
     }
     
     /* (non-Javadoc)
@@ -141,6 +143,7 @@ public class UDPhandler implements IUDPHandler {
     public void stop() {
     	running = false;
     	GH.close(datagramChannel);
+    	pca.dispose();
     }
     
     /**
@@ -190,7 +193,8 @@ public class UDPhandler implements IUDPHandler {
      */
     protected void receivedPacket(InetSocketAddress from, ByteBuffer packet,boolean possiblyEncrypted)   {
     	//charBuffer.clear();
-    	dcc.getConnectionDeterminator().udpPacketReceived(from);//jay we received something..
+    	
+    	dcc.getDefaultIdentity().getConnectionDeterminator().udpPacketReceived(from);
  	
     	if (packet.hasRemaining()) {
     		PacketReceiver r = receivers[(int)(packet.get(0) & 0xff)];

@@ -3,6 +3,7 @@ package xmlhandling;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.SortedSet;
@@ -43,26 +44,37 @@ public class Translation {
 		"language","notepad","product","searchspy"};
 	
 	
+	
 	private final SortedSet<Plugin> allPlugins = new TreeSet<Plugin>();
 
-	public Translation() {}
+	private final File basepath;
+	
+	public Translation(File basepath) {
+		this.basepath = basepath;
+	}
 	
 	public void addPlugin(Plugin p) {
 		allPlugins.add(p);
 	}
 	
-	public void writeProperties(File basepath) throws Exception {
+	public void writeProperties() throws Exception {
 		for (Plugin p:allPlugins) {
 			 p.writeProperties(basepath);
 		}
 	}
 	
-	public void readProperties(File basepath) throws Exception {
+	public void readProperties() throws Exception {
 		for (int i = 0; i < PLUGIN_IDs.length; i++) {
-			allPlugins.add(new Plugin(PLUGIN_IDs[i],MESSAGENAMES[i]));
+			allPlugins.add(new Plugin(PLUGIN_IDs[i],MESSAGENAMES[i],PLUGIN_IDs[i]+".Lang"));
 		}
 		for (Plugin p: allPlugins) {
 			p.readProperties(basepath);
+		}
+	}
+	
+	public void writeLangFiles() throws IOException {
+		for (Plugin p:allPlugins) {
+			p.writeLangFile(basepath);
 		}
 	}
 
@@ -152,7 +164,8 @@ public class Translation {
 				if (Plugin.qNamePlugin.equals(qName)) {
 					String id = attributes.getValue("id" );
 					String name = attributes.getValue("name" );
-					current = new Plugin(id, name);
+					String lang =  attributes.getValue("langclass");
+					current = new Plugin(id, name,lang);
 					state = plugin;
 				} 
 			break;

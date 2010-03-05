@@ -15,8 +15,6 @@ import org.apache.log4j.Logger;
 
 
 
-
-import uc.DCClient;
 import uc.IUser;
 import uc.User;
 import uc.crypto.HashValue;
@@ -164,10 +162,10 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 	 * @param search - the search command pattern
 	 */
 	public static void sendSearch(Hub hub,FileSearch search) {
-		DCClient dcc = hub.getDcc();
+		
 		IUser self = hub.getSelf();
 		String command="$Search "+ 
-		(dcc.isActive() ?  
+		(self.isActive() ?  
 				self.getIp().getHostAddress()
 				+":"+self.getUdpPort()+" ":
 		"Hub:%[myNI] ");

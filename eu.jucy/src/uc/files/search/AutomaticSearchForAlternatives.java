@@ -18,11 +18,12 @@ import org.apache.log4j.Logger;
 
 import uc.DCClient;
 import uc.PI;
+import uc.IStoppable.IStartable;
 import uc.crypto.HashValue;
 import uc.files.downloadqueue.AbstractFileDQE;
 import uc.files.search.SearchResult.ISearchResultListener;
 
-public class AutomaticSearchForAlternatives implements Runnable, ISearchResultListener {
+public class AutomaticSearchForAlternatives implements Runnable, ISearchResultListener ,IStartable {
 	
 	private static Logger logger = LoggerFactory.make();
 	
@@ -31,6 +32,7 @@ public class AutomaticSearchForAlternatives implements Runnable, ISearchResultLi
 	private static final int SEARCHINTERVAL = PI.getInt(PI.autoSearchInterval) * 60 ; 
 	
 	private ScheduledFuture<?> task = null;
+	private final PreferenceChangedAdapter pca;
 	
 	private final DCClient dcc;
 	
@@ -51,21 +53,31 @@ public class AutomaticSearchForAlternatives implements Runnable, ISearchResultLi
 	
 	public AutomaticSearchForAlternatives(DCClient dcc) {
 		this.dcc = dcc;
-		new PreferenceChangedAdapter(PI.get(),PI.autoSearchForAlternates) {
+		pca = new PreferenceChangedAdapter(PI.get(),PI.autoSearchForAlternates) {
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
 				boolean newVal = Boolean.valueOf(newValue);
 				if (newVal) {
-					start();
+					startS();
 				} else {
-					stop();
+					stopS();
 				}
 			}
 		};
 	}
 	
-	
 	public void start() {
+		startS();
+		pca.reregister();
+	}
+	
+	public void stop() {
+		stopS();
+		pca.dispose();
+	}
+	
+	
+	public void startS() {
 		if (task == null) {
 			dcc.register(this);
 			task = dcc.getSchedulerDir().scheduleAtFixedRate(
@@ -73,7 +85,7 @@ public class AutomaticSearchForAlternatives implements Runnable, ISearchResultLi
 		}
 	}
 	
-	public void stop() {
+	public void stopS() {
 		if (task != null) {
 			dcc.unregister(this);
 			task.cancel(false);

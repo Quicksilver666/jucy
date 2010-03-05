@@ -6,23 +6,15 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Future;
 
 import uc.ConnectionDeterminator.CDState;
+import uc.IStoppable.IStartable;
 import uc.files.search.FileSearch;
 
-public interface IConnectionDeterminator extends IObservable<String>{
+public interface IConnectionDeterminator extends IObservable<String> , IStartable {
 
-	/**
-	 * initialises for use  without blocking
-	 * @return a future to wait for initialisation..
-	 */
-	Future<?> start();
 
-	/**
-	 * initialises for use blocks until finished..
-	 */
-	void init();
+
 
 	boolean isUdpReceived();
 
@@ -94,7 +86,6 @@ public interface IConnectionDeterminator extends IObservable<String>{
 	Inet6Address getIp6FoundandWorking();
 
 	
-	void stop();
 	
 	
 	boolean isExternalIPSetByHand();

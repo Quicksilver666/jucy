@@ -8,11 +8,12 @@ import java.util.Date;
 import java.util.List;
 
 import uc.IUser;
+import uc.IStoppable.IStartable;
 import uc.crypto.HashValue;
 import uc.files.UploadQueue.TransferRecord;
 import uc.files.UploadQueue.UploadInfo;
 
-public interface IUploadQueue extends IObservable<StatusObject> {
+public interface IUploadQueue  extends IObservable<StatusObject>, IStartable {
 
 	void start();
 

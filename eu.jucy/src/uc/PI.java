@@ -51,6 +51,7 @@ public class PI extends AbstractPreferenceInitializer {
 	fullTextSearch		=	"fullTextSearch",
 	
 	allowTLS			=	"allowTLS",
+	allowIPV6			=	"allowIPV6",  //experimental IPv6 support..
 	description			=	"Description", //default userdescription
 //	connection			=	"Connection", //what connection IE 0.2 or 20 MBit
 	connectionNew		=	"Connection2", //connection in Byte/s
@@ -190,6 +191,7 @@ public class PI extends AbstractPreferenceInitializer {
 		defaults.putInt(inPort,  9086);
 		defaults.putInt(tlsPort, 9087);
 		defaults.putBoolean(allowTLS, true );
+		defaults.putBoolean(allowIPV6, false);
 
 		defaults.put(bindAddress, "");
 		

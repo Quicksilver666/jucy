@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Composite;
 
 
 
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GUIPI;
 
 public class StatusComposite extends ContributionItem {
@@ -71,7 +72,10 @@ public class StatusComposite extends ContributionItem {
 		
 		Point px  = comp.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		if (GUIPI.getBoolean(GUIPI.connectionStatusContrib)) {
-			ConnectionStatus cs = new ConnectionStatus(comp,px.y - 1); //px.y -1
+			ConnectionStatus cs = new ConnectionStatus(comp,
+					ApplicationWorkbenchWindowAdvisor.get().getDefaultIdentity()
+					,px.y - 1); 
+			
 			cs.setLayoutData(new RowData(SWT.DEFAULT,SWT.DEFAULT));
 		}
 

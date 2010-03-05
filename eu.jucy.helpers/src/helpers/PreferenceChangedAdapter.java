@@ -39,5 +39,8 @@ public abstract class PreferenceChangedAdapter implements
 
 
 	public abstract void preferenceChanged(String preference,String oldValue,String newValue);
+	
+	
+	
 
 }

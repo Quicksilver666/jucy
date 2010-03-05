@@ -3,6 +3,8 @@ package uc.files.search;
 
 
 import helpers.GH;
+import helpers.Observable;
+import helpers.StatusObject;
 import helpers.StatusObject.ChangeType;
 
 
@@ -11,7 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+
 
 
 import org.eclipse.core.runtime.Assert;
@@ -21,20 +23,20 @@ import uc.crypto.HashValue;
 import uc.crypto.UDPEncryption;
 import uc.files.MultiUserAbstractDownloadable;
 import uc.files.IDownloadable.IDownloadableFile;
-import uc.files.search.SearchResult.IExtSearchResultListener;
+
 import uc.files.search.SearchResult.ISearchResultListener;
 
 /**
  * A command pattern for searches
  * 
- * also holds the searchresults..
+ * also accumulates the search results..
  * 
  * Search in jucy works like this:
  * SearchEditor creates a Search  and puts it in DCClient to start search and listen for results..
  * 
  * UDPHandler and Hub   listen for incoming SearchResults  when UDPHandler receives a SearchResult 
  * the hub of the sender is determined over the nick(NMDC, CID in ADC) (and IP:port of the hub)... 
- *  then the searchresult is forwarded to this hub and threated as received by the hub
+ *  then the search result is forwarded to this hub and treated as received by the hub
  *  
  * the hub gets information from the searchResult string and creates an SR object from it
  * 
@@ -44,7 +46,7 @@ import uc.files.search.SearchResult.ISearchResultListener;
  * @author Quicksilver
  *
  */
-public class FileSearch implements ISearchResultListener {
+public class FileSearch extends Observable<StatusObject> implements ISearchResultListener {
 
 
 
@@ -57,12 +59,7 @@ public class FileSearch implements ISearchResultListener {
 	private final Map<HashValue,ISearchResult> resultFiles = Collections.synchronizedMap(
 			new HashMap<HashValue,ISearchResult>());
 	
-	/**
-	 * listeners that are called if a new SR is added to the 
-	 * "results" collection 
-	 */
-	private final CopyOnWriteArrayList<IExtSearchResultListener> listener = 
-		new CopyOnWriteArrayList<IExtSearchResultListener>();
+
 	
 	/**
 	 * type enum for search
@@ -232,6 +229,7 @@ public class FileSearch implements ISearchResultListener {
 					results.add(muad);
 					resultFiles.put(muad.getTTHRoot(), muad);
 					
+				
 					fireListener(muad,this,ChangeType.ADDED);
 					fireListener(present,muad,ChangeType.ADDED);
 					fireListener(sr,muad,ChangeType.ADDED);
@@ -249,9 +247,7 @@ public class FileSearch implements ISearchResultListener {
 		}
 	}
 	private void fireListener(ISearchResult sr,Object parent,ChangeType ct ) {
-		for (IExtSearchResultListener isr: listener) {
-			isr.received(sr,parent,ct); 
-		}
+		notifyObservers(new StatusObject(sr, ct, 0, parent));
 	}
 
 
@@ -259,21 +255,6 @@ public class FileSearch implements ISearchResultListener {
 		return results;
 	}
 
-	/**
-	 * @param isr - a listener for searchresults that match this search
-	 */
-	public void register(IExtSearchResultListener isr) {
-		listener.addIfAbsent(isr);
-	}
-	
-	/**
-	 * 
-	 * @param isr - unregister a listener that listens on searchresults
-	 * that match this search
-	 */
-	public void unregister(IExtSearchResultListener isr) {
-		listener.remove(isr);
-	}
 
 	/**
 	 * when a  sr is received we check if it matches our search and then add it..

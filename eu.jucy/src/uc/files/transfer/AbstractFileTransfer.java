@@ -6,7 +6,7 @@ package uc.files.transfer;
 
 
 
-import helpers.GH;
+
 import helpers.IObservable;
 import helpers.Observable;
 
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import logger.LoggerFactory;
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Platform;
+
 
 import uc.DCClient;
 import uc.IUser;
@@ -41,8 +41,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 
 	private static final Logger logger = LoggerFactory.make();
 	
-	
-	private static boolean debugBool = Platform.inDevelopmentMode();
+
 	
 	private static CopyOnWriteArrayList<AbstractFileTransfer> active = 
 		new CopyOnWriteArrayList<AbstractFileTransfer>();
@@ -62,10 +61,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 				counted++;
 			}
 		}
-		if (upload && counted > 10 && debugBool) {
-			debugBool = false;
-			logger.info(GH.concat(active, ",", ""));
-		}
+
 		//logger.info("counted: "+counted+"  "+active.size());
 	//	
 		return totalSpeed;
@@ -96,13 +92,12 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 	
 	
 	private volatile float currentCompressionRatio = 1.0f;
-//	private static final float compAlpha = 0.5f;
-//	private long lastIO = 1;
-//	private long lastIOComp = 1; 
 	
 	protected ICompIO compressor;
 	
 	protected final ClientProtocol cp;
+	
+
 	
 	protected AbstractFileTransfer(FileTransferInformation fti,ClientProtocol cp) throws IOException {
 		this.cp = cp;
@@ -178,23 +173,6 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 		long currentComp = compressor.getCompIO();
 		long current = compressor.getIO();
 		currentCompressionRatio = (float)currentComp/current;
-		
-	/*	if (currentComp == 1) {
-			currentCompressionRatio = 1f;
-		} else {
-		
-			long diffComp = currentComp - lastIOComp;
-			long diff = current - lastIO;
-		
-			if (diff != 0 ) {
-				currentCompressionRatio = currentCompressionRatio* compAlpha +
-				(diffComp /(float)diff) * (1f-compAlpha);
-				lastIO = current;
-				lastIOComp = currentComp;
-				
-			}
-		} */
-		
 	} 
 	
 	

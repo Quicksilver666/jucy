@@ -5,7 +5,8 @@ Bundle-SymbolicName: eu.jucy.database;singleton:=true
 Bundle-Version: 1.1.6
 Require-Bundle: eu.jucy,
  eu.jucy.logging,
- org.hsqldb
+ org.hsqldb,
+ eu.jucy.helpers
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

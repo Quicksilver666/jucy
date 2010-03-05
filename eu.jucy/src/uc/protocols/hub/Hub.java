@@ -50,6 +50,7 @@ import uc.ICryptoManager;
 import uc.IHub;
 import uc.IOperatorPlugin;
 import uc.IUser;
+import uc.Identity;
 import uc.InfoChange;
 import uc.PI;
 import uc.User;
@@ -134,6 +135,12 @@ public class Hub extends DCProtocol implements IHub {
 	
 	private volatile User self;
 	
+	private final Identity identity;
+	
+	public Identity getIdentity() {
+		return identity;
+	}
+
 	/**
 	 * token used to create this hub..
 	 */
@@ -250,8 +257,9 @@ public class Hub extends DCProtocol implements IHub {
 	 * @param favHub
 	 * @param a
 	 */
-	public Hub(FavHub favHuba,DCClient dccx) throws IllegalArgumentException{
+	public Hub(FavHub favHuba,Identity identity,DCClient dccx) throws IllegalArgumentException{
 		super();
+		this.identity = identity;
 		this.dcc = dccx;
 		defaultPort = 411;
 		
@@ -275,8 +283,11 @@ public class Hub extends DCProtocol implements IHub {
 
 		self = createSelf();
 		
-		connection = inject.getConnection(dcc.getCryptoManager(),favHub.getInetSocketaddress(), this,p.encrypted,favHub.getKeyPrint());
+		connection = inject.getConnection(identity.getCryptoManager(),favHub.getInetSocketaddress(), this,p.encrypted,favHub.getKeyPrint());
 	
+		if (!favHub.isChatOnly()) {
+			registerCTMListener(identity.getConnectionHandler());
+		}
 	}
 	
 	
@@ -295,11 +306,11 @@ public class Hub extends DCProtocol implements IHub {
 		}
 		
 		String nickname = getNickSelf();
-		return new User(dcc,nickname,nmdc?nickToUserID(nickname,this ): CIDToUserID(dcc.getPID().hashOfHash(), favHub) ){
+		return new User(dcc,nickname,nmdc?nickToUserID(nickname,this ): CIDToUserID(identity.getCID(), favHub) ){
 
 			@Override
 			public HashValue getCID() { 
-				return getPD().hashOfHash();
+				return identity.getCID();
 			}
 
 			@Override
@@ -322,12 +333,12 @@ public class Hub extends DCProtocol implements IHub {
 
 			@Override
 			public Inet4Address getIp() {
-				return dcc.getConnectionDeterminator().getPublicIP();
+				return identity.getConnectionDeterminator().getPublicIP();
 			}
 			
 			@Override
 			public synchronized Inet6Address getI6IP() {
-				return dcc.getConnectionDeterminator().getIp6FoundandWorking();
+				return identity.getConnectionDeterminator().getIp6FoundandWorking();
 			}
 
 			@Override
@@ -342,7 +353,7 @@ public class Hub extends DCProtocol implements IHub {
 
 			@Override
 			public String getTag() { //only used for NMDC..
-				return dcc.getTag();
+				return dcc.getTag(identity);
 			}
 			
 			@Override
@@ -354,8 +365,10 @@ public class Hub extends DCProtocol implements IHub {
 
 			@Override
 			public Mode getModechar() {
-				return dcc.getMode();
+				return identity.getMode();
 			}
+			
+	
 
 			@Override
 			public int getNormHubs() {
@@ -374,7 +387,7 @@ public class Hub extends DCProtocol implements IHub {
 
 			@Override
 			public HashValue getPD() {
-				return dcc.getPID(); 
+				return identity.getPID(); 
 			}
 
 
@@ -387,16 +400,16 @@ public class Hub extends DCProtocol implements IHub {
 			public String getSupports() {
 				List<String> sup = new ArrayList<String>();
 			
-				if (dcc.isIPv4Used() && dcc.isActive()) {
+				if (identity.isIPv4Used() && identity.isActive()) {
 					sup.add(User.TCP4);
 					sup.add(User.UDP4);
 				} 
-				if (dcc.isIPv6Used()) {
+				if (identity.isIPv6Used()) {
 					sup.add(User.TCP6);
 					sup.add(User.UDP6);
 				}
 				
-				if (dcc.currentlyTLSSupport()) {
+				if (identity.currentlyTLSSupport()) {
 					sup.add(User.ADCS_SUPPORT);
 					if (getKeyPrint() != null) {
 						sup.add(User.KEYP);
@@ -446,7 +459,7 @@ public class Hub extends DCProtocol implements IHub {
 		     */
 		    public byte getFlag() {
 		    	int flag = dcc.isAway()? 2:1; 
-		    	flag += dcc.currentlyTLSSupport()? User.FLAG_ENC :0;
+		    	flag += identity.currentlyTLSSupport()? User.FLAG_ENC :0;
 		    	return (byte)flag;
 		    }
 
@@ -468,7 +481,7 @@ public class Hub extends DCProtocol implements IHub {
 				case CT: setWeAreOp(super.isOp()); break;
 				case I4: 
 					logger.debug("getting IP set by hub: "+favHub.getHubaddy(),new Throwable());
-					dcc.getConnectionDeterminator().userIPReceived(super.getIp(), favHub); //super call important -> otherwise it gets the IP from COnnection determinator..
+					identity.getConnectionDeterminator().userIPReceived(super.getIp(), favHub); //super call important -> otherwise it gets the IP from COnnection determinator..
 					userIPReceived = true;
 					break;
 				}
@@ -476,7 +489,7 @@ public class Hub extends DCProtocol implements IHub {
 
 			@Override
 			public HashValue getKeyPrint() {
-				return dcc.getCryptoManager().getFingerPrint();
+				return identity.getCryptoManager().getFingerPrint();
 			}
 
 			private boolean changeInProgress = false;
@@ -543,7 +556,6 @@ public class Hub extends DCProtocol implements IHub {
 		registered = false;
 		
 		self = createSelf();
-		//self.setProperty(INFField.CT, ""); //delete our OP status...
 
 		othersSupports.clear();
 		userIPReceived = false;
@@ -566,11 +578,6 @@ public class Hub extends DCProtocol implements IHub {
 			}
 		}
 	
-		
-//		statusMessage(String.format(LanguageKeys.ConnectingTo,hubaddy)+ 
-//				(Platform.inDevelopmentMode()&& connection.getInetSocketAddress() != null
-//						?" "+connection.getInetSocketAddress().getAddress().getHostAddress()
-//								:""),0); //should be in gui...
 		
 		logger.debug("end beforeConnect()");
 		
@@ -668,7 +675,7 @@ public class Hub extends DCProtocol implements IHub {
 		new Runnable() {
 			public void run() {
 				logger.debug("requesting userip1");
-				if (!userIPReceived && dcc.isActive() && getState()== ConnectionState.LOGGEDIN) {
+				if (!userIPReceived && identity.isActive() && getState()== ConnectionState.LOGGEDIN) {
 					logger.debug("requesting userip2");
 					requestUserIP();
 				}
@@ -891,14 +898,13 @@ public class Hub extends DCProtocol implements IHub {
 	public void requestConnection(IUser target,String token) {
 		boolean nmdc = isNMDC();
 		boolean encryption = target.hasSupportForEncryption() && 
-			dcc.currentlyTLSSupport();
+			identity.currentlyTLSSupport();
 
 		CPType protocol = CPType.get(encryption, nmdc); 
-		if (dcc.isActive()) {
+		if (identity.isActive()) {
 			logger.debug("sending CTM "+target+ 
 					"  " + protocol+"  "+
-					dcc.getConnectionDeterminator().
-					getPublicIP().getHostAddress());
+					self.getIp().getHostAddress());
 
 			sendCTM(target, protocol ,token);
 		} else {
@@ -1340,6 +1346,7 @@ public class Hub extends DCProtocol implements IHub {
 	 */
 	public synchronized void close() {
 		weWantToReconnect	=	false;
+		unregisterCTMListener(identity.getConnectionHandler());
 		dcc.internal_unregisterHub(favHub);
 		connection.close();
 		end();

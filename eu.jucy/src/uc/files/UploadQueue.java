@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import logger.LoggerFactory;
@@ -66,6 +67,7 @@ public class UploadQueue extends Observable<StatusObject> implements IUploadQueu
 
 
 	private final DCClient dcc;
+	private ScheduledFuture<?> cleaner;
 
 	public UploadQueue(DCClient dcc) {
 		this.dcc = dcc;
@@ -75,12 +77,19 @@ public class UploadQueue extends Observable<StatusObject> implements IUploadQueu
 	 * @see uc.files.IUploadQueue#start()
 	 */
 	public void start() {
-		dcc.getSchedulerDir().scheduleAtFixedRate(new Runnable() {
+		cleaner = dcc.getSchedulerDir().scheduleAtFixedRate(new Runnable() {
 			public void run() {
 				clean();
 			}
 			
 		}, 24 * 3600, 1*3600, TimeUnit.SECONDS); //hours no longer exists.. 
+	}
+	
+	public void stop() {
+		if (cleaner != null) {
+			cleaner.cancel(false);
+			cleaner = null;
+		}
 	}
 
 	

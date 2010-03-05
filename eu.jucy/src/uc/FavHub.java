@@ -61,7 +61,7 @@ public class FavHub implements Comparable<FavHub> {
 	private int[] weights = new int[] {300,100}; //The weights of the SashForm of this hub
 	private String charset = "";  //empty for default
 	
-	private boolean showJoins = false,showFavJoins = false;
+	private boolean showJoins = false,showFavJoins = false,showRecentChatterJoins = true;
 
 
 
@@ -500,9 +500,27 @@ public class FavHub implements Comparable<FavHub> {
 	public void setShowFavJoins(boolean showFavJoins) {
 		this.showFavJoins = showFavJoins;
 	}
+	
+	
 
+	public boolean isShowRecentChatterJoins() {
+		return showRecentChatterJoins;
+	}
+	public void setShowRecentChatterJoins(boolean showRecentChatterJoins) {
+		this.showRecentChatterJoins = showRecentChatterJoins;
+	}
+	
 	public void setCharset(String encoding) {
 		this.charset = encoding;
+	}
+	
+	/**
+	 * 
+	 * @return the name of identity used with this favhub -> TODO implement
+	 * currently empty string
+	 */
+	public String getIdentityName() {
+		return "";
 	}
 	
 	/**
@@ -523,21 +541,22 @@ public class FavHub implements Comparable<FavHub> {
 
 		public String[] serialize(FavHub t) {
 			return new String[]{
-			 ""+t.order,
-			t.hubaddy,
-			""+t.autoconnect,
-			""+t.chatOnly,
-			t.hubname,
-			t.email,
-			t.description,
-			t.nick,
-			t.password,
-			t.userDescription,
-			t.getWeights(),
-			PrefConverter.asString(t.info),
-			t.charset,
-			""+t.showJoins,
-			""+t.showFavJoins};
+			 ""+t.order
+			,t.hubaddy
+			,""+t.autoconnect
+			,""+t.chatOnly
+			,t.hubname
+			,t.email
+			,t.description
+			,t.nick
+			,t.password
+			,t.userDescription
+			,t.getWeights()
+			,PrefConverter.asString(t.info)
+			,t.charset
+			,""+t.showJoins
+			,""+t.showFavJoins
+			,""+t.showRecentChatterJoins};
 		}
 
 		public FavHub unSerialize(String[] data) {
@@ -556,6 +575,9 @@ public class FavHub implements Comparable<FavHub> {
 			if (data.length > 14) {
 				fh.showJoins = Boolean.parseBoolean(data[13]);
 				fh.showFavJoins = Boolean.parseBoolean(data[14]);
+			}
+			if (data.length > 15) {
+				fh.showRecentChatterJoins = Boolean.parseBoolean(data[15]);
 			}
 			
 			return fh;

@@ -76,7 +76,7 @@ public class INF extends AbstractADCClientProtocolCommand {
 	
 	public static void sendINFIncoming(ClientProtocol cp) {
 		//CINF IDAFVC6C65R4ZLTP7UYDDK6QJPQHUZLAJPSZSG3DQ  no TOKEN info in incoming
-		cp.sendUnmodifiedRaw("CINF ID"+ cp.getCh().getDCC().getPID().hashOfHash()+"\n");
+		cp.sendUnmodifiedRaw("CINF ID"+ cp.getCh().getIdentity().getCID()+"\n");
 	}
 	
 

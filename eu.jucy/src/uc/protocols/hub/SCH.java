@@ -10,7 +10,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import uc.DCClient;
+
+import uc.Identity;
 import uc.User;
 import uc.crypto.BASE32Encoder;
 import uc.crypto.HashValue;
@@ -76,11 +77,11 @@ TRACE Hub.java Line:463
 		}
 		InetAddress ia = null;
 		int port = 0;
-		DCClient dcc = hub.getDcc();
-		if (dcc.isIPv6Used() && usr.getSupports().contains(User.UDP6)) {
+		Identity id = hub.getIdentity();
+		if (id.isIPv6Used() && usr.getSupports().contains(User.UDP6)) {
 			ia = usr.getI6IP();
 			port = usr.getUDP6Port();
-		} else if (dcc.isIPv4Used() && usr.getSupports().contains(User.UDP4)) {
+		} else if (id.isIPv4Used() && usr.getSupports().contains(User.UDP4)) {
 			ia = usr.getIp();
 			port = usr.getUdpPort();
 		}
@@ -112,8 +113,8 @@ TRACE Hub.java Line:463
 	public static void sendSearch(Hub hub,FileSearch search) {
 		//BSCH KAZ4 TRTFMBXT6AFYHJJOGE4OPLFSEWTYJEFFYY6RDWNIA TOauto
 		StringBuilder sch= new StringBuilder();
-		DCClient dcc = hub.getDcc();
-		if (dcc.isActive() || dcc.isIPv6Used()) {
+		Identity id = hub.getIdentity();
+		if (id.isActive() || id.isIPv6Used()) {
 			sch.append("BSCH ").append(SIDToStr(hub.getSelf().getSid()));
 			if (hub.isEncrypted() && UDPEncryption.isUDPEncryptionSupported()) {
 				appendToSB(sch,Flag.KY,BASE32Encoder.encode(search.getEncryptionKey()));

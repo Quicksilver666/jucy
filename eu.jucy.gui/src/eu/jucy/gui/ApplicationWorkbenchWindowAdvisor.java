@@ -2,7 +2,7 @@ package eu.jucy.gui;
 
 
 
-import java.io.File;
+
 
 
 import logger.LoggerFactory;
@@ -61,7 +61,6 @@ import uc.DCClient;
 import uc.FavHub;
 import uc.IHubCreationListener;
 import uc.PI;
-import uc.crypto.IHashEngine.IHashedListener;
 import uihelpers.SUIJob;
 
 
@@ -92,7 +91,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 		}
 	}
 
-	private IHashedListener hashedListener;
+//	private GuiAppender guiAppender;
 	private IHubCreationListener hubCreationListener;
 	
 	/**
@@ -153,6 +152,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     		hookMinimized(window);
     		hookMenu(trayItem,window);
     	}
+    	if (GUIPI.getBoolean(GUIPI.minimizeOnStart)) {
+    		mininmize(window);
+    	}
     	
 		Dialog.setDefaultImage(trayImage);
 		
@@ -183,6 +185,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	} 
     	
     	UIThreadDeadLockChecker.start();
+
     }
     
     
@@ -190,7 +193,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     @Override
 	public void postWindowClose() {
 		dcc.unregister(hubCreationListener);
-		dcc.getHashEngine().unregisterHashedListener(hashedListener);
+		dcc.getHashEngine().unregisterHashedListener(GuiAppender.get());
 		shutdownJob = new Job("Shutdown") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -205,12 +208,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 	}
 
 	private void registerListeners(final IWorkbenchWindow window) {
-    	hashedListener = new IHashedListener() {
-			public void hashed(File f, long duration,long remainingSize) {
-				logger.info(new TimeToken(duration,f,remainingSize));
-			}
-    	};
-    	dcc.getHashEngine().registerHashedListener(hashedListener);
+    	dcc.getHashEngine().registerHashedListener(GuiAppender.get());
     	
     	hubCreationListener = new IHubCreationListener() {
 			public void hubCreated(final FavHub fh, boolean showInUI, final Runnable callback) {
@@ -297,18 +295,33 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	
     	window.getShell().addShellListener(new ShellAdapter(){
     		public void shellIconified(ShellEvent e){
-    			if (GUIPI.getBoolean(GUIPI.minimizeToTray)) {
-    				window.getShell().setVisible(false);
-    			}
-    			if (!dcc.isAway() && GUIPI.getBoolean(GUIPI.setAwayOnMinimize)) {
-    				dcc.setAway(true);
-    			}
+    			mininmize(window);
+//    			if (GUIPI.getBoolean(GUIPI.minimizeToTray)) {
+//    				window.getShell().setVisible(false);
+//    			}
+//    			if (!dcc.isAway() && GUIPI.getBoolean(GUIPI.setAwayOnMinimize)) {
+//    				dcc.setAway(true);
+//    			}
     		}
     	});
     	
     	trayItem.removeListener(SWT.DefaultSelection, enlarge);//prevent from infinite amount of listeners..
     	trayItem.addListener(SWT.DefaultSelection, enlarge);
     	
+    }
+    
+    private void mininmize(IWorkbenchWindow window) {
+    	
+    	Shell shell = window.getShell();
+    	if (!shell.getMinimized()) {
+    		shell.setMinimized(true);
+    	}
+    	if (GUIPI.getBoolean(GUIPI.minimizeToTray) && shell.isVisible()) {
+			shell.setVisible(false);
+		}
+		if (!dcc.isAway() && GUIPI.getBoolean(GUIPI.setAwayOnMinimize)) {
+			dcc.setAway(true);
+		}
     }
     
     private void hookMenu(TrayItem trayItem,IWorkbenchWindow window) {

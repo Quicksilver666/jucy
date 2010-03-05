@@ -19,7 +19,7 @@ import uc.DCClient;
 import uc.IHub;
 import uc.IUser;
 
-import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
+
 import eu.jucy.gui.texteditor.ITextModificator;
 import eu.jucy.gui.texteditor.SendingWriteline;
 import eu.jucy.gui.texteditor.StyledTextViewer;
@@ -54,6 +54,7 @@ public class FlagsTextModificator implements ITextModificator {
 	public void getMessageModifications(Message original, boolean pm,List<TextReplacement> replacement) {
 		final IUser user = original.getUsr();
 		if (user != null) {
+			IHub hub = user.getHub();
 			if (user.getIp() != null) {
 				String cc = GEOIP.get().getCountryCode(user.getIp());
 				if (!GH.isNullOrEmpty(cc)) {
@@ -66,9 +67,9 @@ public class FlagsTextModificator implements ITextModificator {
 				
 			} else if (!askingForIP.contains(user) 
 					&& SendingWriteline.lastTypingOccurred(300000)  //only ask for users if we are on the keyboard..-> prevents spamming..
-					&& (ApplicationWorkbenchWindowAdvisor.get().isActive() 
+					&& (hub.getSelf().isActive() 
 							|| user.isActive()
-							|| user.getHub().supportsUserIP()) 
+							|| hub.supportsUserIP()) 
 					&& user.getShared() != 0 ) {
 				
 				askingForIP.add(user);

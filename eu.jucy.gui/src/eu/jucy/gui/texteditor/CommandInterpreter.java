@@ -95,7 +95,7 @@ public class CommandInterpreter {
 	
 	private static enum Command {
 		
-		AWAY,BACK,UC,REFRESH,ME,PM,SEARCH,SLOTS,REBUILD,PRUNEHASHES,JOIN,CLEAR,TS,CLOSE,GETLIST,FAVORITES,FAV,PASS,HELP,SHOWJOINS,SHOWFAVJOINS,FILELISTTEST;
+		AWAY,BACK,UC,REFRESH,ME,PM,SEARCH,SLOTS,REBUILD,PRUNEHASHES,JOIN,CLEAR,TS,CLOSE,GETLIST,FAVORITES,FAV,PASS,HELP,SHOWJOINS,SHOWFAVJOINS,SHOWCHATTERJOINS,FILELISTTEST;
 		
 	
 		Command() {}
@@ -239,13 +239,19 @@ public class CommandInterpreter {
 			case SHOWJOINS:
 				FavHub fh = hub.getFavHub();
 				fh.setShowJoins(!fh.isShowJoins());
-				hub.statusMessage("Show Joins: "+fh.isShowJoins(),0);
+				hub.statusMessage("Show Joins: "+fh.isShowJoins(),0); // TODO internationalisation * 3
 				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
 				break;
 			case SHOWFAVJOINS:
 				FavHub fhs = hub.getFavHub();
 				fhs.setShowFavJoins(!fhs.isShowFavJoins());
 				hub.statusMessage("Show Favjoins: "+fhs.isShowFavJoins(),0);
+				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
+				break;
+			case SHOWCHATTERJOINS:
+				FavHub favHub = hub.getFavHub();
+				favHub.setShowRecentChatterJoins(!favHub.isShowRecentChatterJoins());
+				hub.statusMessage("Show Chatterjoins: "+favHub.isShowRecentChatterJoins(),0);
 				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
 				break;
 			case PASS:
@@ -275,7 +281,7 @@ public class CommandInterpreter {
 				break;
 			case HELP:
 				hub.statusMessage("/away <msg>, /me <msg>, /back, /refresh, /slots #, /uc, /rebuild, /pruneHashes, /join <hub-ip>,"
-						+" /clear, /ts, /close, /fav, /pm <user> [message], /getList <user>, /showjoins, /showfavjoins ",0);
+						+" /clear, /ts, /close, /fav, /pm <user> [message], /getList <user>, /showjoins, /showfavjoins, /showchatterjoins ",0);
 				break;
 			}
 		}

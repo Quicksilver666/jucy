@@ -14,8 +14,9 @@ import java.util.Map.Entry;
 
 
 
-import uc.DCClient;
+
 import uc.FavHub;
+import uc.Identity;
 import uc.User;
 import uc.crypto.HashValue;
 import uc.listener.IUserChangedListener.UserChange;
@@ -106,7 +107,6 @@ public class INF extends AbstractADCHubCommand {
 	}
 	
 	public static void sendINF(Hub hub, boolean forcenew) {
-		DCClient dcc = hub.getDcc();
 		Map<INFField,String> last ;
 		synchronized (LAST_INF) {
 			last = LAST_INF.get(hub.getFavHub());
@@ -130,8 +130,8 @@ public class INF extends AbstractADCHubCommand {
 										INFField.HO, INFField.VE,INFField.SU,INFField.US,INFField.EM));
 			
 
-			
-			if (dcc.isActive()) {
+			Identity id = hub.getIdentity();
+			if (id.isActive()) {
 				fields.add(INFField.U4);
 			}  else {
 				checkAdd(next,last,INFField.U4,"");
@@ -142,7 +142,7 @@ public class INF extends AbstractADCHubCommand {
 			} else {
 				checkAdd(next,last,INFField.KP,"");
 			}
-			if (dcc.isIPv6Used()) {
+			if (id.isIPv6Used()) {
 				fields.add(INFField.I6);
 				fields.add(INFField.U6);
 			} else {
@@ -155,10 +155,10 @@ public class INF extends AbstractADCHubCommand {
 				checkAdd(next,last,f,prop);
 			}
 			
-			if (forcenew && dcc.isActive() && dcc.isIPv4Used()) { //on first connect we also add I4 so we get our IP set from hub if active
+			if (forcenew && id.isActive() && id.isIPv4Used()) { //on first connect we also add I4 so we get our IP set from hub if active
 				String address;
-				if (dcc.getConnectionDeterminator().isExternalIPSetByHand()) {
-					address = dcc.getConnectionDeterminator().getPublicIP().getHostAddress();
+				if (id.getConnectionDeterminator().isExternalIPSetByHand()) {
+					address = id.getConnectionDeterminator().getPublicIP().getHostAddress();
 				} else {
 					address =  "0.0.0.0"; //:"::0";
 				}

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Hsqldb Plug-in
 Bundle-SymbolicName: org.hsqldb
-Bundle-Version: 1.9.6
+Bundle-Version: 1.9.8
 Export-Package: org.hsqldb,
  org.hsqldb.dbinfo,
  org.hsqldb.error,
@@ -22,7 +22,6 @@ Export-Package: org.hsqldb,
  org.hsqldb.server,
  org.hsqldb.store,
  org.hsqldb.types,
- org.hsqldb.util,
- org.hsqldb.util.preprocessor
+ org.hsqldb.util
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ClassPath: 2.0rc8/hsqldb.jar

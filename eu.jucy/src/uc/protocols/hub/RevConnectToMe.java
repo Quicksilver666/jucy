@@ -20,7 +20,7 @@ public class RevConnectToMe extends AbstractNMDCHubProtocolCommand {
   		String[] a = command.split(" ");
 		if (a.length >= 2 ) {
 			User other = hub.getUserByNick(a[1]);
-			if (other != null &&  hub.getDcc().isActive()) {
+			if (other != null &&  hub.getIdentity().isActive()) {
 				hub.sendCTM(other,CPType.NMDC,null);
 			}
 		}	

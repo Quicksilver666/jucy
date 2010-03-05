@@ -3,5 +3,5 @@
 
 <toc label="Advanced" link_to="toc.xml#advanced" > 
 	<topic label="User Commands"  href="html/advanced/usercommands.html" />
-	<topic label="Getting jucy Portable"  href="html/advanced/portable.html" />
+	<topic label="Jucy.ini file"  href="html/advanced/inifile.html" />
 </toc>

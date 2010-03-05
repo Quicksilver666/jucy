@@ -195,9 +195,9 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		HashValue fingerPrint = other != null? other.getKeyPrint(): null;
 
 		if (addyOrSC instanceof SocketChannel) { //TOOD provide crypto manager from hub.. hubguessing
-			connection = new UnblockingConnection(ch.getDCC().getCryptoManager(), (SocketChannel)addyOrSC, this,encryption,incoming,fingerPrint);
+			connection = new UnblockingConnection(ch.getIdentity().getCryptoManager(), (SocketChannel)addyOrSC, this,encryption,incoming,fingerPrint);
 		} else {
-			connection = new UnblockingConnection(ch.getDCC().getCryptoManager(),(InetSocketAddress)addyOrSC, this,encryption,fingerPrint);
+			connection = new UnblockingConnection(ch.getIdentity().getCryptoManager(),(InetSocketAddress)addyOrSC, this,encryption,fingerPrint);
 		}
 	}
 	

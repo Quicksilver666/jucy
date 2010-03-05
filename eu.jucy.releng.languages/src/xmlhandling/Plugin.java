@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +24,23 @@ public class Plugin implements Comparable<Plugin> {
 				
 	private String id;
 	private String propertiesname;
+	private String langFileName;
 	
 	private final SortedSet<Entry> entries = new TreeSet<Entry>();
 	
-	public Plugin(String id,String propertiesname) {
+	public Plugin(String id,String propertiesname,String langFileName) {
 		this.id = id;
 		this.propertiesname = propertiesname;
+		this.langFileName = langFileName;
+	}
+	
+	public void writeLangFile(File basepath) throws IOException {
+		File pluginPath = new File(basepath,id);
+		List<String> s = new ArrayList<String>();
+		for (Entry e:entries) {
+			s.add(e.name);
+		}
+		CreateLangFiles.createLangFile(pluginPath, langFileName, s, propertiesname);
 	}
 	
 	public void addEntry(Entry e) {

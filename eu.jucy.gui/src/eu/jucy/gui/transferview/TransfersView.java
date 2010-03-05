@@ -4,6 +4,8 @@ package eu.jucy.gui.transferview;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 
 
@@ -112,14 +114,18 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 		createContextPopup(ID, tableViewer);
 		tableViewer.addDoubleClickListener(new CommandDoubleClickListener(OpenDirectoryHandler.ID));
 		
-		ConnectionHandler ch = ApplicationWorkbenchWindowAdvisor.get().getCh();
-		tableViewer.setInput(ch);
-		ch.addObserver(this);
-		for (Object o : ch.getActive()) {
-			if (o instanceof ClientProtocol) {
-				IFileTransfer ift = ((ClientProtocol)o).getFileTransfer();
-				if (ift != null) {
-					ift.addObserver(transferListener);
+		List<ConnectionHandler> chs = ApplicationWorkbenchWindowAdvisor.get().getAllConnectionHandler();
+		tableViewer.setInput(chs);
+		
+		//TOOD change model -> registering with every connection Handler is bad..
+		for (ConnectionHandler ch:chs) {
+			ch.addObserver(this);
+			for (Object o : ch.getActive()) {
+				if (o instanceof ClientProtocol) {
+					IFileTransfer ift = ((ClientProtocol)o).getFileTransfer();
+					if (ift != null) {
+						ift.addObserver(transferListener);
+					}
 				}
 			}
 		}
@@ -165,7 +171,10 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 	@Override
 	public void dispose() {
 		update.clear();
-		ApplicationWorkbenchWindowAdvisor.get().getCh().deleteObserver(this);
+		List<ConnectionHandler> chs = ApplicationWorkbenchWindowAdvisor.get().getAllConnectionHandler();
+		for (ConnectionHandler ch:chs) {
+			ch.deleteObserver(this);
+		}
 		super.dispose();
 	}
 
@@ -242,8 +251,12 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 
 
 		public Object[] getElements(Object inputElement) {
-			ConnectionHandler ch = ((ConnectionHandler)inputElement) ;
-			return ch.getActive().toArray();
+			List<?> lch = (List<?>)inputElement; 
+			HashSet<Object> active = new HashSet<Object>();
+			for (Object ch:lch) {
+				active.addAll(((ConnectionHandler)ch).getActive());
+			}
+			return active.toArray();
 		}
 
 

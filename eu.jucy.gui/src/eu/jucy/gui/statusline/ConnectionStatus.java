@@ -23,10 +23,11 @@ import org.eclipse.ui.PlatformUI;
 
 
 
+import uc.Identity;
 import uc.ConnectionDeterminator.CDState;
 import uihelpers.SUIJob;
 
-import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
+
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.texteditor.hub.HubEditor;
 
@@ -36,11 +37,12 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 
 
 	private final int size;
+	private final Identity id;
 	
 	
-	
-	public ConnectionStatus(Composite comp, int size) {
+	public ConnectionStatus(Composite comp,Identity id, int size) {
 		super(comp,SWT.NONE);
+		this.id = id;
 		Rectangle rect = HubEditor.GREEN_LED.getBounds();
 		int originalSize = rect.height;
 		
@@ -55,7 +57,7 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, "ConnectionStatus");
 		updateLabel();
 		pack();
-		ApplicationWorkbenchWindowAdvisor.get().getConnectionDeterminator().addObserver(this);
+		id.getConnectionDeterminator().addObserver(this);
 	}
 	
 
@@ -71,15 +73,14 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 	}
 	
 	public void dispose() {
-		ApplicationWorkbenchWindowAdvisor.get().getConnectionDeterminator()
-			.deleteObserver(ConnectionStatus.this);
+		id.getConnectionDeterminator().deleteObserver(ConnectionStatus.this);
 		super.dispose();
 	}
 
 	
 	private void updateLabel() {
-		if (ApplicationWorkbenchWindowAdvisor.get().isActive()) {
-			CDState cd = ApplicationWorkbenchWindowAdvisor.get().getConnectionDeterminator().getState();
+		if (id.isActive()) {
+			CDState cd = id.getConnectionDeterminator().getState();
 			
 			switch (cd.getWarningState()) {
 			case 0:
@@ -95,7 +96,7 @@ public class ConnectionStatus extends Label implements IObserver<String> {
 
 			}
 			
-			InetAddress ia = ApplicationWorkbenchWindowAdvisor.get().getConnectionDeterminator().getPublicIP();
+			InetAddress ia = id.getConnectionDeterminator().getPublicIP();
 			
 			String publicIP = "";
 			if (ia != null) {

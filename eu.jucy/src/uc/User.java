@@ -410,9 +410,10 @@ public class User implements IUser , IHasUser {
 	 * 
 	 */
 	private void updateModecharBasedOnIPPort() {
-		if (isADCUser()) {
-			boolean ipv4 = i4 != null && supports.contains(TCP4) && dcc.isIPv4Used() ;
-			boolean ipv6 = i6 != null && supports.contains(TCP6) && dcc.isIPv6Used();
+		if (isADCUser() && hub != null) {
+			Identity id =   hub.getIdentity();
+			boolean ipv4 = i4 != null && supports.contains(TCP4) && id.isIPv4Used() ;
+			boolean ipv6 = i6 != null && supports.contains(TCP6) && id.isIPv6Used();
 			setModechar( ipv4 || ipv6? Mode.ACTIVE : Mode.PASSIVE);
 		}
 	}
@@ -538,7 +539,7 @@ public class User implements IUser , IHasUser {
 	}
 	
 	public String toString(){
-		return nick + " "+ shared +" "+getTag();
+		return nick + " "+ shared +" "+getTag() + (hub != null?" From: "+hub.getHubname():"");
 	}
 
 	@Override
@@ -553,13 +554,12 @@ public class User implements IUser , IHasUser {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!(obj instanceof IUser))
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final User other = (User) obj;
 
-		if (!userid.equals(other.userid))
+		final IUser other = (IUser) obj;
+
+		if (!userid.equals(other.getUserid()))
 			return false;
 		return true;
 	}

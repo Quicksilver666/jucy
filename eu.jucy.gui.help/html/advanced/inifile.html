@@ -8,7 +8,10 @@
 
 <body>
 <div align="justify">
-<h1>Portable jucy</h1>
+<h1>Jucy.ini file</h1>
+Some advanced settings are available only from the Jucy.ini file. Which should be located next to your executable.
+ 
+<h3>Portable jucy</h3>
 
 Some people like to carry around their programs with an USB stick. So they can use them everywhere.
 With jucy this not as easy as jucy stores all data in the user folder by default and not with the program.
@@ -29,10 +32,16 @@ the same settings "@user.home/UC"  can be replaced with a path that all users ca
 
 
 <h3>Memory Settings</h3>
-As a side note when we are at looking at the .ini-file: <br>
-All after -vmargs  is arguments for the java virtual machine. There is currently only "-Xmx256m" which tells Java to 
-allow jucy to use up to 256 MiB of Ram. Better don't change this. Fewer might result in errors, more would just be lost Ram. 
+All after -vmargs  is arguments for the java virtual machine. There is currently only "-Xmx512m" which tells Java to 
+allow jucy to use up to 512 MiB of RAM. Better don't change this. Fewer might result in errors, more would just be lost RAM.
+Though fir extreme usecases this might be useful to change.
 
+<p><p> 
+<h3>Different languages</h3>
+Jucy comes bundled with a few languages (If you want to add another and are willing to do the translation 
+come to  <a href="http://jucy.eu">the forum</a> ).
+Usually language is choosen according to OS settings. Though you can override this by adding a "-nl en" parameter before -vmargs.
+Where "en" stands for English ("de" for German, "ru" for Russian, ...).  
 
 
 </div>

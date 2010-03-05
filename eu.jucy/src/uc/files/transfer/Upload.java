@@ -24,8 +24,9 @@ import uc.protocols.client.ClientProtocol;
 
 public class Upload extends AbstractFileTransfer {
 
-	private static final int DRAINTIME = 50;
+	
 	private static final int UPDATES_PER_SECOND = 10;
+	private static final int DRAINTIME = UPDATES_PER_SECOND*5;
 	private static Semaphore globalUploads = new Semaphore(1);
 	private static volatile int maxSpeed;
 	

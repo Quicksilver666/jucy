@@ -9,11 +9,13 @@ public class CreateXML {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
+		
 		File basepath = new File("..");
 		
-		Translation trans = new Translation();
 		
-		trans.readProperties(basepath);
+		Translation trans = new Translation(basepath);
+		
+		trans.readProperties();
 		
 		File target = new File("TranslationTest.xml");
 		FileOutputStream fos = new FileOutputStream(target);

@@ -24,6 +24,7 @@ import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.Lang;
 
 
+import uc.Identity;
 import uc.PI;
 
 
@@ -98,9 +99,8 @@ public class ConnectionPreferencePage extends UCPrefpage {
 				activeGroup);
 		addField(upnp);
 
-		
-		String host =	ApplicationWorkbenchWindowAdvisor.get()
-							.getConnectionDeterminator().getDetectedIP().getHostAddress();
+		Identity id = ApplicationWorkbenchWindowAdvisor.get().getDefaultIdentity();
+		String host =	id.getConnectionDeterminator().getDetectedIP().getHostAddress();
 		
 		StringFieldEditor wanip = new StringFieldEditor(PI.externalIp,
 				String.format(Lang.ExternalWANIP, host),

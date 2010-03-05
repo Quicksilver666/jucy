@@ -29,6 +29,7 @@ import eu.jucy.language.LanguageKeys;
 
 
 import uc.DCClient;
+import uc.IStoppable;
 import uc.PI;
 import uc.crypto.HashValue;
 import uc.database.IDatabase;
@@ -39,7 +40,7 @@ import uc.files.filelist.FileList;
 import uc.protocols.TransferType;
 
 
-public class DownloadQueue extends Observable<StatusObject> {
+public class DownloadQueue extends Observable<StatusObject> implements IStoppable {
 	
 	public static final int FILEDQE_BLOCKSTATUSCHANGED = 1,
 							DQE_TRANSFER_STARTED = 2,
@@ -138,6 +139,7 @@ public class DownloadQueue extends Observable<StatusObject> {
 	
 	/**
 	 * deletes all FileList files from the list..
+	 * and removes listener..
 	 * 
 	 */
 	public void stop() {
@@ -151,7 +153,6 @@ public class DownloadQueue extends Observable<StatusObject> {
 				adqe.remove();
 			}
 		}
-		
 	}
 
 	

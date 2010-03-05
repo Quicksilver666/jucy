@@ -3,10 +3,11 @@ package uc;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
+import uc.IStoppable.IStartable;
 import uc.UDPhandler.PacketReceiver;
 
 
-public interface IUDPHandler {
+public interface IUDPHandler extends IStartable {
 
 	void start();
 

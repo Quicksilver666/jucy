@@ -23,6 +23,7 @@ targetNamespace="http://jucy.eu/lang" xmlns="http://jucy.eu/lang">
             </xs:sequence>
             <xs:attribute name="id" type="xs:string" use="required" />
             <xs:attribute name="name" type="xs:string" use="required" />
+            <xs:attribute name="langclass" type="xs:string" use="required" />
           </xs:complexType>
         </xs:element>
       </xs:sequence>

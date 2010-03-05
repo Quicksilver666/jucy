@@ -2,7 +2,7 @@
 <Translation xmlns="http://jucy.eu/lang"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://jucy.eu/lang platform:/resource/eu.jucy.releng.languages/translation/lang.xsd" >
-<Plugin id="eu.jucy.adlsearch" name="adl">
+<Plugin id="eu.jucy.adlsearch" name="adl" langclass="eu.jucy.adlsearch.Lang">
 <Trl id="ADL.ADLSearch">
 <de>Automatische DateiListen Suche (ADL)</de>
 <en>Automatic Directory Listing Search</en>
@@ -82,7 +82,7 @@ xsi:schemaLocation="http://jucy.eu/lang platform:/resource/eu.jucy.releng.langua
 <ru>ADL-поиск</ru>
 </Trl>
 </Plugin>
-<Plugin id="eu.jucy.countries" name="countries">
+<Plugin id="eu.jucy.countries" name="countries" langclass="eu.jucy.countries.Lang">
 <Trl id="Flags">
 <de>Flaggen</de>
 <en>Flags</en>
@@ -102,7 +102,7 @@ xsi:schemaLocation="http://jucy.eu/lang platform:/resource/eu.jucy.releng.langua
 <ru>Размещение</ru>
 </Trl>
 </Plugin>
-<Plugin id="eu.jucy.gui" name="gui">
+<Plugin id="eu.jucy.gui" name="gui"  langclass="eu.jucy.gui.Lang">
 <Trl id="ActionMen">
 <de>Aktion</de>
 <en>Action</en>
@@ -2233,7 +2233,7 @@ UPnP: %s</ru>
 <ru>Да</ru>
 </Trl>
 </Plugin>
-<Plugin id="eu.jucy.helpers" name="helpers">
+<Plugin id="eu.jucy.helpers" name="helpers" langclass="helpers.Lang">
 <Trl id="Tables">
 <de>Tabellen</de>
 <en>Tables</en>
@@ -2241,7 +2241,7 @@ UPnP: %s</ru>
 <ru>Таблицы</ru>
 </Trl>
 </Plugin>
-<Plugin id="eu.jucy.language" name="language">
+<Plugin id="eu.jucy.language" name="language" langclass="eu.jucy.language.LanguageKeys">
 <Trl id="ActionMen">
 <de>Aktion</de>
 <en>Action</en>
@@ -3928,7 +3928,7 @@ UPnP: %s</ru>
 <ru>Да</ru>
 </Trl>
 </Plugin>
-<Plugin id="eu.jucy.notepad" name="notepad">
+<Plugin id="eu.jucy.notepad" name="notepad"  langclass="eu.jucy.notepad.Lang">
 <Trl id="Bundle-Name">
 <de>Notizblock Plug-in</de>
 <en>Notepad Plug-in</en>
@@ -3960,7 +3960,7 @@ UPnP: %s</ru>
 <ru>Блокнот</ru>
 </Trl>
 </Plugin>
-<Plugin id="eu.jucy.product1" name="product">
+<Plugin id="eu.jucy.product1" name="product"  langclass="eu.jucy.product1.splashHandlers.PrLang">
 <Trl id="aboutText">
 <de>
 
@@ -4101,7 +4101,7 @@ HSQLDB  (лицензия BSD)
 
 </Trl>
 </Plugin>
-<Plugin id="eu.jucy.ui.searchspy" name="searchspy">
+<Plugin id="eu.jucy.ui.searchspy" name="searchspy" langclass="eu.jucy.ui.searchspy.Lang">
 <Trl id="Average">
 <de>Suchen/s: %.2f</de>
 <en>Average/s: %.2f</en>

@@ -2,7 +2,6 @@ package uc.files.search;
 
 
 
-import helpers.StatusObject.ChangeType;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -208,11 +207,6 @@ public class SearchResult extends AbstractDownloadableFile implements ISearchRes
 	public static interface ISearchResultListener {
 		void received(ISearchResult sr);
 	}
-	
-	public static interface IExtSearchResultListener {
-		void received(ISearchResult sr,Object parent,ChangeType ct);
-	}
-
 
 
 	public boolean isFile() {

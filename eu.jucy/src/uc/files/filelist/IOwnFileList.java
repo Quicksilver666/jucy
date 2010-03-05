@@ -3,10 +3,11 @@ package uc.files.filelist;
 import java.io.File;
 import java.util.Set;
 
+import uc.IStoppable;
 import uc.crypto.HashValue;
 import uc.files.filelist.OwnFileList.SearchParameter;
 
-public interface IOwnFileList {
+public interface IOwnFileList extends IStoppable {
 
 	/** <sizerestricted>?<ismaxsize>?<size>?<datatype>?<searchpattern>
 	 * 
@@ -56,7 +57,7 @@ public interface IOwnFileList {
 	 * @param if true the file will be added even if the location is not shared..
 	 * @param callback - called when adding is finished 
 	 * 
-	 * @return true if the file will be added to normal share
+	 * @return true if the file will be added outs
 	 * 
 	 */
 	void immediatelyAddFile(File file,boolean force,AddedFile callback);

@@ -1,8 +1,11 @@
 package eu.jucy.gui.search;
 
 import helpers.GH;
+import helpers.IObservable;
 import helpers.SizeEnum;
-import helpers.StatusObject.ChangeType;
+import helpers.StatusObject;
+import helpers.Observable.IObserver;
+
 
 
 import java.util.ArrayList;
@@ -16,6 +19,9 @@ import java.util.Set;
 import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.bindings.keys.KeyStroke;
+import org.eclipse.jface.fieldassist.ContentProposalAdapter;
+import org.eclipse.jface.fieldassist.IContentProposalListener2;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -28,6 +34,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -74,10 +81,10 @@ import uc.files.search.ComparisonEnum;
 import uc.files.search.FileSearch;
 import uc.files.search.ISearchResult;
 import uc.files.search.SearchType;
-import uc.files.search.SearchResult.IExtSearchResultListener;
 import uc.protocols.hub.Hub;
 import uihelpers.ComboBoxViewer;
 import uihelpers.DelayedTreeUpdater;
+import uihelpers.SUIJob;
 import uihelpers.TableViewerAdministrator;
 
 /**
@@ -87,14 +94,16 @@ import uihelpers.TableViewerAdministrator;
  * @author Quicksilver
  *
  */
-public class SearchEditor extends UCEditor implements IExtSearchResultListener , ISearchableEditor {
+public class SearchEditor extends UCEditor implements IObserver<StatusObject> , ISearchableEditor {
 
 	private static final Logger logger = LoggerFactory.make();
 	
 	public static final String searchMenuID = "eu.jucy.gui.search";
 	
 	
-
+	
+	
+	static final List<SearchInfo> PAST_SEARCHES = new ArrayList<SearchInfo>();
 
 	public static final String ID = "eu.jucy.Search";
 		
@@ -105,23 +114,19 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 	private Tree searchResultTable;
 	
 	private Table hubsToSearch;
-//	private Combo fileTypeCombo;
 	private ComboBoxViewer<SearchType> fileTypeComboViewer;
-//	private Combo unitCombo;
+
 	private ComboBoxViewer<SizeEnum> unitComboViewer;
 	
 	private Text sizeText;
-//	private Combo minmaxsizeCombo;
+
 	private ComboBoxViewer<ComparisonEnum> minmaxsizeComboViewer;
 	private Text searchForText;
 	
 	private TableViewerAdministrator<IDownloadable> tva;
 	private DelayedTreeUpdater<IDownloadable> update;
 	
-//	private SearchMenuListener searchMenuListener;
 
-//	private final List<IWorkbenchAction> searchEditorActions 
-//				= new ArrayList<IWorkbenchAction>();
 
 	private Button onlyWhereIAmOpButton;
 
@@ -135,6 +140,8 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 	private boolean useCustomCancelImage = false;
 	private Image image = null;
 	private ToolItem item;
+	
+	private boolean proposalClosed = true;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -159,8 +166,7 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 
 		
 		searchForText = new Text(comp, SWT.SEARCH | SWT.ICON_CANCEL | SWT.ICON_SEARCH | SWT.BORDER);
-
-		
+		searchForText.setMessage(String.format("%-25s", Lang.EnterSearch));
 		useCustomCancelImage = (searchForText.getStyle() & SWT.ICON_CANCEL) == 0; //if cancel style does not work on text..
 		if (useCustomCancelImage ) { 
 			image = AbstractUIPlugin.imageDescriptorFromPlugin(Application.PLUGIN_ID, IImageKeys.STOPICON).createImage();
@@ -178,9 +184,8 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 
 		searchForText.addKeyListener(new KeyAdapter() {
 			public void keyPressed(final KeyEvent e) {
-				String search = searchForText.getText().trim();
-				//check for minimum length on enter..
-				if ((e.keyCode == SWT.KEYPAD_CR ||e.keyCode  == SWT.CR)) {
+				if ((e.keyCode == SWT.KEYPAD_CR ||e.keyCode  == SWT.CR) && proposalClosed) {
+					String search = searchForText.getText().trim();
 					e.doit = false;
 					if (search.length() > 2) {
 						startSearch( search );
@@ -195,6 +200,31 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 				} 
 			}
 		});
+		SearchInfoProvider sip = new SearchInfoProvider();
+		ContentProposalAdapter cpa = new ContentProposalAdapter(
+				searchForText,sip,sip, 
+				KeyStroke.getInstance(KeyStroke.NO_KEY,SWT.ARROW_DOWN ),null); 
+		cpa.setPopupSize(new Point(500, 400));
+		
+		cpa.addContentProposalListener(new IContentProposalListener2() {
+
+			
+			public void proposalPopupClosed(ContentProposalAdapter adapter) {
+				new SUIJob() { //done in UIjob so it is postponed until the key listener is called (Enter Key that was used for closing the proposal)
+					@Override
+					public void run() {
+						proposalClosed = true;
+					}
+				}.schedule();
+				logger.debug("proposal popup closed");
+			}
+
+			public void proposalPopupOpened(ContentProposalAdapter adapter) {
+				proposalClosed = false;
+				logger.debug("proposal popup opened");
+			}
+		});
+		
 
 	
 		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false, useCustomCancelImage? 1 : 2 , 1);
@@ -539,7 +569,7 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 				,minmaxsizeComboViewer.getSelected(),getSearchSize());
 		
 		ApplicationWorkbenchWindowAdvisor.get().register(current);
-		current.register(this);
+		current.addObserver(this);
 		
 		//add the search as input to the input provider..
 		treeViewer.setInput(current);
@@ -566,8 +596,15 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 	
 	private void cancel() {
 		if (current != null) { // cancels current search and clears view
+			PAST_SEARCHES.add(0,
+					new SearchInfo(
+							current.getSearchString(), 
+							current.getNrOfResults(),
+							current.getNrOfFiles(),
+							current.getSearchType()));
+			
 			ApplicationWorkbenchWindowAdvisor.get().unregister(current);
-			current.unregister(this);
+			current.deleteObserver(this);
 			current = null;
 			update.clear();
 			if (treeViewer.getContentProvider() != null) { //might not be set..
@@ -604,19 +641,12 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 	
 	
 
-	public void received(final ISearchResult sr,final Object parent,final ChangeType ct) {
-		switch(ct) {
-		case ADDED:
-			update.add(sr,parent);
-			break;
-		case CHANGED:
-			update.change(sr,parent);
-			break;
-		case REMOVED:
-			update.remove(sr,parent);
-			break;
-		}
+	public void update(IObservable<StatusObject> o, StatusObject arg) {
+		update.put(arg.getType(), (ISearchResult)arg.getValue(), arg.getDetailObject());
 	}
+
+
+
 
 	@Override
 	public void setFocus() {
@@ -650,8 +680,6 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 	}
 
 
-
-
 	public static class SearchTreeProvider implements ITreeContentProvider {
 		
 		public Object[] getElements(Object inputElement) {
@@ -680,35 +708,11 @@ public class SearchEditor extends UCEditor implements IExtSearchResultListener ,
 
 		public void dispose() {}
 
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			
-		}
+		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
 		
 	}
 	
-//	/**
-//	 * Search Table provider extends the standard filelist tableprovider..
-//	 * @author Quicksilver
-//	 *
-//	 */
-//	public static class SearchTableProvider implements IStructuredContentProvider{
-//		
-//		public SearchTableProvider() {
-//		}
-//		
-//		
-//		public Object[] getElements(Object inputElement) {
-//			if(inputElement instanceof FileSearch){
-//				FileSearch sr = (FileSearch)inputElement;
-//				return sr.getResults().toArray();
-//			}
-//			return new Object[0];
-//		}
-//
-//		public void dispose() {}
-//
-//		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
-//		
-//	}
+	
+
 
 }

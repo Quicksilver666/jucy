@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 
@@ -18,6 +19,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+
 import logger.LoggerFactory;
 
 import org.apache.log4j.Level;
@@ -25,11 +27,15 @@ import org.apache.log4j.Logger;
 
 import uc.DCClient;
 import uc.ICryptoManager;
+import uc.Identity;
 import uc.PI;
+
 
 public class CryptoManager implements ICryptoManager {
 
 	private static Logger logger = LoggerFactory.make(Level.DEBUG); 
+	
+
 	
 	private final DCClient dcc;
 	
@@ -38,10 +44,13 @@ public class CryptoManager implements ICryptoManager {
 	private final boolean tlsInitialised;
 	private final HashValue fingerPrint;
 	
-	
+
+	private final Identity identity;
 
 	
-	public CryptoManager(DCClient dcc) {
+	public CryptoManager(DCClient dcc,Identity identity) {
+	
+		this.identity = identity;
 		this.dcc = dcc;
 		boolean[] bP = new boolean[]{false}; 
 		HashValue[] fPP = new HashValue[]{null};
@@ -69,7 +78,7 @@ public class CryptoManager implements ICryptoManager {
 			
 			
 			tlsinit = SSLContext.getInstance("TLSv1");
-			KeyManager[] managers = PI.getBoolean(PI.allowTLS)? loadManager(fingerPrintPointer):null;
+			KeyManager[] managers =  identity.getBoolean(PI.allowTLS)? loadManager(fingerPrintPointer):null;
 			tlsinit.init(managers,trustAllCerts , null);
 			
 			tlsPointer[0]= managers != null && managers.length > 0 ;
@@ -111,9 +120,9 @@ public class CryptoManager implements ICryptoManager {
 	 private  KeyManager[] loadManager(HashValue[] fingerPrintPointer) {
 	    	FileInputStream fis = null;
 			try {
-				File f = new File(PI.getStoragePath()+File.separator+".keystore" );
+				File f = new File(PI.getStoragePath()+File.separator+ identity.getCertFileName() );
 				if (!f.isFile()) {
-					dcc.logEvent("Creating Certificate...");
+					dcc.logEvent("Creating Certificate..."); // TODO 3* internationalization
 					genKeypair(f,"RSA");
 					dcc.logEvent("Created Certificate");
 				} 
@@ -143,7 +152,7 @@ public class CryptoManager implements ICryptoManager {
 				logger.warn("Certificate creation/loading failed, TLS " +
 						" support for client-client connections is being switched off.\n"+ e, e);
 	
-				PI.put(PI.allowTLS, false);
+				identity.put(PI.allowTLS, false);
 			
 				return null;
 			} finally {

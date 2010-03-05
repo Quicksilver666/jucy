@@ -1,6 +1,7 @@
 package loader;
 
 
+import java.security.Provider;
 import java.security.Security;
 
 
@@ -26,7 +27,18 @@ public class Activator extends Plugin {
 	public void start(BundleContext bc) throws Exception {
 		logger.debug("Bouncycastle installed ");
 		super.start(bc);
-		Security.addProvider(new BouncyCastleProvider());
+		int i = 0;
+		for (Provider p :Security.getProviders()) {
+			i++;
+			logger.debug(i+": "+p.getName());
+			if (p.getName().contains("JSSE")) {
+				break;
+			}
+		//	System.out.println(i+": "+p.getName());
+			logger.debug(i+": "+p.getName());
+		}
+		Security.insertProviderAt(new BouncyCastleProvider(), i);
+		//Security.addProvider(new BouncyCastleProvider());
 	}
 
 	

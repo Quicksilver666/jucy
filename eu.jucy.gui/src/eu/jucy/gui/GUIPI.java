@@ -53,6 +53,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 	windowFontColor		=	"windowFontColor",
 	
 	minimizeToTray		=	"minimizeToTray",
+	minimizeOnStart		=	"minimizeOnStart",
 	setAwayOnMinimize	=	"setAwayOnMinimize",
 	alternativePresentation = "alternativePresentation",
 	
@@ -177,6 +178,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 		
 		
 		defaults.putBoolean(minimizeToTray, true);
+		defaults.putBoolean(minimizeOnStart, false);
 		defaults.putBoolean(setAwayOnMinimize, true);
 		defaults.putBoolean(alternativePresentation, false);
 		

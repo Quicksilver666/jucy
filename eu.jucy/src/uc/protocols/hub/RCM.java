@@ -31,7 +31,7 @@ public class RCM extends AbstractADCHubCommand {
 		
 		
 		if (sender != null ) {
-			if (!hub.getDcc().isActive()) {
+			if (!hub.getIdentity().isActive()) {
 				// -> send error not active
 				ADCStatusMessage adcsm = new ADCStatusMessage("Client also not active",
 						ADCStatusMessage.RECOVERABLE,

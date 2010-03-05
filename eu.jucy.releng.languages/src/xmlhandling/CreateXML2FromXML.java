@@ -11,7 +11,7 @@ public class CreateXML2FromXML {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		Translation trans = new Translation();
+		Translation trans = new Translation(new File(".."));
 		
 		File source = new File("translation/Translations.xml");
 		FileInputStream in = new FileInputStream(source);

@@ -148,4 +148,10 @@ public interface IHub {
 	boolean supportsUserIP();
 	
 	void requestUserIP(IUser usr);
+	
+	/**
+	 * 
+	 * @return the identity used with this hub
+	 */
+	Identity getIdentity();
 }

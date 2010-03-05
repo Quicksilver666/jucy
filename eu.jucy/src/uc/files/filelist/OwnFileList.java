@@ -471,6 +471,7 @@ public class OwnFileList implements IOwnFileList  {
 		if (addedFile != null) {
 			callback.addedFile(addedFile, addedOutsideOfShare);
 		}
+	
 		//logger.debug("Added file: "+file+"  added? "+added);
 		
 	}
@@ -717,7 +718,7 @@ public class OwnFileList implements IOwnFileList  {
 
 		private boolean notifyChanges= true;
 		public HiddenTopFolder(FileList f) {
-			super(f,  new SharedDir("<Temporary shared files>",null));
+			super(f,  new SharedDir("<temporarily shared files>",null));
 		}
 		
 		public HiddenTopFolder copyTo(FileList newFilelist) {

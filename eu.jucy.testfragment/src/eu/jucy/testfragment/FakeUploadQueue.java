@@ -46,6 +46,10 @@ public class FakeUploadQueue implements IUploadQueue {
 	public void start() {
 		throw new IllegalStateException("Method in fake FakeUploadQueue called");
 	}
+	
+	public void stop() {
+		throw new IllegalStateException("Method in fake FakeUploadQueue called");
+	}
 
 	public void transferFinished(File file, IUser usr,
 			String nameOfTransferred, HashValue hashOfTransferred,

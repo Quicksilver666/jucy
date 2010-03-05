@@ -2,6 +2,7 @@ package uc.crypto;
 
 import java.io.File;
 
+import uc.IStoppable;
 import uc.database.HashedFile;
 
 
@@ -19,7 +20,7 @@ import uc.database.HashedFile;
  * @author Quicksilver
  *
  */
-public interface IHashEngine {
+public interface IHashEngine extends IStoppable {
 	
 	/**
 	 * the id for the extension point ... see plugin.xml

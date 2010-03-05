@@ -2,6 +2,8 @@ package helpers;
 
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
@@ -11,6 +13,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -153,6 +156,36 @@ public final class GH {
 		} catch (RuntimeException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void copy(File source,File dest) throws IOException {
+		FileInputStream in = null;
+		FileChannel sourcec = null; 
+		FileChannel destc  = null;
+		try {
+			in = new FileInputStream(source);
+			sourcec = in.getChannel();
+			destc = new FileOutputStream(dest).getChannel();
+			
+			long left = source.length();
+			long position= 0;
+			long count;
+
+			while(-1 != (count = sourcec.transferTo(position, Math.min(left,1024*64) , destc))){
+				position += count;
+				left -= count;
+				if (left == 0) {
+					break;
+				}
+			}
+			destc.force(true);
+
+		} catch (IOException ioe) {
+			throw ioe;
+		} finally {
+			GH.close(destc,sourcec,in);
+		}	
+		
 	}
 	
 	

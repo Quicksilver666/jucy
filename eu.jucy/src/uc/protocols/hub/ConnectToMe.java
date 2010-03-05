@@ -6,7 +6,7 @@ import java.util.Collections;
 
 
 
-import uc.DCClient;
+
 import uc.IUser;
 import uc.protocols.CPType;
 import uc.protocols.ConnectionProtocol;
@@ -44,9 +44,9 @@ public class ConnectToMe extends AbstractNMDCHubProtocolCommand {
 	
 	
 	public static void sendCTM(Hub hub, IUser target,CPType type) {
-		DCClient dcc = hub.getDcc();
+	
 		hub.sendRaw(	"$ConnectToMe %[userNI] %[myI4]:"
-				+ dcc.getCh().getPort(type.isEncrypted())
+				+ hub.getIdentity().getConnectionHandler().getPort(type.isEncrypted())
 				+ (type.isEncrypted()?"S":"") +"|",  
 						new SendContext(target,Collections.<String,String>emptyMap()));
 	}

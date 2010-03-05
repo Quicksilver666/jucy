@@ -1,0 +1,22 @@
+package %s;
+
+import uc.DCClient;
+import helpers.NLS;
+
+
+
+
+
+public class %s {
+
+	public static String
+		%s ;
+	
+	static {
+		try {
+			NLS.load(%s, %s.class);
+		} catch(RuntimeException re) {
+			DCClient.logger.warn(re,re);
+		}
+	}
+}

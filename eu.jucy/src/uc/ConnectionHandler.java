@@ -3,7 +3,6 @@ package uc;
 
 import helpers.GH;
 import helpers.Observable;
-import helpers.PreferenceChangedAdapter;
 import helpers.StatusObject;
 import helpers.StatusObject.ChangeType;
 
@@ -33,6 +32,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
 
 
+import uc.IStoppable.IStartable;
+import uc.Identity.FilteredChangedAttributeListener;
 import uc.crypto.HashValue;
 import uc.listener.IUserChangedListener;
 import uc.protocols.AbstractConnection;
@@ -56,7 +57,7 @@ import uc.protocols.hub.ICTMListener;
  *
  */
 public class ConnectionHandler extends Observable<StatusObject>
-	implements ICTMListener , IUserChangedListener {  
+	implements ICTMListener , IUserChangedListener ,IStartable {  
 
 	private static final Logger logger = LoggerFactory.make();
 	
@@ -76,7 +77,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 		Collections.synchronizedSet(new HashSet<Object>()); 
 
 
-	private final PreferenceChangedAdapter pca;
+	private final FilteredChangedAttributeListener pca;
 
 	
 	private class ServerSocketInfo {
@@ -89,7 +90,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 		private volatile boolean running;
 		
 		int getPort() {
-			return PI.getInt(encrypted ? PI.tlsPort: PI.inPort);
+			return identity.getInt(encrypted ? PI.tlsPort: PI.inPort);
 		}
 		
 		void changePort() {
@@ -143,36 +144,42 @@ public class ConnectionHandler extends Observable<StatusObject>
 
 	private final CPSMManager cpsmManager;
 	
+	private final Identity identity;
 
+
+	public Identity getIdentity() {
+		return identity;
+	}
 
 	/**
 	 * 
 	 */
-	public ConnectionHandler(DCClient dcclient) {
+	public ConnectionHandler(DCClient dcclient,Identity identityx) {
 		this.dcc = dcclient;
+		this.identity = identityx;
 		cpsmManager = new CPSMManager(dcc);
 		
 		//register a port changed listener with the settings
-		pca = new PreferenceChangedAdapter(PI.get(),PI.inPort,PI.bindAddress,PI.tlsPort) {
+		pca = new FilteredChangedAttributeListener(PI.inPort,PI.bindAddress,PI.tlsPort) {
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
-				if (PI.inPort.equals(preference) || PI.bindAddress.equals(PI.bindAddress)) {
+				if (PI.inPort.equals(preference) || PI.bindAddress.equals(preference)) {
 					normal.changePort();
 				} 
 				if ((PI.tlsPort.equals(preference) || PI.bindAddress.equals(preference)) && 
-						dcc.getCryptoManager().isTLSInitialized()) {
+						identity.getCryptoManager().isTLSInitialized()) {
 					tls.changePort();
 				}
 			}
 		};
 	}
 	
-	void start() {
+	public void start() {
 		register(normal);
-		if (dcc.getCryptoManager().isTLSInitialized()) {
+		if (identity.getCryptoManager().isTLSInitialized()) {
 			register(tls);
 		}
-		pca.reregister();
+		identity.addObserver(pca);
 		cpsmManager.start();
 		dcc.getPopulation().registerUserChangedListener(this);
 		expectedRefresher = dcc.getSchedulerDir().scheduleWithFixedDelay(new Runnable() {
@@ -186,18 +193,22 @@ public class ConnectionHandler extends Observable<StatusObject>
 				}
 			}
 		}, 60, 60, TimeUnit.SECONDS);
+		
+		
 	}
 	
-	void stop() {
+	public void stop() {
 		normal.close();
 		tls.close();
-		pca.dispose();
+		identity.deleteObserver(pca);
 		cpsmManager.stop();
 		dcc.getPopulation().unregisterUserChangedListener(this);
 		if (expectedRefresher != null) {
 			expectedRefresher.cancel(false);
 			expectedToConnect.clear();
 		}
+		//TOOD close all running transfers -> CPSM should stay..
+		
 	}
 	
 	
@@ -393,7 +404,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 
 				public void socketReceived(ServerSocketChannel port,SocketChannel created) {
 					try {
-						dcc.getConnectionDeterminator().connectionReceived(ssi.encrypted);
+						identity.getConnectionDeterminator().connectionReceived(ssi.encrypted);
 						created.configureBlocking(false);
 						ClientProtocol cp = new ClientProtocol(created,ConnectionHandler.this,ssi.encrypted);
 						clientProtocolCreated(cp);

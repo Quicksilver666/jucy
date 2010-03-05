@@ -10,7 +10,7 @@ import java.io.FileInputStream;
  * @author Quicksilver
  *
  */
-public class CreateProperties {
+public class CreatePropertiesAndLangFiles {
 
 	private static boolean test = false;
 	
@@ -20,15 +20,15 @@ public class CreateProperties {
 	public static void main(String[] args) throws Exception {
 		File basepath = new File(test?".":".."); 
 		
-		Translation trans = new Translation();
+		Translation trans = new Translation(basepath);
 		
 		File source = new File("translation/lang.xml");
 		FileInputStream in = new FileInputStream(source);
 		trans.readXML(in);
 		in.close();
 		
-		trans.writeProperties(basepath);
-		
+		trans.writeProperties();
+		trans.writeLangFiles();
 		
 		System.out.println("done");
 

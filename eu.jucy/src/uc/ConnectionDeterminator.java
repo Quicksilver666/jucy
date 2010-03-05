@@ -2,7 +2,7 @@ package uc;
 
 import helpers.GH;
 import helpers.Observable;
-import helpers.PreferenceChangedAdapter;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +24,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -41,6 +40,7 @@ import org.eclipse.core.runtime.Platform;
 
 import eu.jucy.language.LanguageKeys;
 
+import uc.Identity.FilteredChangedAttributeListener;
 import uc.crypto.HashValue;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import uc.files.search.FileSearch;
@@ -137,7 +137,14 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	
 	
 	private final DCClient dcc;
-	private PreferenceChangedAdapter pca;
+	private final Identity identity;
+	
+
+	
+	private ScheduledFuture<?> portMapper;
+
+	private final FilteredChangedAttributeListener fcal;
+	
 
 	private volatile Inet4Address current;
 	
@@ -149,15 +156,15 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 * null otherwise..
 	 */
 	public Inet6Address getIp6FoundandWorking() {
-		return ip6FoundandWorking; //TODO implement detection
+		return ip6FoundandWorking; 
 	}
 
-	public ConnectionDeterminator(DCClient dcc) {
+	public ConnectionDeterminator(DCClient dcc,Identity identity) {
 		this.dcc = dcc;
-		
-		pca = new PreferenceChangedAdapter(PI.get(),PI.inPort,PI.passive,PI.udpPort,PI.tlsPort) {
+		this.identity = identity;
+		fcal = new FilteredChangedAttributeListener(PI.inPort,PI.passive,PI.udpPort,PI.tlsPort) {
 			@Override
-			public void preferenceChanged(String key, String oldValue,String newValue) {
+			protected void preferenceChanged(String key, String oldValue,String newValue) {
 				if (key.equals(PI.inPort) || key.equals(PI.tlsPort)) {
 					TCPState s = key.equals(PI.inPort) ? tcp:tls;
     				s.tcpTested = false;
@@ -171,29 +178,23 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
     				notifyObservers();
     			}
 			}
+			
 		};
+
 
 	}
 	
-	/* (non-Javadoc)
-	 * @see uc.IConnectionDeterminator#start()
-	 */
-	public Future<?> start() {
-		return dcc.getSchedulerDir().submit(new Runnable() {
-			public void run() {
-				init();
-			}
-		});
-	}
-	
+
 	/* (non-Javadoc)
 	 * @see uc.IConnectionDeterminator#init()
 	 */
-	public void init() {
-		pca.reregister();
+	public void start() {
+		identity.addObserver(fcal);
 		//init settings so url connections don'T Block too long...
-		System.getProperties().setProperty("sun.net.client.defaultConnectTimeout", "10000") ;
-		System.getProperties().setProperty("sun.net.client.defaultReadTimeout", "10000" ) ;
+		if (identity.isDefault()) {
+			System.getProperties().setProperty("sun.net.client.defaultConnectTimeout", "10000") ;
+			System.getProperties().setProperty("sun.net.client.defaultReadTimeout", "10000" ) ;
+		}
 		try {
 			current = getLocalAddress();	
 		} catch(IOException ioe) {
@@ -216,14 +217,16 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 				logger.debug(ioe,ioe);
 			}
 		}
-		determineIPv6Working();
+		if (identity.getBoolean(PI.allowIPV6)) {
+			determineIPv6Working();
+		}
 		
 		notifyObservers();
 		
 		//periodical checking if active port mappings are still active..
-		dcc.getSchedulerDir().scheduleAtFixedRate(new Runnable() {
+		portMapper = dcc.getSchedulerDir().scheduleAtFixedRate(new Runnable() {
 			public void run() {
-				if (udpActive != null && !udpActive.isValid()) {
+				if (udpActive != null && !udpActive.isValid() && identity.isDefault()) {
 					createPortmapping(false, PI.getInt(PI.udpPort),null);
 				}
 				if (tcp.tcpActive != null && !tcp.tcpActive.isValid()) {
@@ -238,7 +241,11 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	}
 	
 	public void stop() {
-		pca.dispose();
+		identity.deleteObserver(fcal);
+		if (portMapper!= null) {
+			portMapper.cancel(false);
+			portMapper = null;
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -319,7 +326,6 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 * @see uc.IConnectionDeterminator#searchStarted(uc.files.search.FileSearch)
 	 */
 	public void searchStarted(FileSearch search) {
-		
 		if (search.getSearchType().equals(SearchType.TTH) && HashValue.isHash(search.getSearchString())) {
 			HashValue hash = HashValue.createHash(search.getSearchString()) ; 
 			AbstractDownloadQueueEntry adqe = dcc.getDownloadQueue().get(hash);
@@ -329,16 +335,17 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 					dcc.getSchedulerDir().schedule(new Runnable() {
 						public void run() {
 							notifyObservers();
-							if (!udpReceived) {
+							if (!udpReceived && identity.isDefault()) { //only default identity ha sseperate TCP
 								createPortmapping(false, PI.getInt(PI.udpPort),null);
 							}
 						}
 					},10,TimeUnit.SECONDS);
 				} 
-				
-				
+
+
 			}
 		}
+		
 	}
 	
 	/* (non-Javadoc)
@@ -390,7 +397,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 * @see uc.IConnectionDeterminator#getPublicIP()
 	 */
 	public Inet4Address getPublicIP()  {
-		String ip = PI.get(PI.externalIp);
+		String ip = identity.get(PI.externalIp);
 		if (GH.isEmpty(ip)) {
 			return getDetectedIP();
 		} else {
@@ -432,16 +439,14 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 
 		try {
 
-			List<String> urls =  new ArrayList<String>(Arrays.asList(
-					"http://checkip.dyndns.org:8245/",
-					"http://www.ipchicken.com/", 
-					//	"http://www.myip.dk/",
-					"http://www.ip-adress.com/ip_lokalisieren/",
-					"http://www.myip.ch/",
-					//	"http://www.cmyip.com/",  TODO test again .. seems offline
-					//	"http://www.showmyip.com/",
-					"http://ipswift.com/"
-			)); 
+			List<String> urls =  new ArrayList<String>(
+					Arrays.asList(
+					"http://checkip.dyndns.org:8245/"
+					,"http://www.ipchicken.com/"
+					,"http://www.ip-adress.com/ip_lokalisieren/"
+					,"http://www.myip.ch/"
+					,"http://ipswift.com/"
+			));
 			Collections.shuffle(urls);
 			urls.add(0, "http://jucy.eu/ip.php"); //own address always first..
 
@@ -451,7 +456,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 			for (String url:urls) {
 				URL u = new URL(url);
 				URLConnection uc;
-				InetAddress ia = AbstractConnection.getBindAddress(PI.get(PI.bindAddress));
+				InetAddress ia = AbstractConnection.getBindAddress(identity.get(PI.bindAddress));
 				if (!Socks.isEnabled() && ia != null) { //if no proxy is enabled use this trick to bind the address..
 					Proxy proxy = new Proxy(Proxy.Type.DIRECT, 
 							new InetSocketAddress( 
@@ -495,7 +500,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 			s.close();
 		} catch(UnknownHostException uhe) {
 			if (Platform.inDevelopmentMode()) {
-				dcc.logEvent("no IPv6 connectivity DNS resolution failed");
+				dcc.logEvent("no IPv6 connectivity detected");
 			}
 		} catch (IOException e) {
 			logger.warn(e,e);
@@ -533,24 +538,10 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 		return null;
 	}
 	
-//	private static List<Inet6Address> getAllInet6Addresses() throws IOException {
-//		List<Inet6Address> addys = new ArrayList<Inet6Address>();
-//		
-//		for (Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();e.hasMoreElements();) {
-//			NetworkInterface next = e.nextElement();
-//			for (Enumeration<InetAddress> x = next.getInetAddresses(); x.hasMoreElements();) {
-//				InetAddress addy = x.nextElement();
-//				if (!GH.isLocaladdress(addy) && addy instanceof Inet6Address) {
-//					addys.add((Inet6Address)addy);
-//				}
-//			}
-//		}
-//		return addys;
-//	}
-	
+
 	
 	public boolean isExternalIPSetByHand() {
-		return !GH.isEmpty(PI.get(PI.externalIp));
+		return !GH.isEmpty(identity.get(PI.externalIp));
 	}
 
 
@@ -561,7 +552,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 * @author Quicksilver
 	 *
 	 */
-	public static class CDState {
+	public  class CDState {
 		
 		private final boolean natPresent;
 		
@@ -625,7 +616,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 					
 					boolean beforeExists = false;
 					if (Boolean.FALSE.equals(tcpWorking)) {
-						ports += String.format(LanguageKeys.CDCheckTCP,PI.getInt(PI.inPort));
+						ports += String.format(LanguageKeys.CDCheckTCP,identity.getInt(PI.inPort));
 						beforeExists = true;
 					}
 					
@@ -690,6 +681,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 		
 	}
 	
+
 	
 	/**
 	 * creates Portmapping if allowed/possible
@@ -700,7 +692,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 */
 	private void createPortmapping(final boolean tcp,final int port,final TCPState state) {
 		if (tcp? (state.tcpActive == null || !state.tcpActive.isValid()) : (udpActive == null || !udpActive.isValid())) {
-			if (PI.getBoolean(PI.allowUPnP)  && natPresent && dcc.isActive()) {
+			if (identity.getBoolean(PI.allowUPnP)  && natPresent && identity.isActive()) {
 				new Thread(new Runnable() {
 					public void run() {
 						createPortmapping(port ,

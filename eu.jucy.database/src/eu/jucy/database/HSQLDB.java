@@ -2,6 +2,8 @@ package eu.jucy.database;
 
 
 
+import helpers.GH;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -67,10 +69,13 @@ public class HSQLDB implements IDatabase {
 	public HSQLDB() {}
 	
 	public synchronized void init(File storagepath,DCClient dcc) throws Exception {
+		if (this.dcc != null) {
+			throw new IllegalStateException();
+		}
 		this.dcc = dcc;
 		this.storagePath = storagepath;
 
-		//new org.hsqldb.jdbcDriver();
+		
 		Class.forName("org.hsqldb.jdbcDriver" );
 
 
@@ -122,16 +127,36 @@ public class HSQLDB implements IDatabase {
 		if (!folder.exists()) {
 			allok = folder.mkdirs();
 		}
-		File path =  new File(folder,"data.foo" );
-		if (!path.isFile()) {
-			allok &= path.createNewFile();
+		String oldPrefix = "data.foo" ;
+		String newPrefix = "jucydb";
+		File newPath = new File(folder,newPrefix);
+		File oldPath =  new File(folder,oldPrefix );
+//		if (!oldPath.isFile()) {
+//			allok &= oldPath.createNewFile();
+//		}
+		if (!newPath.isFile()) {
+			if (oldPath.isFile()) {
+				for (File f:folder.listFiles()) {
+					if (f.isFile() && f.getName().startsWith(oldPrefix)) {
+						GH.copy(f,
+								new File(f.getParentFile(),
+										f.getName().replace(oldPrefix, newPrefix)));
+					}
+				}
+			} else {
+				allok &= newPath.createNewFile();
+			}
 		}
-		url = "jdbc:hsqldb:file:" + path;
+		
+		
+		
+		url = "jdbc:hsqldb:file:" + newPath;
 		
 		c = DriverManager.getConnection(url, "sa", "");
 		
 		return allok;
 	}
+
 	
 
 	

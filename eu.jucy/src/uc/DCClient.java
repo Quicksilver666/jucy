@@ -10,7 +10,7 @@
 package uc;
 
 
-import helpers.GH;
+
 import helpers.Observable;
 import helpers.Version;
 
@@ -20,9 +20,6 @@ import java.lang.ref.WeakReference;
 
 
 
-
-
-import java.security.SecureRandom;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +30,7 @@ import java.util.Set;
 
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -67,12 +65,13 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 
 
 
-import uc.IUser.Mode;
+import uc.IStoppable.IStartable;
+import uc.Identity.DefaultIdentity;
 import uc.InfoChange.IInfoChanged;
-import uc.crypto.CryptoManager;
+
 import uc.crypto.HashValue;
 import uc.crypto.IHashEngine;
-import uc.crypto.Tiger;
+
 
 
 import uc.database.HashedFile;
@@ -94,13 +93,13 @@ import uc.files.transfer.SlotManager;
 
 import uc.listener.IUserChangedListener;
 import uc.protocols.ConnectionState;
-import uc.protocols.Socks;
+
 import uc.protocols.hub.Hub;
 
 
 
 /** 
- * TODO remove Drag and drop file over Remove handler if selected file instance of SpecialFileListFile
+ * TODO discfree,total uptime .. total download..
  * 
  * TODO warning popup before adding a file via Drag and Drop to share..
  * 
@@ -261,8 +260,7 @@ public final class DCClient {
 	
 	private final User fileListSelf; //the self that holds our own FileList
 
-//	private final Object synchPID = new Object();
-	private final HashValue pid; 
+
 	
 	/**
 	 * check if FileList was initialized ..
@@ -283,6 +281,9 @@ public final class DCClient {
 	 */
 	private final Map<FavHub,Hub> hubs	= 
 		Collections.synchronizedMap(new HashMap<FavHub,Hub>());
+	
+	private final Map<String,Identity> loadedIdentiies =
+		Collections.synchronizedMap(new HashMap<String,Identity>());
 	
 
 
@@ -314,14 +315,17 @@ public final class DCClient {
 		Collections.synchronizedSet(new HashSet<InfoChange>());
 	
 
-	private final ConnectionHandler ch;  
+//	/**
+//	 * @deprecated -> Identity
+//	 */
+//	private final ConnectionHandler ch;  
 
 	private final IUploadQueue upQueue ;
 	private final IUploadQueue downQueue ;
 	
 	
 	
-	private final IConnectionDeterminator connectionDeterminator;
+//	private final IConnectionDeterminator connectionDeterminator;
 
 	private final IFavHubs favHubs;
 	private final FavFolders favFolders;
@@ -332,7 +336,18 @@ public final class DCClient {
 	private final StoredPM storedPM;
 	private final DownloadQueue downloadQueue;
 	
-	private final ICryptoManager cryptoManager;
+//	/**
+//	 * @deprecated -> Identity
+//	 */
+//	private final ICryptoManager cryptoManager;
+	
+	private final DefaultIdentity defaultIdentity;
+
+
+	public Identity getDefaultIdentity() {
+		return defaultIdentity;
+	}
+
 
 
 	private final Object infSynch = new Object();
@@ -350,7 +365,7 @@ public final class DCClient {
 	public static final String LONGVERSION;
 	
 	static {
-		String v = " V:" + Version.getVersion();
+		String v = " V:" + Version.getVersion()+ (Platform.inDevelopmentMode()?"d":"");
 		VERSION = "UC"+v;  
 		LONGVERSION = "jucy"+v;
 		
@@ -402,30 +417,33 @@ public final class DCClient {
     	downloadQueue = new DownloadQueue(this);
     	
     	database = init.loadDB(this);
-    	pid = loadPID();
-    	cryptoManager = new CryptoManager(this);
+    	
+    	defaultIdentity = new DefaultIdentity(this);
+    	
+//    	pid = loadPID();
+//    	cryptoManager = new CryptoManager(this);
     	
     	hashEngine = init.loadHashEngine();
     	filelistProcessors = init.loadFilelistProcessors();
     	operatorPlugins = init.loadOperatorPlugins();
-    	connectionDeterminator = init.createConnectionDeterminator(this);
+    //	connectionDeterminator = init.createConnectionDeterminator(this);
     	favHubs = init.getFavHubs(this);
     	slotManager = init.createSlotManager(this);
     	upQueue = init.createUploadQueue(this, true);
     	downQueue = init.createUploadQueue(this, false);
     	
-    	fileListSelf = new User(this,PI.get(PI.nick), pid.hashOfHash()) { 
+    	fileListSelf = new User(this,PI.get(PI.nick), defaultIdentity.getPID()) { 
 			@Override
 			public String getNick() { 
 				return PI.get(PI.nick);
 			}
 			@Override
 			public HashValue getCID() {
-				return pid.hashOfHash();
+				return defaultIdentity.getCID();
 			}
 			@Override
 			public HashValue getPD() {
-				return pid;
+				return defaultIdentity.getPID();
 			}
 			
     	};
@@ -433,7 +451,7 @@ public final class DCClient {
     	
     	filelist = new OwnFileList(fileListSelf,database,hashEngine,this); 
         
-        ch = new ConnectionHandler(this); 
+    //    ch = new ConnectionHandler(this); 
      
         udphandler = init.createUDPHandler(this); 
         
@@ -463,6 +481,14 @@ public final class DCClient {
     }
     
 
+    private Identity getIdentity(String identityname) {
+    	Identity identity = loadedIdentiies.get(identityname);
+    	if (identity == null) {
+    		return defaultIdentity;
+    	} else {
+    		return identity;
+    	}
+    }
 
     
     /**
@@ -472,9 +498,14 @@ public final class DCClient {
      */
     public void search(FileSearch search, Set<IHub> hubsToSearch) {
     	if (!hubsToSearch.isEmpty()) {
-	    	connectionDeterminator.searchStarted(search);
 	    	udphandler.addKeyExpected(search.getEncryptionKey());
+	    	HashSet<Identity> usedBySearch = new HashSet<Identity>();
     		for (IHub hub:hubsToSearch) {
+    			Identity i = hub.getIdentity();
+    			if (usedBySearch.add(i)){
+    				i.getConnectionDeterminator().searchStarted(search);
+    			}
+    			
 	    		hub.search(search);
 	    	}
     	}
@@ -565,16 +596,15 @@ public final class DCClient {
     	synchronized (synchSingleton) {
     		singleton = this;
     	}
-    	monitor.beginTask("starting DCClient", 12);
+    	monitor.beginTask("starting DCClient", 11);
     	
     	// favs are loaded.. time to register Database to be notified on userchanges..
     	population.registerUserChangedListener(databaseUserChanges); 
     	
-    	Future<?> connectDetInit = connectionDeterminator.start();
     	monitor.worked(1);
     	
     	Future<?> filelistInit = initialiseFilelist(); 
-
+    	Future<?> identity = start(defaultIdentity);
  
     	upQueue.start();
     	downQueue.start();
@@ -582,8 +612,7 @@ public final class DCClient {
     	
     	udphandler.start();
     	monitor.worked(1);
-    	ch.start();
-    	monitor.worked(1);
+
     	
     	logEvent("Loading DownloadQueue");
     	downloadQueue.loadDQ(); //loads the download queue 
@@ -592,12 +621,14 @@ public final class DCClient {
 
     	
     	try { //wait for deferred tasks...
-    		connectDetInit.get();
     		filelistInit.get();
-    		monitor.worked(3);
-    	} catch(Exception e) {
+    		identity.get();
+    	} catch(InterruptedException e) {
     		logger.warn(e,e);
-    	}
+    	} catch (ExecutionException e) {
+    		logger.warn(e,e);
+		}
+    	monitor.worked(3);
     	storedPM.init();
     	
     	logEvent("starting hubs");
@@ -610,8 +641,7 @@ public final class DCClient {
 
     	altSearch.start();
     	slotManager.init();
-    	
-    //	started = true;
+
     	monitor.done();
     	
     	while (true) { //Its a DC Client after all .. wouldn't work without this , kudos to NEV!
@@ -635,20 +665,23 @@ public final class DCClient {
     		FileList.deleteFilelists();
     	}
     	storedPM.dispose();
-    	ch.stop();
-    	downloadQueue.stop();
-    	altSearch.stop();
-    	filelist.stop();
-    	hashEngine.stop();
+    	for (IHub hub:getHubs().values()) {
+    		hub.close();
+    	}
+    	Future<?> stop = stopAll(hashEngine,downloadQueue,altSearch,filelist,udphandler,defaultIdentity);
     	
+    	try {
+			stop.get();
+		} catch (InterruptedException e) {
+			logger.warn(e, e);
+		} catch (ExecutionException e) {
+			logger.warn(e, e);
+		}
+
     	if (shutDownExec) {
     		exec.shutdown();
     	}
     	scheduler.shutdown();
-    	
-    	
-    	udphandler.stop();
-    	connectionDeterminator.stop();
     	
     	population.unregisterUserChangedListener(databaseUserChanges);
     	logger.debug("shut down executors");
@@ -658,31 +691,32 @@ public final class DCClient {
     	
     }
     
-    /**
-     * creates some UUID for this client 
-     */
-    private static HashValue loadPID() {
-    	String uuid = PI.get(PI.uUID);
-    	if (GH.isEmpty(uuid)) {
-    		SecureRandom sr = new SecureRandom();
-        	byte[] b = new byte[1024];
-        	sr.nextBytes(b);
-        	HashValue hash = Tiger.tigerOfBytes(b);
-        	uuid = hash.toString();
-    		PI.put(PI.uUID, uuid);
-    	}
-    	
-    	return HashValue.createHash(uuid);
-	}
+//    /**
+//     * creates some UUID for this client 
+//     * @deprecated -> moved to identity
+//     */
+//    private static HashValue loadPID() {
+//    	String uuid = PI.get(PI.uUID);
+//    	if (GH.isEmpty(uuid)) {
+//    		SecureRandom sr = new SecureRandom();
+//        	byte[] b = new byte[1024];
+//        	sr.nextBytes(b);
+//        	HashValue hash = Tiger.tigerOfBytes(b);
+//        	uuid = hash.toString();
+//    		PI.put(PI.uUID, uuid);
+//    	}
+//    	
+//    	return HashValue.createHash(uuid);
+//	}
     
    
-    /**
-     * 
-     * @return the PID of the client 
-     */
-    public HashValue getPID() {
-    	return pid;
-    }
+//    /**
+//     * 
+//     * @return the PID of the client 
+//     */
+//    public HashValue getPID() {
+//    	return pid;
+//    }
     
   
     
@@ -692,15 +726,15 @@ public final class DCClient {
      * (i.e. something like <UC 0.03,M:A,H:0/0/1,S:2> )
      * 
      */
-    public String getTag() {
+    public String getTag(Identity id) {
     	int[] hubs = getNumberOfHubs(false);
     	return String.format("<%s,M:%c,H:%d/%d/%d,S:%d%s>", VERSION ,
-    			getMode().getModeChar(),hubs[0],hubs[1],hubs[2],getTotalSlots(),getAdditionalTag());
+    			id.getMode().getModeChar(),hubs[0],hubs[1],hubs[2],getTotalSlots(),getAdditionalTag());
     }
     
     private String getAdditionalTag() {
     	String s = "";
-    	int ul= PI.getInt(PI.uploadLimit);
+    	int ul = PI.getInt(PI.uploadLimit);
     	if (ul > 0) {
     		s+=",L:"+ul;
     	}
@@ -744,18 +778,16 @@ public final class DCClient {
     
 
     
-    public Mode getMode() {
-    	return isActive() ? Mode.ACTIVE : 
-    					(Socks.isEnabled()? Mode.SOCKS:Mode.PASSIVE) ; 
-    }
+
     
-	/**
-	 * check if TLS was enabled at start of Program .. and is now in a usable state.
-	 * @return true if TLS is fully initialized and running..
-	 */
-	public boolean currentlyTLSSupport() {
-		return  ch.isTLSRunning() &&  PI.getBoolean(PI.allowTLS);
-	}
+//	/**
+//	 * check if TLS was enabled at start of Program .. and is now in a usable state.
+//	 * @return true if TLS is fully initialized and running..
+//	 * 
+//	 */
+//	public boolean currentlyTLSSupport() {
+//		return  ch.isTLSRunning() &&  PI.getBoolean(PI.allowTLS);
+//	}
     
     
    /**
@@ -766,9 +798,14 @@ public final class DCClient {
     public void internal_unregisterHub(FavHub favHub) {
     	
     	//first remove mapping from hubId to hub
-    	hubs.remove(favHub);
-    	//the inform hubs slowly of change..
-    	notifyChangedInfo(InfoChange.Hubs);
+    	Hub hub = hubs.remove(favHub);
+    	if (hub != null) {
+	    	Identity id = hub.getIdentity();
+	    	id.removeRunningHub(favHub);
+	    	
+	    	//the inform hubs slowly of change..
+	    	notifyChangedInfo(InfoChange.Hubs);
+    	}
     }
     
     
@@ -782,12 +819,11 @@ public final class DCClient {
     		hub = hubs.get(favHub);
     		if (hub == null) {
     			favHub = favHubs.internal(favHub);
-    			hub = new Hub(favHub,this);
+    			Identity id = getIdentity(favHub.getIdentityName());
+    			id.addRunningHub(favHub);
+    			hub = new Hub(favHub,id,this);
     			synchronized(hub) {
     				hubs.put(favHub, hub);
-    				if (!favHub.isChatOnly()) {
-    					hub.registerCTMListener(ch);
-    				} 
     				final Hub hubf = hub; 
     				final Semaphore sem = new Semaphore(0);
     				
@@ -878,9 +914,9 @@ public final class DCClient {
 	   	}
     }
     
-    public boolean isActive() {
-    	return !PI.getBoolean(PI.passive) ;
-    }
+//    public boolean isActive() {
+//    	return !PI.getBoolean(PI.passive) ;
+//    }
    
     
     /**
@@ -1051,11 +1087,11 @@ public final class DCClient {
 
 	
  
-
-
-	public ICryptoManager getCryptoManager() {
-		return cryptoManager;
-	}
+//
+//
+//	public ICryptoManager getCryptoManager() {
+//		return cryptoManager;
+//	}
 
 	/**
 	 * @return the hashEngine
@@ -1063,13 +1099,15 @@ public final class DCClient {
 	public IHashEngine getHashEngine() {
 		return hashEngine;
 	}
-
+	
 	/**
-	 * @return the ConnectionHandler
+	 * 
+	 * @return TODO for multiple identitys this needs to be changed..
 	 */
-	public ConnectionHandler getCh() {
-		return ch;
+	public List<ConnectionHandler> getAllConnectionHandler() {
+		return Collections.singletonList(defaultIdentity.getConnectionHandler());
 	}
+
 
 	public IDatabase getDatabase() {
 		return database;
@@ -1163,22 +1201,7 @@ public final class DCClient {
 		}
 	}
 
-	/**
-	 * place holder  should return true if
-	 * IPv4 is used 
-	 * @return true
-	 */
-	public boolean isIPv4Used() {
-		return connectionDeterminator.getPublicIP() != null;
-	}
 	
-	/**
-	 * 
-	 * @return true if IPv6 connections are possible..
-	 */
-	public boolean isIPv6Used() {
-		return connectionDeterminator.getIp6FoundandWorking() != null;
-	}
 
 
 	public List<IOperatorPlugin> getOperatorPlugins() {
@@ -1199,9 +1222,6 @@ public final class DCClient {
 	}
 
 	
-	public IConnectionDeterminator getConnectionDeterminator() {
-		return connectionDeterminator;
-	}
 
 	public IFavHubs getFavHubs() {
 		return favHubs;
@@ -1234,10 +1254,7 @@ public final class DCClient {
 			return new FavHubs(dcc);
 		}
 		
-		protected IConnectionDeterminator createConnectionDeterminator(DCClient dcc) {
-			return new ConnectionDeterminator(dcc);
-		}
-		
+
 		
 		protected IUploadQueue createUploadQueue(DCClient dcc,boolean upload) {
 			return new UploadQueue(dcc);
@@ -1367,4 +1384,42 @@ public final class DCClient {
 	}
 	
  
+	public Future<?> start(final IStartable startable) {
+		return scheduler.submit(new Runnable() {
+			public void run() {
+				startable.start();
+			}
+		});
+	}
+	
+	
+	public Future<?> stop(final IStoppable startable) {
+		return scheduler.submit(new Runnable() {
+			public void run() {
+				startable.stop();
+			}
+		});
+	}
+	
+	private Future<?> stopAll(IStoppable... stoppables) {
+		final List<Future<?>> future = new ArrayList<Future<?>>();
+		for (IStoppable s:stoppables) {
+			future.add(stop(s));
+		}
+		return scheduler.submit(new Runnable() {
+			public void run() {
+				for (Future<?> f:future) {
+					try {
+						f.get();
+					} catch (InterruptedException e) {
+						logger.warn(e,e);
+					} catch (ExecutionException e) {
+						logger.warn(e, e);
+					}
+				}
+			}
+		});
+	}
+
+	
 }

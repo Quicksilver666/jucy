@@ -5,6 +5,7 @@ package eu.jucy.gui;
 import helpers.GH;
 import helpers.PreferenceChangedAdapter;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -31,6 +32,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import uc.DCClient.ILogEventListener;
+import uc.crypto.IHashEngine.IHashedListener;
 import uihelpers.SUIJob;
 
 import eu.jucy.gui.logeditor.LogEditor;
@@ -44,7 +46,7 @@ import eu.jucy.gui.logeditor.OpenLogEditorHandler;
  * 
  * @author Quicksilver
  */
-public class GuiAppender extends AppenderSkeleton implements ILogEventListener {
+public class GuiAppender extends AppenderSkeleton implements ILogEventListener,IHashedListener {
 	
 	private static final int KEPT_MESSAGES = 100;
 	
@@ -147,12 +149,16 @@ public class GuiAppender extends AppenderSkeleton implements ILogEventListener {
 	
 	private final Logger logger = LoggerFactory.make();
 	
-	private static final Level GUI = new Level(Level.INFO.toInt(),"GUI",Level.INFO.getSyslogEquivalent()){
+	public static final Level GUI = new Level(Level.INFO.toInt(),"GUI",Level.INFO.getSyslogEquivalent()){
 		private static final long serialVersionUID = 7946573916583631244L;
 		} ;
 	
 	public void logEvent(String event) {
 		logger.log(GUI, event);
+	}
+	
+	public void hashed(File f, long duration,long remainingSize) {
+		logger.log(GuiAppender.GUI,new TimeToken(duration,f,remainingSize));
 	}
 
 	private void appendLE(final LoggingEvent event) {

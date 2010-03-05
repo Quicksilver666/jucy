@@ -81,8 +81,8 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 					Application.PLUGIN_ID, IImageKeys.USER_ACTIVE2).createImage();
 			Image passive = AbstractUIPlugin.imageDescriptorFromPlugin(
 					Application.PLUGIN_ID, IImageKeys.USER_PASSIVE2).createImage();
-			Image offline = AbstractUIPlugin.imageDescriptorFromPlugin(
-					Application.PLUGIN_ID, IImageKeys.USER_OFFLINE2).createImage();
+			Image offline = new Image(null,norm,SWT.IMAGE_GRAY);//AbstractUIPlugin.imageDescriptorFromPlugin(
+					//Application.PLUGIN_ID, IImageKeys.USER_OFFLINE2).createImage();
 			Image key = AbstractUIPlugin.imageDescriptorFromPlugin(
 					Application.PLUGIN_ID, IImageKeys.USER_OPKEY2).createImage();
 			
@@ -103,7 +103,7 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 			key.dispose();
 		}
 		
-		private static Image copyWithKey(Image original,Image addOn,int scale) {
+		public static Image copyWithKey(Image original,Image addOn,int scale) {
 			ImageData id;
 			Rectangle r = original.getBounds();
 			Image normCop = new Image(null,scale,scale);
@@ -142,8 +142,11 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 				};
 		}
 		
-		public static Image getDefaultUserImage() {
-			return USERIMAGES[0];
+		public static Image getUserImage(boolean large,boolean online,boolean active,boolean op) {
+			int i = large?6:0;
+			i += (op?3:0);
+			i += (online? (active?0:1) :2) ;
+			return USERIMAGES[i];
 		}
 		
 		public static Image getUserImage(IUser usr,boolean large) {
