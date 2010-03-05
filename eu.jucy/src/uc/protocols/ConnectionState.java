@@ -1,6 +1,8 @@
 package uc.protocols;
 
-import eu.jucy.language.LanguageKeys;
+import uc.LanguageKeys;
+
+
 
 
 public enum ConnectionState {

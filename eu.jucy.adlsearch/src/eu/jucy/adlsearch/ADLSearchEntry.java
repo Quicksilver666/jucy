@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import eu.jucy.adlsearch.ui.Lang;
+
 
 
 import uc.files.filelist.FileListFile;
@@ -16,7 +16,7 @@ public class ADLSearchEntry {
 
 	protected static final int ArrayLength = 7;
 	public static enum ADLSearchType {
-		Filename(Lang.Filename),Directory(Lang.Directory),FullPath(Lang.FullPath); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		Filename(Lang.ADL_Filename),Directory(Lang.ADL_Directory),FullPath(Lang.ADL_FullPath); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
 		ADLSearchType(String name) {
 			this.name = name;

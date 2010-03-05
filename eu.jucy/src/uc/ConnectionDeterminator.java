@@ -38,7 +38,7 @@ import net.sbbi.upnp.messages.UPNPResponseException;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
 
-import eu.jucy.language.LanguageKeys;
+
 
 import uc.Identity.FilteredChangedAttributeListener;
 import uc.crypto.HashValue;

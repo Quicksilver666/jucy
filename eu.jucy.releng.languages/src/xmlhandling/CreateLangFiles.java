@@ -9,7 +9,7 @@ import java.util.List;
 
 public class CreateLangFiles {
 
-	private static final boolean SIMULATE = true;
+	private static final boolean SIMULATE = false;
 
 //	
 //	public static void createLangFile(File pluginbase,String packagename,String classname
@@ -46,7 +46,7 @@ public class CreateLangFiles {
 				, packagename
 				, classname
 				, concat(list,"\n\t\t,","")
-				, propertiesname
+				, "nl."+propertiesname
 				,classname);
 		 
 		File target = new File(pluginbase,"src/"+packagename.replace(".", "/")+"/"+classname+".java");

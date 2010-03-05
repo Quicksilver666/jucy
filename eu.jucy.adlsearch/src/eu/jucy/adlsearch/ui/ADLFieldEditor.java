@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import eu.jucy.adlsearch.ADLSearchEntry;
+import eu.jucy.adlsearch.Lang;
 
 import uihelpers.ComplexListEditor;
 import uihelpers.TableViewerAdministrator.ColumnDescriptor;
@@ -120,7 +121,7 @@ public class ADLFieldEditor extends ComplexListEditor<ADLSearchEntry> {
 	public static class SearchString extends  ADLColumn {
 		
 		public SearchString() {
-			super(120, Lang.SearchString, SWT.LEAD);
+			super(120, Lang.ADL_SearchString, SWT.LEAD);
 		}
 
 		@Override
@@ -133,7 +134,7 @@ public class ADLFieldEditor extends ComplexListEditor<ADLSearchEntry> {
 	public static class SearchTypeCol extends ADLColumn {
 
 		public SearchTypeCol() {
-			super(80, Lang.SearchType, SWT.LEAD);
+			super(80, Lang.ADL_SearchType, SWT.LEAD);
 		}
 
 		@Override
@@ -145,7 +146,7 @@ public class ADLFieldEditor extends ComplexListEditor<ADLSearchEntry> {
 	public static class TargetFolder extends ADLColumn {
 
 		public TargetFolder() {
-			super(80, Lang.TargetFolder, SWT.LEAD);
+			super(80, Lang.ADL_TargetFolder, SWT.LEAD);
 		}
 
 		@Override
@@ -157,7 +158,7 @@ public class ADLFieldEditor extends ComplexListEditor<ADLSearchEntry> {
 	public static class MinSize extends ADLColumn {
 		
 		public MinSize() {
-			super(60, Lang.MinSize, SWT.LEAD);
+			super(60, Lang.ADL_MinSize, SWT.LEAD);
 		}
 
 		@Override
@@ -173,7 +174,7 @@ public class ADLFieldEditor extends ComplexListEditor<ADLSearchEntry> {
 	public static class MaxSize extends ADLColumn {
 		
 		public MaxSize() {
-			super(60, Lang.MaxSize, SWT.LEAD);
+			super(60, Lang.ADL_MaxSize, SWT.LEAD);
 		}
 
 		@Override

@@ -3,73 +3,73 @@
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://jucy.eu/lang platform:/resource/eu.jucy.releng.languages/translation/lang.xsd" >
 <Plugin id="eu.jucy.adlsearch" name="adl" langclass="eu.jucy.adlsearch.Lang">
-<Trl id="ADL.ADLSearch">
+<Trl id="ADL_ADLSearch">
 <de>Automatische DateiListen Suche (ADL)</de>
 <en>Automatic Directory Listing Search</en>
 <it>Cartelle di destinazione</it>
 <ru>ADL-поиск</ru>
 </Trl>
-<Trl id="ADL.Active">
+<Trl id="ADL_Active">
 <de>Aktiv</de>
 <en>Active</en>
 <it>Attiva</it>
 <ru>Активный</ru>
 </Trl>
-<Trl id="ADL.Directory">
+<Trl id="ADL_Directory">
 <de>Verzeichnis</de>
 <en>Directory</en>
 <it>Cartella</it>
 <ru>Папка</ru>
 </Trl>
-<Trl id="ADL.DownloadMatches">
+<Trl id="ADL_DownloadMatches">
 <de>Treffer Herunterladen</de>
 <en>Download Matches</en>
 <it>Scarica File trovati</it>
 <ru>Скачать совпадения</ru>
 </Trl>
-<Trl id="ADL.Filename">
+<Trl id="ADL_Filename">
 <de>Dateiname</de>
 <en>Filename</en>
 <it>Nome File</it>
 <ru>Имя файла</ru>
 </Trl>
-<Trl id="ADL.FullPath">
+<Trl id="ADL_FullPath">
 <de>Ganzer Pfad</de>
 <en>Full Path</en>
 <it>Percorso</it>
 <ru>Полный путь</ru>
 </Trl>
-<Trl id="ADL.MaxSize">
+<Trl id="ADL_MaxSize">
 <de>Max Größe</de>
 <en>Max Size</en>
 <it>Dimensione massima</it>
 <ru>Максимальный размер</ru>
 </Trl>
-<Trl id="ADL.MinSize">
+<Trl id="ADL_MinSize">
 <de>Min Größe</de>
 <en>Min Size</en>
 <it>Dimensione minima</it>
 <ru>Минимальный размер</ru>
 </Trl>
-<Trl id="ADL.SearchString">
+<Trl id="ADL_SearchString">
 <de>Such Begriff</de>
 <en>Search String</en>
 <it>Cerca stringa</it>
 <ru>Строка поиска</ru>
 </Trl>
-<Trl id="ADL.SearchType">
+<Trl id="ADL_SearchType">
 <de>Such Typ</de>
 <en>Search Type</en>
 <it>Tipo File</it>
 <ru>Тип поиска</ru>
 </Trl>
-<Trl id="ADL.SizeType">
+<Trl id="ADL_SizeType">
 <de>Einheit</de>
 <en>Size Type</en>
 <it>Unità misura</it>
 <ru>Размерность</ru>
 </Trl>
-<Trl id="ADL.TargetFolder">
+<Trl id="ADL_TargetFolder">
 <de>Ziel Verzeichnis</de>
 <en>Target Folder</en>
 <it>Cartella di destinazione</it>
@@ -3929,7 +3929,7 @@ UPnP: %s</ru>
 </Trl>
 </Plugin>
 <Plugin id="eu.jucy.notepad" name="notepad"  langclass="eu.jucy.notepad.Lang">
-<Trl id="Bundle-Name">
+<Trl id="Bundle_Name">
 <de>Notizblock Plug-in</de>
 <en>Notepad Plug-in</en>
 <it>Notepad Plug-in</it>
@@ -3941,19 +3941,19 @@ UPnP: %s</ru>
 <it>Blocco Note</it>
 <ru>Блокнот</ru>
 </Trl>
-<Trl id="command.description">
+<Trl id="command_description">
 <de>Öffnet Notizblock</de>
 <en>Opens Notepad</en>
 <it>Apre Blocco Note</it>
 <ru>Открывает встроенный блокнот</ru>
 </Trl>
-<Trl id="command.name">
+<Trl id="command_name">
 <de>Öffne Notizblock</de>
 <en>Open Notepad</en>
 <it>Apri Blocco Note</it>
 <ru>Открыть блокнот</ru>
 </Trl>
-<Trl id="editor.name">
+<Trl id="editor_name">
 <de>Notizblock Editor</de>
 <en>Notepad Editor</en>
 <it>Blocco Note</it>

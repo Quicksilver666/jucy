@@ -1,6 +1,8 @@
 package uc.files.search;
 
-import eu.jucy.language.LanguageKeys;
+import uc.LanguageKeys;
+
+
 
 
 /**

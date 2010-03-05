@@ -7,8 +7,9 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Map;
 
+import uc.LanguageKeys;
 import uc.protocols.hub.Flag;
-import eu.jucy.language.LanguageKeys;
+
 
 public class ADCStatusMessage {
 	

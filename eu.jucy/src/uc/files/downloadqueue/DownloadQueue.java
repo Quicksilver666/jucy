@@ -24,12 +24,12 @@ import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 import org.eclipse.ui.PlatformUI;
 
-import eu.jucy.language.LanguageKeys;
 
 
 
 import uc.DCClient;
 import uc.IStoppable;
+import uc.LanguageKeys;
 import uc.PI;
 import uc.crypto.HashValue;
 import uc.database.IDatabase;

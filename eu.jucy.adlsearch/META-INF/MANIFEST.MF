@@ -3,10 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: ADL Search
 Bundle-SymbolicName: eu.jucy.adlsearch;singleton:=true
 Bundle-Version: 1.1.5
-Bundle-Localization: adl
+Bundle-Localization: nl/adl
 Require-Bundle: eu.jucy.helpers,
  eu.jucy,
- eu.jucy.language,
  eu.jucy.gui,
  org.eclipse.ui,
  org.eclipse.core.runtime,

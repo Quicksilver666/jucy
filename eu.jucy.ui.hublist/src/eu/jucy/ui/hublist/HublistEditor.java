@@ -36,6 +36,7 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.xml.sax.SAXException;
 
 import uc.DCClient;
+import uc.LanguageKeys;
 import uihelpers.SUIJob;
 import uihelpers.StandardContentAndLabelProvider;
 import uihelpers.TableColumnSorter;
@@ -45,7 +46,6 @@ import eu.jucy.gui.UCEditor;
 import eu.jucy.hublist.Column;
 import eu.jucy.hublist.HubList;
 import eu.jucy.hublist.HublistHub;
-import eu.jucy.language.LanguageKeys;
 import eu.jucy.ui.hublist.HublistHubActions.AddToFavoritesAction;
 import eu.jucy.ui.hublist.HublistHubActions.ConnectAction;
 import eu.jucy.ui.hublist.HublistHubActions.CopyAddressAction;

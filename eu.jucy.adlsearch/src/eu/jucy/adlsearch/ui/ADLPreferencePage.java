@@ -3,6 +3,7 @@ package eu.jucy.adlsearch.ui;
 
 
 import eu.jucy.adlsearch.ADLFileListProcessor;
+import eu.jucy.adlsearch.Lang;
 import eu.jucy.gui.settings.UCPrefpage;
 
 public class ADLPreferencePage extends UCPrefpage {

@@ -3,8 +3,9 @@
  */
 package uc.listener;
 
-import eu.jucy.language.LanguageKeys;
+
 import uc.IUser;
+import uc.LanguageKeys;
 
 
 /**

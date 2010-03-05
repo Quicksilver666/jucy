@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Helpers Plug-in
 Bundle-SymbolicName: eu.jucy.helpers;singleton:=true
 Bundle-Version: 1.1.6
-Bundle-Localization: helpers
+Bundle-Localization: nl/helpers
 Export-Package: helpers,
  missing16api,
  uihelpers

@@ -2,7 +2,8 @@ package uc.protocols.hub;
 
 import java.io.IOException;
 
-import eu.jucy.language.LanguageKeys;
+import uc.LanguageKeys;
+
 
 
 public class HubIsFull extends AbstractNMDCHubProtocolCommand {

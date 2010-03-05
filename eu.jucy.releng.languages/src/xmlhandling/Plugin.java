@@ -36,7 +36,7 @@ public class Plugin implements Comparable<Plugin> {
 	}
 	
 	public void writeLangFile(File basepath) throws IOException {
-		if (DISABLED.equals(langFileName)) {
+		if (!DISABLED.equals(langFileName)) {
 			File pluginPath = new File(basepath,id);
 			List<String> s = new ArrayList<String>();
 			for (Entry e:entries) {
@@ -59,7 +59,7 @@ public class Plugin implements Comparable<Plugin> {
 		}
 		for (Map.Entry<String , Properties> e:langToProp.entrySet()) {
 			String langAppend = e.getKey().equals("en") ? "" : "_"+e.getKey();
-			File prop = new File(pluginPath,propertiesname+langAppend+".properties");
+			File prop = new File(pluginPath,"nl/"+propertiesname+langAppend+".properties");
 			if (!prop.getParentFile().isDirectory()) {
 				prop.getParentFile().mkdirs();
 			}

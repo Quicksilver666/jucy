@@ -5,7 +5,6 @@ Bundle-SymbolicName: eu.jucy.ui.hublist;singleton:=true
 Bundle-Version: 1.1.5
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- eu.jucy.language,
  eu.jucy.helpers,
  org.apache.tools.bzip2,
  eu.jucy,

@@ -94,7 +94,7 @@ import eu.jucy.gui.texteditor.StyledTextViewer.MyStyledText;
 import eu.jucy.gui.texteditor.pmeditor.PMEditor;
 import eu.jucy.gui.transferview.TransferColumns;
 import eu.jucy.gui.transferview.TransfersView;
-import eu.jucy.language.LanguageKeys;
+
 
 
 
@@ -103,6 +103,7 @@ import eu.jucy.language.LanguageKeys;
 import uc.FavHub;
 import uc.IHasUser;
 import uc.IUser;
+import uc.LanguageKeys;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.ConnectionState;
 import uc.protocols.hub.Hub;

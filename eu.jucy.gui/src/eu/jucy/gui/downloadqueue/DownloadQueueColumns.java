@@ -14,10 +14,10 @@ import org.eclipse.swt.graphics.Image;
 import eu.jucy.gui.GuiHelpers;
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.Priority;
-import eu.jucy.language.LanguageKeys;
 
 
 import uc.IUser;
+import uc.LanguageKeys;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import uihelpers.IconManager;
 import uihelpers.TableViewerAdministrator.ColumnDescriptor;

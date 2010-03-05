@@ -48,12 +48,13 @@ import eu.jucy.gui.texteditor.SendingWriteline.UserSendingWriteline;
 import eu.jucy.gui.texteditor.StyledTextViewer.MyStyledText;
 import eu.jucy.gui.texteditor.hub.HubEditor;
 import eu.jucy.gui.texteditor.hub.HubEditorInput;
-import eu.jucy.language.LanguageKeys;
+
 
 
 
 import uc.IHub;
 import uc.IUser;
+import uc.LanguageKeys;
 import uc.listener.IUserChangedListener;
 import uc.protocols.hub.Hub;
 import uc.protocols.hub.PrivateMessage;

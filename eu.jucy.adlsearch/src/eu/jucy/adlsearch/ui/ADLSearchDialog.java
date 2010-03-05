@@ -4,7 +4,7 @@ import logger.LoggerFactory;
 import helpers.GH;
 import helpers.SizeEnum;
 
-import org.apache.log4j.Level;
+
 import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.window.IShellProvider;
@@ -20,15 +20,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import eu.jucy.adlsearch.ADLSearchEntry;
+import eu.jucy.adlsearch.Lang;
 import eu.jucy.adlsearch.ADLSearchEntry.ADLSearchType;
 
 public class ADLSearchDialog extends Dialog {
 
 	private static final Logger logger = LoggerFactory.make();
 	
-	static {
-		logger.setLevel(Level.INFO);
-	}
+
 	
 	private Button downloadmatchesButton;
 	private Button activeButton;
@@ -70,7 +69,7 @@ public class ADLSearchDialog extends Dialog {
 
         final Label searchstringLabel = new Label(composite_1, SWT.NONE);
         searchstringLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-        searchstringLabel.setText(Lang.SearchString);
+        searchstringLabel.setText(Lang.ADL_SearchString);
 
         searchStringText = new Text(composite_1, SWT.BORDER);
         searchStringText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
@@ -83,10 +82,10 @@ public class ADLSearchDialog extends Dialog {
         composite_3.setLayout(gridLayout_1);
 
         final Label minSizeLabel = new Label(composite_3, SWT.NONE);
-        minSizeLabel.setText(Lang.MinSize);
+        minSizeLabel.setText(Lang.ADL_MinSize);
 
         final Label maxSizeLabel = new Label(composite_3, SWT.NONE);
-        maxSizeLabel.setText(Lang.MaxSize);
+        maxSizeLabel.setText(Lang.ADL_MaxSize);
 
         minSizeText = new Text(composite_3, SWT.BORDER);
         minSizeText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -95,7 +94,7 @@ public class ADLSearchDialog extends Dialog {
         maxSizeText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
         final Label targetFolderLabel = new Label(composite_1, SWT.NONE);
-        targetFolderLabel.setText(Lang.TargetFolder);
+        targetFolderLabel.setText(Lang.ADL_TargetFolder);
 
         targetFolderText = new Text(composite_1, SWT.BORDER);
         targetFolderText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -106,7 +105,7 @@ public class ADLSearchDialog extends Dialog {
         composite_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 
         final Label searchTypeLabel = new Label(composite_2, SWT.NONE);
-        searchTypeLabel.setText(Lang.SearchType);
+        searchTypeLabel.setText(Lang.ADL_SearchType);
 
         searchTypeCombo = new Combo(composite_2, SWT.READ_ONLY);
         searchTypeCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -118,7 +117,7 @@ public class ADLSearchDialog extends Dialog {
         searchTypeCombo.setText( adlEntry.getSearchType().toString() );
 
         final Label sizeTypeLabel = new Label(composite_2, SWT.NONE);
-        sizeTypeLabel.setText(Lang.SizeType);
+        sizeTypeLabel.setText(Lang.ADL_SizeType);
 
         sizeTypeCombo = new Combo(composite_2, SWT.READ_ONLY);
         sizeTypeCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -131,11 +130,11 @@ public class ADLSearchDialog extends Dialog {
         
 
         activeButton = new Button(composite_2, SWT.CHECK);
-        activeButton.setText(Lang.Active );
+        activeButton.setText(Lang.ADL_Active );
         activeButton.setSelection(adlEntry.isActive());
 
         downloadmatchesButton = new Button(composite_2, SWT.CHECK);
-        downloadmatchesButton.setText(Lang.DownloadMatches);
+        downloadmatchesButton.setText(Lang.ADL_DownloadMatches);
         downloadmatchesButton.setSelection(adlEntry.isDownloadMatches());
         
         setSizes();

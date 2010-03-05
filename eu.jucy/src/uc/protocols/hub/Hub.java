@@ -40,8 +40,6 @@ import org.eclipse.core.runtime.Platform;
 
 
 
-import eu.jucy.language.LanguageKeys;
-
 
 import uc.Command;
 import uc.DCClient;
@@ -52,6 +50,7 @@ import uc.IOperatorPlugin;
 import uc.IUser;
 import uc.Identity;
 import uc.InfoChange;
+import uc.LanguageKeys;
 import uc.PI;
 import uc.User;
 import uc.crypto.HashValue;

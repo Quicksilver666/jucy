@@ -41,8 +41,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.xml.sax.helpers.AttributesImpl;
 
 
-import eu.jucy.language.LanguageKeys;
-
 
 
 
@@ -51,6 +49,7 @@ import uc.DCClient;
 import uc.FavFolders;
 import uc.FavHub;
 import uc.InfoChange;
+import uc.LanguageKeys;
 import uc.PI;
 import uc.User;
 import uc.FavFolders.SharedDir;
