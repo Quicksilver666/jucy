@@ -62,7 +62,7 @@ public class PersonalInformationPreferencePage extends
 	
 		};
 		addField(description);
-		int[] speeds= new int[] {64,96,128,256,512,768,1000,
+		long[] speeds= new long[] {64,96,128,256,512,768,1000,
 				1500,2000,2500,4000,5000,10000,25000,50000,100000}; 
 		
 		String[][] pairs2 = new String[speeds.length][2];
@@ -79,7 +79,7 @@ public class PersonalInformationPreferencePage extends
 			} else {
 				pairs2[i][0] = speeds[i]+"kbps ("+ (speeds[i]*1000/ (1024*8))+"KiB/s)";
 			}
-			pairs2[i][1] = ""+ speeds[i] * 1000/8;
+			pairs2[i][1] = Long.toString(speeds[i] * 1000/8);
 		}
 		
 		

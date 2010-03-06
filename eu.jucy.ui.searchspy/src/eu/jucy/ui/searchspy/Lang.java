@@ -11,17 +11,17 @@ import helpers.NLS;
 public class Lang {
 
 	public static String
-		 Average
-		,Count
-		,Description
-		,HideTTHSearches
-		,HitRatio
-		,Hits
-		,HitsFormatted
-		,SearchSpy
-		,SearchString
-		,Time
-		,Total ;
+		 SPYAverage
+		,SPYCount
+		,SPYDescription
+		,SPYHideTTHSearches
+		,SPYHitRatio
+		,SPYHits
+		,SPYHitsFormatted
+		,SPYSearchSpy
+		,SPYSearchString
+		,SPYTime
+		,SPYTotal ;
 	
 	static {
 		try {

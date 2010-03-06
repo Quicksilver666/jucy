@@ -22,10 +22,13 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Text;
 
 
+import uc.IHasUser;
 import uc.IHub;
 import uc.IUser;
+import uc.IHasUser.IMultiUser;
 import uc.files.MagnetLink;
 import uc.files.filelist.FileListFile;
+import uc.files.filelist.IOwnFileList;
 import uc.files.filelist.IOwnFileList.AddedFile;
 
 import uihelpers.SUIJob;
@@ -123,8 +126,14 @@ public abstract class UCTextEditor extends UCMessageEditor {
 				for (String file:fileList) {
 					File f = new File(file);
 					if (f.isFile()) {
-						ApplicationWorkbenchWindowAdvisor.get().getFilelist()
-							.immediatelyAddFile(f, true, new AddedFile() {
+						IOwnFileList iof = ApplicationWorkbenchWindowAdvisor.get().getFilelist();
+						UCTextEditor uct = UCTextEditor.this;
+						IUser droppedFor =  	  uct instanceof IHasUser 
+											&& ! (uct instanceof IMultiUser) ?
+													((IHasUser)UCTextEditor.this).getUser() 
+													:null;
+								
+						iof.immediatelyAddFile(f, true,droppedFor, new AddedFile() {
 								@Override
 								public void addedFile(final FileListFile file,final boolean addedOutsideShare) {
 									new SUIJob(getText()) {

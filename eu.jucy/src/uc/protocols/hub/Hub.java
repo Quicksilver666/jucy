@@ -21,6 +21,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Inet4Address;
@@ -529,12 +530,16 @@ public class Hub extends DCProtocol implements IHub {
 	}
 	
 	
-	public synchronized void start() {
-		super.start();
+	public void start() {
+		WriteLock lock = writeLock();
+		lock.lock();
 		try {
+			super.start();
 			connection.start();
 		} catch(UnresolvedAddressException uae) {
 			statusMessage(LanguageKeys.AddressCouldNotBeResolved,0); 
+		} finally {
+			lock.unlock();
 		}
 	}
 	
@@ -662,8 +667,14 @@ public class Hub extends DCProtocol implements IHub {
 	
 	
 	
-	public synchronized void increaseSharesize(long difference) {
-		totalshare	+= difference;
+	public void increaseSharesize(long difference) {
+		WriteLock lock = writeLock();
+		lock.lock();
+		try {
+			totalshare	+= difference;
+		} finally {
+			lock.unlock();
+		}
 	}
 	
 	public void onLogIn() throws IOException {
@@ -702,10 +713,16 @@ public class Hub extends DCProtocol implements IHub {
 	 * 
 	 * @param context - information to fill out %[attribs]
 	 */
-	public synchronized void sendRaw(String message,SendContext context) {
-		context.setHub(this);
-		String mes = context.format(message);
-		sendUnmodifiedRaw(mes);
+	public  void sendRaw(String message,SendContext context) {
+		WriteLock lock = writeLock();
+		lock.lock();
+		try {
+			context.setHub(this);
+			String mes = context.format(message);
+			sendUnmodifiedRaw(mes);
+		} finally {
+			lock.unlock();
+		}
 	}
 	
 	/**
@@ -713,14 +730,26 @@ public class Hub extends DCProtocol implements IHub {
 	 * like formatting by context..
 	 * @param mes - the message to be sent..
 	 */
-	synchronized void sendUnmodifiedRaw(String mes) {
-		super.sendRaw(mes);
-		setLastCommand();
+	void sendUnmodifiedRaw(String mes) {
+		WriteLock lock = writeLock();
+		lock.lock();
+		try {
+			super.sendRaw(mes);
+			setLastCommand();
+		} finally {
+			lock.unlock();
+		}
 	}
 	
-	synchronized void sendUnmodifiedRaw(byte[] mes) {
-		super.sendRaw(mes);
-		setLastCommand();
+	void sendUnmodifiedRaw(byte[] mes) {
+		WriteLock lock = writeLock();
+		lock.lock();
+		try {
+			super.sendRaw(mes);
+			setLastCommand();
+		} finally {
+			lock.unlock();
+		}
 	}
 	
 	void passwordRequested() {
@@ -737,7 +766,7 @@ public class Hub extends DCProtocol implements IHub {
 	 * @param pass - the password
 	 * @param base32Rand - random sent by the hub ... null for nmdc
 	 */
-	public synchronized void sendPassword(String pass) {
+	public void sendPassword(String pass) {
 		if (getState() == ConnectionState.CONNECTED) {
 			statusMessage(LanguageKeys.SendingPassword,0);
 			if (nmdc) {
@@ -1343,12 +1372,18 @@ public class Hub extends DCProtocol implements IHub {
 	 * and removes the hub from the client
 	 * called when the user closes the editorpart associated with this hub
 	 */
-	public synchronized void close() {
-		weWantToReconnect	=	false;
-		unregisterCTMListener(identity.getConnectionHandler());
-		dcc.internal_unregisterHub(favHub);
-		connection.close();
-		end();
+	public void close() {
+		WriteLock lock = writeLock();
+		lock.lock();
+		try {
+			weWantToReconnect	=	false;
+			unregisterCTMListener(identity.getConnectionHandler());
+			dcc.internal_unregisterHub(favHub);
+			connection.close();
+			end();
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	/**
@@ -1377,58 +1412,63 @@ public class Hub extends DCProtocol implements IHub {
 
 
 
-	public synchronized void timer() {
-		
-		super.timer();
-		synchronized(loginTimeoutSynch) {
-			if (timerLogintimeout % 10 == 0) {
-				logger.trace("timer signal: "+timerLogintimeout);
-			}
-			
-			if (!isLoginDone() && ++timerLogintimeout == 40) { //40 seconds connection/ login timeout
-				switch(getState()) {
-				case CONNECTED:
-					statusMessage(LanguageKeys.LoginTimeout,0);
-					break;
-				case CONNECTING: 
-					statusMessage(LanguageKeys.ConnectionTimeout,0);
-					break;
-				case CLOSED:
-				case DESTROYED:
-					break;
-				default: 
-					throw new IllegalStateException("timeout occured although current state is: "+getState());
+	public void timer() {
+		WriteLock lock = writeLock();
+		lock.lock();
+		try {
+			super.timer();
+			synchronized(loginTimeoutSynch) {
+				if (timerLogintimeout % 10 == 0) {
+					logger.trace("timer signal: "+timerLogintimeout);
 				}
-				connection.close();
+				
+				if (!isLoginDone() && ++timerLogintimeout == 40) { //40 seconds connection/ login timeout
+					switch(getState()) {
+					case CONNECTED:
+						statusMessage(LanguageKeys.LoginTimeout,0);
+						break;
+					case CONNECTING: 
+						statusMessage(LanguageKeys.ConnectionTimeout,0);
+						break;
+					case CLOSED:
+					case DESTROYED:
+						break;
+					default: 
+						throw new IllegalStateException("timeout occured although current state is: "+getState());
+					}
+					connection.close();
+				}
 			}
-		}
-		if (isNoTrafficTimeOut() && getState() != ConnectionState.CLOSED) {
-			synchronized(lastCommandSynch) {
-				logger.debug("no command received for long time - checking connection: " + (System.currentTimeMillis()-lastCommandTime) );
+			if (isNoTrafficTimeOut() && getState() != ConnectionState.CLOSED) {
+				synchronized(lastCommandSynch) {
+					logger.debug("no command received for long time - checking connection: " + (System.currentTimeMillis()-lastCommandTime) );
+				}
+				
+				
+				if (nmdc) {
+					MyINFO.sendMyINFO(this,true); 
+					//by sending a MyINFO we check if the connection of the hub is fine
+				} else {
+					//in ADC we can't send normal INF with force as this would clear all info..
+					STA.sendSTAtoHub(this, new ADCStatusMessage("Ping Connection",0,0));
+				}
 			}
 			
 			
-			if (nmdc) {
-				MyINFO.sendMyINFO(this,true); 
-				//by sending a MyINFO we check if the connection of the hub is fine
-			} else {
-				//in ADC we can't send normal INF with force as this would clear all info..
-				STA.sendSTAtoHub(this, new ADCStatusMessage("Ping Connection",0,0));
+			if (reconnectRunning && --waitTime < 0 ) {
+				reconnectRunning = false;
+				unsuccessfulConnectionsInARow++; //will be cleared on successful connect.. so ok
+				
+				waitTime = Math.min(30,unsuccessfulConnectionsInARow) *(10 + GH.nextInt(30)); //reset the wait time..
+				if (dcc.isRunningHub(favHub)) { //reconnect if the hub didn't do this already..
+					logger.debug("reconnecting");
+					statusMessage(LanguageKeys.Reconnecting,0);
+					connection.reset(favHub.getInetSocketaddress());
+				}
+				
 			}
-		}
-		
-		
-		if (reconnectRunning && --waitTime < 0 ) {
-			reconnectRunning = false;
-			unsuccessfulConnectionsInARow++; //will be cleared on successful connect.. so ok
-			
-			waitTime = Math.min(30,unsuccessfulConnectionsInARow) *(10 + GH.nextInt(30)); //reset the wait time..
-			if (dcc.isRunningHub(favHub)) { //reconnect if the hub didn't do this already..
-				logger.debug("reconnecting");
-				statusMessage(LanguageKeys.Reconnecting,0);
-				connection.reset(favHub.getInetSocketaddress());
-			}
-			
+		} finally {
+			lock.unlock();
 		}
 	}
 	    

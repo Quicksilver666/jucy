@@ -11,6 +11,7 @@ import uc.crypto.HashValue;
 import uc.crypto.InterleaveHashes;
 
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
+import uc.files.filelist.FileListFile;
 import uc.protocols.Compression;
 import uc.protocols.TransferType;
 import uc.protocols.client.ClientProtocol;
@@ -25,6 +26,8 @@ public class FileTransferInformation  {
 
 
 //	private static Logger logger = LoggerFactory.make(Level.DEBUG);
+	
+	private final DCClient dcc;
 	
 	/**
 	 * transfer will happen with this user
@@ -77,6 +80,7 @@ public class FileTransferInformation  {
 	
 	private AbstractFileInterval fileInterval;
 	
+
 	/**
 	 * for partial Filelist 
 	 * null means whole filelist
@@ -89,6 +93,13 @@ public class FileTransferInformation  {
 
 	private boolean recursive = true; 
 	
+	
+	
+	public FileTransferInformation(DCClient dcc) {
+		super();
+		this.dcc = dcc;
+	}
+
 	/**
 	 * checks if the gained information is valid and can be used
 	 * to create a transfer
@@ -288,7 +299,7 @@ public class FileTransferInformation  {
 			switch(t) {
 			case FILE:
 			case TTHL:
-				f = DCClient.get().getFilelist().getFile(getHashValue());
+				f = dcc.getFilelist().getFile(getHashValue());
 			}
 		} else if (isDownload()) {
 			f = dqe.getTargetPath();
@@ -297,32 +308,41 @@ public class FileTransferInformation  {
 		return f;
 	}
 	
+	public FileListFile getFileListFile() {
+		if (isUpload() && getHashValue() != null) {
+			return dcc.getFilelist().search(getHashValue());
+		}
+		return null;
+	}
+	
+	
 	/**
 	 * creates a file interval for the upload..
 	 * 
-	 * @param dcc  dcclient used to fill out information.. i.e. filelist/Interleave hashes
 	 * @return true if creation was successful
 	 */
-	public boolean setFileInterval(DCClient dcc) {
+	public boolean setFileInterval() {
 		fileInterval = null;
 		if (isUpload()) {
 			File f = null;
 			switch(getType()) {
 			case FILE:
-				
-				f  = dcc.getFilelist().getFile(getHashValue());  //retrieve real file
-				if (f != null && f.canRead()) {
-					long startpos = getStartposition();
-					if (getLength() == -1) {
-						setLength( f.length() - startpos);
+				FileListFile flfile = dcc.getFilelist().search(getHashValue());
+				if (flfile != null && flfile.mayDownload(getOther())) {
+					f  = dcc.getFilelist().getFile(flfile);
+					if (f != null && f.canRead()) {
+						long startpos = getStartposition();
+						if (getLength() == -1) {
+							setLength( f.length() - startpos);
+						}
+						//check if the requested length is not too long..
+						if (getLength() + getStartposition() > f.length()) {
+							setLength(f.length()- getStartposition() );
+						}
+						
+						fileInterval = new ReadableFileInterval(f,getStartposition(),getLength()); 
+						setNameOfTransferred(f.getName());
 					}
-					//check if the requested length is not too long..
-					if (getLength() + getStartposition() > f.length()) {
-						setLength(f.length()- getStartposition() );
-					}
-					
-					fileInterval = new ReadableFileInterval(f,getStartposition(),getLength()); 
-					setNameOfTransferred(f.getName());
 				}
 				break;
 			case FILELIST:

@@ -48,6 +48,7 @@ import org.xml.sax.helpers.AttributesImpl;
 import uc.DCClient;
 import uc.FavFolders;
 import uc.FavHub;
+import uc.IUser;
 import uc.InfoChange;
 import uc.LanguageKeys;
 import uc.PI;
@@ -427,7 +428,12 @@ public class OwnFileList implements IOwnFileList  {
 		return null;
 	}
 	
-	public void immediatelyAddFile(File file,final boolean force,final AddedFile callback) {
+	
+	public void immediatelyAddFile(File file) {
+		immediatelyAddFile(file,false,null,new AddedFile());
+	}
+	
+	public void immediatelyAddFile(File file,final boolean force,final IUser restrictForUser,final AddedFile callback) {
 	//	logger.info("immediately adding file: "+file);
 		
 		HashedFile hf = dcc.getDatabase().getHashedFile(file);
@@ -436,13 +442,16 @@ public class OwnFileList implements IOwnFileList  {
 			hashEngine.hashFile(file,true, new IHashedFileListener() {
 				public void hashedFile(HashedFile hashedFile, InterleaveHashes ilh) {
 					database.addOrUpdateFile(hashedFile, ilh);
-					immediatelyAddFile(hashedFile.getPath(),force,callback);
+					immediatelyAddFile(hashedFile.getPath(),force,restrictForUser,callback);
 				}
 			});
 			return;
 		}
 		
 		FileListFile addedFile = fileList.search(hf.getTTHRoot());
+		if (addedFile instanceof SpecialFileListFile) {
+			((SpecialFileListFile) addedFile).add(restrictForUser);
+		}
 		if (addedFile == null && tf != null) {
 
 			String dirPath = tf.getRealPath().getPath()+File.separator;
@@ -464,7 +473,7 @@ public class OwnFileList implements IOwnFileList  {
 		}
 		boolean addedOutsideOfShare = false;
 		if (addedFile == null && force) {
-			addedFile = new SpecialFileListFile(hf, hiddenTop);
+			addedFile = new SpecialFileListFile(hf, hiddenTop,restrictForUser);
 			addedOutsideOfShare = true;
 		}
 		if (addedFile != null) {
@@ -725,7 +734,7 @@ public class OwnFileList implements IOwnFileList  {
 			newFolder.notifyChanges = false;
 			for (FileListFile file:getFiles()) {
 				SpecialFileListFile sflf = (SpecialFileListFile)file;
-				new SpecialFileListFile(sflf.hf, newFolder);
+				new SpecialFileListFile(sflf, newFolder);
 			}
 			newFolder.notifyChanges = true;
 			return newFolder;
@@ -777,14 +786,56 @@ public class OwnFileList implements IOwnFileList  {
 	}
 	
 	public static class SpecialFileListFile extends FileListFile {
+		private static final Object synchRestriction = new Object();
 		private final HashedFile hf;
-		public SpecialFileListFile(HashedFile hf,HiddenTopFolder htf) {
+		private Set<IUser> restriction ;
+		
+		public SpecialFileListFile(SpecialFileListFile cc,HiddenTopFolder htf) {
+			this(cc.hf,htf,null);
+			synchronized(synchRestriction) {
+				this.restriction = cc.restriction;
+			}
+		}
+		public SpecialFileListFile(HashedFile hf,HiddenTopFolder htf,IUser restriction) {
 			super(htf,hf.getPath().getName(),hf.getPath().length(),hf.getTTHRoot());
 			this.hf = hf;
+			synchronized(synchRestriction) {
+				if (restriction != null) {
+					this.restriction = new HashSet<IUser>();
+					this.restriction.add(restriction);
+				} else {
+					restriction = null;
+				}
+			}
 		}
 		
+		
+		
+		@Override
+		public boolean automaticExtraSlot() {
+			return true;
+		}
 		public void remove() {
 			getParent().removeChild(this);
+		}
+		
+		public void add(IUser restricted) {
+			synchronized(synchRestriction) {
+			if (restriction != null) {
+				if (restricted == null) {
+					restriction = null;
+				} else {
+					restriction.add(restricted);
+				}
+			}
+			}
+		}
+		
+		@Override
+		public boolean mayDownload(IUser usr) {
+			synchronized(synchRestriction) {
+				return restriction == null || restriction.contains(usr);
+			}
 		}
 		
 		@Override

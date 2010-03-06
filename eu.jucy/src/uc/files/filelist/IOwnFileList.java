@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Set;
 
 import uc.IStoppable;
+import uc.IUser;
 import uc.crypto.HashValue;
 import uc.files.filelist.OwnFileList.SearchParameter;
 
@@ -55,13 +56,15 @@ public interface IOwnFileList extends IStoppable {
 	 * immediately add given file to The own filelist
 	 * @param file - the file to be added.. possibly something downloaded
 	 * @param if true the file will be added even if the location is not shared..
+	 * @param restrictForUser   if not null -> file may only be downloaded by given user (only if added outsode ofshare..)
 	 * @param callback - called when adding is finished 
 	 * 
 	 * @return true if the file will be added outs
 	 * 
 	 */
-	void immediatelyAddFile(File file,boolean force,AddedFile callback);
+	void immediatelyAddFile(File file,boolean force,IUser restrictForUser,AddedFile callback);
 	
+	void immediatelyAddFile(File file);
 	
 	public static class AddedFile {
 		public void addedFile(FileListFile file,boolean addedOutsideOfShare){}

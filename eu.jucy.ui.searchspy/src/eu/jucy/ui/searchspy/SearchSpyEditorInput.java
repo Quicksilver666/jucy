@@ -9,7 +9,7 @@ public class SearchSpyEditorInput extends UCEditorInput {
 
 
 	public String getName() {
-		return Lang.SearchSpy;
+		return Lang.SPYSearchSpy;
 	}
 	
 

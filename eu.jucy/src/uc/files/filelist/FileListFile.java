@@ -7,6 +7,7 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
+import uc.IUser;
 import uc.User;
 import uc.crypto.HashValue;
 import uc.files.AbstractDownloadable.AbstractDownloadableFile;
@@ -51,6 +52,15 @@ public class FileListFile extends AbstractDownloadableFile implements IDownloada
 		atts.addAttribute("", "", "TTH", "CDATA", tth.toString());
 		hd.startElement("", "", "File", atts);
 		hd.endElement("", "", "File");
+	}
+	
+	public boolean mayDownload(IUser usr) {
+		//TODO here identity check ... on trying to download here coukld be denied if file is not available to other user
+		return true;
+	}
+	
+	public boolean automaticExtraSlot() {
+		return false;
 	}
 
 

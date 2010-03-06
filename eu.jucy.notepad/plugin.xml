@@ -5,7 +5,7 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            name="%editor.name"
+            name="%editor_name"
             icon="icons/notepad.22.png"
             class="eu.jucy.notepad.editors.Notepad"
             id="eu.jucy.notepad">
@@ -17,7 +17,7 @@
             defaultHandler="eu.jucy.notepad.editors.OpenNotepad"
             description="%command.description"
             id="eu.jucy.notepad.command1"
-            name="%command.name">
+            name="%command_name">
          <commandParameter
                id="NOTEPAD_PARM"
                name="NOTEPAD_PARM"
@@ -69,7 +69,7 @@
                   commandId="eu.jucy.notepad.command1"
                   icon="icons/notepad.22.png"
                   style="push"
-                  tooltip="%command.description">
+                  tooltip="%command_description">
                <parameter
                      name="NOTEPAD_PARM"
                      value="notepad2">
@@ -86,7 +86,7 @@
                   commandId="eu.jucy.notepad.command1"
                   icon="icons/notepad.22.png"
                   style="push"
-                  tooltip="%command.description">
+                  tooltip="%command_description">
                <parameter
                      name="NOTEPAD_PARM"
                      value="notepad3">
@@ -103,7 +103,7 @@
                   commandId="eu.jucy.notepad.command1"
                   icon="icons/notepad.22.png"
                   style="push"
-                  tooltip="%command.description">
+                  tooltip="%command_description">
                <parameter
                      name="NOTEPAD_PARM"
                      value="notepad4">
@@ -124,7 +124,7 @@
                commandId="eu.jucy.notepad.command1"
                icon="icons/notepad.22.png"
                style="push"
-               tooltip="%command.description">
+               tooltip="%command_description">
             </command>
       </menuContribution>
    </extension>

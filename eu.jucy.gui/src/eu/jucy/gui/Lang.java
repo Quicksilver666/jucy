@@ -52,7 +52,6 @@ public class Lang {
 		,CloseConnection
 		,CloseDescription
 		,Command
-		,ConfigurePublicHubLists
 		,Connect
 		,ConnectingTo
 		,Connection
@@ -78,7 +77,6 @@ public class Lang {
 		,Downloads
 		,Duration
 		,EMail
-		,EnterAddressOfTheHublist
 		,EnterSearch
 		,Errors
 		,ExactSize
@@ -137,8 +135,6 @@ public class Lang {
 		,HubExplaCommands
 		,HubIsAlreadyFavorite
 		,HubMenu
-		,HubRequestedPassword
-		,Hublist
 		,Hubs
 		,IP
 		,Identification
@@ -148,7 +144,6 @@ public class Lang {
 		,IncomingConnectionSettings
 		,LastRequest
 		,LineSpeed
-		,LoadHublist
 		,LogFeed
 		,LogMainchat
 		,LogPM
@@ -160,7 +155,6 @@ public class Lang {
 		,Low
 		,Lowest
 		,MatchQueue
-		,MatchedXFilesWithUserY
 		,MaxHashSpeed
 		,Maximize
 		,MaximumSimultaneousDownloads

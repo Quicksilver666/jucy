@@ -490,7 +490,6 @@ public class ConnectionHandler extends Observable<StatusObject>
 	}
 	
 	public void addStatemachine(IUser usr,ClientProtocolStateMachine  ccps) {
-		
 		interesting.put(usr, ccps);
 		addObserver(ccps);
 		notifyOfChange(STATEMACHINE_CREATED, null, ccps);

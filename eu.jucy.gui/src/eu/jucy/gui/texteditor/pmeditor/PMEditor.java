@@ -52,6 +52,7 @@ import eu.jucy.gui.texteditor.hub.HubEditorInput;
 
 
 
+import uc.IHasUser;
 import uc.IHub;
 import uc.IUser;
 import uc.LanguageKeys;
@@ -62,7 +63,7 @@ import uihelpers.SUIJob;
 import uihelpers.ToasterUtil;
 
 
-public class PMEditor extends UCTextEditor implements  IUserChangedListener {
+public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHasUser {
 
 	private static final Logger logger = LoggerFactory.make();
 	
@@ -253,7 +254,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener {
 	}
 
 
-	private IUser getUser() {
+	public IUser getUser() {
 		return ((PMEditorInput)getEditorInput()).getOther();
 	}
 

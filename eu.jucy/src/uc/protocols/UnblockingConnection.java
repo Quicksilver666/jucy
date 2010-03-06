@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
 import java.util.regex.Matcher;
 
 import javax.net.ssl.SSLEngine;
@@ -245,12 +246,14 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			sochan.close();
 			DCClient.execute(new Runnable() {
 				public void run() {
-					synchronized(cp) {
-						try {
-							cp.onDisconnect();
-						} catch(IOException ioe) {
-							logger.error(ioe,ioe); 
-						}
+					Lock wl = cp.writeLock();
+					wl.lock();
+					try {	
+						cp.onDisconnect();
+					} catch(IOException ioe) {
+						logger.error(ioe,ioe); 
+					} finally {
+						wl.unlock();
 					}
 				}
 			});
@@ -332,22 +335,25 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			connectSent = true;
 			DCClient.execute(new Runnable() {
 				public void run() {
-					synchronized (cp) {
-						try {
-							if (cp.getState() == ConnectionState.CONNECTING) {
-								if (getInetSocketAddress() != null) { // check one last time for socket addy being set..
-									cp.onConnect();
-								} else {
-									asynchClose();
-								}
-							} else if (Platform.inDevelopmentMode() && cp.getState() != ConnectionState.DESTROYED) {//TODO remove here .. only debug
-								 logger.warn("bad connection state: "+cp.getState()+"  "+cp.getClass().getSimpleName());
+					Lock l = cp.writeLock();
+					l.lock();
+					try {
+						if (cp.getState() == ConnectionState.CONNECTING) {
+							if (getInetSocketAddress() != null) { // check one last time for socket addy being set..
+								cp.onConnect();
+							} else {
+								asynchClose();
 							}
-			
-						} catch (IOException ioe) {
-							logger.debug(ioe, ioe);
+						} else if (Platform.inDevelopmentMode() && cp.getState() != ConnectionState.DESTROYED) {//TODO remove here .. only debug
+							 logger.warn("bad connection state: "+cp.getState()+"  "+cp.getClass().getSimpleName());
 						}
+			
+					} catch (IOException ioe) {
+						logger.debug(ioe, ioe);
+					} finally {
+						l.unlock();
 					}
+					
 					semaphore.release();
 					synchronized (bufferLock) { //check if VarInBuffer already contains sth..
 						checkRead();
@@ -478,42 +484,36 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 						if (sochan.isConnectionPending()) {
 							sochan.finishConnect();
 						}
-						GH.sleep(50);
-						synchronized(cp) {
-							if (startconnect + cp.getSocketTimeout() < System.currentTimeMillis()) {
-								sochan.close();
-							}
+						GH.sleep(50);	
+						if (startconnect + cp.getSocketTimeout() < System.currentTimeMillis()) {
+							sochan.close();
 						}
 					}
-					
-					
-					synchronized(cp) {
-						if (sochan.isOpen() && cp.getState() == ConnectionState.CONNECTING) {
+					if (sochan.isOpen() && cp.getState() == ConnectionState.CONNECTING) {
+						synchronized (inetAddySynch) {
+							logger.debug("connected to: "+inetAddress.getAddress().getHostAddress());
+						}
+						if (encryption) {
 							synchronized (inetAddySynch) {
-								logger.debug("connected to: "+inetAddress.getAddress().getHostAddress());
-							}
-							if (encryption) {
-								synchronized (inetAddySynch) {
-									if (problematic.contains(inetAddress.getAddress()) || !(target instanceof String) ) { 
-										List<String> s = Arrays.asList(engine.getEnabledCipherSuites());
-										s = GH.filter(s, "_DHE_");
-										s = GH.filter(s, "_ECDH_");
-										s = GH.filter(s, "_ECDHE_");
-										s = GH.filter(s, "_DH_");
-										engine.setEnabledCipherSuites(s.toArray(new String[]{}));
-										logger.debug("enabled ciphers: "+GH.toString(engine.getEnabledCipherSuites()));
-									}
+								if (problematic.contains(inetAddress.getAddress()) || !(target instanceof String) ) { 
+									List<String> s = Arrays.asList(engine.getEnabledCipherSuites());
+									s = GH.filter(s, "_DHE_");
+									s = GH.filter(s, "_ECDH_");
+									s = GH.filter(s, "_ECDHE_");
+									s = GH.filter(s, "_DH_");
+									engine.setEnabledCipherSuites(s.toArray(new String[]{}));
+									logger.debug("enabled ciphers: "+GH.toString(engine.getEnabledCipherSuites()));
 								}
+							}
 							//	logger.debug("enabled ciphers: "+GH.toString(engine.getEnabledCipherSuites()));
 							/*	if (!semaphore.tryAcquire()) {//prevent reading of commands..
 									throw new IOException("Acquire failed");
 								} */
 								//semaphore.acquireUninterruptibly();
 						
-								send(ByteBuffer.allocate(0)); //send an empty message to start handshake..
-							} else {
-								signalOnConnect();
-							}
+							send(ByteBuffer.allocate(0)); //send an empty message to start handshake..
+						} else {
+							signalOnConnect();
 						}
 					}
 
@@ -546,12 +546,14 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				stringbuffer.append(s);
 			}
 			
-			synchronized(cp) {
+			Lock l = cp.writeLock();
+			l.lock();
+			try {
 				//logger.debug("processread("+stringbuffer.toString()+")");
 				Matcher m = null;
 				while ((m = cp.getCommandRegexPattern().matcher(stringbuffer)).find()) {
 					String found = m.group(1);
-				//	logger.debug("command: "+found);
+					//	logger.debug("command: "+found);
 					if (!GH.isNullOrEmpty(found)) {
 						stringbuffer.delete(0, m.end());
 						try {
@@ -567,15 +569,17 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 						} catch (RuntimeException re) {
 							logger.warn(re,re); 
 						}
-						
+
 					}  else {
 						stringbuffer.deleteCharAt(0);
 						break;
 					}
 				}
+			} finally {
+				l.unlock();
 			}
-			
-			
+
+
 			synchronized(bufferLock) {
 				stopp = !varInBuffer.hasRemaining();
 			}
@@ -676,8 +680,13 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 
 		logger.debug("after registering reset(sochan)");
 		
-		synchronized(cp) {
+
+		Lock l = cp.writeLock();
+		l.lock();
+		try {
 			cp.beforeConnect();
+		} finally {
+			l.unlock();
 		}
 				
 		logger.debug("registered key with channel");

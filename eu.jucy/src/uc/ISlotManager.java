@@ -1,7 +1,8 @@
 package uc;
 
-import java.io.File;
 
+
+import uc.files.filelist.FileListFile;
 import uc.files.transfer.Slot;
 import uc.protocols.TransferType;
 
@@ -17,7 +18,7 @@ public interface ISlotManager {
 	 * @param f if its a file the file is provided
 	 * @return a slot if available  null if none
 	 */
-	Slot getSlot(IUser usr, TransferType type, File f);
+	Slot getSlot(IUser usr, TransferType type, FileListFile f);
 
 	/**
 	 * returns a slot after use to the client so someone else can reuse it..

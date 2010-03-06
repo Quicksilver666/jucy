@@ -102,7 +102,7 @@ public class SearchSpyEditor extends UCEditor implements ISearchReceivedListener
 		});
 		ignoreTthSearchesButton.setSelection(false);
 		ignoreTthSearchesButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		ignoreTthSearchesButton.setText(Lang.HideTTHSearches);
+		ignoreTthSearchesButton.setText(Lang.SPYHideTTHSearches);
 
 		totalLabel = new Label(composite, SWT.BORDER);
 		totalLabel.setLayoutData(new GridData(100, SWT.DEFAULT));
@@ -160,10 +160,10 @@ public class SearchSpyEditor extends UCEditor implements ISearchReceivedListener
 	}
 	
 	private void updateLabels() {
-		totalLabel.setText(String.format(Lang.Total,totalSearches)); 
-		averageLabel.setText(String.format(Lang.Average,Float.valueOf(getAverage())));
-		hitsLabel.setText(String.format(Lang.HitsFormatted,hits));
-		hitRatioLabel.setText(String.format(Lang.HitRatio,(float)hits/(float)totalSearches));
+		totalLabel.setText(String.format(Lang.SPYTotal,totalSearches)); 
+		averageLabel.setText(String.format(Lang.SPYAverage,Float.valueOf(getAverage())));
+		hitsLabel.setText(String.format(Lang.SPYHitsFormatted,hits));
+		hitRatioLabel.setText(String.format(Lang.SPYHitRatio,(float)hits/(float)totalSearches));
 	}
 	
 	private float getAverage() {

@@ -36,12 +36,11 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.xml.sax.SAXException;
 
 import uc.DCClient;
-import uc.LanguageKeys;
 import uihelpers.SUIJob;
 import uihelpers.StandardContentAndLabelProvider;
 import uihelpers.TableColumnSorter;
 
-import eu.jucy.gui.Lang;
+
 import eu.jucy.gui.UCEditor;
 import eu.jucy.hublist.Column;
 import eu.jucy.hublist.HubList;
@@ -136,7 +135,7 @@ public class HublistEditor extends UCEditor {
 		});
 		//TODO internationalization
 		final Group configuredPublicHubGroup = new Group(composite, SWT.NONE);
-		configuredPublicHubGroup.setText("Configured Public Hub List");
+		configuredPublicHubGroup.setText(Lang.PublicHubsList);
 		configuredPublicHubGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		final GridLayout gridLayout_3 = new GridLayout();
 		gridLayout_3.marginHeight = 0;
@@ -148,6 +147,7 @@ public class HublistEditor extends UCEditor {
 		hublistsCombo.setItems(HublistPI.getHublists());
 		hublistsCombo.select(0);
 		hublistsCombo.setVisibleItemCount(15);
+		
 
 		final Button button = new Button(composite, SWT.NONE);
 		button.addSelectionListener(new SelectionAdapter() {
@@ -156,7 +156,7 @@ public class HublistEditor extends UCEditor {
 			}
 		});
 		button.setLayoutData(new GridData());
-		button.setText(LanguageKeys.LoadHublist);
+		button.setText(Lang.LoadHublist);
 
 		final Composite composite_1 = new Composite(composite, SWT.NONE);
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
@@ -373,10 +373,10 @@ public class HublistEditor extends UCEditor {
 	}
 	
 	protected void setHubLabel(int hubs) {
-		hubLabel.setText(Lang.Hubs+": "+hubs);
+		hubLabel.setText(String.format(Lang.HLHubs,hubs));
 	}
 	protected void setUsersLabel(long users) {
-		usersLabel.setText(Lang.Users+": "+users);
+		usersLabel.setText(String.format(Lang.HLUsers,users));
 	}
 
 }

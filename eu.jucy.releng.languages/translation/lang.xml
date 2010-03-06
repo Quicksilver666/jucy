@@ -410,13 +410,7 @@ UPnP: %s</ru>
 <it>Comando</it>
 <ru>Команда</ru>
 </Trl>
-<Trl id="ConfigurePublicHubLists">
-<de>Konfiguriere Öffentliche Hublisten</de>
-<en>Configure Public Hubs List</en>
-<hu>Publikus Hub Lista Konfigurálása</hu>
-<it>Configura HubList</it>
-<ru>Настройки списка публичных хабов</ru>
-</Trl>
+
 <Trl id="Connect">
 <de>Verbinde</de>
 <en>Connect</en>
@@ -590,13 +584,7 @@ UPnP: %s</ru>
 <it>E-Mail</it>
 <ru>E-Mail</ru>
 </Trl>
-<Trl id="EnterAddressOfTheHublist">
-<de>Addresse der Hubliste eingeben</de>
-<en>Enter Address of the Hublist</en>
-<hu>Add meg a Hublista címét</hu>
-<it>Inserisci indirizzo dell'Hublist</it>
-<ru>Введите адрес для списка хабов</ru>
-</Trl>
+
 <Trl id="EnterSearch">
 <de>suche eingeben</de>
 <en>enter search</en>
@@ -992,25 +980,7 @@ UPnP: %s</ru>
 <it>Hub Menu</it>
 <ru>Меню хаба</ru>
 </Trl>
-<Trl id="HubRequestedPassword">
-<de>Hub verlangt Passwort!
- Sende ein Passwort in dem du: /pass &lt;password&gt;   tippst</de>
-<en>Hub requests password!
- Send a password by typing: /pass &lt;password&gt;</en>
-<hu>A Hub jelszót kér!
- Így küldd el a jelszót: /pass &lt;jelszó&gt;</hu>
-<it>L'hub ha richiesto una password!
- Invia la password scrivendo: /pass &lt;password&gt;</it>
-<ru>Хаб требует пароль для доступа!
- Отправьте пароль командой: /pass &lt;password&gt;</ru>
-</Trl>
-<Trl id="Hublist">
-<de>Hubliste</de>
-<en>Hublist</en>
-<hu>Hublista</hu>
-<it>Lista hub</it>
-<ru>Список хабов</ru>
-</Trl>
+
 <Trl id="Hubs">
 <de>Hubs</de>
 <en>Hubs</en>
@@ -1068,18 +1038,11 @@ UPnP: %s</ru>
 <ru>Последний запрос</ru>
 </Trl>
 <Trl id="LineSpeed">
-<de>Leitungstempo (upload in MiBits/s)</de>
-<en>Line speed (upload in MiBits/s)</en>
-<hu>Feltöltési sebesség (MiBits/s-ban)</hu>
-<it>Velocità connessione (upload in MiBits/s)</it>
-<ru>Скорость подключения (отдача в Мбит/с)</ru>
-</Trl>
-<Trl id="LoadHublist">
-<de>Lade Hubliste</de>
-<en>Load Hublist</en>
-<hu>Hublista betöltése</hu>
-<it>Scarica Hublist</it>
-<ru>Загрузить список хабов</ru>
+<de>Leitungstempo (upload)</de>
+<en>Line speed (upload)</en>
+<hu>Feltöltési sebesség </hu>
+<it>Velocità connessione (upload)</it>
+<ru>Скорость подключения (отдача)</ru>
 </Trl>
 <Trl id="LogFeed">
 <de>Logge Feed</de>
@@ -1157,13 +1120,6 @@ UPnP: %s</ru>
 <hu>Találati sor</hu>
 <it>Confronta coda</it>
 <ru>Сличить с очередью</ru>
-</Trl>
-<Trl id="MatchedXFilesWithUserY">
-<de>%1$s Dateien abgeglichen mit %2$s</de>
-<en>Matched %1$s files with %2$s</en>
-<hu>Matched %1$s files with %2$s</hu>
-<it>Trovati %1$s file di %2$s</it>
-<ru>Нашлось %1$s нужных файлов у %2$s</ru>
 </Trl>
 <Trl id="MaxHashSpeed">
 <de>Maximale Hash Geschwindigkeit (in MiB/s, 0 = unbegrenzt)</de>
@@ -2242,13 +2198,6 @@ UPnP: %s</ru>
 </Trl>
 </Plugin>
 <Plugin id="eu.jucy" name="language" langclass="uc.LanguageKeys">
-<Trl id="ActionMen">
-<de>Aktion</de>
-<en>Action</en>
-<hu>Mûködés</hu>
-<it>Azioni</it>
-<ru>Действие</ru>
-</Trl>
 <Trl id="Active">
 <de>Aktiv</de>
 <en>Active</en>
@@ -2263,34 +2212,6 @@ UPnP: %s</ru>
 <it>Aggiungi</it>
 <ru>Добавить</ru>
 </Trl>
-<Trl id="AddFolder">
-<de>Neuer Ordner</de>
-<en>Add folder</en>
-<hu>Hozzáadás</hu>
-<it>Aggiungi Cartella</it>
-<ru>Добавить папку</ru>
-</Trl>
-<Trl id="AddToFavorites">
-<de>Hinzufügen zu Favoriten</de>
-<en>Add To Favourites</en>
-<hu>Kedvencekhez Adás</hu>
-<it>Aggiungi ai preferiti</it>
-<ru>Добавить в избранные</ru>
-</Trl>
-<Trl id="Added">
-<de>Hinzugefügt</de>
-<en>Added</en>
-<hu>Hozzáadva</hu>
-<it>Aggiunto</it>
-<ru>Добавлено</ru>
-</Trl>
-<Trl id="Address">
-<de>Addresse</de>
-<en>Address</en>
-<hu>Cím</hu>
-<it>Indirizzo</it>
-<ru>Адрес</ru>
-</Trl>
 <Trl id="AddressCouldNotBeResolved">
 <de>Addresse konnte nicht aufgelöst werden</de>
 <en>Address could not be resolved</en>
@@ -2298,27 +2219,7 @@ UPnP: %s</ru>
 <it>L'indirizzo non può essere risolto</it>
 <ru>Не получилось найти адрес</ru>
 </Trl>
-<Trl id="All">
-<de>Alle</de>
-<en>All</en>
-<hu>Mind</hu>
-<it>Tutti</it>
-<ru>Все</ru>
-</Trl>
-<Trl id="AllXUsersOffline">
-<de>Alle %1$s User offline</de>
-<en>All %1$s Users offline</en>
-<hu>Minden %1$s felhasználó offline</hu>
-<it>Tutti i %1$s User offline</it>
-<ru>Все %1$s источников не в сети</ru>
-</Trl>
-<Trl id="AllowUsingUPnP">
-<de>Nutze UPnP wenn nötig</de>
-<en>Use UPnP if needed</en>
-<hu>UPnP használata, ha szükséges</hu>
-<it>Usa UPnP se possibile</it>
-<ru>Использовать UPnP по необходимости</ru>
-</Trl>
+
 <Trl id="AtLeast">
 <de>Mindestens</de>
 <en>At least</en>
@@ -2333,20 +2234,7 @@ UPnP: %s</ru>
 <it>Al massimo</it>
 <ru>Не более</ru>
 </Trl>
-<Trl id="AutoConnect">
-<de>Automatisch verbinden</de>
-<en>Auto connect</en>
-<hu>Automatikus csatlakozás</hu>
-<it>Connessione Automatica</it>
-<ru>Автоподключение</ru>
-</Trl>
-<Trl id="AutoGrantSlot">
-<de>Automatisch slot gewähren</de>
-<en>Auto grant slot</en>
-<hu>Automatikus slot biztosítása</hu>
-<it>Slot Extra Automatico</it>
-<ru>Автовыдача слота</ru>
-</Trl>
+
 <Trl id="Average">
 <de>Durchschnitt/s: %.2f</de>
 <en>Average/s: %.2f</en>
@@ -2354,20 +2242,7 @@ UPnP: %s</ru>
 <it>Media: %.2f</it>
 <ru>Частота: %.2f</ru>
 </Trl>
-<Trl id="Browse">
-<de>Durchsuchen</de>
-<en>Browse</en>
-<hu>Tallózás</hu>
-<it>Apri</it>
-<ru>Обзор</ru>
-</Trl>
-<Trl id="BrowseFilelist">
-<de>Durchsuche Dateiliste</de>
-<en>Browse FileList</en>
-<hu>Fájllista Tallózása</hu>
-<it>Apri Lista File</it>
-<ru>Просмотреть список файлов</ru>
-</Trl>
+
 <Trl id="CDCheckFirewall">
 <de>Falls eine Firewall vorhanden ist überprüfe ob sie jucy erlaubt.</de>
 <en>If a firewall is present check if it allows jucy's traffic.</en>
@@ -2442,99 +2317,7 @@ UPnP potrebbe aver fallito per colpa di un software firewall.</it>
 <ru>
 UPnP могло не сработать из-за программного брандмауэра.</ru>
 </Trl>
-<Trl id="CSNATDetected">
-<de>NAT erkannt</de>
-<en>NAT detected</en>
-<hu>NAT detektálva</hu>
-<it>Trovato NAT</it>
-<ru>Обнаружен NAT</ru>
-</Trl>
-<Trl id="CSNOTWORKING">
-<de>FUNKTIONIERT NICHT</de>
-<en>NOT WORKING</en>
-<hu>NEM MÛKÖDIK</hu>
-<it>NON FUNZIONANTE</it>
-<ru>НЕ РАБОТАЕТ</ru>
-</Trl>
-<Trl id="CSNoNATDetected">
-<de>Direkte Verbindung</de>
-<en>Direct Connection</en>
-<hu>Közvetlen Csatlakozás</hu>
-<it>Connessione Diretta (Attivo)</it>
-<ru>Прямое соединение</ru>
-</Trl>
-<Trl id="CSPassiveMode">
-<de>Passiv Modus (Eingeschränkte Suche, von anderen passiven kann nicht geladen werden)</de>
-<en>Passive Mode (Restricted Search, no download from other passive users)</en>
-<hu>Passzív Mód (Korlátozott Keresés, letöltés nem lehetséges más passzív felhasználótól)</hu>
-<it>Modalità Passiva (Ricerca limitata, non scarichi da altri utenti passivi)</it>
-<ru>Пассивный режим (поиск ограничен, нельзя скачивать с других пассивных пользователей)</ru>
-</Trl>
-<Trl id="CSToolTip">
-<de>IP: %s 
-%s
-TCP status: %s
-TCP+TLS status: %s
-UDP status: %s
-UPnP status: %s</de>
-<en>IP: %s 
-%s
-TCP state: %s
-TCP+TLS state: %s
-UDP state: %s
-UPnP state: %s</en>
-<hu>IP: %s 
-%s
-TCP állapota: %s
-TCP+TLS állapota: %s
-UDP állapota: %s
-UPnP állapota: %s</hu>
-<it>IP: %s
-Stato TCP: %s
-Stato UDP: %s
-Stato UPnP: %s</it>
-<ru>IP: %s.
-%s
-TCP: %s
-TCP+TLS: %s
-UDP: %s
-UPnP: %s</ru>
-</Trl>
-<Trl id="CSUNKNOWN">
-<de>UNBEKANNT</de>
-<en>UNKNOWN</en>
-<hu>ISMERETLEN</hu>
-<it>SCONOSCIUTO</it>
-<ru>НЕТ ДАННЫХ</ru>
-</Trl>
-<Trl id="CSWORKING">
-<de>FUNKTIONIERT</de>
-<en>WORKING</en>
-<hu>MÛKÖDIK</hu>
-<it>FUNZIONANTE</it>
-<ru>РАБОТАЕТ</ru>
-</Trl>
-<Trl id="ChatOnly">
-<de>Nur Chat</de>
-<en>ChatOnly</en>
-<hu>Csak Chat</hu>
-<it>Solo Chat</it>
-<ru>Только чат</ru>
-</Trl>
-<Trl id="ChooseFolder">
-<de>Wähle Ordner</de>
-<en>Choose folder</en>
-<hu>Válassz könyvtárat</hu>
-<it>Scegli Cartella</it>
-<ru>Выберите папку</ru>
-</Trl>
-<Trl id="CloseConnection">
-<de>Schliesse Verbindung</de>
-<en>Close connection</en>
-<hu>Kapcsolat lezárása</hu>
-<it>Chiudi Connessione</it>
-<ru>Прервать соединение</ru>
-</Trl>
+
 <Trl id="Closed">
 <de>Geschlossen</de>
 <en>Closed</en>
@@ -2542,26 +2325,7 @@ UPnP: %s</ru>
 <it>Chiuso</it>
 <ru>Закрыто</ru>
 </Trl>
-<Trl id="Command">
-<en>Command</en>
-<hu>Parancs</hu>
-<it>Comando</it>
-<ru>Команда</ru>
-</Trl>
-<Trl id="ConfigurePublicHubLists">
-<de>Konfiguriere Öffentliche Hublisten</de>
-<en>Configure Public Hubs List</en>
-<hu>Publikus Hub Lista Konfigurálása</hu>
-<it>Configura HubList</it>
-<ru>Настройки списка публичных хабов</ru>
-</Trl>
-<Trl id="Connect">
-<de>Verbinde</de>
-<en>Connect</en>
-<hu>Kapcsolódás</hu>
-<it>Connetti</it>
-<ru>Подключиться</ru>
-</Trl>
+
 <Trl id="Connected">
 <de>Verbunden</de>
 <en>Connected</en>
@@ -2576,27 +2340,7 @@ UPnP: %s</ru>
 <it>Connessione in corso</it>
 <ru>Подключаемся</ru>
 </Trl>
-<Trl id="ConnectingTo">
-<de>Verbinde zu %s ...</de>
-<en>Connecting to %s ...</en>
-<hu>Kapcsolódás %s-hoz ...</hu>
-<it>Connessione a %s ...</it>
-<ru>Подключаемся к %s ...</ru>
-</Trl>
-<Trl id="Connection">
-<de>Verbindung</de>
-<en>Connection</en>
-<hu>Kapcsolat</hu>
-<it>Connessione</it>
-<ru>Соединение</ru>
-</Trl>
-<Trl id="ConnectionSettings">
-<de>Verbindungs Einstellungen</de>
-<en>Connection settings</en>
-<hu>Kapcsolódás beállításai</hu>
-<it>Impostazioni Connessione</it>
-<ru>Настройки соединения</ru>
-</Trl>
+
 <Trl id="ConnectionTimeout">
 <de>Verbindungs Timeout</de>
 <en>Connection Timeout</en>
@@ -2604,33 +2348,7 @@ UPnP: %s</ru>
 <it>Connessione in Timeout</it>
 <ru>Таймаут соединения</ru>
 </Trl>
-<Trl id="Context">
-<en>Context</en>
-<hu>Kontextus</hu>
-<it>Contesto</it>
-<ru>Условия</ru>
-</Trl>
-<Trl id="CopyAddressToClipboard">
-<de>Kopiere Addresse ins clipboard</de>
-<en>Copy address to clipboard</en>
-<hu>Cím másolása a vágólapra</hu>
-<it>Copia indirizzo negli appunti</it>
-<ru>Копировать адрес в буфер обмена</ru>
-</Trl>
-<Trl id="CopyNickToClipboard">
-<de>Kopiere Nick in die Zwischenablage</de>
-<en>Copy nick to clipboard</en>
-<hu>Becenév másolása a vágólapra</hu>
-<it>Copia nick negli appunti</it>
-<ru>Копировать ник в буфер обмена</ru>
-</Trl>
-<Trl id="CopyTTHToClipboard">
-<de>Kopiere TTH die Zwischenablage</de>
-<en>Copy TTH to clipboard</en>
-<hu>TTH másolása a vágólapra</hu>
-<it>Copia TTH megli appunti</it>
-<ru>Копировать TTH в буфер обмена</ru>
-</Trl>
+
 <Trl id="Count">
 <de>Anzahl</de>
 <en>Count</en>
@@ -2645,27 +2363,7 @@ UPnP: %s</ru>
 <it>Crea hub</it>
 <ru>Создать хаб</ru>
 </Trl>
-<Trl id="DefaultAwayMessage">
-<de>Standard Abwesenheitsnachricht</de>
-<en>Default away message</en>
-<hu>Alapértelmezett távolléti üzenet</hu>
-<it>Messaggio di away predefinito</it>
-<ru>Сообщение автоответчика</ru>
-</Trl>
-<Trl id="DefaultDownloadDirectory">
-<de>Standard Download Ordner</de>
-<en>Default download directory</en>
-<hu>Alapértelmezett letöltési könyvtár</hu>
-<it>Cartella di download predefinita</it>
-<ru>Папка для закачек по умолчанию</ru>
-</Trl>
-<Trl id="Description">
-<de>Beschreibung</de>
-<en>Description</en>
-<hu>Leírás</hu>
-<it>Descrizione</it>
-<ru>Описание</ru>
-</Trl>
+
 <Trl id="Directories">
 <de>Verzeichnisse</de>
 <en>Directories</en>
@@ -2673,13 +2371,7 @@ UPnP: %s</ru>
 <it>Cartelle</it>
 <ru>Папки</ru>
 </Trl>
-<Trl id="Directory">
-<de>Verzeichnis</de>
-<en>Directory</en>
-<hu>Könyvtár</hu>
-<it>Cartella</it>
-<ru>Папка</ru>
-</Trl>
+
 <Trl id="DirectoryForLogs">
 <de>Verzeichnis für Log</de>
 <en>Directory for logs</en>
@@ -2694,13 +2386,7 @@ UPnP: %s</ru>
 <it>Disconnesso</it>
 <ru>Соединение прервано</ru>
 </Trl>
-<Trl id="Download">
-<de>Herunterladen</de>
-<en>Download</en>
-<hu>Letöltés</hu>
-<it>Scarica</it>
-<ru>Скачать</ru>
-</Trl>
+
 <Trl id="DownloadAndOpen">
 <de>Herunterladen und öffnen</de>
 <en>Download and open</en>
@@ -2708,48 +2394,7 @@ UPnP: %s</ru>
 <it>Scarica e apri</it>
 <ru>Скачать и выполнить</ru>
 </Trl>
-<Trl id="DownloadLimit">
-<de>Download limit in (KiB/s, 0 = keines)</de>
-<en>Download limit in (KiB/s, 0 = disabled)</en>
-<hu>Letöltési korlát (KiB/s, 0 = kikapcsolva)</hu>
-<it>Download limit (KiB/s, 0 = disabilitato)</it>
-<ru>Ограничение скорости скачивания (КБ/с, 0 = отключено)</ru>
-</Trl>
-<Trl id="DownloadTo">
-<de>Herunterladen nach</de>
-<en>Download to</en>
-<hu>Letöltés ide</hu>
-<it>Scarica in...</it>
-<ru>Скачать в ...</ru>
-</Trl>
-<Trl id="Downloaded">
-<de>Heruntergeladen</de>
-<en>Downloaded</en>
-<hu>Letöltve</hu>
-<it>Download completato</it>
-<ru>Скачано</ru>
-</Trl>
-<Trl id="Downloading">
-<de>Am herunterladen</de>
-<en>Downloading</en>
-<hu>Letöltés</hu>
-<it>Download in corso</it>
-<ru>Скачивается</ru>
-</Trl>
-<Trl id="Downloads">
-<de>Downloads</de>
-<en>Downloads</en>
-<hu>Letöltések</hu>
-<it>Download</it>
-<ru>Закачки</ru>
-</Trl>
-<Trl id="EMail">
-<de>E-Mail</de>
-<en>E-Mail</en>
-<hu>E-Mail</hu>
-<it>E-Mail</it>
-<ru>E-Mail</ru>
-</Trl>
+
 <Trl id="Edit">
 <de>Ändern</de>
 <en>Edit</en>
@@ -2764,13 +2409,7 @@ UPnP: %s</ru>
 <it>Modifica le hublist</it>
 <ru>Править список хабов</ru>
 </Trl>
-<Trl id="EnterAddressOfTheHublist">
-<de>Addresse der Hubliste eingeben</de>
-<en>Enter Address of the Hublist</en>
-<hu>Add meg a Hublista címét</hu>
-<it>Inserisci indirizzo dell'Hublist</it>
-<ru>Введите адрес нового списка хабов</ru>
-</Trl>
+
 <Trl id="Equals">
 <de>gleich</de>
 <en>equals</en>
@@ -2778,55 +2417,10 @@ UPnP: %s</ru>
 <it>Uguale a</it>
 <ru>Равен</ru>
 </Trl>
-<Trl id="Errors">
-<de>Fehler</de>
-<en>Errors</en>
-<hu>Hibák</hu>
-<it>Errori</it>
-<ru>Ошибки</ru>
-</Trl>
-<Trl id="ExactSize">
-<de>Genaue Größe</de>
-<en>Exact size</en>
-<hu>Pontos Méret</hu>
-<it>Dimensione esatta</it>
-<ru>Точный размер</ru>
-</Trl>
-<Trl id="ExecuteAfterDownload">
-<de>Ausführen nach dem Herunterladen</de>
-<en>Execute after download</en>
-<hu>Futtatás letöltés után</hu>
-<it>Esegui dopo il download</it>
-<ru>Скачать и выполнить</ru>
-</Trl>
-<Trl id="ExternalWANIP">
-<de>Externe / WAN IP , frei lassen für automatisch Erkennung (momentan: %1$s)</de>
-<en>External / WAN IP , leave blank for autodetection (currently: %1$s)</en>
-<hu>Külsõ / WAN IP , hagyd üresen az automatikus felismeréshez (jelenleg: %1$s)</hu>
-<it>Indirizzo IP, lasciare in bianco per determinazione automatica (corrente: %1$s)</it>
-<ru>Внешний / WAN IP, для автоопределения оставьте пустым (сейчас: %1$s)</ru>
-</Trl>
-<Trl id="FavHubProperties">
-<de>Lieblings Hub Einstellungen</de>
-<en>Favourite Hub Properties</en>
-<hu>Kedvenc Hubok beállításai</hu>
-<it>Proprietà hub preferiti</it>
-<ru>Настройки избранного хаба</ru>
-</Trl>
-<Trl id="FavoriteHubs">
-<de>Favorisierte Hubs</de>
-<en>Favourite Hubs</en>
-<hu>Kedvenc Hubok</hu>
-<it>Hub preferiti</it>
-<ru>Избранные хабы</ru>
-</Trl>
-<Trl id="FavoriteUsers">
-<de>Favorisierte User</de>
-<en>Favourite Users</en>
-<hu>Kedvenc Felhasználók</hu>
-<it>User preferiti</it>
-<ru>Избранные юзеры</ru>
-</Trl>
+
+
+
+
 <Trl id="File">
 <de>Datei</de>
 <en>File</en>
@@ -2834,53 +2428,16 @@ UPnP: %s</ru>
 <it>File</it>
 <ru>Файл</ru>
 </Trl>
-<Trl id="FileListMenu">
-<en>FileList Menu</en>
-<hu>Fájllista Menü</hu>
-<it>Menu FileList</it>
-<ru>Меню списка файлов</ru>
-</Trl>
-<Trl id="FileMen">
-<de>Datei</de>
-<en>File</en>
-<hu>Fájl</hu>
-<it>File</it>
-<ru>Файлы</ru>
-</Trl>
-<Trl id="FileType">
-<de>Datei typ</de>
-<en>File type</en>
-<hu>Fájl típusa</hu>
-<it>Tipo file</it>
-<ru>Тип файла</ru>
-</Trl>
+
+
+
 <Trl id="FilelistRefreshAlreadyInProgress">
 <en>Filelist refresh already in progress</en>
 <hu>Fájllista frissítése már folyamatban</hu>
 <it>Aggiornamento lista file già in esecuzione</it>
 <ru>Список файлов уже обновляется</ru>
 </Trl>
-<Trl id="Filename">
-<de>Dateiname</de>
-<en>Filename</en>
-<hu>Fájl név</hu>
-<it>Nome file</it>
-<ru>Имя файла</ru>
-</Trl>
-<Trl id="Files">
-<de>Dateien</de>
-<en>Files</en>
-<hu>Fájlok</hu>
-<it>Files</it>
-<ru>Файлов</ru>
-</Trl>
-<Trl id="Find">
-<de>Finde</de>
-<en>Find</en>
-<hu>Keres</hu>
-<it>Cerca</it>
-<ru>Поиск</ru>
-</Trl>
+
 <Trl id="FinishedFilelistRefresh">
 <de>Dateilisten Aktualisierung beendet</de>
 <en>Finished filelist refresh</en>
@@ -2888,87 +2445,12 @@ UPnP: %s</ru>
 <it>Aggiornamento lista file completato</it>
 <ru>Список файлов обновился</ru>
 </Trl>
-<Trl id="FinishedHashingXinY">
-<de>Hashen beendet von %1$s (%2$s - ETA: %3$s)</de>
-<en>Finished hashing %1$s (%2$s - ETA: %3$s)</en>
-<hu>Hashelés befejezve %1$s (%2$s - ETA: %3$s)</hu>
-<it>Hashing completo %1$s (%2$s - ETA: %3$s)</it>
-<ru>Выполнено хеширование %1$s (%2$s - осталось %3$s)</ru>
-</Trl>
-<Trl id="ForceAttempt">
-<de>Erzwinge Versuch</de>
-<en>Force attempt</en>
-<hu>Erõltetett kísérlet</hu>
-<it>Forza Connessione</it>
-<ru>Принудительное соединение</ru>
-</Trl>
-<Trl id="GetFilelist">
-<de>Lade Dateiliste</de>
-<en>Get FileList</en>
-<hu>Fájlista Letöltése</hu>
-<it>Scarica Lista File</it>
-<ru>Получить список файлов</ru>
-</Trl>
-<Trl id="GrantExtraSlot">
-<de>Extra Slot gewähren</de>
-<en>Grant extra slot</en>
-<hu>Extra Slot biztosítása</hu>
-<it>Concedi slot extra</it>
-<ru>Выдать экстра-слот</ru>
-</Trl>
-<Trl id="HasExtraSlotUntil">
-<de>Hat Extra Slot bis</de>
-<en>Has extra Slot until</en>
-<hu>Extra Slot biztosítva eddig</hu>
-<it>Ha Slot extra per..</it>
-<ru>Имеет экстра-слот до:</ru>
-</Trl>
-<Trl id="Help">
-<de>Hilfe</de>
-<en>Help</en>
-<hu>Súgó</hu>
-<it>Aiuto</it>
-<ru>Справка</ru>
-</Trl>
-<Trl id="Hub">
-<de>Hub</de>
-<en>Hub</en>
-<hu>Hub</hu>
-<it>Hub</it>
-<ru>Хаб</ru>
-</Trl>
-<Trl id="HubAddedToFavorites">
-<de>Hub den Favoriten hinzugefügt</de>
-<en>Hub added to favorites</en>
-<hu>A Hub hozzáadva a kedvencekhez</hu>
-<it>Hub aggiunto ai preferiti</it>
-<ru>Хаб добавлен в избранные</ru>
-</Trl>
-<Trl id="HubExplaCommands">
-<en>Hub (""=for all, "op"=all hubs where op, url to specify hub)</en>
-<hu>Hub (""=az összes, "op"=az összes ahol op, url a hub megadásához)</hu>
-<it>Hub (""=in tutti, "op"=negli hub dove sono op, indirizzo per hub specifico)</it>
-<ru>Хаб (адрес, либо ""=все, либо "op"=все, где оператор)</ru>
-</Trl>
-<Trl id="HubIsAlreadyFavorite">
-<de>Hub ist bereits bei den Favoriten</de>
-<en>Hub already exists as a favorite</en>
-<hu>A Hub már létezik a kedvencek közt</hu>
-<it>L'hub è già nei preferiti</it>
-<ru>Хаб уже есть в избранных</ru>
-</Trl>
 <Trl id="HubIsFull">
 <de>Hub teilt mit das es voll ist!</de>
 <en>Hub says: I am full!</en>
 <hu>Hub üzenete: Tele vagyok!</hu>
 <it>L'Hub ha detto: Sono pieno!</it>
 <ru>Хаб говорит, что полон</ru>
-</Trl>
-<Trl id="HubMenu">
-<en>Hub Menu</en>
-<hu>Hub Menü</hu>
-<it>Hub Menu</it>
-<ru>Меню хаба</ru>
 </Trl>
 <Trl id="HubRequestedPassword">
 <de>Hub verlangt Passwort!
@@ -2982,47 +2464,12 @@ UPnP: %s</ru>
 <ru>Хаб требует пароль для доступа!
  Отправьте пароль командой: /pass &lt;password&gt;</ru>
 </Trl>
-<Trl id="Hublist">
-<de>Hubliste</de>
-<en>Hublist</en>
-<hu>Hublista</hu>
-<it>Lista hub</it>
-<ru>Список хабов</ru>
-</Trl>
-<Trl id="Hubs">
-<de>Hubs</de>
-<en>Hubs</en>
-<hu>Hubok</hu>
-<it>Hub</it>
-<ru>Хабы</ru>
-</Trl>
-<Trl id="IP">
-<de>IP</de>
-<en>IP</en>
-<hu>IP</hu>
-<it>IP</it>
-<ru>IP</ru>
-</Trl>
-<Trl id="Identification">
-<de>Identifikation (frei lassen für Standardwerte)</de>
-<en>Identification (leave blank for defaults)</en>
-<hu>Azonosítás (hagyd üresen az alapértelmezéshez)</hu>
-<it>Profilo (Lascia in bianco per default)</it>
-<ru>Идентификация (не заполняйте для обычной)</ru>
-</Trl>
 <Trl id="Idle">
 <de>leerlauf</de>
 <en>Idle</en>
 <hu>Üresjárat</hu>
 <it>In attesa</it>
 <ru>Свободно</ru>
-</Trl>
-<Trl id="IncomingConnectionSettings">
-<de>Einstellungen für Einkommende Verbindungen</de>
-<en>Incoming connection settings</en>
-<hu>Bejövõ kapcsolatok beállítása</hu>
-<it>Impostazioni connessioni in arrivo</it>
-<ru>Настройки входящих соединений</ru>
 </Trl>
 <Trl id="IsFavoriteUser">
 <de>Ist ein Favorisierter User</de>
@@ -3045,41 +2492,6 @@ UPnP: %s</ru>
 <it>Limiti</it>
 <ru>Ограничения</ru>
 </Trl>
-<Trl id="LineSpeed">
-<de>Leitungstempo (upload in MiBits/s)</de>
-<en>Line speed (upload in MiBits/s)</en>
-<hu>Feltöltési sebesség (MiBits/s-ban)</hu>
-<it>Velocità connessione (upload in MiBits/s)</it>
-<ru>Скорость подключения (отдача в Мбит/с)</ru>
-</Trl>
-<Trl id="LoadHublist">
-<de>Lade Hubliste</de>
-<en>Load Hublist</en>
-<hu>Hublista betöltése</hu>
-<it>Scarica Hublist</it>
-<ru>Загрузить список хабов</ru>
-</Trl>
-<Trl id="LogFeed">
-<de>Logge Feed</de>
-<en>Log Feed</en>
-<hu>Naplózás gördítése</hu>
-<it>Log Feed</it>
-<ru>Записывать лог ленты</ru>
-</Trl>
-<Trl id="LogMainchat">
-<de>Logge Mainchat</de>
-<en>Log Mainchat</en>
-<hu>Beszélgetések Naplózása</hu>
-<it>Log Mainchat</it>
-<ru>Записывать лог чата</ru>
-</Trl>
-<Trl id="LogPM">
-<de>Logge Private Nachrichten</de>
-<en>Log Private Messages</en>
-<hu>Privát Beszélgetések Naplózása</hu>
-<it>Log Messagi privati</it>
-<ru>Записывать лог лички</ru>
-</Trl>
 <Trl id="LoggedIn">
 <de>Logged in</de>
 <en>Logged in</en>
@@ -3094,13 +2506,6 @@ UPnP: %s</ru>
 <it>Login Timeout</it>
 <ru>Таймаут соединения</ru>
 </Trl>
-<Trl id="MatchQueue">
-<de>Queue Abgleichen</de>
-<en>Match queue</en>
-<hu>Találati sor</hu>
-<it>Confronta coda</it>
-<ru>Сличить с очередью</ru>
-</Trl>
 <Trl id="MatchedXFilesWithUserY">
 <de>%1$s Dateien abgeglichen mit %2$s</de>
 <en>Matched %1$s files with %2$s</en>
@@ -3108,221 +2513,12 @@ UPnP: %s</ru>
 <it>Trovati %1$s file di %2$s</it>
 <ru>Нашлось %1$s нужных файлов у %2$s</ru>
 </Trl>
-<Trl id="MaximumSimultaneousDownloads">
-<de>Maximum simultane downloads (0 = unbegrenzt)</de>
-<en>Maximum simultaneous downloads (0 = infinite)</en>
-<hu>Maximális egyidejû letöltés (0 = végtelen)</hu>
-<it>Download simultanei massimi (0 = infiniti)</it>
-<ru>Ограничение числа одновременных закачек (0 = отключено)</ru>
-</Trl>
-<Trl id="MinimizeToTray">
-<de>Zum Tray minimieren</de>
-<en>Minimize to Tray</en>
-<hu>Kicsinyítés Télcára</hu>
-<it>Minimizza in Tray</it>
-<ru>Свернуть в трей</ru>
-</Trl>
-<Trl id="MoveDown">
-<de>Runter</de>
-<en>Move Down</en>
-<hu>Le</hu>
-<it>Sposta Giù</it>
-<ru>Вниз</ru>
-</Trl>
-<Trl id="MoveRename">
-<de>Verschieben/Umbenenen</de>
-<en>Move/Rename</en>
-<hu>Áthelyez/Átnevez</hu>
-<it>Sposta/Rinomina</it>
-<ru>Переместить/Переименовать</ru>
-</Trl>
-<Trl id="MoveUp">
-<de>Hoch</de>
-<en>Move Up</en>
-<hu>Fel</hu>
-<it>Sposta Su</it>
-<ru>Вверх</ru>
-</Trl>
-<Trl id="Name">
-<de>Name</de>
-<en>Name</en>
-<hu>Név</hu>
-<it>Nome</it>
-<ru>Имя</ru>
-</Trl>
-<Trl id="NameUnderWhichTheOthersSeeTheDirectory">
-<de>Name unter welchem andere das Verzeichnis sehen</de>
-<en>Name under which the others see the directory</en>
-<hu>A többiek e név alatt fogják látni a Könyvtárat</hu>
-<it>Nome con il quale gli altri vedranno la cartella</it>
-<ru>Внешнее имя папки</ru>
-</Trl>
-<Trl id="New">
-<de>Neu</de>
-<en>New</en>
-<hu>Új</hu>
-<it>Nuovo</it>
-<ru>Новый</ru>
-</Trl>
-<Trl id="Next">
-<de>Nächstes</de>
-<en>Next</en>
-<hu>Következõ</hu>
-<it>Prossimo</it>
-<ru>Далее</ru>
-</Trl>
-<Trl id="Nick">
-<de>Nick</de>
-<en>Nick</en>
-<hu>Becenév</hu>
-<it>Nick</it>
-<ru>Ник</ru>
-</Trl>
-<Trl id="No">
-<de>Nein</de>
-<en>No</en>
-<hu>Nem</hu>
-<it>No</it>
-<ru>Нет</ru>
-</Trl>
-<Trl id="NoUsers">
-<de>Keine User</de>
-<en>No users</en>
-<hu>Nincs felhasználó</hu>
-<it>Nessun user</it>
-<ru>Нет источников</ru>
-</Trl>
 <Trl id="OK">
 <de>OK</de>
 <en>OK</en>
 <hu>OK</hu>
 <it>OK</it>
 <ru>OK</ru>
-</Trl>
-<Trl id="Online">
-<de>Online</de>
-<en>Online</en>
-<hu>Online</hu>
-<it>Online</it>
-<ru>В сети</ru>
-</Trl>
-<Trl id="OnlyUsersWithFreeSlots">
-<de>Nur User mit freien Slots</de>
-<en>Only users with free slots</en>
-<hu>Csak szabad slot-tal rendelkezõ felhasználók</hu>
-<it>Solo user con slot liberi</it>
-<ru>Только у обладателей свободных слотов</ru>
-</Trl>
-<Trl id="OnlyWhereIAmOp">
-<de>Nur wo ich OP bin</de>
-<en>Only where I'm OP</en>
-<hu>Csak ahol OP vagyok</hu>
-<it>Solo dove sono OP</it>
-<ru>Там, где я оператор</ru>
-</Trl>
-<Trl id="OpenFileList">
-<de>Öffne Dateiliste</de>
-<en>Open file list</en>
-<hu>Fájl lista megnyitása</hu>
-<it>Apri Liste File</it>
-<ru>Открыть список файлов</ru>
-</Trl>
-<Trl id="OpenOwnList">
-<de>Öffne eigene Dateiliste</de>
-<en>Open own list</en>
-<hu>Saját lista megnyitása</hu>
-<it>Apri propria Lista File</it>
-<ru>Открыть свой список файлов</ru>
-</Trl>
-<Trl id="Parameter">
-<en>Parameter</en>
-<hu>Paraméter</hu>
-<it>Parametri</it>
-<ru>Параметр</ru>
-</Trl>
-<Trl id="Password">
-<de>Passwort</de>
-<en>Password</en>
-<hu>Jelszó</hu>
-<it>Password</it>
-<ru>Пароль</ru>
-</Trl>
-<Trl id="Path">
-<de>Pfad</de>
-<en>Path</en>
-<hu>Útvonal</hu>
-<it>Percorso</it>
-<ru>Путь</ru>
-</Trl>
-<Trl id="PersonalInformation">
-<de>Persönliche Information</de>
-<en>Personal Information</en>
-<hu>Személyes Információ</hu>
-<it>Informazioni personali</it>
-<ru>Персональная информация</ru>
-</Trl>
-<Trl id="PrimaryDownloadColour">
-<de>Primäre download Farbe</de>
-<en>Primary download colour</en>
-<hu>Elsõdleges letöltési szín</hu>
-<it>Colore Download primario</it>
-<ru>Основной цвет закачек</ru>
-</Trl>
-<Trl id="PrimaryUploadColour">
-<de>Primäre upload Farbe</de>
-<en>Primary upload colour</en>
-<hu>Elsõdleges feltöltési szín</hu>
-<it>Colore Upload primario</it>
-<ru>Основной цвет отдач</ru>
-</Trl>
-<Trl id="Priority">
-<de>Priorität</de>
-<en>Priority</en>
-<hu>Prioritás</hu>
-<it>Priorità</it>
-<ru>Приоритет</ru>
-</Trl>
-<Trl id="Properties">
-<de>Eigenschaften</de>
-<en>Properties</en>
-<hu>Tulajdonságok</hu>
-<it>Proprietà</it>
-<ru>Свойства</ru>
-</Trl>
-<Trl id="PublicHubs">
-<de>Öffentliche Hubs</de>
-<en>Public Hubs</en>
-<hu>Publikus Hubok</hu>
-<it>Hub Pubblici</it>
-<ru>Публичные хабы</ru>
-</Trl>
-<Trl id="PublicHubsList">
-<de>Öffentliche Hubliste</de>
-<en>Public Hubs list</en>
-<hu>Publikus Hubok listája</hu>
-<it>Lista Hub pubblici</it>
-<ru>Список публичных хабов</ru>
-</Trl>
-<Trl id="QuickConnect">
-<de>Schnell Verbinden</de>
-<en>Quick Connect</en>
-<hu>Kapcsolódás</hu>
-<it>Connessione Veloce</it>
-<ru>Быстрое подключение</ru>
-</Trl>
-<Trl id="Ratio">
-<de>Ratio</de>
-<en>Ratio</en>
-<hu>Arány</hu>
-<it>Media</it>
-<ru>Сжатие</ru>
-</Trl>
-<Trl id="ReAddUserToFile">
-<de>User zur Datei wieder hinzufügen</de>
-<en>Re-add user to file</en>
-<hu>Felhasználó fájlhoz adása</hu>
-<it>RiAggiungi user al file</it>
-<ru>Вернуть файлу источник</ru>
 </Trl>
 <Trl id="Reconnecting">
 <de>Neuverbinden</de>
@@ -3337,48 +2533,6 @@ UPnP: %s</ru>
 <hu>Received redirect signal from hub to %s</hu>
 <it>Ricevuto dall'hub segnale di redirect verso %s</it>
 <ru>С хаба получено перенаправление на %s</ru>
-</Trl>
-<Trl id="RefreshFilelist">
-<de>Dateiliste erneuern</de>
-<en>Refresh file list</en>
-<hu>Fájl lista frissítése</hu>
-<it>Aggiorna Lista File</it>
-<ru>Обновить список файлов</ru>
-</Trl>
-<Trl id="Remove">
-<de>Entfernen</de>
-<en>Remove</en>
-<hu>Eltávolítás</hu>
-<it>Rimuovi</it>
-<ru>Удалить</ru>
-</Trl>
-<Trl id="RemoveFromFavorites">
-<de>Entferne von Favoriten</de>
-<en>Remove From Favourites</en>
-<hu>Eltávolítás a Kedvencekbõl</hu>
-<it>Rimuovi dai preferiti</it>
-<ru>Убрать из избранных</ru>
-</Trl>
-<Trl id="RemoveUserFromDQ">
-<de>Entferne User aus der Queue</de>
-<en>Remove user from queue</en>
-<hu>Felhasználó eltávolítása a sorból</hu>
-<it>Rimuovi user dalla coda</it>
-<ru>Удалить пользователя из очереди</ru>
-</Trl>
-<Trl id="RemoveUserFromFile">
-<de>Entferne User von der Datei</de>
-<en>Remove user from file</en>
-<hu>Felhasználó eltávolítása a fájlból</hu>
-<it>Rimuovi user da file</it>
-<ru>Удалить источник</ru>
-</Trl>
-<Trl id="Rename">
-<de>Umbenennen</de>
-<en>Rename</en>
-<hu>Átnevezés</hu>
-<it>Rinomina</it>
-<ru>Переименовать</ru>
 </Trl>
 <Trl id="STA11HubFull">
 <de>Hub voll</de>
@@ -3541,40 +2695,6 @@ UPnP: %s</ru>
 <it>No hash support overlap in SUP between clients</it>
 <ru>Клиент не поддерживает ваши алгоритмы хеширования</ru>
 </Trl>
-<Trl id="Search">
-<de>Suche</de>
-<en>Search</en>
-<hu>Keresés</hu>
-<it>Cerca</it>
-<ru>Поиск</ru>
-</Trl>
-<Trl id="SearchFor">
-<de>Suche nach</de>
-<en>Search for</en>
-<hu>Keresés erre</hu>
-<it>Ricerca per</it>
-<ru>Искать</ru>
-</Trl>
-<Trl id="SearchForAlternates">
-<de>Nach Alternativen suchen</de>
-<en>Search for alternates</en>
-<hu>Alternatívák keresése</hu>
-<it>Cerca fonti alternative</it>
-<ru>Искать другие источники</ru>
-</Trl>
-<Trl id="SearchMenu">
-<en>Search Menu</en>
-<hu>Keresés Menü</hu>
-<it>Menu di ricerca</it>
-<ru>Меню поиска</ru>
-</Trl>
-<Trl id="SearchOptions">
-<de>Such optionen</de>
-<en>Search options</en>
-<hu>Keresési Opciók</hu>
-<it>Opzioni di ricerca</it>
-<ru>Опции поиска</ru>
-</Trl>
 <Trl id="SearchString">
 <de>Such String</de>
 <en>Search String</en>
@@ -3582,52 +2702,13 @@ UPnP: %s</ru>
 <it>Stringa di ricerca</it>
 <ru>Строка поиска</ru>
 </Trl>
-<Trl id="SecondaryDownloadColour">
-<de>Sekundäre download Farbe</de>
-<en>Secondary download colour</en>
-<hu>Másodlagos letöltési szín</hu>
-<it>Colore Download secondario</it>
-<ru>Дополнительный цвет закачек</ru>
-</Trl>
-<Trl id="SecondaryUploadColour">
-<de>Sekundäre upload Farbe</de>
-<en>Secondary upload colour</en>
-<hu>Másodlagos Feltöltési szín</hu>
-<it>Colore Upload secondario</it>
-<ru>Дополнительный цвет отдач</ru>
-</Trl>
-<Trl id="SelectFont">
-<de>Schrift auswählen:</de>
-<en>Select a Font:</en>
-<hu>Válassz betûtípust:</hu>
-<it>Seleziona un carattere:</it>
-<ru>Выберите шрифт:</ru>
-</Trl>
-<Trl id="SendOnceForEachUser">
-<en>Send once for each User</en>
-<hu>Küldés minden felhasználónak</hu>
-<it>Invia ad ogni user</it>
-<ru>Слать каждому по разу</ru>
-</Trl>
-<Trl id="SendPrivateMessage">
-<de>Sende Private Nachricht</de>
-<en>Send private message</en>
-<hu>Privát Üzenet küldése</hu>
-<it>Invia un messaggio privato</it>
-<ru>Послать личное сообщение</ru>
-</Trl>
+
 <Trl id="SendingPassword">
 <de>Sende Passwort</de>
 <en>Sending password</en>
 <hu>Jelszó küldése</hu>
 <it>Password inviata</it>
 <ru>Сообщается пароль</ru>
-</Trl>
-<Trl id="Separator">
-<en>Separator</en>
-<hu>Elválasztó</hu>
-<it>Separatore</it>
-<ru>Разделитель</ru>
 </Trl>
 <Trl id="Server">
 <de>Server</de>
@@ -3636,75 +2717,12 @@ UPnP: %s</ru>
 <it>Server</it>
 <ru>Сервер</ru>
 </Trl>
-<Trl id="SetPriority">
-<de>Setze Priorität</de>
-<en>Set priority</en>
-<hu>Prioritás beállítása</hu>
-<it>Imposta priorità</it>
-<ru>Задать приоритет</ru>
-</Trl>
 <Trl id="Settings">
 <de>Einstellungen</de>
 <en>Settings</en>
 <hu>Beállítások</hu>
 <it>Impostazioni</it>
 <ru>Настройки</ru>
-</Trl>
-<Trl id="ShareHiddenFiles">
-<de>Share versteckte Dateien</de>
-<en>Share hidden files</en>
-<hu>Rejtett fájlok megosztása</hu>
-<it>Condividi fle nascosti</it>
-<ru>Раздавать скрытые файлы</ru>
-</Trl>
-<Trl id="Shared">
-<de>Shared</de>
-<en>Shared</en>
-<hu>Megosztott</hu>
-<it>Condivisi</it>
-<ru>Раздается</ru>
-</Trl>
-<Trl id="SharedDirectorys">
-<de>Gesharte Verzeichnisse</de>
-<en>Shared directories</en>
-<hu>Megosztott könyvtárak</hu>
-<it>Cartelle Condivise</it>
-<ru>Папки раздачи</ru>
-</Trl>
-<Trl id="Sharing">
-<de>Sharing</de>
-<en>Sharing</en>
-<hu>Megosztás</hu>
-<it>Condivisione</it>
-<ru>Раздача</ru>
-</Trl>
-<Trl id="ShowSidebar">
-<de>Zeige Seitenleiste</de>
-<en>Show Sidebar</en>
-<hu>Oldalsáv mutatása</hu>
-<it>Mostra Barra</it>
-<ru>Показать боковую панель</ru>
-</Trl>
-<Trl id="Size">
-<de>Größe</de>
-<en>Size</en>
-<hu>Méret</hu>
-<it>Dimensione</it>
-<ru>Размер</ru>
-</Trl>
-<Trl id="Slots">
-<de>Slots</de>
-<en>Slots</en>
-<hu>Slotok</hu>
-<it>Slot</it>
-<ru>Слоты</ru>
-</Trl>
-<Trl id="Speed">
-<de>Tempo</de>
-<en>Speed</en>
-<hu>Sebesség</hu>
-<it>Velocità</it>
-<ru>Скорость</ru>
 </Trl>
 <Trl id="StartedRefreshingTheFilelist">
 <de>Dateilisten Aktualisierung gestartet</de>
@@ -3713,68 +2731,12 @@ UPnP: %s</ru>
 <it>Aggiornamento Lista File iniziato</it>
 <ru>Обновляем список файлов</ru>
 </Trl>
-<Trl id="Status">
-<de>Status</de>
-<en>Status</en>
-<hu>Státusz</hu>
-<it>Stato</it>
-<ru>Состояние</ru>
-</Trl>
-<Trl id="SystemLog">
-<de>System Log</de>
-<en>System Log</en>
-<hu>Rendszer Napló</hu>
-<it>Log di Sistema</it>
-<ru>Системный лог</ru>
-</Trl>
-<Trl id="TCPPort">
-<de>TCP Port</de>
-<en>TCP port</en>
-<hu>TCP port</hu>
-<it>Porta TCP</it>
-<ru>Порт TCP</ru>
-</Trl>
-<Trl id="TTHRoot">
-<de>TTH Root</de>
-<en>TTH Root</en>
-<hu>TTH Root</hu>
-<it>Radice TTH</it>
-<ru>TTH</ru>
-</Trl>
-<Trl id="Tag">
-<de>Tag</de>
-<en>Tag</en>
-<hu>Aláírás</hu>
-<it>Tag</it>
-<ru>Тэг</ru>
-</Trl>
 <Trl id="Time">
 <de>Zeit</de>
 <en>Time</en>
 <hu>Idõ</hu>
 <it>Tempo</it>
 <ru>Время</ru>
-</Trl>
-<Trl id="TimeLastSeen">
-<de>Zuletzt gesehen</de>
-<en>Time last seen</en>
-<hu>Utoljára aktív</hu>
-<it>Ultima volta visto</it>
-<ru>Последнее присутствие</ru>
-</Trl>
-<Trl id="TimeLeft">
-<de>Zeit übrig</de>
-<en>Time left</en>
-<hu>Fennmaradó idõ</hu>
-<it>Tempo rimanente</it>
-<ru>Осталось времени</ru>
-</Trl>
-<Trl id="TotalSizeNoParm">
-<de>Gesamt Größe</de>
-<en>Total size</en>
-<hu>Teljes méret</hu>
-<it>Dimensione Totale</it>
-<ru>Всего</ru>
 </Trl>
 <Trl id="TransferFinished">
 <de>Transfer beendet</de>
@@ -3783,73 +2745,12 @@ UPnP: %s</ru>
 <it>Trasferimento completo</it>
 <ru>Передача завершена</ru>
 </Trl>
-<Trl id="Type">
-<de>Typ</de>
-<en>Type</en>
-<hu>Típus</hu>
-<it>Tipo</it>
-<ru>Тип</ru>
-</Trl>
-<Trl id="UDPPort">
-<de>UDP Port</de>
-<en>UDP port</en>
-<hu>UDP port</hu>
-<it>Porta UDP</it>
-<ru>Порт UDP</ru>
-</Trl>
-<Trl id="UnfinishedDownloadsDirectory">
-<de>Ordner für unfertige Downloads(Änderung erzwingt Neustart)</de>
-<en>Unfinished downloads directory (Change forces restart)</en>
-<hu>Befejezetlen letöltések lönyvtára (Beállítás után a program újraindul)</hu>
-<it>Cartella download temporanei (La modifica richiede un riavvio)</it>
-<ru>Папка незавершенных закачек (изменение перезапустит клиент)</ru>
-</Trl>
-<Trl id="UploadSlots">
-<de>Upload Slots</de>
-<en>Upload slots</en>
-<hu>Feltöltési slotok</hu>
-<it>Upload slot</it>
-<ru>Слоты</ru>
-</Trl>
-<Trl id="UsePassiveMode">
-<de>Nutze Passiv Modus</de>
-<en>Use passive Mode</en>
-<hu>Passzív Mód használata</hu>
-<it>Usa modalità passiva</it>
-<ru>Использовать пасивный режим</ru>
-</Trl>
-<Trl id="User">
-<de>User</de>
-<en>User</en>
-<hu>Felhasználó</hu>
-<it>User</it>
-<ru>Юзер</ru>
-</Trl>
-<Trl id="UserCommand">
-<en>User Command</en>
-<hu>Felhasználói Parancs</hu>
-<it>User Command</it>
-<ru>Пользовательская команда</ru>
-</Trl>
-<Trl id="UserCommands">
-<en>User Commands</en>
-<hu>Felhasználói Parancsok</hu>
-<it>User Command</it>
-<ru>Пользовательские команды</ru>
-</Trl>
 <Trl id="UserConnected">
 <de>User verbunden</de>
 <en>User connected</en>
 <hu>Felhasználó Kapcsolódva</hu>
 <it>User connesso</it>
 <ru>Юзер подключился</ru>
-</Trl>
-<Trl id="UserDescription">
-<de>User Beschreibung</de>
-<en>User Description</en>
-<hu>Felhasználó leírása</hu>
-<it>Descrizione</it>
-<ru>Описание</ru>
 </Trl>
 <Trl id="UserDisconnected">
 <de>User getrennt</de>
@@ -3865,12 +2766,6 @@ UPnP: %s</ru>
 <it>User Offline</it>
 <ru>Юзер ушел</ru>
 </Trl>
-<Trl id="UserMenu">
-<en>User Menu</en>
-<hu>Felhasználói Menü</hu>
-<it>User Menu</it>
-<ru>Меню юзера</ru>
-</Trl>
 <Trl id="UserOffline">
 <de>User offline</de>
 <en>User offline</en>
@@ -3878,54 +2773,12 @@ UPnP: %s</ru>
 <it>User offline</it>
 <ru>Юзер не в сети</ru>
 </Trl>
-<Trl id="UserOnline">
-<de>User online</de>
-<en>User online</en>
-<hu>Felhasználó online</hu>
-<it>User online</it>
-<ru>Юзер в сети</ru>
-</Trl>
-<Trl id="Users">
-<de>Users</de>
-<en>Users</en>
-<hu>Felhasználók</hu>
-<it>User</it>
-<ru>Юзеров</ru>
-</Trl>
-<Trl id="View">
-<de>Fenster</de>
-<en>View</en>
-<hu>Mutat</hu>
-<it>Visualizza</it>
-<ru>Вид</ru>
-</Trl>
-<Trl id="VirtualName">
-<de>Virtueller Name</de>
-<en>Virtual Name</en>
-<hu>Virtuális Név</hu>
-<it>Nome virtuale</it>
-<ru>Внутреннее имя</ru>
-</Trl>
 <Trl id="WaitingForConnect">
 <de>Warte auf Verbindung</de>
 <en>Waiting for connect</en>
 <hu>Várakozás a kapcsolódásra</hu>
 <it>Connessione in corso</it>
 <ru>Ожидается соединение</ru>
-</Trl>
-<Trl id="XOfYUsersOnline">
-<de>%1$s von %2$s Users online</de>
-<en>%1$s of %2$s Users online</en>
-<hu>%1$s a(z) %2$s felhasználóból online</hu>
-<it>%1$s di %2$s User online</it>
-<ru>%1$s из %2$s источников в сети</ru>
-</Trl>
-<Trl id="Yes">
-<de>Ja</de>
-<en>Yes</en>
-<hu>Igen</hu>
-<it>Si</it>
-<ru>Да</ru>
 </Trl>
 </Plugin>
 <Plugin id="eu.jucy.notepad" name="notepad"  langclass="eu.jucy.notepad.Lang">
@@ -4102,71 +2955,122 @@ HSQLDB  (лицензия BSD)
 </Trl>
 </Plugin>
 <Plugin id="eu.jucy.ui.searchspy" name="searchspy" langclass="eu.jucy.ui.searchspy.Lang">
-<Trl id="Average">
+<Trl id="SPYAverage">
 <de>Suchen/s: %.2f</de>
 <en>Average/s: %.2f</en>
 <it>Media/s: %.2f</it>
 <ru>Частота: %.2f</ru>
 </Trl>
-<Trl id="Count">
+<Trl id="SPYCount">
 <de>Anzahl</de>
 <en>Count</en>
 <it>Numero</it>
 <ru>Число</ru>
 </Trl>
-<Trl id="Description">
+<Trl id="SPYDescription">
 <de>Öffne Such Spion Fenster</de>
 <en>Open Search Spy Editor</en>
 <it>Apri Spia Ricerche</it>
 <ru>Открывает поисковый шпион</ru>
 </Trl>
-<Trl id="HideTTHSearches">
+<Trl id="SPYHideTTHSearches">
 <de>TTH suchen nicht anzeigen</de>
 <en>Hide TTH searches</en>
 <it>Nascondi TTH</it>
 <ru>Не показывать результаты поиска TTH</ru>
 </Trl>
-<Trl id="HitRatio">
+<Trl id="SPYHitRatio">
 <de>Treffer rate: %.3f</de>
 <en>Hit Ratio: %.3f</en>
 <it>Media Risultati: %.3f</it>
 <ru>Частота совпадений: %.3f</ru>
 </Trl>
-<Trl id="Hits">
+<Trl id="SPYHits">
 <de>Treffer</de>
 <en>Hits</en>
 <it>Risultati</it>
 <ru>Совпадения</ru>
 </Trl>
-<Trl id="HitsFormatted">
+<Trl id="SPYHitsFormatted">
 <de>Treffer: %d</de>
 <en>Hits: %d</en>
 <it>Risultati: %d</it>
 <ru>Совпадения: %d</ru>
 </Trl>
-<Trl id="SearchSpy">
+<Trl id="SPYSearchSpy">
 <de>Such Spion</de>
 <en>Search Spy</en>
 <it>Spia ricerche</it>
 <ru>Поисковый шпион</ru>
 </Trl>
-<Trl id="SearchString">
+<Trl id="SPYSearchString">
 <de>Such Begriff</de>
 <en>Search String</en>
 <it>Cerca stringa</it>
 <ru>Строка поиска</ru>
 </Trl>
-<Trl id="Time">
+<Trl id="SPYTime">
 <de>Zeit</de>
 <en>Time</en>
 <it>Ora</it>
 <ru>Время</ru>
 </Trl>
-<Trl id="Total">
+<Trl id="SPYTotal">
 <de>Gesamt: %d</de>
 <en>Total: %d</en>
 <it>Totale: %d</it>
 <ru>Всего: %d</ru>
+</Trl>
+</Plugin>
+<Plugin id="eu.jucy.ui.hublist" name="publichubs" langclass="eu.jucy.ui.hublist.Lang">
+<Trl id="ConfigurePublicHubLists">
+<de>Konfiguriere Öffentliche Hublisten</de>
+<en>Configure Public Hubs List</en>
+<hu>Publikus Hub Lista Konfigurálása</hu>
+<it>Configura HubList</it>
+<ru>Настройки списка публичных хабов</ru>
+</Trl>
+<Trl id="EnterAddressOfTheHublist">
+<de>Addresse der Hubliste eingeben</de>
+<en>Enter Address of the Hublist</en>
+<hu>Add meg a Hublista címét</hu>
+<it>Inserisci indirizzo dell'Hublist</it>
+<ru>Введите адрес для списка хабов</ru>
+</Trl>
+<Trl id="HLHubs">
+<de>Hubs: %d</de>
+<en>Hubs: %d</en>
+<hu>Hubok: %d</hu>
+<it>Hub: %d</it>
+<ru>Хабы: %d</ru>
+</Trl>
+<Trl id="HLUsers">
+<de>Users: %d</de>
+<en>Users: %d</en>
+<hu>Felhasználók: %d</hu>
+<it>User: %d</it>
+<ru>Юзеры: %d</ru>
+</Trl>
+<Trl id="Hublist">
+<de>Hubliste</de>
+<en>Hublist</en>
+<hu>Hublista</hu>
+<it>Lista hub</it>
+<ru>Список хабов</ru>
+</Trl>
+<Trl id="LoadHublist">
+<de>Lade Hubliste</de>
+<en>Load Hublist</en>
+<hu>Hublista betöltése</hu>
+<it>Scarica Hublist</it>
+<ru>Загрузить список хабов</ru>
+</Trl>
+<Trl id="PublicHubsList">
+<de>Öffentliche Hubliste</de>
+<en>Public Hubs list</en>
+<hu>Publikus Hubok listája</hu>
+<it>Lista Hub pubblici</it>
+<ru>Список публичных хабов</ru>
 </Trl>
 </Plugin>
 </Translation>

@@ -20,7 +20,6 @@ import uc.files.IDownloadable.IDownloadableFile;
 
 import uc.files.downloadqueue.Block.BlockState;
 import uc.files.downloadqueue.Block.FileChannelManager;
-import uc.files.filelist.IOwnFileList.AddedFile;
 import uc.files.transfer.AbstractWritableFileInterval;
 import uc.files.transfer.FileTransferInformation;
 import uc.files.transfer.AbstractWritableFileInterval.FileWriteInterval;
@@ -354,7 +353,7 @@ public class FileDQE extends AbstractFileDQE {
 				//remove.. from the queue
 				remove();
 				//try immediately adding it to the filelist if possible..
-				dq.getDcc().getFilelist().immediatelyAddFile(getTargetPath(),false,new AddedFile());
+				dq.getDcc().getFilelist().immediatelyAddFile(getTargetPath());
 			}
 			logger.debug("in FileDQE.blockValidated() and end of finishing");
 		

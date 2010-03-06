@@ -711,7 +711,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 				switch (newStatus) {
 				case CONNECTING:
 					logger.debug("statchanged connecting "+hub.getFavHub().getSimpleHubaddy());
-					statusMessage(String.format(LanguageKeys.ConnectingTo,hub.getFavHub().getSimpleHubaddy()),0);
+					statusMessage(String.format(Lang.ConnectingTo,hub.getFavHub().getSimpleHubaddy()),0);
 					break;
 				case CONNECTED:
 					statusMessage(LanguageKeys.Connected,0);

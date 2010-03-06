@@ -3,7 +3,7 @@ package uc.files.transfer;
 
 
 
-import java.io.File;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,6 +25,7 @@ import uc.ISlotManager;
 import uc.IUser;
 import uc.InfoChange;
 import uc.PI;
+import uc.files.filelist.FileListFile;
 import uc.protocols.TransferType;
 
 public class SlotManager implements ISlotManager {
@@ -71,7 +72,7 @@ public class SlotManager implements ISlotManager {
     /* (non-Javadoc)
 	 * @see uc.ISlotManager#getSlot(uc.User, uc.protocols.TransferType, java.io.File)
 	 */
-	public Slot getSlot(IUser usr ,TransferType type,File f)  {
+	public Slot getSlot(IUser usr ,TransferType type,FileListFile f)  {
 		if (usr == null || (type == TransferType.FILE && f == null )) {
 			if (Platform.inDevelopmentMode()) {
 				logger.error("user "+(usr==null? "null":usr)+" file:"+(f==null?"null":f));
@@ -101,7 +102,7 @@ public class SlotManager implements ISlotManager {
 		}
 	}
 	
-	private Slot getSlotPriv(IUser usr ,TransferType type,File f) {
+	private Slot getSlotPriv(IUser usr ,TransferType type,FileListFile f) {
 		try {
 			switch(type) {
 			case TTHL:
@@ -124,7 +125,7 @@ public class SlotManager implements ISlotManager {
 					Slot normal = new Slot(true);
 					currentSlots.add(normal);
 					return normal; */
-				} else if (usr.hasCurrentlyAutogrant() || f.length() <= MinislotSize) {
+				} else if (usr.hasCurrentlyAutogrant() || f.getSize() <= MinislotSize || f.automaticExtraSlot()) {
 					Slot autogrant = new Slot(false);
 					currentSlots.add(autogrant);
 					currentExtraSlots.add(autogrant);

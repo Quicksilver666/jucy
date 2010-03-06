@@ -86,12 +86,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          version="0.0.0"
          unpack="false"/>
 
-   <plugin
-         id="eu.jucy.language"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+
 
    <plugin
          id="org.apache.tools.bzip2"

@@ -120,7 +120,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	/**
 	 * information that is retrieved will be set to this ..
 	 */
-	private final FileTransferInformation fti = new FileTransferInformation();
+	private final FileTransferInformation fti;
 	
 	/**
 	 * if a FileTransfer is running.. then it is referenced here..
@@ -181,6 +181,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 			CPType protocol,String token,boolean encryption) {
 		super(new int[]{0,0,1}); //we want bandwidth mostly C-C protocol..
 		this.ch = ch;
+		fti = new FileTransferInformation(ch.getDCC());
 		this.incoming = incoming; 
 		this.self = self; // our self the user we represent in that hub may be null
 		othersNumber = 0; // others number -> NMDC data..
@@ -194,7 +195,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		
 		HashValue fingerPrint = other != null? other.getKeyPrint(): null;
 
-		if (addyOrSC instanceof SocketChannel) { //TOOD provide crypto manager from hub.. hubguessing
+		if (addyOrSC instanceof SocketChannel) { 
 			connection = new UnblockingConnection(ch.getIdentity().getCryptoManager(), (SocketChannel)addyOrSC, this,encryption,incoming,fingerPrint);
 		} else {
 			connection = new UnblockingConnection(ch.getIdentity().getCryptoManager(),(InetSocketAddress)addyOrSC, this,encryption,fingerPrint);
@@ -382,29 +383,6 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 				}
 			}
 		});
-	}
-
-	/**
-	 * @return true if the user has a StateMachine associated with him (we want sth from him)
-	 * and if the StateMachine is watching this ClientProtocol
-	 * 
-	 * @deprecated
- 	 */
-	public boolean hasStateMachine() {
-		ClientProtocolStateMachine cps = ch.getStateMachine(fti.getOther());
-		return cps != null && cps.getCurrent() == this;
-	}
-	
-	/**
-	 * 
-	 * @deprecated
-	 */
-	public ClientProtocolStateMachine getStateMachine() {
-		if (hasStateMachine()) {
-			return ch.getStateMachine(fti.getOther());
-		} else {
-			return null;
-		}
 	}
 	
 	
@@ -615,14 +593,14 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		logger.debug("in transfer()");
 
 //		try {
-			boolean successful = fti.setFileInterval(ch.getDCC());
+			boolean successful = fti.setFileInterval();
 
 			if (successful) {
 				getSlotAndDoTransfer();
 			} else {
 				//could no create fileInterval.. -> just disconnect..
 				if (nmdc) {
-					sendError(DisconnectReason.FILENOTAVAILABLE );
+					sendError( DisconnectReason.FILENOTAVAILABLE );
 				} else {
 					STA.sendSTA(this, 
 							new ADCStatusMessage(DisconnectReason.FILENOTAVAILABLE.toString(),
@@ -638,7 +616,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	
 	private void getSlotAndDoTransfer() {
 		DCClient dcc = ch.getDCC();
-		if (fti.isDownload() || (slot = ch.getSlotManager().getSlot(fti.getOther(),fti.getType(),fti.getFile())) != null) { //get a slot for the upload
+		if (fti.isDownload() || (slot = ch.getSlotManager().getSlot(fti.getOther(),fti.getType(), fti.getFileListFile())) != null) { //get a slot for the upload
 			ByteChannel source = null;
 			try {
 				if (fti.isUpload()) {

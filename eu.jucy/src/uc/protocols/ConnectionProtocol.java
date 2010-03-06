@@ -10,6 +10,11 @@ import java.util.Map;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,14 +46,15 @@ import org.eclipse.core.runtime.Platform;
  * 
  * most protocol depending stuff could go into implementations of IProtocolCommand objects..
  * 
+ * 
  * */
-public abstract class ConnectionProtocol {
+public abstract class ConnectionProtocol implements ReadWriteLock {
 
 	private static Logger logger = LoggerFactory.make(Level.INFO); 
 	
 	
 	private static final ProtocolTimer mt = new ProtocolTimer();
-
+	private final ReentrantReadWriteLock rwLock;
 	
 
 	protected volatile IConnection connection;   //Needs to be set soon... bad thing.. really..
@@ -137,6 +143,7 @@ public abstract class ConnectionProtocol {
 			throw new IllegalArgumentException();
 		}
 		this.performancePrefs = performancePrefs;
+		this.rwLock = new ReentrantReadWriteLock();
 	}
 	public ConnectionProtocol() {
 		this((int[])null);
@@ -439,7 +446,13 @@ public abstract class ConnectionProtocol {
 	}
 
 	public int getSocketTimeout() {
-		return socketTimeout;
+		Lock l = readLock();
+		l.lock();
+		try {
+			return socketTimeout;
+		} finally {
+			l.unlock();
+		}
 	}
 	/**
 	 * whether this ClientProtocol is encrypted..
@@ -491,6 +504,17 @@ public abstract class ConnectionProtocol {
 		debuggers.remove(conDebug);
 		unregisterProtocolStatusListener(conDebug);
 	}
+
+	public WriteLock writeLock() {
+		return rwLock.writeLock();
+	}
+
+	public ReadLock readLock() {
+		return rwLock.readLock();
+	}
+	
+	
+	
 	
 }
 

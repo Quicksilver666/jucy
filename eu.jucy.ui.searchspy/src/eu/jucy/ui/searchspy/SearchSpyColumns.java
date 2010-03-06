@@ -27,7 +27,7 @@ public abstract class SearchSpyColumns extends ColumnDescriptor<SearchInfo> {
 	public static class SearchStringColumn extends SearchSpyColumns {
 
 		public SearchStringColumn() {
-			super(350, Lang.SearchString, SWT.LEAD);
+			super(350, Lang.SPYSearchString, SWT.LEAD);
 		}
 		
 		
@@ -39,7 +39,7 @@ public abstract class SearchSpyColumns extends ColumnDescriptor<SearchInfo> {
 	public static class Count extends SearchSpyColumns {
 
 		public Count() {
-			super(80, Lang.Count, SWT.TRAIL);
+			super(80, Lang.SPYCount, SWT.TRAIL);
 		}
 
 		
@@ -62,7 +62,7 @@ public abstract class SearchSpyColumns extends ColumnDescriptor<SearchInfo> {
 
 		private final SimpleDateFormat format;
 		public Time() {
-			super(100, Lang.Time, SWT.LEAD);
+			super(100, Lang.SPYTime, SWT.LEAD);
 			format = new SimpleDateFormat("HH:mm:ss");
 		}
 
@@ -88,7 +88,7 @@ public abstract class SearchSpyColumns extends ColumnDescriptor<SearchInfo> {
 	public static class Hits extends SearchSpyColumns {
 		
 		public Hits() {
-			super(60,Lang.Hits,SWT.TRAIL);
+			super(60,Lang.SPYHits,SWT.TRAIL);
 		}
 
 		

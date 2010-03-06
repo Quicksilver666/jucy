@@ -116,24 +116,17 @@ import uc.protocols.hub.Hub;
  *
  * 
  * My Personal Bugtracker:
- * 
- * 
- * TODO remove change Lang.LineSpeed to accomodate for now different display of speeds..
- *  
- *  
- *  TODO may be think about torrent support in dc client -> starting torrents downloaded..
  *  
 TODO
 2. "path" column in Finished Downloads folder.
 
-3. when you stuck mouse pointer on jucy icon in systray appears notification like "jucy v. 0.81... etc" (win). it'll be better to give more useful information here. for example current upload/download speed. (mac os version must have colored UP/DW digits on dock icon (i extremely love this feature in transmission)))
+3. when you stuck mouse pointer on jucy icon in systray appears notification like "jucy v. 0.81... etc"
+ (win). it'll be better to give more useful information here. for example current upload/download 
+ speed. (mac os version must have colored UP/DW digits on dock icon (i extremely love this feature 
+ in transmission)))
  *  
- * TODO implement some game.. i.e. Battleship or chess that could be played against other user..
- *  
+
  * 
- *  
- * 
- * TODO after finished downloading file .. may be check if should be hashed and immediately shared..
  *
  *
  * TODO ... new special user category for tons of settings..
@@ -148,19 +141,11 @@ TODO
  * TODO store tested segments in DB... -> no rehashing for everything on start... 
  * could save lots of computing power..
  * 
- * 
- * 
- * TODO LuaJava plugin... -> wait till java 6 mandatory
- * 
  * TODO hideshare functionality.. -> better feature would be different filelists
  * on a per hub basis.. hideshare = no filelist..
  * 
  * 
  * TODO .. change with new DB adding already TTH to DB should work better..
- * 
- * 
- * TODO always reconnecting peer requesting the same interval over and over and over have to be stopped..
- * --> slots stay open  bandwidth is wasted..
  * 
  * TODO  may be some statistics window?? drawing what is currently transferred...
  *
@@ -178,6 +163,7 @@ TODO
  * TODO warning when running out of space.. 
  * -> not possible due to Missing api in 1.5 
  * --> wait for 1.6 as requirement
+ * TODO LuaJava plugin... -> wait till java 6 mandatory
  *  
  * @author Quicksilver
  */

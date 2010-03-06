@@ -5,7 +5,7 @@ package eu.jucy.ui.hublist;
 import uihelpers.SemikolonListFieldEditor;
 
 
-import eu.jucy.gui.Lang;
+
 import eu.jucy.gui.settings.UCPrefpage;
 
 

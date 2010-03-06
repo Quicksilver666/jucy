@@ -50,7 +50,7 @@ public class CreateLangFiles {
 				,classname);
 		 
 		File target = new File(pluginbase,"src/"+packagename.replace(".", "/")+"/"+classname+".java");
-		System.out.println(target);
+		System.out.print(target);
 		
 		write(target,concreteLang);
 		
@@ -73,9 +73,14 @@ public class CreateLangFiles {
 			System.out.println("writing file "+target);
 			System.out.println("contents: "+contents);
 		} else {
-			PrintStream ps = new PrintStream(target);
-			ps.print(contents);
-			ps.close();
+			if (!target.isFile() || !contents.equals(read(target))) { // check if the file not already exists and contains the same stuff
+				PrintStream ps = new PrintStream(target);
+				ps.print(contents);
+				ps.close();
+				System.out.println(" ...written");
+			} else {
+				System.out.println(" ...unchanged");
+			}
 		}
 	}
 	
