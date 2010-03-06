@@ -2,6 +2,7 @@ package eu.jucy.notepad.editors;
 
 
 import eu.jucy.gui.UCEditorInput;
+import eu.jucy.notepad.Lang;
 
 public class NotepadInput extends UCEditorInput {
 
@@ -30,7 +31,7 @@ public class NotepadInput extends UCEditorInput {
 	}
 
 	public String getName() {
-		String s = Messages.getString("NotepadInput"); //$NON-NLS-1$
+		String s = Lang.NPNotepadInput;
 		int i = getNotepadNumber()+1;
 		if (i != 1) {
 			s += " - " + i;

@@ -133,7 +133,6 @@ public class HublistEditor extends UCEditor {
 				
 			}
 		});
-		//TODO internationalization
 		final Group configuredPublicHubGroup = new Group(composite, SWT.NONE);
 		configuredPublicHubGroup.setText(Lang.PublicHubsList);
 		configuredPublicHubGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));

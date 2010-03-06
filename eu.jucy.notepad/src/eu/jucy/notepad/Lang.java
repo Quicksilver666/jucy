@@ -11,11 +11,10 @@ import helpers.NLS;
 public class Lang {
 
 	public static String
-		 Bundle_Name
-		,NotepadInput
-		,command_description
-		,command_name
-		,editor_name ;
+		 NPBundle_Name
+		,NPNotepadInput
+		,NPcommand_description
+		,NPcommand_name ;
 	
 	static {
 		try {

@@ -11,12 +11,9 @@ import helpers.NLS;
 public class LanguageKeys {
 
 	public static String
-		 Active
-		,Add
-		,AddressCouldNotBeResolved
+		 AddressCouldNotBeResolved
 		,AtLeast
 		,AtMost
-		,Average
 		,CDCheckFirewall
 		,CDCheckForwardedPorts
 		,CDCheckTCP
@@ -28,28 +25,15 @@ public class LanguageKeys {
 		,Connected
 		,Connecting
 		,ConnectionTimeout
-		,Count
-		,CreateHub
-		,Directories
-		,DirectoryForLogs
 		,Disconnected
-		,DownloadAndOpen
-		,Edit
-		,EditTheHublist
 		,Equals
-		,File
 		,FilelistRefreshAlreadyInProgress
 		,FinishedFilelistRefresh
-		,HubIsFull
 		,HubRequestedPassword
 		,Idle
-		,IsFavoriteUser
-		,LastChange
-		,Limits
 		,LoggedIn
 		,LoginTimeout
 		,MatchedXFilesWithUserY
-		,OK
 		,Reconnecting
 		,RedirectReceived
 		,STA11HubFull
@@ -75,12 +59,8 @@ public class LanguageKeys {
 		,STA52FilePartNotAvailable
 		,STA53SlotsFull
 		,STA54NoHashSupportOverlapClient
-		,SearchString
 		,SendingPassword
-		,Server
-		,Settings
 		,StartedRefreshingTheFilelist
-		,Time
 		,TransferFinished
 		,UserConnected
 		,UserDisconnected
