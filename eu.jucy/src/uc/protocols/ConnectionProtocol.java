@@ -102,10 +102,11 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	 */
 	protected volatile Pattern prefix = Pattern.compile("(\\$\\S+)[^|]*");
 
+	private final Object csSynch = new Object();
 	/**
 	 * the current state of the protocol
 	 */
-	protected volatile ConnectionState state = ConnectionState.CONNECTING ; 
+	private ConnectionState state = ConnectionState.CONNECTING ; 
 
 	private volatile long lastLogin = 0; 
 
@@ -210,15 +211,18 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	 * instead of commandReceivedDuringLogin()
 	 */
 	public void onLogIn() throws IOException {
-		if (state != ConnectionState.CONNECTED) {
-			if (Platform.inDevelopmentMode()) {
-				logger.warn("Bad state: "+state);
+		synchronized(csSynch) {
+			if (state != ConnectionState.CONNECTED) {
+				if (Platform.inDevelopmentMode()) {
+					logger.warn("Bad state: "+state);
+				}
+				return;
 			}
-			return;
+		
+			loginDone = true;
+			lastLogin = System.currentTimeMillis();
+			setState(ConnectionState.LOGGEDIN);
 		}
-		loginDone = true;
-		lastLogin = System.currentTimeMillis();
-		setState(ConnectionState.LOGGEDIN);
 	}
 
 
@@ -373,27 +377,28 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	}
 	
 	protected void setState(ConnectionState state) {
-		if (this.state == ConnectionState.DESTROYED) {
-			throw new IllegalStateException("State was already destroyed");
-		}
-		this.state = state;
-		
-		if (state == ConnectionState.DESTROYED) {
-			mt.deregisterCP(this);
-		}
-
-		for (IProtocolStatusChangedListener listener: cscl) {
-			if (listener == null) {
-				logger.warn("found Listener null", new Throwable());
-			} else {
-				listener.statusChanged(state, this);
+		synchronized(csSynch) {
+			if (this.state == ConnectionState.DESTROYED) {
+				throw new IllegalStateException("State was already destroyed");
+			}
+			this.state = state;
+			
+			if (state == ConnectionState.DESTROYED) {
+				mt.deregisterCP(this);
+			}
+	
+			for (IProtocolStatusChangedListener listener: cscl) {
+				if (listener == null) {
+					logger.warn("found Listener null", new Throwable());
+				} else {
+					listener.statusChanged(state, this);
+				}
+			}
+			
+			if (pendingDestroyed && this.state ==  ConnectionState.CLOSED) {
+				setState(ConnectionState.DESTROYED);
 			}
 		}
-		
-		if (pendingDestroyed && this.state ==  ConnectionState.CLOSED) {
-			setState(ConnectionState.DESTROYED);
-		}
-		
 	}
 	
 	/**
@@ -407,10 +412,12 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	 *  or send it as soon as the connection is Closed..
 	 */
 	public void end() {
-		if (this.state == ConnectionState.CLOSED) {
-			setState(ConnectionState.DESTROYED);
-		} else {
-			pendingDestroyed = true;
+		synchronized (csSynch) {	
+			if (state == ConnectionState.CLOSED) {
+				setState(ConnectionState.DESTROYED);
+			} else {
+				pendingDestroyed = true;
+			}
 		}
 	}
 	
@@ -419,7 +426,9 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	 * @return the current state of the protocol..
 	 */
 	public ConnectionState getState() {
-		return state;
+		synchronized (csSynch) {
+			return state;
+		}
 	}
 
 

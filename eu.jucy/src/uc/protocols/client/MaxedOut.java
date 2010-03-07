@@ -27,16 +27,15 @@ public class MaxedOut extends AbstractNMDCClientProtocolCommand {
 		client.noSlotsAvailable( matcher.group(1).trim());
 	}	
 	
-	public static void sendMaxedOut(ClientProtocol client) {
-		client.sendUnmodifiedRaw("$MaxedOut|");
-	}
+
 	
 	public static void sendMaxedOut(ClientProtocol client,int position) {
 		if (position < 0) {
-			sendMaxedOut(client);
+			client.sendUnmodifiedRaw("$MaxedOut|");
 		} else {
 			client.sendUnmodifiedRaw("$MaxedOut "+position+"|");
 		}
+		client.disconnect(DisconnectReason.NOSLOTS);
 	}
 
 }

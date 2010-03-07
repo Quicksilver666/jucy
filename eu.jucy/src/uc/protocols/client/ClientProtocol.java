@@ -664,7 +664,9 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 							System.currentTimeMillis()-fileTransfer.getStartTime().getTime());
 					
 					ch.notifyOfChange(ConnectionHandler.TRANSFER_FINISHED,this,fileTransfer);
-					setState(ConnectionState.TRANSFERFINISHED);
+					if (getState().isOpen()) {
+						setState(ConnectionState.TRANSFERFINISHED);
+					}
 					timerTransferCreateTimeout = 0;
 					fileTransfer = null;
 				}
@@ -673,7 +675,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 				if (source != null) {
 					returnSuccessful = connection.returnChannel(source);
 				}
-				if (debugMessages.size() > 1000) {
+				if (debugMessages.size() > 2000) {
 					//check error... too many debug messages..
 					if (Platform.inDevelopmentMode()) {
 						logger.warn("Debug Messages count too large "+debugMessages.size());
@@ -684,7 +686,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 					slot = null;
 					awaitingADCGet = 10;
 					getAwaited = true;
-				} else if (wasDownload && returnSuccessful) { // download:
+				} else if (wasDownload && returnSuccessful && getState().isOpen()) { // download:
 					logger.debug("relogin");
 					relogin();
 				}
@@ -700,11 +702,15 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 			if (nmdc) {
 				MaxedOut.sendMaxedOut(this,queuePosition);
 			} else {
-				STA.sendSTA(this, new ADCStatusMessage(DisconnectReason.NOSLOTS.toString(),2,53,Flag.QP,""+queuePosition));
+				STA.sendSTA(this, 
+						new ADCStatusMessage(DisconnectReason.NOSLOTS.toString()
+											,ADCStatusMessage.FATAL
+											,ADCStatusMessage.TransferSlotsFull
+											,Flag.QP,""+queuePosition));
+				
 				//here ADC no slots.. //STA maxed out..
 			}
 			dcc.getUpQueue().userRequestedFile(fti.getOther(), fti.getNameOfTransferred(),fti.getHashValue(), false);
-			disconnect(DisconnectReason.NOSLOTS);
 		}
 	}
 	
