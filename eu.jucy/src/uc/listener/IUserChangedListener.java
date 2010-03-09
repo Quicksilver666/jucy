@@ -54,6 +54,7 @@ public interface IUserChangedListener {
 		public static final int 
 		NotApplicable = 0, //for connected, quit,disconnected...
 		INF = 1,			//change of an INF field
+		MISC = 2,			//some other change..
 		
 		SLOT_GRANTED 		=	1025, // last bit one means added 0 = removed.. 
 		SLOTGRANT_REVOKED 	=	1024,

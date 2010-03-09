@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gui Plug-in
 Bundle-SymbolicName: eu.jucy.gui;singleton:=true
-Bundle-Version: 1.1.9
+Bundle-Version: 1.1.10
 Bundle-Localization: nl/gui
 Require-Bundle: eu.jucy.logging,
  org.eclipse.core.runtime,

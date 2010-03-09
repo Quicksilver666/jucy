@@ -72,7 +72,7 @@ public class SendContext {
 	
 	private IDownloadable fileOrFolder;
 	
-	private Map<String,String> replacements;
+	protected Map<String,String> replacements;
 
 	
 	/**

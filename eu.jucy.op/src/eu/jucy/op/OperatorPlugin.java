@@ -19,6 +19,7 @@ import uc.IHub;
 import uc.IOperatorPlugin;
 import uc.IUser;
 import uc.OperatorPluginAdapter;
+import uc.User;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import uc.files.downloadqueue.FileListDQE;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry.IDownloadFinished;
@@ -98,19 +99,21 @@ public class OperatorPlugin extends OperatorPluginAdapter implements
 		}
 	}
 
+	
+	
 	/*
 	 * (non-Javadoc)
 	 * @see UC.OperatorPluginAdapter#changed(UC.IUser, UC.listener.IUserChangedListener.UserChange)
 	 */
 	@Override
-	public void changed(IUser changed, UserChange typeOfChange) {
-		super.changed(changed, typeOfChange);
-		
-		switch(typeOfChange) {
+	public void changed(UserChangeEvent uce) {
+		super.changed(uce);
+		IUser changed = uce.getChanged();
+		switch(uce.getType()) {
 		case CONNECTED:
 			if (shouldCheckUsr(changed)) {
 				needsCheck.offer(changed);
-				changed.notifyUserChanged();
+			//	changed.notifyUserChanged();
 				if (inCheck.size() < PI.getInt(PI.parallelChecks)) {
 					addCheckItem();
 				} 
@@ -143,10 +146,10 @@ public class OperatorPlugin extends OperatorPluginAdapter implements
 					logger.debug("do after download: "+usr.getNick());  //this is called after the filelist check..
 					inCheck.remove(usr);
 					addCheckItem();
-					usr.notifyUserChanged();
+				//	usr.notifyUserChanged();
 				}
 			});
-			usr.notifyUserChanged();
+			//usr.notifyUserChanged();
 		}
 	}
 	
@@ -161,10 +164,11 @@ public class OperatorPlugin extends OperatorPluginAdapter implements
 				!checkedUser.containsKey(usr);
 	}
 	
-	
-	public void checkedUser(IUser checked) {
+
+
+	public void checkedUser(User checked) {
 		checkedUser.put(checked, new Object()); //TODO check information object..
-		checked.notifyUserChanged();
+	//	checked.notifyUserChanged();
 	}
 	
 	public CheckState getCheckState(IUser who) {

@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.baseclient"
       label="Baseclient Feature"
-      version="1.1.10"
+      version="1.1.10.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.product1">
 
@@ -55,77 +55,49 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.logging"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.10"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.database"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.10"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.gui"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.10"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.hashengine"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.10"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.helpers"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.10"
          unpack="false"/>
-
-
-
-   <plugin
-         id="org.apache.tools.bzip2"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="eu.jucy"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.10"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.gui.help"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.sbbi.upnp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.hsqldb"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="fr.cryptohash"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
+         version="1.1.10"
          unpack="false"/>
 
    <plugin
@@ -134,35 +106,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          ws="cocoa"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.10"
          fragment="true"
          unpack="false"/>
-
-   <plugin
-         id="lib.org.apache.lucene"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="eu.jucy.product1"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="lib.org.apache.pdfbox"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="lib.com.jcraft.jzlib"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
+         version="1.1.10"
          unpack="false"/>
 
 </feature>

@@ -1,6 +1,7 @@
 package uc;
 
 
+
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.ConnectionState;
 import uc.protocols.hub.PrivateMessage;
@@ -18,13 +19,25 @@ public abstract class OperatorPluginAdapter implements IOperatorPlugin {
 
 
 
-	public void changed(IUser changed, UserChange typeOfChange) {}
+
 
 	
+	public void changed(UserChangeEvent uce) {}
+
+
+
+
+
+	public void mcReceived(IUser sender, String message, boolean me) {}
+
+
+
+
+
 	public void pmReceived(PrivateMessage pm) {}
 
 	
-	public void mcReceived(IUser sender, String message) {}
+	
 
 	
 	public void mcReceived(String message) {}

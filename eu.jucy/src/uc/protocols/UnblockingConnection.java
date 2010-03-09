@@ -41,7 +41,8 @@ import uc.crypto.HashValue;
 import uc.protocols.MultiStandardConnection.IUnblocking;
 
 /**
- * more or less the replacement for NewStandardConnection
+ * Good example for bad looking ugly code that somehow more or less works...
+ * 
  * 
  * @author Quicksilver
  *
@@ -51,7 +52,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	private static final Logger logger = LoggerFactory.make();
 
 	/**
-	 * here we store Ip addresses of other clients that failed DHE key exchange with us..
+	 * here we store IP addresses of other clients that failed DHE key exchange with us..
 	 */
 	private static final Set<InetAddress> problematic = 
 		Collections.synchronizedSet(new HashSet<InetAddress>());
@@ -71,10 +72,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	
 
 	
-	public void setKey(SelectionKey key) {
-		this.key = key;
-	}
-	
+
 	private static final Object inetAddySynch = new Object();
 	private volatile InetSocketAddress inetAddress = null ; 
 
@@ -129,6 +127,11 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		serverSide = false;
 		this.fingerPrint = fingerPrint;
 	}
+	
+	public void setKey(SelectionKey key) {
+		this.key = key;
+	}
+	
 	
 	public void start() { //todo ... if Proxy in use start connect should be in seperate thread..
 		if (target instanceof String) {
@@ -316,7 +319,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				public void run() {
 					try {
 						if (!connectSent && Platform.inDevelopmentMode()) {  //DEBUG  remove
-							logger.warn("connect not sent");
+							logger.warn("connect not sent: "+varInBuffer.toString());
 						}
 						processread();
 					} finally {
@@ -368,8 +371,6 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		switch (status) {
 		case FINISHED:
 		case NOT_HANDSHAKING:
-			
-		//	X509Certificate.getInstance(new byte[]{}).getPublicKey().getEncoded()
 			boolean tryValidation = fingerPrint != null && !connectSent;
 			
 			if (tryValidation && !checkFingerprint()) {
@@ -481,9 +482,9 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				long startconnect = System.currentTimeMillis();
 				try {
 					while (!trySetInetAddy(sochan) && sochan.isOpen()) {
-						if (sochan.isConnectionPending()) {
-							sochan.finishConnect();
-						}
+					//	if (sochan.isConnectionPending()) {
+						sochan.finishConnect();
+					//	}
 						GH.sleep(50);	
 						if (startconnect + cp.getSocketTimeout() < System.currentTimeMillis()) {
 							sochan.close();
@@ -557,16 +558,12 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 					if (!GH.isNullOrEmpty(found)) {
 						stringbuffer.delete(0, m.end());
 						try {
-							if (encryption) {
-								synchronized(bufferLock) {
-									logger.debug("[read]: "+found+" varInBuffer remaining:"+varInBuffer.remaining()+" byteBufferPosition: "+byteBuffer.position()); 
-								}
-							}
 							cp.receivedCommand(found);
 						} catch (IOException ioe) {
 							close();
 							logger.debug(ioe,ioe);
 						} catch (RuntimeException re) {
+							close();
 							logger.warn(re,re); 
 						}
 
@@ -604,6 +601,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		outBuffer.flip(); //nothing available in the outBuffer..
 		outcharBuffer.clear();
 		byteBuffer.clear();
+		
+		semaphore.drainPermits();
 		//charBuffer.clear();
 		
 		//outgoingBuffer.clear();

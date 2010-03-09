@@ -1,0 +1,23 @@
+package %1$s;
+
+import uc.DCClient;
+import helpers.NLS;
+
+
+/**
+* This is a automatically generated file! DO NOT CHANGE!!
+* see eu.jucy.releng.languages -> CreateLangFile for more details
+*/
+public class %2$s {
+
+	public static String
+		 %3$s ;
+	
+	static {
+		try {
+			NLS.load("%4$s", %2$s.class);
+		} catch(RuntimeException re) {
+			DCClient.logger.warn(re,re);
+		}
+	}
+}

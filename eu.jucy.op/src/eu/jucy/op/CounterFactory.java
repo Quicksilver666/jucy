@@ -25,11 +25,9 @@ import uc.files.filelist.FileListFile;
 
 public class CounterFactory {
 
-	private static final Logger logger = LoggerFactory.make();
+	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
 	
-	static {
-		logger.setLevel(Level.DEBUG);
-	}
+
 	
 	/**
 	 * name and id for counterFactory

@@ -58,7 +58,7 @@ public class OpFavHubSettings implements IFavHubAdvanced {
         
         tableViewer.setContentProvider(new IStructuredContentProvider() {
 			public Object[] getElements(Object inputElement) {
-				return ((List)inputElement).toArray();
+				return ((List<?>)inputElement).toArray();
 			}
 
 			public void dispose() {}

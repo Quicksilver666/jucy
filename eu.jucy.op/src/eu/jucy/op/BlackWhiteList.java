@@ -4,8 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import uc.crypto.HashValue;
-import uc.files.filelist.FileListFile;
+import uc.files.IDownloadable.IDownloadableFile;
 
+
+/**
+ * bad -> should be two lists..
+ * name one blacklist..
+ * name one whitelist.. -> IDEA use FilelIst instead of this...
+ *  has nearly all methods needed..inclusive storage..
+ * @author Quicksilver
+ *
+ */
 public class BlackWhiteList {
 
 	private String name = "";
@@ -20,7 +29,7 @@ public class BlackWhiteList {
 	 * @param f - file which's TTH root should be checked
 	 * @return true if the file is in the whitelist
 	 */
-	public boolean checkWhitelist(FileListFile f) {
+	public boolean isInWhitelist(IDownloadableFile f) {
 		return whitelist.containsKey(f.getTTHRoot());
 	}
 	
@@ -29,16 +38,16 @@ public class BlackWhiteList {
 	 * @param f - file which's TTH root should be checked
 	 * @return true if the file is in the blacklist
 	 */
-	public boolean checkBlacklist(FileListFile f) {
+	public boolean isInBlacklist(IDownloadableFile f) {
 		return blacklist.containsKey(f.getTTHRoot());
 	}
 	
-	public void addFile(FileListFile f , boolean blacklistTheFile) {
+	public void addFile(IDownloadableFile f , boolean blacklistTheFile) {
 		ListFile l = new ListFile(f.getSize(),f.getTTHRoot(),f.getName());
 		if (blacklistTheFile) {
-			blacklist.put(l.tthRoot, l);
+			blacklist.put(l.hash, l);
 		} else {
-			whitelist.put(l.tthRoot, l);
+			whitelist.put(l.hash, l);
 		}
 	}
 	
@@ -48,12 +57,12 @@ public class BlackWhiteList {
 	public static class ListFile {
 
 		private final long size;
-		private final HashValue tthRoot;
+		private final HashValue hash;
 		private final String filename;
 		
-		public ListFile(long size, HashValue tthRoot, String filename) {
+		public ListFile(long size, HashValue hash, String filename) {
 			this.size = size;
-			this.tthRoot = tthRoot;
+			this.hash = hash;
 			this.filename = filename;
 		}
 
@@ -61,8 +70,8 @@ public class BlackWhiteList {
 			return size;
 		}
 
-		public HashValue getTthRoot() {
-			return tthRoot;
+		public HashValue getHashValue() {
+			return hash;
 		}
 
 		public String getFilename() {

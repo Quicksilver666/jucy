@@ -5,10 +5,10 @@ Bundle-SymbolicName: eu.jucy.op;singleton:=true
 Bundle-Version: 0.0.1
 Require-Bundle: eu.jucy,
  org.eclipse.core.runtime,
- eu.jucy.adlsearch;bundle-version="1.0.6",
- eu.jucy.gui;bundle-version="1.0.12",
- eu.jucy.helpers;bundle-version="1.0.11",
- org.eclipse.ui;bundle-version="3.5.0",
- eu.jucy.language;bundle-version="1.0.7"
+ eu.jucy.adlsearch,
+ eu.jucy.gui,
+ eu.jucy.helpers,
+ org.eclipse.ui,
+ eu.jucy.logging;bundle-version="1.1.10"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy

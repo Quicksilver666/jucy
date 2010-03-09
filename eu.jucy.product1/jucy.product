@@ -83,15 +83,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <plugin id="eu.jucy.gui.macosx.cocoa" fragment="true"/>
       <plugin id="eu.jucy.hashengine"/>
       <plugin id="eu.jucy.helpers"/>
-      <plugin id="eu.jucy.language"/>
+      <plugin id="eu.jucy.language" fragment=""/>
       <plugin id="eu.jucy.notepad"/>
       <plugin id="eu.jucy.product1"/>
       <plugin id="eu.jucy.ui.hublist"/>
-      <plugin id="fr.cryptohash"/>
+      <plugin id="fr.cryptohash" fragment=""/>
       <plugin id="javax.servlet"/>
       <plugin id="lib.org.apache.lucene"/>
-      <plugin id="net.sbbi.upnp"/>
-      <plugin id="org.apache.tools.bzip2"/>
+      <plugin id="net.sbbi.upnp" fragment=""/>
+      <plugin id="org.apache.tools.bzip2" fragment=""/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.databinding"/>
@@ -162,7 +162,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.eclipse.update.configurator"/>
       <plugin id="org.hamcrest.core"/>
-      <plugin id="org.hsqldb"/>
+      <plugin id="org.hsqldb" fragment=""/>
       <plugin id="org.junit4"/>
       <plugin id="org.mortbay.jetty.server"/>
       <plugin id="org.mortbay.jetty.util"/>
@@ -171,9 +171,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </plugins>
 
    <features>
-      <feature id="eu.jucy.feature.rcp" version="1.1.1"/>
-      <feature id="eu.jucy.feature.baseclient" version="1.1.10"/>
-      <feature id="eu.jucy.feature.hublist" version="1.1.5"/>
+      <feature id="eu.jucy.feature.baseclient" version="1.1.10.qualifier"/>
+      <feature id="eu.jucy.feature.libraries" version="1.0.0.qualifier"/>
+      <feature id="eu.jucy.feature.hublist" version="1.1.5.qualifier"/>
    </features>
 
 

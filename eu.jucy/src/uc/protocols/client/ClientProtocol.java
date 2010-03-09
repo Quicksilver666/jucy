@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 
 import java.io.IOException;
@@ -49,6 +50,7 @@ import logger.LoggerFactory;
 
 
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.Platform;
@@ -206,9 +208,15 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		return ch.getDCC();
 	}
 
-	public synchronized void start() {
-		connection.start();
-		super.start();
+	public void start() {
+		WriteLock l = ClientProtocol.this.writeLock();
+		l.lock();
+		try {
+			connection.start();
+			super.start();
+		} finally {
+			l.unlock();
+		}
 	}
 
 	public void beforeConnect() {
@@ -306,8 +314,12 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 			boolean otherSupportsCompression = othersSupports.contains("ZLIG");
 			
 			fti.setCompression( connection.isLocal(), otherSupportsCompression );
-			synchronized(this) {
+			WriteLock l = ClientProtocol.this.writeLock();
+			l.lock();
+			try {
 				ch.notifyOfChange(ConnectionHandler.USER_IDENTIFIED_IN_CONNECTION, this, cpsm); //new ChangeNotification
+			} finally {
+				l.unlock();
 			}
 			logger.debug("trying to get a downlaod from dqe");
 	
@@ -335,8 +347,12 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		} else {
 		//	super.onLogIn();
 			cpsm = null;
-			synchronized(this) {
+			WriteLock l = ClientProtocol.this.writeLock();
+			l.lock();
+			try {
 				ch.notifyOfChange(ConnectionHandler.USER_IDENTIFIED_IN_CONNECTION, this, null);
+			} finally {
+				l.unlock();
 			}
 		}
 		
@@ -351,7 +367,9 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		logger.debug("relogin");
 		DCClient.execute(new Runnable() {
 			public void run() {
-				synchronized(ClientProtocol.this) {
+				WriteLock l = ClientProtocol.this.writeLock();
+				l.lock();
+				try {
 					if (fti.isDownload()) {
 						AbstractDownloadQueueEntry dqe = fti.getOther()
 								.resolveDQEToUser();
@@ -380,6 +398,8 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 							connection.close();
 						}
 					}
+				} finally {
+					l.unlock();
 				}
 			}
 		});
@@ -390,9 +410,8 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	public void onDisconnect() throws IOException {
 		logger.debug("called OnDisconnect "+fti.getOther());
 		super.onDisconnect();
-		synchronized(this) {
-			ch.notifyOfChange(ConnectionHandler.CONNECTION_CLOSED,this,cpsm); 
-		}
+		ch.notifyOfChange(ConnectionHandler.CONNECTION_CLOSED,this,cpsm); 
+		
 		if (fti.getOther() != null) {
 			fti.getOther().deleteConnection(this);
 		}
@@ -632,9 +651,15 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 							fti.getOther(), fti.getNameOfTransferred(),fti.getHashValue(), true);
 				} 
 
-				//create an upload..
 				fileTransfer = fti.create(this);
-				setState(ConnectionState.TRANSFERSTARTED);
+				if (getState().isOpen()) {
+					setState(ConnectionState.TRANSFERSTARTED);
+				} else {
+					if (Platform.inDevelopmentMode()) {
+						logger.warn("Problem transfering: "+getUser()+ "  "+getState());
+					}
+					throw new IOException();	
+				}
 				ch.notifyOfChange(ConnectionHandler.TRANSFER_STARTED,this,fileTransfer);
 				
 				if (fti.isDownload()) { //Register download.. with DQE..
@@ -648,6 +673,8 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 				
 			} catch(IOException ioe) { 
 				logger.debug("transfer broke with ioexception "+ioe);
+			} catch(IllegalStateException ise) {
+				logger.log(Platform.inDevelopmentMode()?Level.WARN:Level.DEBUG, "stupid state exception",ise);
 			} finally {
 				
 				boolean wasDownload = false ;
@@ -666,6 +693,8 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 					ch.notifyOfChange(ConnectionHandler.TRANSFER_FINISHED,this,fileTransfer);
 					if (getState().isOpen()) {
 						setState(ConnectionState.TRANSFERFINISHED);
+					} else	if (Platform.inDevelopmentMode()) {
+						logger.warn("Problem after transfering: "+getUser()+ "  "+getState());
 					}
 					timerTransferCreateTimeout = 0;
 					fileTransfer = null;
@@ -691,7 +720,6 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 					relogin();
 				}
 				
-
 				logger.debug("transfer() finished was download"+wasDownload+"  return succ:"+returnSuccessful);
 			}
 			
@@ -713,32 +741,6 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 			dcc.getUpQueue().userRequestedFile(fti.getOther(), fti.getNameOfTransferred(),fti.getHashValue(), false);
 		}
 	}
-	
-	
-	/**
-	 * bad workaround to the problem
-	 * that data arrives immediately after the ADCSND
-	 * not giving us enough time to switch..
-	 *
-	void setSimpleConnection() throws IOException {
-		synchronized(this) {
-			connection = new SimpleConnection(this,connection.retrieveChannel());
-		}
-	} */
-	
-	/*
-	 * get back to normal connection mode..
-	 * @throws IOException
-	 *
-	void setNormalConnection() throws IOException {
-		synchronized(this) {
-			if (connection != normal) {
-				AbstractConnection con = connection;
-				connection = normal;
-				normal.returnChannel(con.retrieveChannel());
-			}
-		}
-	} */
 	
 
 

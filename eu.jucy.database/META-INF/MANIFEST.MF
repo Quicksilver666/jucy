@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Database Plug-in
 Bundle-SymbolicName: eu.jucy.database;singleton:=true
-Bundle-Version: 1.1.6
+Bundle-Version: 1.1.10
 Require-Bundle: eu.jucy,
  eu.jucy.logging,
- org.hsqldb,
+ lib.org.hsqldb,
  eu.jucy.helpers
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

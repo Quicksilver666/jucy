@@ -8,12 +8,14 @@ import java.util.Collections;
 import java.util.Map;
 
 
-import eu.jucy.gui.filelist.OpenFilelistAction;
+
+import eu.jucy.gui.filelist.FilelistHandler;
 import eu.jucy.op.CounterFactory.WorkingCounter;
 
 import uc.IHub;
 import uc.IUser;
 import uc.files.filelist.FileListFile;
+import uihelpers.SUIJob;
 
 public class OPAction {
 
@@ -50,7 +52,7 @@ public class OPAction {
 	
 	protected OPAction() {}
 	
-	protected void execute(IUser usr,FileListFile f, Collection<FileListFile> allFiles,int count,
+	protected void execute(final IUser usr,FileListFile f, Collection<FileListFile> allFiles,int count,
 			String comment,Map<String,WorkingCounter> otherCounters) {
 		
 		IHub hub = usr.getHub();
@@ -58,7 +60,11 @@ public class OPAction {
 			return;
 		
 		if (openFileList) {
-			OpenFilelistAction.openFileList(usr);
+			new SUIJob() {
+				public void run() {
+					FilelistHandler.openFilelist(usr, getWindow());
+				}
+			}.schedule();
 		}
 		
 		if (!GH.isNullOrEmpty(raw)) {

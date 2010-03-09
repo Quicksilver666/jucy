@@ -107,9 +107,7 @@ import uc.protocols.hub.Hub;
  *  
  *  TODO identity management (adding identities i.e. a identity includes different FileList / CID / TCP/SSL-Ports / Certificate(KeyPrint) )
  *
- * TODO immediately adding files downloaded to share if downloaded in the right directory..
  *
- *  TODO internationalisation in hublisteditor
  *				
  *
  * TODO Presentation of magnet -> save as button could be added 
@@ -1069,15 +1067,6 @@ public final class DCClient {
 			listener.searchReceived(searchStrings, source, nrOfResults);
 		}
 	}
-	
-
-	
- 
-//
-//
-//	public ICryptoManager getCryptoManager() {
-//		return cryptoManager;
-//	}
 
 	/**
 	 * @return the hashEngine
