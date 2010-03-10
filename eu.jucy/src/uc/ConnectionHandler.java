@@ -207,7 +207,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 			expectedRefresher.cancel(false);
 			expectedToConnect.clear();
 		}
-		//TOOD close all running transfers -> CPSM should stay..
+		//TOOD close all running transfers -> CPSM should stay..?
 		
 	}
 	
