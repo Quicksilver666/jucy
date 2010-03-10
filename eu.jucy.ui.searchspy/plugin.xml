@@ -5,7 +5,7 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            name="%SearchSpy"
+            name="%SPYSearchSpy"
             icon="icons/SearchSpy.22.png"
             class="eu.jucy.ui.searchspy.SearchSpyEditor"
             id="eu.jucy.ui.searchspy.SearchSpyEditor">
@@ -23,9 +23,9 @@
          point="org.eclipse.ui.commands">
       <command
             defaultHandler="eu.jucy.ui.searchspy.OpenSearchSpyHandler"
-            description="%Description"
+            description="%SPYDescription"
             id="eu.jucy.ui.searchspy.action"
-            name="%SearchSpy">
+            name="%SPYSearchSpy">
       </command>
    </extension>
    <extension
@@ -35,8 +35,8 @@
          <command
                commandId="eu.jucy.ui.searchspy.action"
                icon="icons/SearchSpy.22.png"
-               label="%SearchSpy"
-               tooltip="%Description">
+               label="%SPYSearchSpy"
+               tooltip="%SPYDescription">
          </command>
       </menuContribution>
       <menuContribution
@@ -44,8 +44,8 @@
          <command
                commandId="eu.jucy.ui.searchspy.action"
                icon="icons/SearchSpy.22.gif"
-               label="%SearchSpy"
-               tooltip="%Description">
+               label="%SPYSearchSpy"
+               tooltip="%SPYDescription">
          </command>
       </menuContribution>
    </extension>

@@ -30,7 +30,7 @@ public class Activator extends AbstractUIPlugin {
 
 	private ServiceRegistration policyRegistration;
 	
-	// XXX Shared instance of bundle context
+	//  Shared instance of bundle context
 	public static BundleContext bundleContext;
 	//private ServiceRegistration policyRegistration;
 	public Activator() {

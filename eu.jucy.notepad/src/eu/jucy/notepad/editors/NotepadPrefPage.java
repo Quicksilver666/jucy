@@ -4,6 +4,7 @@ import org.eclipse.jface.preference.IntegerFieldEditor;
 
 import eu.jucy.gui.settings.UCPrefpage;
 import eu.jucy.notepad.Activator;
+import eu.jucy.notepad.Lang;
 import eu.jucy.notepad.NPI;
 
 public class NotepadPrefPage extends UCPrefpage {
@@ -18,7 +19,7 @@ public class NotepadPrefPage extends UCPrefpage {
 	@Override
 	protected void createFieldEditors() {
 		IntegerFieldEditor nrNotepads = 
-			new IntegerFieldEditor(NPI.NR_OF_NOTEPADS, "How many Notepads?", getFieldEditorParent());
+			new IntegerFieldEditor(NPI.NR_OF_NOTEPADS, Lang.NPNrOfNotepads, getFieldEditorParent());
 		nrNotepads.setValidRange(0, Activator.MAX_NOTEPADS);
 		addField(nrNotepads);
 

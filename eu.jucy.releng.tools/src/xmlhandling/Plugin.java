@@ -63,14 +63,26 @@ public class Plugin implements Comparable<Plugin> {
 			if (!prop.getParentFile().isDirectory()) {
 				prop.getParentFile().mkdirs();
 			}
+			if (!prop.isFile() || !e.getValue().equals(readProp(prop))) {
+				FileOutputStream fos = new FileOutputStream(prop); 
+				fos.getChannel().truncate(0); //delete file first.. if exists..
+				e.getValue().store(fos, null);
+				fos.close();
+				System.out.println("Written file: "+prop.getCanonicalPath());
+			} else {
+			//	System.out.println("Unchanged file: "+prop.getAbsolutePath());
+			}
 			
-			FileOutputStream fos = new FileOutputStream(prop); 
-			fos.getChannel().truncate(0); //delete file first..
-			e.getValue().store(fos, null);
-			fos.close();
 			
-			System.out.println("Written file: "+prop.getAbsolutePath());
 		}
+	}
+	
+	private static Properties readProp(File f) throws IOException {
+		Properties p = new Properties();
+		FileInputStream fis = new FileInputStream(f);
+		p.load(fis);
+		fis.close();
+		return p;
 	}
 	
 	public void readProperties(File basepath) throws Exception {
@@ -91,8 +103,7 @@ public class Plugin implements Comparable<Plugin> {
 			if (start > 0) {
 				lang = fname.substring(start+1, end);
 			}
-			Properties p = new Properties();
-			p.load(new FileInputStream(f));
+			Properties p = readProp(f);
 			langToProp.put(lang, p);
 		}
 		Properties en = langToProp.get("en");

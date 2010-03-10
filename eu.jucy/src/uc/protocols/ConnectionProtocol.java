@@ -517,6 +517,8 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	public WriteLock writeLock() {
 		return rwLock.writeLock();
 	}
+	
+	
 
 	public ReadLock readLock() {
 		return rwLock.readLock();

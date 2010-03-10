@@ -1,6 +1,6 @@
 package eu.jucy.ui.searchspy;
 
-import uc.DCClient;
+
 import helpers.NLS;
 
 
@@ -27,7 +27,7 @@ public class Lang {
 		try {
 			NLS.load("nl.searchspy", Lang.class);
 		} catch(RuntimeException re) {
-			DCClient.logger.warn(re,re);
+			re.printStackTrace();
 		}
 	}
 }

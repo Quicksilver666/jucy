@@ -1,4 +1,4 @@
-package %1$s;
+package geoip;
 
 
 import helpers.NLS;
@@ -8,14 +8,15 @@ import helpers.NLS;
 * This is a automatically generated file! DO NOT CHANGE!!
 * see eu.jucy.releng.languages -> CreateLangFile for more details
 */
-public class %2$s {
+public class Lang {
 
 	public static String
-		 %3$s ;
+		 GEOIPCountryLevel
+		,GEOIPDBUnpacking ;
 	
 	static {
 		try {
-			NLS.load("%4$s", %2$s.class);
+			NLS.load("nl.geoip", Lang.class);
 		} catch(RuntimeException re) {
 			re.printStackTrace();
 		}

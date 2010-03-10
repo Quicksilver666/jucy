@@ -7,11 +7,8 @@ package eu.jucy.gui.texteditor.hub;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+
 
 
 import helpers.GH;
@@ -158,29 +155,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		
 	}
 
-	private final Map<IUser,Long> recentlyChatted = new HashMap<IUser, Long>(); 
-	
-	/**
-	 * first cleans up added user then adds the latest again..
-	 * @param usr
-	 */
-	private void put(IUser usr) {
-		long removeAllBefore = System.currentTimeMillis()-15*60*1000; //15 Minutes
-		synchronized (recentlyChatted) {	
-			Iterator<Entry<IUser,Long>> it = recentlyChatted.entrySet().iterator();
-			while (it.hasNext()) {
-				if (it.next().getValue() < removeAllBefore) {
-					it.remove();
-				}
-			}
-			recentlyChatted.put(usr, System.currentTimeMillis());
-		}
-	}
-	private boolean contains(IUser usr) {
-		synchronized (recentlyChatted) {
-			return recentlyChatted.containsKey(usr);
-		}
-	}
+
 	
 	private Hub hub;
 	
@@ -543,7 +518,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	
 	@Override
 	public void storedPM(IUser usr,String message, boolean me) {
-		statusMessage("stored PM for "+usr.getNick()+": "+message,0); // TODO internationalized
+		statusMessage(String.format(Lang.StoredPMUser, usr.getNick(),message),0);//  "stored PM for "+usr.getNick()+": "+message,0); 
 	}
 
 

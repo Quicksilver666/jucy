@@ -592,6 +592,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 * @param connectionProt
 	 */
 	public void reset(SocketChannel soChan) {
+		semaphore.drainPermits();
+		
 		disconnectSent = false;
 		connectSent = false;
 		logger.debug("in reset(sochan)");
@@ -602,7 +604,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		outcharBuffer.clear();
 		byteBuffer.clear();
 		
-		semaphore.drainPermits();
+		
 		//charBuffer.clear();
 		
 		//outgoingBuffer.clear();
@@ -613,73 +615,57 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		
 		if (encryption) {
 			try {
-				synchronized(bufferLock) {
-		
-						engine =  cryptoManager.createSSLEngine();
-						engine.setUseClientMode(!serverSide);
-						
-						if (serverSide) {
-							engine.setNeedClientAuth(true);
-							engine.setWantClientAuth(true);
-							engine.setEnableSessionCreation(true);
-						}
-	
-						List<String> enabledCS = Arrays.asList(engine.getSupportedCipherSuites());
-						/*
-						 * disabled:
-						 * MD5: Old hashfunction and broken.
-						 * RC4: old streamcipher and weak
-						 * Kerberos: needs server.. probably special settings.. nobody will use it
-						 * SSL: Enforces use of TLS
-						 */
-						enabledCS = GH.filter(enabledCS,"MD5","RC4","KRB5","SSL");
-					
-	
-						GH.sort(enabledCS, "_AES_256_");
-					
-						//move these ciphers to the end so DHE is preferred..
-//						String noDHEStrong= "TLS_RSA_WITH_AES_256_CBC_SHA";
-//						if (enabledCS.remove(noDHEStrong)) {
-//							enabledCS.add(noDHEStrong);
-//						}
-//						
-//						String noDHE = "TLS_RSA_WITH_AES_128_CBC_SHA";
-//						if (enabledCS.remove(noDHE)) {
-//							enabledCS.add(noDHE);
-//						}
-						
-						if (!enabledCS.isEmpty()) {
-							engine.setEnabledCipherSuites( enabledCS.toArray(new String[]{}));
-						}
-						
-				
-						List<String> enabledProt = Arrays.asList(engine.getSupportedProtocols());
-						enabledProt = GH.filter(enabledProt, "SSL");
-						
-						if (!enabledProt.isEmpty()) {
-							engine.setEnabledProtocols(enabledProt.toArray(new String[]{}));
-						}
-						
-						SSLSession ssle = engine.getSession();
-						byteBuffer = ByteBuffer.allocate(ssle.getPacketBufferSize());
-						decrypting = ByteBuffer.allocate(ssle.getApplicationBufferSize());
-						encrypting = ByteBuffer.allocate(ssle.getPacketBufferSize());
-						
-						logger.debug("encrypted connection created");
-				//	}
+				synchronized (bufferLock) {
+
+					engine = cryptoManager.createSSLEngine();
+					engine.setUseClientMode(!serverSide);
+
+					if (serverSide) {
+						engine.setNeedClientAuth(true);
+						engine.setWantClientAuth(true);
+						engine.setEnableSessionCreation(true);
+					}
+
+					List<String> enabledCS = Arrays.asList(engine
+							.getSupportedCipherSuites());
+					/*
+					 * disabled: MD5: Old hashfunction and broken. RC4: old
+					 * streamcipher and weak Kerberos: needs server.. probably
+					 * special settings.. nobody will use it SSL: Enforces use
+					 * of TLS
+					 */
+					enabledCS = GH.filter(enabledCS, "MD5", "RC4", "KRB5",
+							"SSL");
+
+					if (!enabledCS.isEmpty()) {
+						engine.setEnabledCipherSuites(enabledCS
+								.toArray(new String[] {}));
+					}
+
+					List<String> enabledProt = Arrays.asList(engine
+							.getSupportedProtocols());
+					enabledProt = GH.filter(enabledProt, "SSL");
+
+					if (!enabledProt.isEmpty()) {
+						engine.setEnabledProtocols(enabledProt
+								.toArray(new String[] {}));
+					}
+
+					SSLSession ssle = engine.getSession();
+					byteBuffer = ByteBuffer
+							.allocate(ssle.getPacketBufferSize());
+					decrypting = ByteBuffer.allocate(ssle
+							.getApplicationBufferSize());
+					encrypting = ByteBuffer
+							.allocate(ssle.getPacketBufferSize());
+
+					logger.debug("encrypted connection created");
 				}
-			} catch (Exception e) {
+			} catch (RuntimeException e) {
 				logger.error(e, e);
 			}
 		}
 		
-		logger.debug("after registering reset(sochan)");
-		
-		MultiStandardConnection.get().register(soChan, this,false);
-
-		logger.debug("after registering reset(sochan)");
-		
-
 		Lock l = cp.writeLock();
 		l.lock();
 		try {
@@ -687,8 +673,12 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		} finally {
 			l.unlock();
 		}
-				
-		logger.debug("registered key with channel");
+		
+		logger.debug("after registering reset(sochan)");
+		
+		MultiStandardConnection.get().register(soChan, this,false);
+
+		logger.debug("after registering reset(sochan)");
 	}
 	
 	@Override

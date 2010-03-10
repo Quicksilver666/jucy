@@ -49,7 +49,12 @@ public abstract class SentCommandColumns extends ColumnDescriptor<SentCommand> {
 
 		@Override
 		public Image getImage(SentCommand x) {
-			return x.isIncoming()?UserColumn.DOWNLOAD_ICON:UserColumn.UPLOAD_ICON;
+			Boolean inc = x.isIncoming();
+			if (inc == null) {
+				return null;
+			} else {
+				return inc?UserColumn.DOWNLOAD_ICON:UserColumn.UPLOAD_ICON;
+			}
 		}
 
 	}

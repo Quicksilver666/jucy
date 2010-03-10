@@ -3,6 +3,7 @@ package helpers;
 
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 
@@ -12,6 +13,10 @@ public abstract class PreferenceChangedAdapter implements
 	private final String[] preferences;
 	
 	private final IEclipsePreferences source;
+	
+	public PreferenceChangedAdapter(String pluginId,String... preferences) {
+		this(new InstanceScope().getNode(pluginId),preferences);
+	}
 	
 	public PreferenceChangedAdapter(IEclipsePreferences source ,String... preference ) {
 		this.preferences = preference;

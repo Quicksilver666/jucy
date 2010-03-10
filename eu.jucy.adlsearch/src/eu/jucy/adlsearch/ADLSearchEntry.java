@@ -176,7 +176,6 @@ public class ADLSearchEntry {
 	 * checks if this ADLEntry matches the given file
 	 * the ADL entry must be active when this is called.
 	 * 
-	 *  TODO ... this should be case insensitive..
 	 *  
 	 * @param file
 	 * @return

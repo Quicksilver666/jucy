@@ -43,7 +43,7 @@ public class OpenSmileyDialogHandler extends AbstractHandler implements
 			toolBar.setLayoutData(new GridData());
 			ToolItem item = new ToolItem (toolBar, SWT.PUSH);
 			item.setData(e.getValue());
-			item.setImage (SmileyTextModificator.getImages().get(e.getKey()));
+			item.setImage (SmileyTextModificator.getImages().get(e.getKey())[0]);
 			item.addSelectionListener(sp);
 		}
 		

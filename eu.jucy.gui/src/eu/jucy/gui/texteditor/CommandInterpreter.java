@@ -239,19 +239,19 @@ public class CommandInterpreter {
 			case SHOWJOINS:
 				FavHub fh = hub.getFavHub();
 				fh.setShowJoins(!fh.isShowJoins());
-				hub.statusMessage("Show Joins: "+fh.isShowJoins(),0); // TODO internationalisation * 3
+				hub.statusMessage(String.format(Lang.ShowJoins, fh.isShowJoins()? Lang.Yes:Lang.No),0); 
 				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
 				break;
 			case SHOWFAVJOINS:
 				FavHub fhs = hub.getFavHub();
 				fhs.setShowFavJoins(!fhs.isShowFavJoins());
-				hub.statusMessage("Show Favjoins: "+fhs.isShowFavJoins(),0);
+				hub.statusMessage(String.format(Lang.ShowFavJoins, fhs.isShowFavJoins()? Lang.Yes:Lang.No),0);//"Show Favjoins: "+fhs.isShowFavJoins(),0);
 				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
 				break;
 			case SHOWCHATTERJOINS:
 				FavHub favHub = hub.getFavHub();
 				favHub.setShowRecentChatterJoins(!favHub.isShowRecentChatterJoins());
-				hub.statusMessage("Show Chatterjoins: "+favHub.isShowRecentChatterJoins(),0);
+				hub.statusMessage(String.format(Lang.ShowChatterJoins, favHub.isShowRecentChatterJoins()? Lang.Yes:Lang.No),0);//"Show Chatterjoins: "+favHub.isShowRecentChatterJoins(),0);
 				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
 				break;
 			case PASS:

@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import uc.DCClient;
 import uc.ICryptoManager;
 import uc.Identity;
+import uc.LanguageKeys;
 import uc.PI;
 
 
@@ -122,9 +123,9 @@ public class CryptoManager implements ICryptoManager {
 			try {
 				File f = new File(PI.getStoragePath()+File.separator+ identity.getCertFileName() );
 				if (!f.isFile()) {
-					dcc.logEvent("Creating Certificate..."); // TODO 3* internationalization
+					dcc.logEvent(LanguageKeys.CreatingCertificate); 
 					genKeypair(f,"RSA");
-					dcc.logEvent("Created Certificate");
+					dcc.logEvent(LanguageKeys.CreatedCertificate);
 				} 
 				
 				KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -134,7 +135,7 @@ public class CryptoManager implements ICryptoManager {
 				fis = new FileInputStream(f);
 				store.load(fis, pass );
 				kmf.init(store, pass);
-				dcc.logEvent("Loaded Certificate");
+				dcc.logEvent(LanguageKeys.LoadedCertificate);
 				KeyManager[] managers = kmf.getKeyManagers();
 				Certificate cert = store.getCertificate(aliasForAlg("RSA"));
 				if (cert != null) {

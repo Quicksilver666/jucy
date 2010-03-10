@@ -6,7 +6,7 @@
       <impl
             class="eu.jucy.ui.smileys.SmileyTextModificator"
             id="eu.jucy.ui.smileys.impl2"
-            name="Smileys">
+            name="%SMBUNDLE_NAME">
       </impl>
    </extension>
    <extension
@@ -35,7 +35,7 @@
          point="org.eclipse.ui.commands">
       <command
             id="eu.jucy.ui.smileys.openDiag"
-            name="Smileys">
+            name="%SMBUNDLE_NAME">
       </command>
    </extension>
    <extension
@@ -52,6 +52,21 @@
             </with>
          </activeWhen>
       </handler>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="eu.jucy.ui.smileys.SmileysPI">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="eu.jucy.gui.Misc"
+            class="eu.jucy.ui.smileys.SmileyPrefPage"
+            id="eu.jucy.ui.smileys.page1"
+            name="%SMBUNDLE_NAME">
+      </page>
    </extension>
 
 </plugin>

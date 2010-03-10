@@ -1,6 +1,6 @@
 package eu.jucy.gui;
 
-import uc.DCClient;
+
 import helpers.NLS;
 
 
@@ -102,6 +102,8 @@ public class Lang {
 		,FileListMenu
 		,FileMen
 		,FileMultiUserCol
+		,FileTFTooltip
+		,FileTFTooltip2
 		,FileType
 		,Filelist
 		,FilelistRefreshInterval
@@ -158,6 +160,7 @@ public class Lang {
 		,MaxHashSpeed
 		,Maximize
 		,MaximumSimultaneousDownloads
+		,MinimizeOnStart
 		,MinimizeToTray
 		,MiscHubTab
 		,MiscPrefPage
@@ -236,10 +239,13 @@ public class Lang {
 		,Shared
 		,SharedDirectorys
 		,Sharing
+		,ShowChatterJoins
 		,ShowConnStatus
 		,ShowDownSpeed
 		,ShowDownTotal
+		,ShowFavJoins
 		,ShowHubs
+		,ShowJoins
 		,ShowPMInMainchat
 		,ShowPOPUPonChatroom
 		,ShowPOPUPonNickinMC
@@ -257,6 +263,8 @@ public class Lang {
 		,Started
 		,Status
 		,StatusBarPrefPage
+		,StoredPM
+		,StoredPMUser
 		,SystemLog
 		,TCPPort
 		,TLSTCPPort
@@ -316,7 +324,7 @@ public class Lang {
 		try {
 			NLS.load("nl.gui", Lang.class);
 		} catch(RuntimeException re) {
-			DCClient.logger.warn(re,re);
+			re.printStackTrace();
 		}
 	}
 }

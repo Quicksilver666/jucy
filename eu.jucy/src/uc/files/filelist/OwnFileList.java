@@ -657,7 +657,7 @@ public class OwnFileList implements IOwnFileList  {
 	class RefreshJob extends Job {
 
 		public RefreshJob() {
-			super("Refreshing Filelist"); //TODO translateable
+			super(LanguageKeys.RefreshingFilelist); 
 			setPriority(Job.LONG);
 		}
 

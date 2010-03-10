@@ -19,67 +19,6 @@
             class="uihelpers.TVAPI">
       </initializer>
    </extension>
- <!--  <extension
-         point="org.eclipse.ui.presentationFactories">
-      <factory
-            class="org.eclipse.examples.representation.wrappedtabs.WrappedTabsPresentationFactory"
-            id="eu.jucy.helpers.testFactory"
-            name="TestFactory">
-      </factory>
-   </extension>
-   <extension
-         point="org.eclipse.ui.themes">
-         	<themeElementCategory
-    	id="eu.jucy.helpers.wrappedtabstheme"
-       	label="WrappedTabs Presentation"/>
-    <categoryPresentationBinding
-            categoryId="eu.jucy.helpers.wrappedtabstheme"
-            presentationId="eu.jucy.helpers.testFactory">
-      </categoryPresentationBinding>
-	<colorDefinition 
-        id="eu.jucy.helpers.presentation.wrappedtabstheme.foreground_focus"
-        categoryId="eu.jucy.helpers.wrappedtabstheme"
-        label="Border Color (Focus)"
-        value="COLOR_WIDGET_BORDER">
-        <description>
-        This color is used for the forground color of the stack border when it has focus.
-        </description>
-      </colorDefinition>
-      <colorDefinition 
-        id="eu.jucy.helpers.presentation.wrappedtabstheme.foreground_nofocus"
-        categoryId="eu.jucy.helpers.wrappedtabstheme"
-        label="Border Color (No-Focus)"
-        value="COLOR_WIDGET_NORMAL_SHADOW">
-        <description>
-        This color is used for the forground color of the stack border when it doesn't have focus.
-        </description>
-      </colorDefinition>  
-      <fontDefinition
-        id="eu.jucy.helpers.presentation.wrappedtabstheme.font"
-        categoryId="eu.jucy.helpers.wrappedtabstheme"        
-        label="Tab Font"
-        defaultsTo="org.eclipse.jface.textfont">
-        <description>
-        This font is used to display the part selection tabs.
-        </description>
-      </fontDefinition>  
-      <data
-       name="eu.jucy.helpers.presentation.wrappedtabstheme.bordersize"
-       value="1"/>
-       
-       <theme
-        id="eu.jucy.helpers.presentation.wrappedtabstheme.harsh"
-        name="Harsh Wrapped Tabs Theme">
-        <colorOverride
-         id="eu.jucy.helpers.presentation.wrappedtabstheme.foreground_focus"
-         value="COLOR_CYAN"/>
-        <colorOverride
-         id="eu.jucy.helpers.presentation.wrappedtabstheme.foreground_nofocus"
-         value="COLOR_MAGENTA"/>
-      <data
-           name="eu.jucy.helpers.presentation.wrappedtabstheme.bordersize"
-           value="5"/>      
-      </theme> 
-   </extension>-->
+
 
 </plugin>

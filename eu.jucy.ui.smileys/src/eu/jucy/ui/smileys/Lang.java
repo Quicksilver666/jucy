@@ -1,4 +1,4 @@
-package %1$s;
+package eu.jucy.ui.smileys;
 
 
 import helpers.NLS;
@@ -8,14 +8,15 @@ import helpers.NLS;
 * This is a automatically generated file! DO NOT CHANGE!!
 * see eu.jucy.releng.languages -> CreateLangFile for more details
 */
-public class %2$s {
+public class Lang {
 
 	public static String
-		 %3$s ;
+		 SMBUNDLE_NAME
+		,SMSmileyZipFile ;
 	
 	static {
 		try {
-			NLS.load("%4$s", %2$s.class);
+			NLS.load("nl.translation", Lang.class);
 		} catch(RuntimeException re) {
 			re.printStackTrace();
 		}

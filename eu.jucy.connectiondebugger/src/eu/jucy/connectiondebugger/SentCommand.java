@@ -2,17 +2,23 @@ package eu.jucy.connectiondebugger;
 
 import java.util.Date;
 
+import uc.protocols.ConnectionState;
+
 import eu.jucy.connectiondebugger.SentCommandColumns.DateCol;
 
 public class SentCommand {
 	
 	private final String command;
-	private final boolean incoming;
+	private final Boolean incoming;
 	private final long timeReceived;
 	private final long nanosReceived;
 
+	
+	public SentCommand(ConnectionState cs) {
+		this("-----"+cs.name()+"-----",null);
+	}
 
-	public SentCommand(String command,boolean incoming) {
+	public SentCommand(String command,Boolean incoming) {
 		super();
 		this.command = command;
 		this.incoming= incoming;
@@ -28,7 +34,7 @@ public class SentCommand {
 		return command;
 	}
 
-	public boolean isIncoming() {
+	public Boolean isIncoming() {
 		return incoming;
 	}
 	

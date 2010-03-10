@@ -1,6 +1,6 @@
 package eu.jucy.countries;
 
-import uc.DCClient;
+
 import helpers.NLS;
 
 
@@ -19,7 +19,7 @@ public class Lang {
 		try {
 			NLS.load("nl.countries", Lang.class);
 		} catch(RuntimeException re) {
-			DCClient.logger.warn(re,re);
+			re.printStackTrace();
 		}
 	}
 }

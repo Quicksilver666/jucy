@@ -102,6 +102,16 @@ xsi:schemaLocation="http://jucy.eu/lang platform:/resource/eu.jucy.releng.tools/
 <ru>Размещение</ru>
 </Trl>
 </Plugin>
+<Plugin id="eu.jucy.geoipmaxmind" name="geoip" langclass="geoip.Lang">
+<Trl id="GEOIPDBUnpacking">
+<de>Entpacke GEOIP Datenbank</de>
+<en>Unpacking GEOIP database</en>
+</Trl>
+<Trl id="GEOIPCountryLevel">
+<de>Nutze nur Genauigkeit auf Landesebene. (Städte Information braucht etwa 30 MiB mehr RAM)</de>
+<en>Use only country-level information (City-level information uses about 30 MiB more RAM)</en>
+</Trl>
+</Plugin>
 <Plugin id="eu.jucy.gui" name="gui"  langclass="eu.jucy.gui.Lang">
 <Trl id="ActionMen">
 <de>Aktion</de>
@@ -793,6 +803,19 @@ UPnP: %s</ru>
 <it>File rimanenti</it>
 <ru>Файлов осталось</ru>
 </Trl>
+<Trl id="FileTFTooltip">
+<de>Datei: %s</de>
+<en>File: %s</en>
+<hu>Fájl: %s</hu>
+<it>File: %s</it>
+<ru>Файлы: %s</ru>
+</Trl>
+<Trl id="FileTFTooltip2">
+<de> Dateien in Warteschlange: %d
+ Größe der Warteschlange: %s</de>
+<en> Files in Queue: %d
+ Size in Queue: %s</en>
+</Trl>
 <Trl id="Find">
 <de>Finde</de>
 <en>Find</en>
@@ -1141,6 +1164,10 @@ UPnP: %s</ru>
 <hu>Maximális egyidejû letöltés (0 = végtelen)</hu>
 <it>Download simultanei massimi (0 = infiniti)</it>
 <ru>Ограничение числа одновременных закачек (0 = отключено)</ru>
+</Trl>
+<Trl id="MinimizeOnStart">
+<de>Nach dem starten minimieren</de>
+<en>Minimize on start</en>
 </Trl>
 <Trl id="MinimizeToTray">
 <de>Zum Tray minimieren</de>
@@ -1706,6 +1733,18 @@ UPnP: %s</ru>
 <it>Mostra hub</it>
 <ru>Показывать число хабов</ru>
 </Trl>
+<Trl id="ShowJoins">
+<de>Zeige kommen/gehen: %s</de>
+<en>Show joins/parts: %s</en>
+</Trl>
+<Trl id="ShowFavJoins">
+<de>Zeige kommen/gehen von Favoriten: %s</de>
+<en>Show Favourite's joins/parts: %s</en>
+</Trl>
+<Trl id="ShowChatterJoins">
+<de>Zeige kommen/gehen von Chattern: %s</de>
+<en>Show Chatter's joins/parts: %s</en>
+</Trl>
 <Trl id="ShowPMInMainchat">
 <de>Zeige PMs im Mainchat anstelle im PM Fenster</de>
 <en>Show PMs in Mainchat instead of PM window</en>
@@ -1822,6 +1861,14 @@ UPnP: %s</ru>
 <hu>Állapotsor</hu>
 <it>Barra di stato</it>
 <ru>Панель состояния</ru>
+</Trl>
+<Trl id="StoredPM">
+<de>Private Nachricht gespeichert: %s</de>
+<en>Stored Private Message: %s</en>
+</Trl>
+<Trl id="StoredPMUser">
+<de>Private Nachricht gespeichert für %s: %s</de>
+<en>Stored Private Message for %s: %s</en>
 </Trl>
 <Trl id="SystemLog">
 <de>System Log</de>
@@ -2348,6 +2395,23 @@ UPnP могло не сработать из-за программного бр�
 <it>Connessione in Timeout</it>
 <ru>Таймаут соединения</ru>
 </Trl>
+<Trl id="CreatedCertificate">
+<de>Zertifikat erstellt</de>
+<en>Certificate created</en>
+</Trl>
+<Trl id="CreatedPortmapping">
+<de>Port Weiterleitung via UPnP erstellt</de>
+<en>Created Portmapping via UPnP</en>
+</Trl>
+<Trl id="CreatingCertificate">
+<de>Erstelle selbst signiertes Zertifikat...</de>
+<en>Creating self signed certificate...</en>
+</Trl>
+<Trl id="CreatingPortmappingFailed">
+<de>Port Weiterleitung via UPnP erstellen fehlgeschlagen</de>
+<en>Unable to create Port mapping via UPnP</en>
+</Trl>
+
 
 <!--<Trl id="Count">
 <de>Anzahl</de>
@@ -2466,6 +2530,22 @@ UPnP могло не сработать из-за программного бр�
 <it>In attesa</it>
 <ru>Свободно</ru>
 </Trl>
+<Trl id="IPv6DetectionFailed">
+<de>Keine IPv6 Konnektivität entdeckt</de>
+<en>No IPv6 connectivity detected</en>
+</Trl>
+<Trl id="IPv6PublicIPFound">
+<de>IPv6 benutzte öffentliche IP: %s</de>
+<en>IPv6 public IP found: %s</en>
+</Trl>
+<Trl id="IPWebDetectionFailed">
+<de>IP Erkennung über Web fehlgeschlagen: %s</de>
+<en>IP detection over web failed: %s</en>
+</Trl>
+<Trl id="IPDetectionFailed">
+<de>IP Erkennung fehlgeschlagen: %s</de>
+<en>IP detection failed: %s</en>
+</Trl>
 <!--<Trl id="IsFavoriteUser">
 <de>Ist ein Favorisierter User</de>
 <en>Is Favorite User</en>
@@ -2487,7 +2567,12 @@ UPnP могло не сработать из-за программного бр�
 <it>Limiti</it>
 <ru>Ограничения</ru>
 </Trl>
---><Trl id="LoggedIn">
+-->
+<Trl id="LoadedCertificate">
+<de>Zertifikat geladen</de>
+<en>Loaded certificate</en>
+</Trl>
+<Trl id="LoggedIn">
 <de>Logged in</de>
 <en>Logged in</en>
 <hu>Bejelentkezve</hu>
@@ -2507,6 +2592,10 @@ UPnP могло не сработать из-за программного бр�
 <hu>Matched %1$s files with %2$s</hu>
 <it>Trovati %1$s file di %2$s</it>
 <ru>Нашлось %1$s нужных файлов у %2$s</ru>
+</Trl>
+<Trl id="NewPublicIP">
+<de>Neue öffentliche IP: %s</de>
+<en>New public IP: %s</en>
 </Trl>
 <!--<Trl id="OK">
 <de>OK</de>
@@ -2528,6 +2617,10 @@ UPnP могло не сработать из-за программного бр�
 <hu>Received redirect signal from hub to %s</hu>
 <it>Ricevuto dall'hub segnale di redirect verso %s</it>
 <ru>С хаба получено перенаправление на %s</ru>
+</Trl>
+<Trl id="RefreshingFilelist">
+<de>Aktualisiere Dateiliste</de>
+<en>Refreshing Filelist</en>
 </Trl>
 <Trl id="STA11HubFull">
 <de>Hub voll</de>
@@ -2801,6 +2894,11 @@ UPnP могло не сработать из-за программного бр�
 <it>Apri Blocco Note</it>
 <ru>Открыть блокнот</ru>
 </Trl>
+<Trl id="NPNrOfNotepads">
+<de>Wie viele Notepads?</de>
+<en>How many Notepads?</en>
+</Trl>
+
 <!--<Trl id="NPeditor_name">
 <de>Notizblock Editor</de>
 <en>Notepad Editor</en>
@@ -3015,6 +3113,16 @@ HSQLDB  (лицензия BSD)
 <en>Total: %d</en>
 <it>Totale: %d</it>
 <ru>Всего: %d</ru>
+</Trl>
+</Plugin>
+<Plugin id="eu.jucy.ui.smileys" name="translation" langclass="eu.jucy.ui.smileys.Lang">
+<Trl id="SMSmileyZipFile">
+<de>Pfad zu alternativem Smiley set</de>
+<en>Path to alternative smiley set</en>
+</Trl>
+<Trl id="SMBUNDLE_NAME">
+<de>Smileys</de>
+<en>Smileys</en>
 </Trl>
 </Plugin>
 <Plugin id="eu.jucy.ui.hublist" name="publichubs" langclass="eu.jucy.ui.hublist.Lang">

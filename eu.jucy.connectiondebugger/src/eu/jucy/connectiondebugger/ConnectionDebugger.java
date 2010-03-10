@@ -138,7 +138,7 @@ public class ConnectionDebugger extends Observable<StatusObject> implements ICon
 				notifyObservers(new StatusObject(currentCI,ChangeType.CHANGED));
 			}
 		}
-		
+		add(new SentCommand(newStatus));
 	}
 
 	

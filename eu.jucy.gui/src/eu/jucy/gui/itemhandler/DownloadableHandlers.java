@@ -276,9 +276,13 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 
 		@Override
 		protected void run(List<IDownloadable> files,ExecutionEvent event) {
-			IDownloadableFile idf = (IDownloadableFile)files.get(0);
-			String magnetLink = new MagnetLink(idf).toString();
-			GuiHelpers.copyTextToClipboard(magnetLink);
+			List<MagnetLink> allMagnets = new ArrayList<MagnetLink>();
+			for (IDownloadable file:files) {
+				IDownloadableFile idf = (IDownloadableFile)file;
+				allMagnets.add(new MagnetLink(idf));
+			}
+			
+			GuiHelpers.copyTextToClipboard(GH.concat(allMagnets, "\n", ""));
 		}
 	}
 	

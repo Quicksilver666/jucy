@@ -1,6 +1,6 @@
 package uc;
 
-import uc.DCClient;
+
 import helpers.NLS;
 
 
@@ -25,17 +25,28 @@ public class LanguageKeys {
 		,Connected
 		,Connecting
 		,ConnectionTimeout
+		,CreatedCertificate
+		,CreatedPortmapping
+		,CreatingCertificate
+		,CreatingPortmappingFailed
 		,Disconnected
 		,Equals
 		,FilelistRefreshAlreadyInProgress
 		,FinishedFilelistRefresh
 		,HubRequestedPassword
+		,IPDetectionFailed
+		,IPWebDetectionFailed
+		,IPv6DetectionFailed
+		,IPv6PublicIPFound
 		,Idle
+		,LoadedCertificate
 		,LoggedIn
 		,LoginTimeout
 		,MatchedXFilesWithUserY
+		,NewPublicIP
 		,Reconnecting
 		,RedirectReceived
+		,RefreshingFilelist
 		,STA11HubFull
 		,STA12HubDisabled
 		,STA21NickInvalid
@@ -72,7 +83,7 @@ public class LanguageKeys {
 		try {
 			NLS.load("nl.language", LanguageKeys.class);
 		} catch(RuntimeException re) {
-			DCClient.logger.warn(re,re);
+			re.printStackTrace();
 		}
 	}
 }

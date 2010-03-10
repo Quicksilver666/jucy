@@ -1,31 +1,22 @@
-package geoip;
+package eu.jucy.ui.smileys;
 
-import logger.LoggerFactory;
-
-import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.osgi.service.prefs.BackingStoreException;
 
+public class SmileysPI extends AbstractPreferenceInitializer {
 
-
-
-
-public class GEOPref extends AbstractPreferenceInitializer {
-
-	public static final String PLUGIN_ID = "eu.jucy.geoipmaxmind";
+	public static final String PLUGIN_ID = "eu.jucy.ui.smileys"; //$NON-NLS-1$
 	
-	private static final Logger logger = LoggerFactory.make();
-	
-	public static final String countryOnly 	=	"countryOnly";
+	public static final String SMILEYS_PATH = "SMILEYS_PATH";
 	
 	@Override
 	public void initializeDefaultPreferences() {
 		IEclipsePreferences defaults = new DefaultScope().getNode(PLUGIN_ID);
-		defaults.putBoolean(countryOnly, true);
+		defaults.put(SMILEYS_PATH, "");
+		
 	}
 	
 	public static boolean getBoolean(String what){
@@ -45,14 +36,5 @@ public class GEOPref extends AbstractPreferenceInitializer {
 		return new DefaultScope().getNode(PLUGIN_ID).get(what, null);
 	}
 	
-	public static void put(String what,String value) {
-		IEclipsePreferences prefs = new InstanceScope().getNode(PLUGIN_ID);
-		prefs.put(what, value);
-		try {
-			prefs.flush();
-		} catch(BackingStoreException bse) {
-			logger.error(bse, bse);
-		}
-	}
 
 }

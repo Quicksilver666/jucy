@@ -1439,7 +1439,7 @@ public class Hub extends DCProtocol implements IHub {
 					connection.close();
 				}
 			}
-			if (isNoTrafficTimeOut() && getState() != ConnectionState.CLOSED) {
+			if (isNoTrafficTimeOut() && getState().isOpen()) {
 				synchronized(lastCommandSynch) {
 					logger.debug("no command received for long time - checking connection: " + (System.currentTimeMillis()-lastCommandTime) );
 				}

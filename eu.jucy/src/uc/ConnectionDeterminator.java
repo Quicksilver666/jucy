@@ -36,7 +36,6 @@ import net.sbbi.upnp.messages.UPNPResponseException;
 
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.runtime.Platform;
 
 
 
@@ -210,7 +209,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 		}
 
 		if (current == null) {
-			logger.warn("Ip address detection failed.");
+			dcc.logEvent(LanguageKeys.IPDetectionFailed);
 			try {
 				current = (Inet4Address)InetAddress.getByName("127.0.0.1");
 			} catch(IOException ioe) {
@@ -367,7 +366,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 		if (!GH.isLocaladdress(ourIPAddress) && ourIPAddress instanceof Inet4Address) {
 			if (!ourIPAddress.equals(current)) {
 				current = (Inet4Address)ourIPAddress;
-				dcc.logEvent("New Public IP: "+current.getHostAddress());
+				dcc.logEvent(String.format(LanguageKeys.NewPublicIP,current.getHostAddress()));
 				connectionsFailedInARow = 0;
 				notifyObservers();
 			}
@@ -425,7 +424,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 			InetAddress ia = getIP();
 			userIPReceived(ia,null);
 		} catch (IOException ioe) {
-			logger.warn("detection over web failed: "+ioe,ioe);
+			dcc.logEvent(String.format(LanguageKeys.IPWebDetectionFailed,ioe));
 		}
 	}
 	
@@ -480,7 +479,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 				}
 				logger.debug("no ip found for url: "+url);
 			}
-			throw new IOException("IP address detection failed");
+			throw new IOException("No Detection Service available");
 		} finally {
 			GH.close(br);
 		}
@@ -495,13 +494,12 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 			InetAddress ia = s.getLocalAddress();
 			if (ia instanceof Inet6Address) {
 				this.ip6FoundandWorking = (Inet6Address)ia;
-				dcc.logEvent("IP6 connectivity found: "+ia);
+				dcc.logEvent(String.format(LanguageKeys.IPv6PublicIPFound, ia)); //   "IPv6 public IP used: "+ia);
 			}
 			s.close();
 		} catch(UnknownHostException uhe) {
-			if (Platform.inDevelopmentMode()) {
-				dcc.logEvent("no IPv6 connectivity detected");
-			}
+			dcc.logEvent(LanguageKeys.IPv6DetectionFailed);
+			
 		} catch (IOException e) {
 			logger.warn(e,e);
 		} finally {
@@ -698,7 +696,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 						createPortmapping(port ,
 								tcp,state);
 					}
-				},"CreatePortMapping").start();
+				},"Create Port Mapping").start();
 			
 			}
 		}
@@ -753,10 +751,10 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 				if (mapped) {
 					setActive(tcp,new PortMapping(portnumber,tcp,igd),state);
 					upnpMappingCreated++;
-					dcc.logEvent("Created Portmapping via UPnP");
+					dcc.logEvent(LanguageKeys.CreatedPortmapping);
 					upnpErrorDescription = null;
 				} else {
-					dcc.logEvent("Unable to create Port mapping via UPnP");
+					dcc.logEvent(LanguageKeys.CreatingPortmappingFailed);
 				}
 				logger.debug("mapped: "+mapped+" ");
 
@@ -764,12 +762,12 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 				upnpDeviceFound = false;
 			}
 		} catch ( IOException ex ) {
-			String err = "Could not operate UPnP device: "+ (ex.getMessage() != null?ex.getMessage():ex.toString());
+			String err = LanguageKeys.CreatingPortmappingFailed+": "+ (ex.getMessage() != null?ex.getMessage():ex.toString());
 			logger.debug(err , ex);
 			upnpErrorDescription = err;
 			// some IO Exception occurred during communication with device
 		} catch( UPNPResponseException respEx ) {
-			String err = "Could not operate UPnP device: "+ 
+			String err = LanguageKeys.CreatingPortmappingFailed+": "+ 
 			(respEx.getMessage() != null?respEx.getMessage():respEx.toString());
 			logger.debug(err, respEx);
 			upnpErrorDescription = err;

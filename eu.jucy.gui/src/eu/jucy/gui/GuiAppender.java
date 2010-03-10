@@ -233,7 +233,7 @@ public class GuiAppender extends AppenderSkeleton implements ILogEventListener,I
 	 */
 	@Override
 	protected void append(final LoggingEvent event) {
-		if (event.getLevel().isGreaterOrEqual(Level.INFO) || event.getLevel().equals(GUI)) {
+		if (event.getLevel().isGreaterOrEqual(Level.WARN)|| event.getLevel().equals(GUI)) {
 			appendLE(event);
 		}
 	}
@@ -243,7 +243,6 @@ public class GuiAppender extends AppenderSkeleton implements ILogEventListener,I
 
 	@Override
 	public boolean requiresLayout() {
-		// we don't need a layout.. or we do the layout later..
 		return false;
 	}
 

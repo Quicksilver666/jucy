@@ -1,6 +1,6 @@
 package eu.jucy.adlsearch;
 
-import uc.DCClient;
+
 import helpers.NLS;
 
 
@@ -29,7 +29,7 @@ public class Lang {
 		try {
 			NLS.load("nl.adl", Lang.class);
 		} catch(RuntimeException re) {
-			DCClient.logger.warn(re,re);
+			re.printStackTrace();
 		}
 	}
 }

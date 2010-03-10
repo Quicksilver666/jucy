@@ -3,6 +3,10 @@ package eu.jucy.gui.texteditor;
 
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import logger.LoggerFactory;
 
@@ -59,6 +63,30 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	protected TextUserSelectionprovider tus;
 	
 	protected final SelectionProviderIntermediate spi = new SelectionProviderIntermediate();
+	
+	private final Map<IUser,Long> recentlyChatted = new HashMap<IUser, Long>(); 
+	
+	/**
+	 * first cleans up added user then adds the latest again..
+	 * @param usr
+	 */
+	protected void put(IUser usr) {
+		long removeAllBefore = System.currentTimeMillis()-15*60*1000; //15 Minutes
+		synchronized (recentlyChatted) {	
+			Iterator<Entry<IUser,Long>> it = recentlyChatted.entrySet().iterator();
+			while (it.hasNext()) {
+				if (it.next().getValue() < removeAllBefore) {
+					it.remove();
+				}
+			}
+			recentlyChatted.put(usr, System.currentTimeMillis());
+		}
+	}
+	protected boolean contains(IUser usr) {
+		synchronized (recentlyChatted) {
+			return recentlyChatted.containsKey(usr);
+		}
+	}
 	
 	public UCTextEditor() {}
 

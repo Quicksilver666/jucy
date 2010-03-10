@@ -17,7 +17,7 @@ public class GEOIPPrefpage extends UCPrefpage  {
 	protected void createFieldEditors() {
 		BooleanFieldEditor useCityInformation = new BooleanFieldEditor(
 				GEOPref.countryOnly,
-				"Use only country-level information (City-level information uses about 30 MiB more RAM)",
+				Lang.GEOIPCountryLevel,
 				getFieldEditorParent());
 		
 		addField(useCityInformation);

@@ -20,7 +20,7 @@ public class UserFlagColumn extends UserColumns {
 
 
 	public UserFlagColumn() {
-		super(80, "Location", SWT.LEAD); //TODO location nationalization...
+		super(80, Lang.Location, SWT.LEAD); 
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class UserFlagColumn extends UserColumns {
 			} else {
 				Location loc = GEOIP.get().getLocation(x.getIp());
 				if (loc != null) {
-					return loc.countryName +  ( loc.city != null? " - "+loc.city: "");
+					return loc.countryName +  ( loc.city != null? " - "+loc.city : "");
 				}
 			}
 		}

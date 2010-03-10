@@ -48,28 +48,13 @@ public class FlagStorage {
 	private  ImageRegistry	ir 	= new ImageRegistry(),
 							irRect 	=  new ImageRegistry();
 	
-	//private ImageRegistry oldAndDisposeable = null;
 	
 	private Image defaultFlag,defaultFlagRect;
-	
-	//private Map<Color,Image> defaultFlagRectSt = new HashMap<Color,Image>();
-//	private ImageRegistry irRectSt = new HashMap<Color,ImageRegistry>();
-	//private Color current;
-	
 	
 	private FlagStorage() {
 		defaultFlag = createDefaultFlag();
 		defaultFlagRect = getFlagRect(defaultFlag);
-		//updateRectStores();
-
 		logger.debug("default flag loaded");
-	
-//		new PreferenceChangedAdapter(GUIPI.get(),GUIPI.windowColor) { 
-//			@Override
-//			public void preferenceChanged(String preference, String oldValue,String newValue) {
-//				updateRectStores();
-//			}
-//		}; 
 	}
 	
 	/**
@@ -85,31 +70,7 @@ public class FlagStorage {
 		return img;
 	}
 	
-//	/**
-//	 * changes stored images according do background color..
-//	 * done because disposing old flags leads to errors
-//	 * as they still might be in use..
-//	 */
-//	private void updateRectStores() {
-//	//	Color current = GUIPI.getColor(GUIPI.windowColor);
-//		
-//		defaultFlagRect = defaultFlagRectSt.get(current);
-//		if (defaultFlagRect == null) {
-//			defaultFlagRect = getFlagRect(defaultFlag);
-//			defaultFlagRectSt.put(current,defaultFlagRect);
-//		}
-//		irRect = irRectSt.get(current);
-//		if (irRect == null) {
-//			irRect = new ImageRegistry();
-//			irRectSt.put(current, irRect);
-//		}
-//	}
-	
-	
-	
-	
-	
-	
+
 	/**
 	 * 
 	 * @param user - user for which we want the flag..

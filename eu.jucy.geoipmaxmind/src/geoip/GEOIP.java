@@ -8,9 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
+
 import java.nio.channels.ReadableByteChannel;
 import java.util.Collections;
 import java.util.zip.GZIPInputStream;
@@ -21,10 +20,9 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.osgi.framework.Bundle;
-import org.osgi.service.prefs.BackingStoreException;
+
 
 import com.maxmind.geoip.Country;
 import com.maxmind.geoip.Location;
@@ -35,12 +33,12 @@ public final class GEOIP {
 	private static final String PLUGIN_ID = "eu.jucy.geoipmaxmind";
 	
 	private static final boolean country =  GEOPref.getBoolean(GEOPref.countryOnly);
-	private static final String GZPath = country ? "db/GeoIP.dat.gz" : "db/GeoLiteCity.dat.gz" ; //
-	private static final String FilePath = country ? "db/GeoIP.dat":"db/GeoLiteCity.dat";// ;//
+	private static final String GZPath = country ? "db/GeoIP.dat.gz" : "db/GeoLiteCity.dat.gz" ; 
+	private static final String FilePath = country ? "db/GeoIP.dat":"db/GeoLiteCity.dat";
 	private static final String LastVersion = "LastVersion";
 	
 
-	public static final Logger logger = LoggerFactory.make();
+	private static final Logger logger = LoggerFactory.make();
 	
 	private final LookupService ls ;
 	
@@ -131,37 +129,27 @@ public final class GEOIP {
 	}
 	
 	private void copyToWorkspace() {
-		logger.info("Unpacking GEOIP DB to workspace!");
+		logger.info(Lang.GEOIPDBUnpacking);
 		Bundle bundle = Platform.getBundle(PLUGIN_ID);
 		Path path = new Path(GZPath); 
 		URL url = FileLocator.find(bundle, path, Collections.EMPTY_MAP);
 		ReadableByteChannel rbc = null;
-		FileChannel fc = null;
+		FileOutputStream fos = null;
+
 		try {
 			InputStream is = url.openStream();
 			GZIPInputStream gis = new GZIPInputStream(is);
 			rbc = Channels.newChannel(gis);
-			fc = new FileOutputStream(getDBFile()).getChannel();
-			fc.truncate(0);//delete if already exists..
-			ByteBuffer buf = ByteBuffer.allocate(1024*4);
-		
-			while (-1 != rbc.read(buf) || buf.position() > 0) {
-				buf.flip();
-				fc.write(buf);
-				buf.compact();
-			}
-			IEclipsePreferences prefs = new InstanceScope().getNode(PLUGIN_ID);
-			prefs.put(LastVersion, Platform.getBundle(PLUGIN_ID).getVersion().toString());
-			try {
-				prefs.flush();
-			} catch(BackingStoreException bse) {
-				logger.warn(bse, bse);
-			}
+			fos = new FileOutputStream(getDBFile());
+			fos.getChannel().truncate(0);//delete if already exists..
+			GH.copy(is, fos);
+			
+			GEOPref.put(LastVersion, Platform.getBundle(PLUGIN_ID).getVersion().toString());
 			
 		} catch(IOException ioe) {
 			logger.warn(ioe, ioe);
 		} finally {
-			GH.close(fc,rbc);
+			GH.close(fos,rbc);
 		}
 		
 	}

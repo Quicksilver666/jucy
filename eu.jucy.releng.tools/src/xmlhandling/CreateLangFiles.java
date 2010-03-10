@@ -38,7 +38,7 @@ public class CreateLangFiles {
 				, "nl."+propertiesname);
 		 
 		File target = new File(pluginbase,"src/"+packagename.replace(".", "/")+"/"+classname+".java");
-		System.out.print(target);
+		
 		
 		write(target,concreteLang);
 		
@@ -62,12 +62,13 @@ public class CreateLangFiles {
 			System.out.println("contents: "+contents);
 		} else {
 			if (!target.isFile() || !contents.equals(read(target))) { // check if the file not already exists and contains the same stuff
+				System.out.print(target.getCanonicalPath());
 				PrintStream ps = new PrintStream(target);
 				ps.print(contents);
 				ps.close();
 				System.out.println(" ...written");
 			} else {
-				System.out.println(" ...unchanged");
+			//	System.out.println(" ...unchanged");
 			}
 		}
 	}

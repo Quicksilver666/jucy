@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
@@ -598,6 +600,14 @@ public final class GH {
 			} 
 		}
 		return sb.toString();
+	}
+	
+	public static void copy(InputStream in,OutputStream out) throws IOException {
+		byte[] b = new byte[4096];
+		int read;
+		while (-1 != (read = in.read(b, 0, b.length))) {
+			out.write(b, 0, read);
+		}
 	}
 	
 	

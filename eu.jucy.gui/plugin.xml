@@ -1841,7 +1841,7 @@
                commandId="eu.jucy.gui.downloadable.copymagnet">
             <activeWhen>
                <reference
-                     definitionId="eu.jucy.gui.downloadable.hasOneFile">
+                     definitionId="eu.jucy.gui.downloadable.onlyfiles">
                </reference>
             </activeWhen>
          </handler>
@@ -2491,6 +2491,19 @@
                   </test>
                </iterate>
             </and>
+         </with>
+      </definition>
+            <definition
+            id="eu.jucy.gui.downloadable.onlyfiles">
+         <with
+               variable="selection">
+               <iterate
+                     operator="and">
+                  <test
+                        property="eu.jucy.properties.downloadable.isFile"
+                        value="true">
+                  </test>
+               </iterate>
          </with>
       </definition>
        <definition

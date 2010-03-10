@@ -13,9 +13,13 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
+
+
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
+
+
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -336,6 +340,29 @@ public class ExtensibleSplashHandler extends AbstractSplashHandler {
 		getSplash().setLayout(layout);
 		// Force shell to inherit the splash background
 		getSplash().setBackgroundMode(SWT.INHERIT_DEFAULT);		
+		// now set transparency to all Black pixels..
+		
+//		final Shell shell = getSplash();
+//		final Image img = AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, "splash.bmp").createImage();
+//		ImageData id = img.getImageData();
+//		final Rectangle imgsize = img.getBounds();
+//		Region region = new Region();
+//		Rectangle pixel = new Rectangle(0, 0, 1, 1);
+//		int transparentPixelValue = id.getPixel(0, 0);
+//		for (int y = 0; y < imgsize.height; y++) {
+//			for (int x = 0; x < imgsize.width; x++) {
+//				if (id.getPixel(x, y) != transparentPixelValue) {
+//					pixel.x = x;
+//					pixel.y = y;
+//					region.add(pixel);
+//				}
+//			}
+//		}
+//		//define the shape of the shell using setRegion
+//		shell.setRegion(region);
+
+
+		
 	}	
 	
 	/**

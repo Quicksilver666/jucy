@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Table;
 
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GUIPI;
+import eu.jucy.gui.Lang;
 import eu.jucy.gui.UCView;
 import eu.jucy.gui.itemhandler.CommandDoubleClickListener;
 import eu.jucy.gui.itemhandler.OpenDirectoryHandler;
@@ -140,7 +141,7 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 					other = cp.getUser();
 					File f = cp.getFti().getFile();
 					if (f != null) {
-						s = "File: "+f.getPath(); //TODO translation
+						s = String.format(Lang.FileTFTooltip, f.getPath());
 					}
 				} 
 				if (o instanceof ClientProtocolStateMachine ) {
@@ -153,8 +154,8 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 					s += "\n";
 				}
 				if (other != null && other.nrOfFilesInQueue() > 0) {
-					s+=" Files in Queue: "+other.nrOfFilesInQueue(); //TODO Translation
-					s+="\n Size in Queue: "+SizeEnum.getReadableSize(other.sizeOfFilesInQueue());
+					s+= String.format(Lang.FileTFTooltip2, other.nrOfFilesInQueue(),
+							SizeEnum.getReadableSize(other.sizeOfFilesInQueue()));
 				}
 				return s;
 			}

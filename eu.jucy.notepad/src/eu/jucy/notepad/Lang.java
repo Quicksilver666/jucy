@@ -1,6 +1,6 @@
 package eu.jucy.notepad;
 
-import uc.DCClient;
+
 import helpers.NLS;
 
 
@@ -13,6 +13,7 @@ public class Lang {
 	public static String
 		 NPBundle_Name
 		,NPNotepadInput
+		,NPNrOfNotepads
 		,NPcommand_description
 		,NPcommand_name ;
 	
@@ -20,7 +21,7 @@ public class Lang {
 		try {
 			NLS.load("nl.notepad", Lang.class);
 		} catch(RuntimeException re) {
-			DCClient.logger.warn(re,re);
+			re.printStackTrace();
 		}
 	}
 }

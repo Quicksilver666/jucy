@@ -33,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GUIPI;
+import eu.jucy.gui.Lang;
 
 import eu.jucy.gui.UserColumns.Nick;
 
@@ -250,7 +251,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 	
 	@Override
 	public void storedPM(IUser usr,String message, boolean me) {
-		statusMessage("stored PM: "+message, 0); //TODO internationalize
+		statusMessage(String.format(Lang.StoredPM, message), 0); 
 	}
 
 
