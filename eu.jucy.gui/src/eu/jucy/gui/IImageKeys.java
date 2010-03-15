@@ -63,15 +63,22 @@ public class IImageKeys {
 								
 								
 	static {
-		boolean christmas = false;
 		GregorianCalendar cal = new GregorianCalendar();
-		if (cal.get(GregorianCalendar.MONTH) == GregorianCalendar.DECEMBER) {
+		String icon = "icons/icon_16.gif";
+		if (cal.get(GregorianCalendar.MONTH) == GregorianCalendar.DECEMBER) { //christmas
+			boolean christmas = false;
 			int day = cal.get(GregorianCalendar.DATE);
 			christmas = day >= 23 && day <= 27; 
+			if (christmas) {
+				icon = "icons/iconch09_16.gif";
+			}
+		} 
+		if (cal.get(GregorianCalendar.MONTH) == GregorianCalendar.APRIL && cal.get(GregorianCalendar.DATE) == 1) { //birthday
+			icon = "icons/icon_birthday.16.gif";
 		}
-		TRAYICON =	christmas?"icons/iconch09_16.gif" :"icons/icon_16.gif";
+		TRAYICON =	icon;
 	}
 
-								
+
 
 }

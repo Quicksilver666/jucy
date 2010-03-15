@@ -11,7 +11,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 
 import uc.crypto.HashValue;
-import uc.listener.IUserChangedListener;
 import uihelpers.ComplexListEditor;
 import uihelpers.ComplexListEditor.IPrefSerializer;
 

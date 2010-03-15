@@ -3,9 +3,13 @@ package uc;
 import java.util.List;
 
 
+
+
 import uc.crypto.HashValue;
 import uc.files.search.FileSearch;
+import uc.protocols.ConnectionState;
 import uc.protocols.SendContext;
+import uc.protocols.hub.IHubListener;
 
 
 /**
@@ -154,4 +158,23 @@ public interface IHub {
 	 * @return the identity used with this hub
 	 */
 	Identity getIdentity();
+	
+	
+	void registerHubListener(IHubListener listener);
+	
+	void unregisterHubListener(IHubListener listener);
+	
+	ConnectionState getState();
+
+
+	boolean isEncrypted();
+
+
+	boolean isFingerPrintUsed();
+
+
+	void registerUserChangedListener(IUserChangedListener ucl);
+
+
+	void unregisterUserChangedListener(IUserChangedListener ucl);
 }

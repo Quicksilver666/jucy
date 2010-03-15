@@ -47,8 +47,9 @@ public class FileListParser extends DefaultHandler {
 				
 			}
 		} else if("Directory".equals(qName)) {
-			if (current != null) {
-				current = new FileListFolder(current,attributes.getValue("Name"));	
+			String name = attributes.getValue("Name");
+			if (current != null && !".".equals(name) && !"..".equals(name)) {
+				current = new FileListFolder(current,name);	
 			}
 		} else if("FileListing".equals(qName)) {
 			fileList.setCID(attributes.getValue("CID"));

@@ -52,11 +52,11 @@ public abstract class DCProtocol extends ConnectionProtocol {
 	protected Boolean nmdc = true;
 
 	public DCProtocol() {
-		charset = NMDCCHARSET;
+		setCharset(NMDCCHARSET);
 	}
 	public DCProtocol(int[] perfPref) {
 		super(perfPref);
-		charset = NMDCCHARSET;
+		setCharset(NMDCCHARSET);
 	}
 	
 	/**
@@ -64,10 +64,7 @@ public abstract class DCProtocol extends ConnectionProtocol {
 	 * based on NMDC variable
 	 */
 	protected void setCharSet() {
-		charset = isNMDC()? NMDCCHARSET:ADCCHARSET;
-		if (connection != null) {
-			connection.refreshCharsetCoders();
-		}
+		setCharset(isNMDC()? NMDCCHARSET:ADCCHARSET);
 	}
 	
 	

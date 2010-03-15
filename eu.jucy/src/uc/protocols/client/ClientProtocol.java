@@ -129,6 +129,10 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 */
 	private volatile AbstractFileTransfer fileTransfer = null;
 	
+	//counter on what was last requested: if same file gets requested to often -> say we don't have 
+	
+	private long lastRequestpos = -1;
+	private int lastRequestCounter= 0;
 	
 	//NMDC data
 	private static final int loginTargetLevel = 6;
@@ -139,6 +143,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 * nr of things received if this reaches 6 login has finished
 	 */
 	private int loginLevel =   0;
+	
 	
 	// ADC data
 	
@@ -611,26 +616,32 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	void transfer() throws IOException {
 		logger.debug("in transfer()");
 
-//		try {
-			boolean successful = fti.setFileInterval();
-
-			if (successful) {
-				getSlotAndDoTransfer();
-			} else {
-				//could no create fileInterval.. -> just disconnect..
-				if (nmdc) {
-					sendError( DisconnectReason.FILENOTAVAILABLE );
-				} else {
-					STA.sendSTA(this, 
-							new ADCStatusMessage(DisconnectReason.FILENOTAVAILABLE.toString(),
-									ADCStatusMessage.FATAL,
-									ADCStatusMessage.TransferFileNotAvailable));
-				}
+		boolean successful = fti.setFileInterval();
+		long current = fti.getStartposition();
+		if (current != 0 && current == lastRequestpos) {
+			if (++lastRequestCounter > 10) {
+				successful = false; //user tried to re-download the same part to often -> may be we have different Hash for it -> tell him we don't have that..
+				logger.debug("not available due lastrequest failed timeout "+fti);
 			}
-//		} catch (FilelistNotReadyException flnre) { //ugly ugly.. though no longer in use..
-//			disconnect(DisconnectReason.UNKNOWN);
-//			logger.debug("disconnected because filelist was not ready");
-//		}
+		} else {
+			lastRequestpos = current;
+			lastRequestCounter = 0;
+		}
+
+		if (successful) {
+			getSlotAndDoTransfer();
+		} else {
+			//could no create fileInterval -> file is not available
+			if (nmdc) {
+				sendError( DisconnectReason.FILENOTAVAILABLE );
+			} else {
+				STA.sendSTA(this, 
+						new ADCStatusMessage(DisconnectReason.FILENOTAVAILABLE.toString(),
+								ADCStatusMessage.FATAL,
+								ADCStatusMessage.TransferFileNotAvailable));
+			}
+		}
+
 	}
 	
 	private void getSlotAndDoTransfer() {

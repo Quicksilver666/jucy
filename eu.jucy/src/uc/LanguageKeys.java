@@ -45,7 +45,6 @@ public class LanguageKeys {
 		,MatchedXFilesWithUserY
 		,NewPublicIP
 		,Reconnecting
-		,RedirectReceived
 		,RefreshingFilelist
 		,STA11HubFull
 		,STA12HubDisabled

@@ -11,9 +11,9 @@ import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 
 import uc.User;
+import uc.IUserChangedListener.UserChange;
+import uc.IUserChangedListener.UserChangeEvent;
 import uc.crypto.HashValue;
-import uc.listener.IUserChangedListener.UserChange;
-import uc.listener.IUserChangedListener.UserChangeEvent;
 import uc.protocols.DCProtocol;
 
 public class OpList extends AbstractNMDCHubProtocolCommand {

@@ -3,7 +3,6 @@ package eu.jucy.gui.texteditor.pmeditor;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -56,8 +55,9 @@ import eu.jucy.gui.texteditor.hub.HubEditorInput;
 import uc.IHasUser;
 import uc.IHub;
 import uc.IUser;
+import uc.IUserChangedListener;
 import uc.LanguageKeys;
-import uc.listener.IUserChangedListener;
+import uc.Population;
 import uc.protocols.hub.Hub;
 import uc.protocols.hub.PrivateMessage;
 import uihelpers.SUIJob;
@@ -71,7 +71,6 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 	public static final String ID = "eu.jucy.PM";
 	
 	
-	private boolean messagesWaiting = false;
 	private volatile boolean userOnline = true;
 	private boolean firstMessage = true;
 	
@@ -79,9 +78,9 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 	private Text text;
 	private MyStyledText pmText;
 	
-	private LabelViewer labelViewer;
-	private StyledTextViewer textViewer;
 
+	
+	
 
 
 	@Override
@@ -109,7 +108,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 
 		feedLabel = new CLabel(parent, SWT.BORDER);
 		feedLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
-		labelViewer = new LabelViewer(feedLabel);
+		feedLabelViewer = new LabelViewer(feedLabel);
 		
 		setText(pmText);
 		makeTextActions();
@@ -123,15 +122,25 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 		
 	}
 
-
-	@Override
-	public void partActivated() {
-		super.partActivated();
-		messagesWaiting = false;
-		setCurrentimage();
-	}
 	
 
+
+	@Override
+	protected void userRemovedFromRecentChatted(IUser usr) {
+		getPop().unregisterUserChangedListener(this, usr.getUserid());
+	}
+
+
+	@Override
+	protected void userAddedToRecentChatted(IUser usr) {
+		getPop().registerUserChangedListener(this, usr.getUserid());
+	}
+
+
+
+	private Population getPop() {
+		return ApplicationWorkbenchWindowAdvisor.get().getPopulation();
+	}
 
 	public void setFocus() {
 		text.setFocus();
@@ -140,8 +149,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 	public void dispose() {
 		//textViewer.dispose();
 		openPMEditors--;
-		ApplicationWorkbenchWindowAdvisor.get().getPopulation()
-			.unregisterUserChangedListener(this, getUser().getUserid());
+		getPop().unregisterUserChangedListener(this, getUser().getUserid());
 		super.dispose();
 	}
 	
@@ -169,16 +177,12 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 		if (getUser().equals(pm.getFrom())) { //if this PM is for us... show it
 			final String completeMessage =  pm.toString();
 			
-			if (pm.getSender() == null) {
-				append(completeMessage,null,pm.getTimeReceived());
-			} else {
-				append(completeMessage,pm.getSender(),pm.getTimeReceived());
-			}
+			appendText(completeMessage, pm.getSender(),pm.getTimeReceived(),true);
 			
-			boolean editorActive = getSite().getPage().getActiveEditor() == this;
+			
 			//show toaster message if wished
 			
-			if (!editorActive || firstMessage) { 
+			if (!isActiveEditor() || firstMessage) { 
 				final boolean chatroom = !pm.fromEqualsSender();
 				if (GUIPI.getBoolean( chatroom ? 
 						GUIPI.showToasterMessagesChatroom : 
@@ -199,9 +203,9 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 			firstMessage = false;
 			
 			//change image to absent.. if needed..
-			if (!messagesWaiting && !editorActive) {
+			if (!messagesWaiting && !isActiveEditor()) {
 				messagesWaiting = true;
-				setCurrentimage();
+				setTitleImage();
 			}
 		}
 	}
@@ -212,41 +216,42 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 	public void changed(UserChangeEvent uce) {
 		final UserChange type = uce.getType();
 		if (!type.equals(UserChange.CHANGED)) {
-			userOnline = type == UserChange.CONNECTED;
-			statusMessage(type.toString(),0);
-
-			fireTopicChangedListeners();
-		}
-		
+			boolean joined = type == UserChange.CONNECTED;
+			if (uce.getChanged().equals(getUser())) {
+				userOnline = joined;
+				statusMessage(type.toString(),0);
+				fireTopicChangedListeners();
+			} else {
+				if (getHub().getFavHub().isShowRecentChatterJoins()) {
+					showJoinsParts(uce.getChanged(), joined);
+				}
+			}
+		}	
 	}
 	
 	
 	
-	private void setCurrentimage() {
-		if (messagesWaiting) {
-			setTitleImage(userOnline?newMessage:newMessageOffline);
-		} else {
-			setTitleImage( Nick.getUserImage(getUser(),true));
-		}
-	}
-	
-	private void append(final String text,final IUser usr,final long received) {
+	protected void setTitleImage() {
 		new SUIJob(this.text) {
 			public void run() {
-				textViewer.addMessage(text,usr,new Date(received));
+				if (messagesWaiting) {
+					setTitleImage(userOnline?newMessage:newMessageOffline);
+				} else {
+					setTitleImage( Nick.getUserImage(getUser(),true));
+				}
 			}	
-		}.schedule();		
+		}.scheduleOrRun();
+	}
+	
+	@Override
+	public void appendText(String text, IUser usr,long received,boolean chatMessage) {
+		super.appendText(text, usr, received,chatMessage);
 	}
 	
 	@Override
 	public void statusMessage(final String message,  int severity) {
-		append( "*** " +message,null,System.currentTimeMillis());		
-		new SUIJob(feedLabel) {
-			public void run() {
-				labelViewer.addMessage("*** "+message+" ***");
-				setCurrentimage();
-			}
-		}.schedule();
+		super.statusMessage(message, severity);
+		setTitleImage();
 	}
 	
 	@Override
@@ -343,7 +348,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 								HubEditorInput hei = new HubEditorInput(current.getFrom().getHub().getFavHub()); 
 								HubEditor he =  (HubEditor)page.findEditor(hei);
 								if (he != null) {
-									he.appendText(s, current.getSender());
+									he.appendText(s, current.getSender(),true);
 								}
 								
 							}

@@ -139,6 +139,7 @@ public class Lang {
 		,HubMenu
 		,Hubs
 		,IP
+		,IPPrefixMod
 		,Identification
 		,ImportFromDCPP
 		,ImportFromDCPPDescription
@@ -210,6 +211,7 @@ public class Lang {
 		,ReceivedResults
 		,Reconnect
 		,ReconnectDescription
+		,RedirectReceived
 		,RefreshFilelist
 		,Remove
 		,RemoveDescription

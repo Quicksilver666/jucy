@@ -13,7 +13,7 @@ import uc.protocols.hub.IHubListener;
  * @author Quicksilver
  *
  */
-public interface IOperatorPlugin extends 	IHubListener {
+public interface IOperatorPlugin extends 	IHubListener,IUserChangedListener {
 
 	public static final String PointID = "eu.jucy.OpPlugin";
 	

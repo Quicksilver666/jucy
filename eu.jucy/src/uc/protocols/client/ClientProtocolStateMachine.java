@@ -27,13 +27,13 @@ import uc.DCClient;
 import uc.IHasUser;
 import uc.IHub;
 import uc.IUser;
+import uc.IUserChangedListener;
 import uc.Identity;
 import uc.LanguageKeys;
 import uc.PI;
 import uc.files.IDownloadable;
 import uc.files.IHasDownloadable;
 import uc.files.transfer.FileTransferInformation;
-import uc.listener.IUserChangedListener;
 
 
 

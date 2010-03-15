@@ -40,6 +40,7 @@ import eu.jucy.gui.itemhandler.OpenDirectoryHandler;
 import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.DurationCol;
 import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.FinishedCol;
 import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.NameTransfCol;
+import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.PathTransfCol;
 import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.SizeCol;
 import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.SpeedCol;
 import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.StartedCol;
@@ -83,7 +84,7 @@ public class FinishedTransfersEditor extends UCEditor implements IObserver<Statu
 	
 		tva = new TableViewerAdministrator<TransferRecord>(tableViewer,
 				Arrays.asList(NameUserCol.<TransferRecord>get() ,new NameTransfCol(),new SizeCol(),
-						new DurationCol(), new SpeedCol(),new StartedCol(),new FinishedCol()),
+						new DurationCol(), new SpeedCol(),new StartedCol(),new FinishedCol(),new PathTransfCol()),
 				GUIPI.finishedTransfersTable,5);
 		tva.apply();
 		//tableViewer.setComparator(new StartedCol().getComparator(false));

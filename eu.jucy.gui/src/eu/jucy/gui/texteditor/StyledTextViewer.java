@@ -230,6 +230,13 @@ public class StyledTextViewer {
 		
 	}
 	
+	
+	
+	public StyledText getText() {
+		return text;
+	}
+
+
 	public void copyToClipboard() {
 		Point p = text.getSelection();
 		String t = text.getSelectionText();
@@ -504,7 +511,7 @@ public class StyledTextViewer {
 			for (TextReplacement tr: replacements) {
 				renderedMessage = 	renderedMessage.substring(0, tr.position+addPos)
 									+ tr.replacement
-									+ renderedMessage.substring(tr.position+tr.lengthToReplace+addPos);
+									+ renderedMessage.substring(tr.position+addPos+tr.lengthToReplace);
 				
 				tr.apply(text, ranges, imagePoints, controlPoints, startOfMessage + addPos+tr.position , this);
 				addPos += tr.replacement.length()- tr.lengthToReplace; 

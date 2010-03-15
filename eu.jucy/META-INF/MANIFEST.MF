@@ -4,7 +4,17 @@ Bundle-Name: jucy Main Plug-in
 Bundle-SymbolicName: eu.jucy; singleton:=true
 Bundle-Version: 1.1.10
 Bundle-ClassPath: .
-Export-Package: uc,uc.crypto,uc.database,uc.files,uc.files.downloadqueue,uc.files.filelist,uc.files.search,uc.files.transfer,uc.listener,uc.protocols,uc.protocols.client,uc.protocols.hub
+Export-Package: uc,
+ uc.crypto,
+ uc.database,
+ uc.files,
+ uc.files.downloadqueue,
+ uc.files.filelist,
+ uc.files.search,
+ uc.files.transfer,
+ uc.protocols,
+ uc.protocols.client,
+ uc.protocols.hub
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  eu.jucy.logging,

@@ -15,12 +15,12 @@ import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
 
+import uc.IUserChangedListener.UserChange;
+import uc.IUserChangedListener.UserChangeEvent;
 import uc.crypto.HashValue;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import uc.files.downloadqueue.FileListDQE;
 import uc.files.filelist.FileListDescriptor;
-import uc.listener.IUserChangedListener.UserChange;
-import uc.listener.IUserChangedListener.UserChangeEvent;
 import uc.protocols.TransferType;
 import uc.protocols.client.ClientProtocol;
 import uc.protocols.client.DisconnectReason;
@@ -1154,9 +1154,10 @@ public class User implements IUser , IHasUser {
 		return i4;
 	}
 	
-	public synchronized Inet6Address getI6IP() {
+	public synchronized Inet6Address getI6() {
 		return i6;
 	}
+
 
 	public final void setIp(InetAddress ip) {
 		synchronized(this) {

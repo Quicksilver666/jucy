@@ -33,6 +33,7 @@ import eu.jucy.testfragment.TestHubConnection;
 import uc.Command;
 import uc.DCClient;
 import uc.FavHub;
+import uc.HubListenerAdapter;
 import uc.ICryptoManager;
 import uc.IUDPHandler;
 import uc.IUser;
@@ -53,8 +54,8 @@ import uc.protocols.ConnectionProtocol;
 import uc.protocols.ConnectionState;
 import uc.protocols.DCProtocol;
 import uc.protocols.IConnection;
+import uc.protocols.hub.FeedType;
 import uc.protocols.hub.Hub;
-import uc.protocols.hub.IHubListener;
 import uc.protocols.hub.PrivateMessage;
 import uc.protocols.hub.SUP;
 import uc.protocols.hub.Hub.ConnectionInjector;
@@ -327,9 +328,7 @@ public class AdcHubTest {
 		final String[] m = new String[5];
 		final IUser[] u = new IUser[5];
 		
-		hub.registerHubListener(new IHubListener() {
-			
-			public void statusChanged(ConnectionState newStatus,ConnectionProtocol cp) {}
+		hub.registerHubListener(new HubListenerAdapter() {
 
 			public void mcReceived(IUser sender, String message,boolean me) {
 				m[0] = message; 
@@ -344,7 +343,6 @@ public class AdcHubTest {
 				m[2] = message; 
 			}
 
-			public void changed(UserChangeEvent uce) {}
 
 			public void pmReceived(PrivateMessage pm) {
 				m[3] = pm.getMessage(); 
@@ -352,12 +350,11 @@ public class AdcHubTest {
 				u[4] = pm.getSender();
 			}
 
-			public void hubnameChanged(String hubname, String topic) {
-			}
-
 			public void feedReceived(FeedType ft, String message) {
 				m[4] = message;
 			}
+			
+			
 		});
 		//EMSG EBHH WUNF hello\sBot PMEBHH
 		//BMSG EBHH Hello

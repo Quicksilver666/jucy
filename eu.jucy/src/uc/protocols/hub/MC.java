@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import uc.User;
 import uc.protocols.DCProtocol;
-import uc.protocols.hub.IFeedListener.FeedType;
+
 
 /**
  * special protocol message for received main chat messages..

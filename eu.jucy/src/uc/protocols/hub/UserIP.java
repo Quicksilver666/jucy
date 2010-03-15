@@ -11,8 +11,8 @@ import org.apache.log4j.Logger;
 
 import uc.IUser;
 import uc.User;
-import uc.listener.IUserChangedListener.UserChange;
-import uc.listener.IUserChangedListener.UserChangeEvent;
+import uc.IUserChangedListener.UserChange;
+import uc.IUserChangedListener.UserChangeEvent;
 
 public class UserIP extends AbstractNMDCHubProtocolCommand {
 

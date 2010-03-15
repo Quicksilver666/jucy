@@ -22,12 +22,11 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 
+import uc.IUserChangedListener.UserChange;
+import uc.IUserChangedListener.UserChangeEvent;
 import uc.crypto.HashValue;
 import uc.crypto.TigerHashValue;
 import uc.files.filelist.FileListDescriptor;
-import uc.listener.IUserChangedListener;
-import uc.listener.IUserChangedListener.UserChange;
-import uc.listener.IUserChangedListener.UserChangeEvent;
 import uc.protocols.hub.Hub;
 
 /**

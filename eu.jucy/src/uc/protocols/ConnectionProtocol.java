@@ -4,13 +4,14 @@ package uc.protocols;
 
 
 
+import helpers.GH;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
@@ -26,7 +27,6 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 
 import logger.LoggerFactory;
@@ -60,8 +60,10 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	protected volatile IConnection connection;   //Needs to be set soon... bad thing.. really..
 
 	protected int defaultPort;
-	protected Charset charset; 
-	private int socketTimeout = 40000; 
+	
+	private final Object charsetSynch = new Object();
+	private Charset charset; 
+	private static final int SOCKET_TIMEOUT = 40000; 
 
 	private static final Map<InetAddress,IConnectionDebugger> AUTO_ATTACH= 
 		Collections.synchronizedMap(new HashMap<InetAddress,IConnectionDebugger>());
@@ -110,13 +112,12 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 
 	private volatile long lastLogin = 0; 
 
-
-
-
-
 	private final int[] performancePrefs;
 	
-
+	/**
+	 * store for unfinished commands..
+	 */
+	private final StringBuffer stringbuffer = new StringBuffer();
 
 	public ConnectionProtocol(AbstractConnection a) {
 		this(a,null);
@@ -169,6 +170,7 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	}
 	
 	public void beforeConnect() {
+		stringbuffer.delete(0, stringbuffer.length()); //clear
 		loginDone = false;
 		setState(ConnectionState.CONNECTING);
 	}
@@ -222,6 +224,24 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 			loginDone = true;
 			lastLogin = System.currentTimeMillis();
 			setState(ConnectionState.LOGGEDIN);
+		}
+	}
+	
+	
+	void receivedCommand(byte[] command) throws IOException, ProtocolException {
+		String s = getCharset().decode(ByteBuffer.wrap(command)).toString();
+		stringbuffer.append(s);
+		Matcher m = null;
+		while ((m = getCommandRegexPattern().matcher(stringbuffer)).find()) {
+			String found = m.group(1);
+			//	logger.debug("command: "+found);
+			if (!GH.isNullOrEmpty(found)) {
+				stringbuffer.delete(0, m.end());
+				receivedCommand(found);
+			}  else {
+				stringbuffer.deleteCharAt(0);
+				break;
+			}
 		}
 	}
 
@@ -306,26 +326,26 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 		for (IConnectionDebugger debugger:debuggers) {
 			debugger.sentCommand(mes);
 		}
+		
+		ByteBuffer b = getCharset().encode(mes);
+		
 		try {
-			connection.send(mes);
-			logger.debug("sent raw: "+mes);
+			connection.send(b);
+	//		logger.debug("sent raw: "+mes);
 		} catch(IOException ioe) {
 			logger.warn(ioe,ioe); 
 		}
-
 	}
 	
 	protected void sendRaw(byte[] mes) {
-		try {
-			for (IConnectionDebugger debugger:debuggers) {
-				debugger.sentCommand(new String(mes,charset != null?charset.name():"UTF-8"));
-			}
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalStateException();
+
+		for (IConnectionDebugger debugger:debuggers) {
+			debugger.sentCommand(getCharset().decode(ByteBuffer.wrap(mes)).toString());
 		}
+
 		try {
 			connection.send(ByteBuffer.wrap(mes));
-			logger.debug("sent raw: "+new String(mes));
+		//	logger.debug("sent raw: "+new String(mes));
 		} catch(IOException ioe) {
 			logger.warn(ioe,ioe); 
 		}
@@ -451,17 +471,17 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	}
 
 	public Charset getCharset() {
-		return charset;
+		synchronized (charsetSynch) {
+			return charset;
+		}
+	}
+	
+	protected void setCharset(Charset cs) {
+		this.charset = cs;
 	}
 
 	public int getSocketTimeout() {
-		Lock l = readLock();
-		l.lock();
-		try {
-			return socketTimeout;
-		} finally {
-			l.unlock();
-		}
+		return SOCKET_TIMEOUT;	
 	}
 	/**
 	 * whether this ClientProtocol is encrypted..

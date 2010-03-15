@@ -3,7 +3,7 @@ package uc.protocols.hub;
 import java.io.IOException;
 
 import uc.protocols.DCProtocol;
-import uc.protocols.hub.IFeedListener.FeedType;
+
 
 public class Feed extends AbstractNMDCHubProtocolCommand {
 

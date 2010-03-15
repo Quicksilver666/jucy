@@ -1,5 +1,7 @@
 package uc;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 
 import uc.crypto.HashValue;
@@ -35,7 +37,14 @@ public interface IUser  {
 	 * @return the IP address if known.. 
 	 * null if unknown
 	 */
-	InetAddress getIp();
+	Inet4Address getIp();
+	
+	/**
+	 * 
+	 * @return the ip v6 address
+	 */
+	Inet6Address getI6();
+	
 	
 	/**
 	 * 

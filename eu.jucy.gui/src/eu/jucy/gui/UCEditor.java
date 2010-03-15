@@ -70,6 +70,11 @@ public abstract class UCEditor extends EditorPart implements IUCEditor {
 	public boolean isSaveAsAllowed() {
 		return false;
 	}
+	
+	
+	public boolean isActiveEditor() {
+		return getSite().getPage().getActiveEditor() == this;
+	}
 
 
 	protected void setControlsForFontAndColour(Control... receivingChange) {

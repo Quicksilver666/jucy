@@ -91,7 +91,6 @@ import uc.files.search.SearchResult.ISearchResultListener;
 import uc.files.transfer.SlotManager;
 
 
-import uc.listener.IUserChangedListener;
 import uc.protocols.ConnectionState;
 
 import uc.protocols.hub.Hub;
@@ -101,7 +100,7 @@ import uc.protocols.hub.Hub;
 /** 
  * TODO discfree,total uptime .. total download..
  * 
- * TODO warning popup before adding a file via Drag and Drop to share..
+ * TODO take a look at JAXB -> sounds interesting and useful (Java-xml binding)
  * 
  *  TODO animated smilies
  *  
@@ -115,15 +114,12 @@ import uc.protocols.hub.Hub;
  * 
  * My Personal Bugtracker:
  *  
-TODO
-2. "path" column in Finished Downloads folder.
 
 3. when you stuck mouse pointer on jucy icon in systray appears notification like "jucy v. 0.81... etc"
  (win). it'll be better to give more useful information here. for example current upload/download 
  speed. (mac os version must have colored UP/DW digits on dock icon (i extremely love this feature 
  in transmission)))
  *  
-
  * 
  *
  *
@@ -139,7 +135,7 @@ TODO
  * TODO store tested segments in DB... -> no rehashing for everything on start... 
  * could save lots of computing power..
  * 
- * TODO hideshare functionality.. -> better feature would be different filelists
+ * hideshare functionality.. -> TODO better feature would be different filelists
  * on a per hub basis.. hideshare = no filelist..
  * 
  * 
@@ -806,35 +802,33 @@ public final class DCClient {
     			Identity id = getIdentity(favHub.getIdentityName());
     			id.addRunningHub(favHub);
     			hub = new Hub(favHub,id,this);
-    			synchronized(hub) {
-    				hubs.put(favHub, hub);
-    				final Hub hubf = hub; 
-    				final Semaphore sem = new Semaphore(0);
-    				
-    				Runnable finish = new Runnable() {
-						public  void run() {
-							sem.release();
-						}
-    				};
-	    			for (IHubCreationListener hubl:hublisteners) {
-	    				hubl.hubCreated(favHub,showInUI,finish);
-	    			}
-	    			
-    				DCClient.execute(new Runnable() {
-						public  void run() {
-							sem.acquireUninterruptibly(hublisteners.size());
-							scheduler.schedule(new Runnable() {
-								public void run() {
-									synchronized(hubf) {
-										hubf.start();
-									}
-									notifyChangedInfo(InfoChange.Hubs);
-								}
-    					//wait with starting some time (race condition though helps registering listeners)
-							}, 100, TimeUnit.MILLISECONDS);
-						}
-    				});   			
+    			
+    			hubs.put(favHub, hub);
+    			final Hub hubf = hub; 
+    			final Semaphore sem = new Semaphore(0);
+
+    			Runnable finish = new Runnable() {
+    				public  void run() {
+    					sem.release();
+    				}
+    			};
+    			for (IHubCreationListener hubl:hublisteners) {
+    				hubl.hubCreated(favHub,showInUI,finish);
     			}
+
+    			DCClient.execute(new Runnable() {
+    				public  void run() {
+    					sem.acquireUninterruptibly(hublisteners.size());
+    					scheduler.schedule(new Runnable() {
+    						public void run() {
+    							hubf.start();
+    							notifyChangedInfo(InfoChange.Hubs);
+    						}
+    						//wait with starting some time (race condition though helps registering listeners)
+    					}, 100, TimeUnit.MILLISECONDS);
+    				}
+    			});   			
+
     		}
     	}
 

@@ -37,8 +37,8 @@ import eu.jucy.gui.texteditor.hub.HubEditor;
 
 
 import uc.IUser;
+import uc.IUserChangedListener;
 import uc.Population;
-import uc.listener.IUserChangedListener;
 
 
 

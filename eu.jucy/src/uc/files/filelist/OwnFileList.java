@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 
@@ -273,21 +274,6 @@ public class OwnFileList implements IOwnFileList  {
 				if (monitor.isCanceled()) {
 					return;
 				}
-			//	newFilelist.calcSharesizeAndBuildTTHMap();
-		//		monitor.worked(1);
-				
-			
-				//start	indexing the FileList
-				
-			
-			//	indexFilelist(filelistmap,newFilelist);
-			//	monitor.worked(2);
-				
-				
-//				if (monitor.isCanceled()) {
-//					return;
-//				}
-				
 			
 				this.filelistmap =	filelistmap;
 				replaceFilelist(newFilelist,topLevelFolders);
@@ -297,6 +283,7 @@ public class OwnFileList implements IOwnFileList  {
 				dcc.logEvent( LanguageKeys.FinishedFilelistRefresh);
 				
 			} finally {
+				monitor.done();
 				refresh.release();
 			}
 			
@@ -438,13 +425,15 @@ public class OwnFileList implements IOwnFileList  {
 		
 		HashedFile hf = dcc.getDatabase().getHashedFile(file);
 		TopFolder tf = getTopFolder(file);
-		if ((hf == null || !hf.isValid()) && (force || tf != null)) {
-			hashEngine.hashFile(file,true, new IHashedFileListener() {
-				public void hashedFile(HashedFile hashedFile, InterleaveHashes ilh) {
-					database.addOrUpdateFile(hashedFile, ilh);
-					immediatelyAddFile(hashedFile.getPath(),force,restrictForUser,callback);
-				}
-			});
+		if ((hf == null || !hf.isValid())) {
+			if (force || tf != null) {
+				hashEngine.hashFile(file,true, new IHashedFileListener() {
+					public void hashedFile(HashedFile hashedFile, InterleaveHashes ilh) {
+						database.addOrUpdateFile(hashedFile, ilh);
+						immediatelyAddFile(hashedFile.getPath(),force,restrictForUser,callback);
+					}
+				});
+			}
 			return;
 		}
 		
@@ -671,7 +660,7 @@ public class OwnFileList implements IOwnFileList  {
 			try {
 				refresh(monitor);
 			} finally {
-				monitor.done();
+				
 			}
 			System.gc(); 
 			return Status.OK_STATUS;
@@ -771,10 +760,13 @@ public class OwnFileList implements IOwnFileList  {
 		
 		/**
 		 * folder does not go to XML
+		 * @throws SAXException 
 		 */
 		@Override
 		public void writeToXML(TransformerHandler hd, AttributesImpl atts,
-				boolean recursive, boolean isBase, boolean writeout) {}
+				boolean recursive, boolean isBase, boolean writeout) throws SAXException {
+			super.writeToXML(hd, atts, recursive, isBase, writeout);
+		}
 
 		@Override
 		public File getRealPath(FileListFile decendant) {
@@ -809,8 +801,8 @@ public class OwnFileList implements IOwnFileList  {
 			}
 		}
 		
-		
-		
+	
+	
 		@Override
 		public boolean automaticExtraSlot() {
 			return true;

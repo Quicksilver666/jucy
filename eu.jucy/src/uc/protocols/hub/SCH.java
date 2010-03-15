@@ -79,7 +79,7 @@ TRACE Hub.java Line:463
 		int port = 0;
 		Identity id = hub.getIdentity();
 		if (id.isIPv6Used() && usr.getSupports().contains(User.UDP6)) {
-			ia = usr.getI6IP();
+			ia = usr.getI6();
 			port = usr.getUDP6Port();
 		} else if (id.isIPv4Used() && usr.getSupports().contains(User.UDP4)) {
 			ia = usr.getIp();

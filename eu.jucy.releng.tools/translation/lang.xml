@@ -1018,6 +1018,10 @@ UPnP: %s</ru>
 <it>IP</it>
 <ru>IP</ru>
 </Trl>
+<Trl id="IPPrefixMod">
+<de>IP Präfix</de>
+<en>IP Prefix</en>
+</Trl>
 <Trl id="Identification">
 <de>Identifikation (frei lassen für Standardwerte)</de>
 <en>Identification (leave blank for defaults)</en>
@@ -1509,6 +1513,13 @@ UPnP: %s</ru>
 <hu>Újrakapcsolódik a hub-hoz</hu>
 <it>Riconnetti all'hub</it>
 <ru>Переподключает хаб</ru>
+</Trl>
+<Trl id="RedirectReceived">
+<de>Umleitungs Signal vom Hub erhalten nach %s</de>
+<en>Received redirect signal from hub to %s</en>
+<hu>Received redirect signal from hub to %s</hu>
+<it>Ricevuto dall'hub segnale di redirect verso %s</it>
+<ru>С хаба получено перенаправление на %s</ru>
 </Trl>
 <Trl id="RefreshFilelist">
 <de>Dateiliste erneuern</de>
@@ -2610,13 +2621,6 @@ UPnP могло не сработать из-за программного бр�
 <hu>Újrakapcsolódás</hu>
 <it>Riconnessione</it>
 <ru>Переподключаемся</ru>
-</Trl>
-<Trl id="RedirectReceived">
-<de>Umleitungs Signal vom Hub erhalten nach %s</de>
-<en>Received redirect signal from hub to %s</en>
-<hu>Received redirect signal from hub to %s</hu>
-<it>Ricevuto dall'hub segnale di redirect verso %s</it>
-<ru>С хаба получено перенаправление на %s</ru>
 </Trl>
 <Trl id="RefreshingFilelist">
 <de>Aktualisiere Dateiliste</de>

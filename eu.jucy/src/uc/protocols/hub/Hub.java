@@ -19,7 +19,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.io.IOException;
@@ -49,11 +49,13 @@ import uc.ICryptoManager;
 import uc.IHub;
 import uc.IOperatorPlugin;
 import uc.IUser;
+import uc.IUserChangedListener;
 import uc.Identity;
 import uc.InfoChange;
 import uc.LanguageKeys;
 import uc.PI;
 import uc.User;
+import uc.IUserChangedListener.UserChangeEvent;
 import uc.crypto.HashValue;
 import uc.crypto.UDPEncryption;
 import uc.database.DBLogger;
@@ -66,9 +68,7 @@ import uc.files.search.FileSearch;
 import uc.files.search.SearchResult;
 
 
-import uc.listener.IPMReceivedListener;
-import uc.listener.IUserChangedListener;
-import uc.listener.IUserChangedListener.UserChangeEvent;
+
 import uc.protocols.ADCStatusMessage;
 import uc.protocols.CPType;
 import uc.protocols.Compression;
@@ -79,7 +79,6 @@ import uc.protocols.SendContext;
 import uc.protocols.UnblockingConnection;
 
 import uc.protocols.DCProtocol;
-import uc.protocols.hub.IFeedListener.FeedType;
 import uc.protocols.hub.ZOn.ZON;
 
 
@@ -337,7 +336,7 @@ public class Hub extends DCProtocol implements IHub {
 			}
 			
 			@Override
-			public synchronized Inet6Address getI6IP() {
+			public synchronized Inet6Address getI6() {
 				return identity.getConnectionDeterminator().getIp6FoundandWorking();
 			}
 
@@ -591,7 +590,7 @@ public class Hub extends DCProtocol implements IHub {
 		logger.debug("onConnect()");
 		super.onConnect();
 	//	statusMessage(LanguageKeys.Connected,0);
-		unsuccessfulConnectionsInARow = 0;
+		
 		
 		if (!nmdc) { //in ADC clients sends the first command not the hub
 			SUP.sendSupports(this);
@@ -611,14 +610,10 @@ public class Hub extends DCProtocol implements IHub {
 	 * @param message - the message.. if user is not null the <nick> is striped off
 	 */
 	void mcMessageReceived(User usr, String message, boolean me) {
-		
-		if (usr != null) {
-			for (IMCReceivedListener listener : hubl) {
+		for (IHubListener listener : hubl) {
+			if (usr != null) {
 				listener.mcReceived(usr, message,me);
-			}
-		} else {
-			
-			for (IMCReceivedListener listener : hubl) {
+			} else {
 				listener.mcReceived( message);
 			}
 		}
@@ -642,7 +637,7 @@ public class Hub extends DCProtocol implements IHub {
 	 * @param message
 	 */
 	public void statusMessage(String message, int severity) {
-		for (IMCReceivedListener listener : hubl) {
+		for (IHubListener listener : hubl) {
 			listener.statusMessage( message , severity);
 		}
 	}
@@ -660,9 +655,11 @@ public class Hub extends DCProtocol implements IHub {
 	}
 	
 	public boolean checkReconnect() {
-		return dcc.isRunningHub(favHub) && 
-				weWantToReconnect && 
-				(onceConnected|| waitTime <= 0 || favHub.isFavHub(dcc.getFavHubs()) );
+		return 	dcc.isRunningHub(favHub) 
+				&& weWantToReconnect 
+				&& (	onceConnected
+						|| waitTime <= 0 
+						|| favHub.isFavHub(dcc.getFavHubs()) );
 	}
 	
 	
@@ -679,6 +676,7 @@ public class Hub extends DCProtocol implements IHub {
 	
 	public void onLogIn() throws IOException {
 		super.onLogIn();
+		unsuccessfulConnectionsInARow = 0;
 		//now information if we are registered or operator may have changed
 		dcc.notifyChangedInfo(InfoChange.Hubs); 
 		dcc.getSchedulerDir().schedule(
@@ -846,7 +844,7 @@ public class Hub extends DCProtocol implements IHub {
 	 * @param message - what was typed..
 	 */
 	void pmReceived(PrivateMessage pm /*  User from, User sender,String message*/) {
-		for(IPMReceivedListener listener: hubl ) {
+		for(IHubListener listener: hubl ) {
 			listener.pmReceived(pm);
 		}
 
@@ -882,7 +880,7 @@ public class Hub extends DCProtocol implements IHub {
 	 * 
 	 */
 	void feedReceived(FeedType ft,String message) {
-		for (IFeedListener feedListener: hubl) {
+		for (IHubListener feedListener: hubl) {
 			feedListener.feedReceived(ft, message);
 		}
 		logFeed(ft,message);
@@ -1248,7 +1246,10 @@ public class Hub extends DCProtocol implements IHub {
 	void redirectReceived(FavHub addy) {
 		if (addy.isValid()) {
 			redirectaddy = addy ;
-			statusMessage(String.format(LanguageKeys.RedirectReceived,addy.getSimpleHubaddy()),0);
+			for (IHubListener hul: hubl) {
+				hul.redirectReceived(addy);
+			}
+			
 			if (PI.getBoolean(PI.autoFollowRedirect)) {
 				followLastRedirect(false);
 			}
@@ -1262,11 +1263,9 @@ public class Hub extends DCProtocol implements IHub {
 	 */
 	public void followLastRedirect(boolean immediate) {
 		if (redirectaddy != null && redirectaddy.isValid()) {
-		//	setHubaddy(redirectaddy);
 			if (getState() != ConnectionState.DESTROYED) {
 				close();
 			}
-		//	final FavHub redirect = redirectaddy;
 			dcc.getSchedulerDir().schedule(new Runnable() {
 				public void run() {
 					if (redirectaddy != null && redirectaddy.isValid()) {
@@ -1276,80 +1275,9 @@ public class Hub extends DCProtocol implements IHub {
 				}
 			},immediate?1:15,TimeUnit.SECONDS);
 			
-		//	reconnect(0);
+
 		}
 	}
-//	/**
-//	 * 
-//	 * @deprecated use functions in FavHub
-//	 */
-//	private void setHubaddy(String hubaddy) {
-//		logger.debug(this.hubaddy);
-//		
-//		if (!ProtocolPrefix.matchesPrefix(hubaddy)) {
-//			hubaddy = "dchub://"+hubaddy;
-//		}
-//		
-//		int pos = hubaddy.indexOf(':')+3;
-//		fingerPrint = null;
-//		ProtocolPrefix p = ProtocolPrefix.parse(hubaddy);
-//		this.hubaddy = hubaddy.substring(pos);
-//		int postfix = this.hubaddy.indexOf('/');
-//		if (postfix >= 0) {
-//			String kp = this.hubaddy.substring(postfix);
-//			int i = kp.indexOf("kp=");
-//			if ( i >= 0  ) {
-//				kp = kp.substring(i+3);
-//				try {
-//					fingerPrint = HashValue.createHash(kp);
-//				} catch(IllegalArgumentException iae) {
-//					logger.warn(iae,iae);
-//				}
-//			}
-//			this.hubaddy = this.hubaddy.substring(0, postfix);
-//			logger.debug("hubaddy2: "+this.hubaddy);
-//		}
-//		setProtocolNMDC(p.nmdc);
-//		if (p.nmdc) {
-//			this.defaultCommand = new MC(this);
-//		} else {
-//			this.defaultCommand = null;
-//		}
-//		if (connection != null) {
-//			connection.setFingerPrint(fingerPrint);
-//		}
-//		
-//		
-//		
-//		if (hubaddy.startsWith(NMDCPrefix) || hubaddy.startsWith(NMDCSPrefix)) {
-//			this.hubaddy = hubaddy.substring(pos);
-//			setProtocolNMDC(true);
-//			this.defaultCommand = new MC(this);
-//		} else if (hubaddy.startsWith(ADCPrefix) ||hubaddy.startsWith(ADCSPrefix) ) {
-//			this.hubaddy = hubaddy.substring(pos);
-//			int postfix = this.hubaddy.indexOf('/');
-//			if (postfix > 0) {
-//				this.hubaddy = this.hubaddy.substring(0, postfix);
-//				logger.debug("hubaddy2: "+this.hubaddy);
-//			}
-//			setProtocolNMDC(false);
-//			this.defaultCommand = null;
-///*		} else if (hubaddy.startsWith(ADCSPrefix)) {
-//			this.hubaddy = hubaddy.substring(ADCSPrefix.length());
-//			
-//			int postfix = this.hubaddy.indexOf('/');
-//			if (postfix > 0) {
-//				this.hubaddy = this.hubaddy.substring(0, postfix);
-//				
-//			}
-//			setProtocolNMDC(false);
-//			this.defaultCommand = null;
-//			*/
-//		} else {
-//			setHubaddy("dchub://"+hubaddy);
-//		}
-		//setCharSet(); //charset must be set especially for ADC hub..
-//	}
 	
 	/**
 	 * override to set charset to accommodate
@@ -1360,10 +1288,7 @@ public class Hub extends DCProtocol implements IHub {
 		if (GH.isEmpty(favHub.getCharset())) {
 			super.setCharSet();
 		} else {
-			charset = Charset.forName(favHub.getCharset());
-			if (connection != null) {
-				connection.refreshCharsetCoders();
-			}
+			setCharset(Charset.forName(favHub.getCharset()));
 		}
 	}
 
@@ -1418,11 +1343,9 @@ public class Hub extends DCProtocol implements IHub {
 		try {
 			super.timer();
 			synchronized(loginTimeoutSynch) {
-				if (timerLogintimeout % 10 == 0) {
-					logger.trace("timer signal: "+timerLogintimeout);
-				}
-				
-				if (!isLoginDone() && ++timerLogintimeout == 40) { //40 seconds connection/ login timeout
+				if (!reconnectRunning && !isLoginDone() && ++timerLogintimeout == 40) { //40 seconds connection/ login timeout
+					logger.info("login Timeout: "+getName());
+					timerLogintimeout = 0;
 					switch(getState()) {
 					case CONNECTED:
 						statusMessage(LanguageKeys.LoginTimeout,0);
@@ -1437,20 +1360,19 @@ public class Hub extends DCProtocol implements IHub {
 						throw new IllegalStateException("timeout occured although current state is: "+getState());
 					}
 					connection.close();
+					
 				}
 			}
 			if (isNoTrafficTimeOut() && getState().isOpen()) {
 				synchronized(lastCommandSynch) {
 					logger.debug("no command received for long time - checking connection: " + (System.currentTimeMillis()-lastCommandTime) );
 				}
-				
-				
 				if (nmdc) {
 					MyINFO.sendMyINFO(this,true); 
 					//by sending a MyINFO we check if the connection of the hub is fine
 				} else {
-					//in ADC we can't send normal INF with force as this would clear all info..
-					STA.sendSTAtoHub(this, new ADCStatusMessage("Ping Connection",0,0));
+					//in ADC we have STA as NOP
+					STA.sendSTAtoHub(this, new ADCStatusMessage("PING",0,0));
 				}
 			}
 			
@@ -1459,7 +1381,8 @@ public class Hub extends DCProtocol implements IHub {
 				reconnectRunning = false;
 				unsuccessfulConnectionsInARow++; //will be cleared on successful connect.. so ok
 				
-				waitTime = Math.min(30,unsuccessfulConnectionsInARow) *(10 + GH.nextInt(30)); //reset the wait time..
+				
+				waitTime = Math.min(50,unsuccessfulConnectionsInARow) *(10 + GH.nextInt(30)); //reset the wait time..
 				if (dcc.isRunningHub(favHub)) { //reconnect if the hub didn't do this already..
 					logger.debug("reconnecting");
 					statusMessage(LanguageKeys.Reconnecting,0);
@@ -1519,19 +1442,21 @@ public class Hub extends DCProtocol implements IHub {
 	}
 
 	
-	private final CopyOnWriteArrayList<IHubListener> hubl	=  
-			new CopyOnWriteArrayList<IHubListener>();
+	private final CopyOnWriteArraySet<IHubListener> hubl	=  
+			new CopyOnWriteArraySet<IHubListener>();
 
-	private final CopyOnWriteArrayList<IUserChangedListener> ucl	= 
-			new CopyOnWriteArrayList<IUserChangedListener>();
+	private final CopyOnWriteArraySet<IUserChangedListener> ucl	= 
+			new CopyOnWriteArraySet<IUserChangedListener>();
 
-	private final CopyOnWriteArrayList<ICTMListener> ctmrl	= 
-		new CopyOnWriteArrayList<ICTMListener>();
+	private final CopyOnWriteArraySet<ICTMListener> ctmrl	= 
+		new CopyOnWriteArraySet<ICTMListener>();
+	
+
 
 
 	
 	public void registerCTMListener(ICTMListener  listener) {
-		ctmrl.addIfAbsent(listener);
+		ctmrl.add(listener);
 	}
 	
 	public void unregisterCTMListener(ICTMListener listener) {
@@ -1540,30 +1465,21 @@ public class Hub extends DCProtocol implements IHub {
 	
 	public void registerHubListener(IHubListener listener) {
 		super.registerProtocolStatusListener(listener);
-		hubl.addIfAbsent(listener);
-		ucl.addIfAbsent(listener);
+		hubl.add(listener);
 	}
 	
 	public void unregisterHubListener(IHubListener listener) {
 		super.unregisterProtocolStatusListener(listener);
 		hubl.remove(listener);
-		ucl.remove(listener);
 	}
 	
 	public void registerUserChangedListener(IUserChangedListener listener) {
-		ucl.addIfAbsent(listener);
+		ucl.add(listener);
 	}
 	public void unregisterUserChangedListener(IUserChangedListener listener) {
 		ucl.remove(listener);
 	}
 
-//	public void registerUCListener(IUserCommandListener listener) {
-//		ucoml.addIfAbsent(listener);
-//	}
-//
-//	public void unregisterUCListener(IUserCommandListener listener) {
-//		ucoml.remove(listener);
-//	}
 
 
 	/**
@@ -1573,12 +1489,6 @@ public class Hub extends DCProtocol implements IHub {
 		return totalshare;
 	}
 
-//	/**
-//	 * @return the hubaddy
-//	 */
-//	public String getHubaddy() {
-//		return hubaddy;
-//	}
 
 	/**
 	 * @return the HubName without Topic
@@ -1606,7 +1516,7 @@ public class Hub extends DCProtocol implements IHub {
 		if (!hubname.equals(this.hubname)) {
 			this.hubname = hubname;
 			
-			for (IHubnameChangedListener ihcl: hubl) {
+			for (IHubListener  ihcl: hubl) {
 				ihcl.hubnameChanged(hubname,topic);
 			}
 		
@@ -1617,7 +1527,7 @@ public class Hub extends DCProtocol implements IHub {
 		if (!topic.equals(this.topic)) {
 			this.topic = topic;
 	
-			for (IHubnameChangedListener ihcl: hubl) {
+			for (IHubListener ihcl: hubl) {
 				ihcl.hubnameChanged(hubname,topic);
 			}
 		}
@@ -1647,6 +1557,7 @@ public class Hub extends DCProtocol implements IHub {
 				if (iop.init(this)) {
 					opPlugins.add(iop);
 					registerHubListener(iop);
+					registerUserChangedListener(iop);
 				}
 			}
 		}
@@ -1661,10 +1572,6 @@ public class Hub extends DCProtocol implements IHub {
 
 	}
 	
-
-//	public String getRedirectaddy() {
-//		return redirectaddy;
-//	}
 
 
 	public boolean pendingReconnect() {

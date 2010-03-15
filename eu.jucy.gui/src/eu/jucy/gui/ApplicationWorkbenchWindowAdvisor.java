@@ -42,7 +42,6 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
@@ -56,6 +55,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import eu.jucy.gui.IUCEditor.ITopicChangedListener;
 import eu.jucy.gui.texteditor.hub.HubEditor;
 import eu.jucy.gui.texteditor.hub.HubEditorInput;
+import eu.jucy.gui.texteditor.hub.RedirectReceivedProvider;
 
 import uc.DCClient;
 import uc.FavHub;
@@ -90,8 +90,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 			}
 		}
 	}
-
-//	private GuiAppender guiAppender;
+	/**
+	 * -> opens new HubEditors when ever a hub is created..
+	 */
 	private IHubCreationListener hubCreationListener;
 	
 	/**
@@ -215,7 +216,6 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 				if (showInUI) {
 					new SUIJob() {
 						public void run() {
-							IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 				       		try {	
 				        		window.getActivePage().openEditor(new HubEditorInput(fh), HubEditor.ID);
 				        	} catch(PartInitException pie) {
@@ -236,7 +236,6 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 			public void topicChanged(IUCEditor editor) {
 				String text = DCClient.LONGVERSION+" -["+editor.getTopic()+"]";
 				window.getShell().setText(text);
-						
 			}
     	};
  
@@ -273,6 +272,8 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 			public void partOpened(IWorkbenchPart part) {}
     		
     	});
+    	
+    	RedirectReceivedProvider.init(window);
     }
     
     private TrayItem trayItem;
@@ -283,6 +284,8 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	if (enlarge == null) {
     		enlarge = new Listener() {
         		public void handleEvent(Event e) {
+        			//using ahead provided window! -> 
+        			//problems in Linux due to not window available when minimized?
         			IHandlerService ihs = (IHandlerService)window.getService(IHandlerService.class);
         			try {
 						ihs.executeCommand(EnlargeShellHandler.CommandID, null);
@@ -296,12 +299,6 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	window.getShell().addShellListener(new ShellAdapter(){
     		public void shellIconified(ShellEvent e){
     			mininmize(window);
-//    			if (GUIPI.getBoolean(GUIPI.minimizeToTray)) {
-//    				window.getShell().setVisible(false);
-//    			}
-//    			if (!dcc.isAway() && GUIPI.getBoolean(GUIPI.setAwayOnMinimize)) {
-//    				dcc.setAway(true);
-//    			}
     		}
     	});
     	

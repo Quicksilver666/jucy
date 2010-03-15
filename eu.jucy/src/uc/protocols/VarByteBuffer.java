@@ -4,9 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.CharsetDecoder;
+
 
 
 import logger.LoggerFactory;
@@ -179,7 +178,7 @@ public class VarByteBuffer {
 	 * @param decoder - used for decoding
 	 * @return the String read..
 	 */
-	public String readUntil(byte stopper,CharsetDecoder decoder) {
+	public byte[] readUntil(byte stopper) {
 		if (decompression == null) {
 			int limit = writepos;
 			for (int i = readpos; i < writepos ; i++) {
@@ -190,13 +189,13 @@ public class VarByteBuffer {
 			}
 			wrapper.position(readpos);
 			wrapper.limit(limit);
-			
-			CharBuffer cb = CharBuffer.allocate(limit-readpos);
-			decoder.decode(wrapper, cb, true);
-			cb.flip();
-			
+			byte[] read= new byte[limit-readpos];
+			wrapper.get(read);
+//			CharBuffer cb = CharBuffer.allocate(limit-readpos);
+//			decoder.decode(wrapper, cb, true);
+//			cb.flip();
 			readpos = wrapper.position();
-			return cb.toString();
+			return read;
 		} else {
 			int read;
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -218,36 +217,27 @@ public class VarByteBuffer {
 				ioe.printStackTrace();
 			}
 			
-			ByteBuffer buf = ByteBuffer.wrap(baos.toByteArray());
-			CharBuffer cb = CharBuffer.allocate(buf.remaining());
-			decoder.decode(buf, cb, true);
-			cb.flip();
-			if (decompression == null) {
-		
-				StringBuilder sb = new StringBuilder(); 
-				for (int i = readpos ; i < writepos; i++) {
-					sb.append((char)(current[i] & 0xff));
-				}
-				
-				logger.debug("last string read: "+cb.toString()+" nextin Buffer: "+sb );
-		
-				
-				/*if (s.length() > 0 &&  s.charAt(0) != '$') { 
-					try {
-						setDecompression(Compression.ZLIB_FAST);
-					} catch (IOException ioe) {
-						logger.warn("reenabling decompression");
-					}
-				} */
-				
-			}
-			if (cb.toString().equals("IZON")) {
-				logger.debug("used ZON for eof");
-				decompression = null;
-			}
-			logger.debug("read compressed: "+cb);
+//			ByteBuffer buf = ByteBuffer.wrap(baos.toByteArray());
+//			CharBuffer cb = CharBuffer.allocate(buf.remaining());
+//			decoder.decode(buf, cb, true);
+//			cb.flip();
+//			if (decompression == null) {
+//		
+//				StringBuilder sb = new StringBuilder(); 
+//				for (int i = readpos ; i < writepos; i++) {
+//					sb.append((char)(current[i] & 0xff));
+//				}
+//				
+//				logger.debug("last string read: "+cb.toString()+" nextin Buffer: "+sb );
+//				
+//			}
+//			if (cb.toString().equals("IZON")) {
+//				logger.debug("used ZON for eof");
+//				decompression = null;
+//			}
+//			logger.debug("read compressed: "+cb);
 			
-			return cb.toString();
+			return baos.toByteArray();
 		}
 	}
 	

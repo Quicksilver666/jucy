@@ -103,40 +103,32 @@ public class SlotManager implements ISlotManager {
 	}
 	
 	private Slot getSlotPriv(IUser usr ,TransferType type,FileListFile f) {
-		try {
-			switch(type) {
-			case TTHL:
-			case FILELIST:
-				Slot extra = new Slot(false);
-				currentExtraSlots.add(extra);
-				return extra;
-			case FILE:
-				int slotsAvailable =   getTotalSlots() - currentSlots.size();
-				
-				boolean eligibleForSlotByQueue = isOneofThFirstXUsers(slotsAvailable,usr);
-				if (slotsAvailable > 0 /*&& !waitingQueue.isEmpty() */ && eligibleForSlotByQueue) {
-					//we are Low on slots... so we use the queue..
-					logger.debug("User got Slot over Queue: "+usr);
-					Slot normal = new Slot(true);
-					currentSlots.add(normal);
-					return normal;		
-			/*	} else if (slotsAvailable > 0 && waitingQueue.isEmpty()) {
-					logger.debug("User got Slot the normal way: "+usr);
-					Slot normal = new Slot(true);
-					currentSlots.add(normal);
-					return normal; */
-				} else if (usr.hasCurrentlyAutogrant() || f.getSize() <= MinislotSize || f.automaticExtraSlot()) {
-					Slot autogrant = new Slot(false);
-					currentSlots.add(autogrant);
-					currentExtraSlots.add(autogrant);
-					return autogrant;
-				} else {
-					return null;
-				}
+		switch(type) {
+		case TTHL:
+		case FILELIST:
+			Slot extra = new Slot(false);
+			currentExtraSlots.add(extra);
+			return extra;
+		case FILE:
+			int slotsAvailable =   getTotalSlots() - currentSlots.size();
+			boolean eligibleForSlotByQueue = isOneofThFirstXUsers(slotsAvailable,usr);
+			if (slotsAvailable > 0 && eligibleForSlotByQueue) {
+				logger.debug("User got Slot over Queue: "+usr);
+				Slot normal = new Slot(true);
+				currentSlots.add(normal);
+				dcc.notifyChangedInfo(InfoChange.CurrentSlots);
+				return normal;		
+			} else if (usr.hasCurrentlyAutogrant() || f.getSize() <= MinislotSize || f.automaticExtraSlot()) {
+				Slot autogrant = new Slot(false);
+				currentSlots.add(autogrant);
+				currentExtraSlots.add(autogrant);
+				dcc.notifyChangedInfo(InfoChange.CurrentSlots);
+				return autogrant;
+			} else {
+				return null;
 			}
-		} finally {
-			dcc.notifyChangedInfo(InfoChange.CurrentSlots);
 		}
+
 		throw new IllegalStateException("no known TransferType was set");   
 	}
 

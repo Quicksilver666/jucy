@@ -1618,10 +1618,10 @@
                class="eu.jucy.gui.texteditor.hub.FollowRedirectHandler"
                commandId="eu.jucy.gui.followredirect">
             <activeWhen>
-               <with
-                     variable="activeEditorId">
+              <with
+                     variable="eu.jucy.hub.sourceprovider.redirect">
                   <equals
-                        value="eu.jucy.hub">
+                        value="ENABLED">
                   </equals>
                </with>
             </activeWhen>
@@ -2201,6 +2201,12 @@
       <extension
             point="eu.jucy.gui.TextModificator">
          <impl
+               class="eu.jucy.gui.texteditor.IPPrefixModificator"
+               id="eu.jucy.gui.ipprefix"
+               name="%IPPrefixMod"
+               defaultenabled="false">
+         </impl>
+         <impl
                class="eu.jucy.gui.texteditor.DateStampTextModificator"
                id="eu.jucy.gui.DateStamp"
                name="%TimeStamps">
@@ -2215,6 +2221,7 @@
                id="eu.jucy.gui.nickcolouring"
                name="%NickColourer">
          </impl>
+
       </extension>
       <extension
             point="eu.jucy.gui.favhub.FavHubAdvanced">
@@ -2688,6 +2695,16 @@
                   </iterate>
                </with>
        </definition>
+   </extension>
+   <extension
+         point="org.eclipse.ui.services">
+      <sourceProvider
+            provider="eu.jucy.gui.texteditor.hub.RedirectReceivedProvider">
+         <variable
+               name="eu.jucy.hub.sourceprovider.redirect"
+               priorityLevel="workbench">
+         </variable>
+      </sourceProvider>
    </extension>
 
 </plugin>

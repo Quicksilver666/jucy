@@ -35,7 +35,6 @@ import org.eclipse.core.runtime.Platform;
 import uc.IStoppable.IStartable;
 import uc.Identity.FilteredChangedAttributeListener;
 import uc.crypto.HashValue;
-import uc.listener.IUserChangedListener;
 import uc.protocols.AbstractConnection;
 import uc.protocols.CPType;
 import uc.protocols.MultiStandardConnection;
@@ -363,7 +362,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 	 */
 	public void onInterestingUserArrived(final IUser usr) {
 		if (usr.weWantSomethingFromUser() && !interesting.containsKey(usr)) {
-			DCClient.execute(new Runnable() { // done because if called by UI thread this will block.. TODO rem.. should never be called by UIThread..
+			DCClient.execute(new Runnable() { 
 				public void run() {
 					new ClientProtocolStateMachine(usr,ConnectionHandler.this);
 				}

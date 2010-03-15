@@ -88,7 +88,7 @@ public class CocoaUIEnhancer implements IStartup {
 	static final byte[] SWT_OBJECT = {'S', 'W', 'T', '_', 'O', 'B', 'J', 'E', 'C', 'T', '\0'};
 
 	private void init() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {
-		// TODO: These should either move out of Display or be accessible to this class.
+		//  These should either move out of Display or be accessible to this class.
 		byte[] types = {'*','\0'};
 		int size = C.PTR_SIZEOF, align = C.PTR_SIZEOF == 4 ? 2 : 3;
 

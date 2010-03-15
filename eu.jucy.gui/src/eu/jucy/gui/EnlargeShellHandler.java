@@ -22,9 +22,16 @@ public class EnlargeShellHandler extends AbstractHandler {
 	
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
+		IWorkbenchWindow[] windows;
 		if (window == null) {
-			window = PlatformUI.getWorkbench().getWorkbenchWindows()[0];	//may work better... might return non active windows..
+			windows = PlatformUI.getWorkbench().getWorkbenchWindows();	//may work better... might return non active windows..
+			if (windows.length == 0) {
+				throw new ExecutionException("no Windows found");
+			} else {
+				window = windows[0];
+			}
 		}
+	
 		
 		Shell shell = window.getShell();
 		boolean iconify = GUIPI.getBoolean(GUIPI.minimizeToTray);

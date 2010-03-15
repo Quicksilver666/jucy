@@ -189,16 +189,6 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 		}
 	}
 	
-//	void calcSharesizeAndBuildTTHMap() {
-//		contents.clear();
-//		long totalSize = 0;
-//		for (FileListFile f:root) {
-//			if (contents.put(f.getTTHRoot(),f) == null) {
-//				totalSize += f.getSize();
-//			}
-//		}
-//		sharedSize = totalSize;
-//	}
 
 	/**
 	 * @return the shared size

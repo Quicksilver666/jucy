@@ -17,14 +17,14 @@ public interface IConnection extends Closeable {
 	 */
 	void start();
 
-	/**
-	 * for sending a string that will be send using CharsetEncoders 
-	 * 
-	 * @param toSend - the ususla method for textbased protocols..
-	 * 
-	 * @throws IOException
-	 */
-	void send(String toSend) throws IOException;
+//	/**
+//	 * for sending a string that will be send using CharsetEncoders 
+//	 * 
+//	 * @param toSend - the ususla method for textbased protocols..
+//	 * 
+//	 * @throws IOException
+//	 */
+//	void send(String toSend) throws IOException;
 
 	void send(ByteBuffer toSend) throws IOException;
 
@@ -102,12 +102,12 @@ public interface IConnection extends Closeable {
 	 */
 	void setIncomingDecompression(Compression comp) throws IOException;
 
-	/**
-	 * when the protocol changes this is called by the protocol to refresh protocol specific 
-	 * stuff like charsets 
-	 * 
-	 */
-	void refreshCharsetCoders();
+//	/**
+//	 * when the protocol changes this is called by the protocol to refresh protocol specific 
+//	 * stuff like charsets 
+//	 * 
+//	 */
+//	void refreshCharsetCoders();
 
 	boolean usesEncryption();
 	

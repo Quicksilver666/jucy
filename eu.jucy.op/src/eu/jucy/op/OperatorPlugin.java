@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 import uc.IHub;
 import uc.IOperatorPlugin;
 import uc.IUser;
-import uc.OperatorPluginAdapter;
+import uc.HubListenerAdapter;
 import uc.User;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import uc.files.downloadqueue.FileListDQE;
@@ -26,7 +26,7 @@ import uc.files.downloadqueue.AbstractDownloadQueueEntry.IDownloadFinished;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.ConnectionState;
 
-public class OperatorPlugin extends OperatorPluginAdapter implements
+public class OperatorPlugin extends HubListenerAdapter implements
 		IOperatorPlugin {
 
 
@@ -105,9 +105,8 @@ public class OperatorPlugin extends OperatorPluginAdapter implements
 	 * (non-Javadoc)
 	 * @see UC.OperatorPluginAdapter#changed(UC.IUser, UC.listener.IUserChangedListener.UserChange)
 	 */
-	@Override
+
 	public void changed(UserChangeEvent uce) {
-		super.changed(uce);
 		IUser changed = uce.getChanged();
 		switch(uce.getType()) {
 		case CONNECTED:
@@ -189,5 +188,8 @@ public class OperatorPlugin extends OperatorPluginAdapter implements
 		return CheckState.UNCHECKED;
 	}
 
+
+
+	
 
 }

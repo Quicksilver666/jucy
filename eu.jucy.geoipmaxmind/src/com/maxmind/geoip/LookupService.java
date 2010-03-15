@@ -550,7 +550,7 @@ public class LookupService {
         } else {
             String str2 = getDnsAttributes(str);
  	    return getLocationwithdnsservice(str2);
-	    // TODO if DNS is not available, go to local file as backup
+	    //  if DNS is not available, go to local file as backup
 	}
     }
 
@@ -558,7 +558,7 @@ public class LookupService {
         try {
             Hashtable<String, String> env = new Hashtable<String, String>();
             env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
-	    // TODO don't specify ws1, instead use ns servers for s.maxmind.com
+	    //  don't specify ws1, instead use ns servers for s.maxmind.com
             env.put("java.naming.provider.url","dns://ws1.maxmind.com/");
 
             DirContext ictx = new InitialDirContext(env);
@@ -568,7 +568,7 @@ public class LookupService {
             return str;
         }
         catch(NamingException e) {
-	    // TODO fix this to handle exceptions
+	    //  fix this to handle exceptions
             System.out.println("DNS error");
             return null;
         }
@@ -600,7 +600,7 @@ public class LookupService {
 	    if (key.equals("zi")) {
 	        record.postalCode = value;
 	    }
-	    // TODO, ISP and Organization
+	    // , ISP and Organization
 	    //if (key.equals("or")) {
 	    //record.org = value;
 	    //}

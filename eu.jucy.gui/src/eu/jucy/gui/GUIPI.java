@@ -44,6 +44,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 	timeStamps			=	GUIPI.IDForTextModificatorEnablement(DateStampTextModificator.ID),
 	timeStampFormat		=	"timeStampFormat",
 	
+	
 	editorFont			=	"editorFont",
 	downloadColor1		=	"downloadColor1",
 	downloadColor2		=	"downloadColor2",
@@ -136,6 +137,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 		defaults.putBoolean(timeStamps, true);
 		defaults.put(timeStampFormat, "[HH:mm]");
 		
+		
 		defaults.putBoolean(openPMInForeground, true);
 		defaults.putBoolean(showPMsInMC, false);
 		defaults.putBoolean(askBeforeShutdown, false);
@@ -205,7 +207,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 		
 		defaults.putBoolean(allowTestRepos, false);
 		
-		defaults.put(lastStartupVersion, "UC V:0.60");
+		defaults.put(lastStartupVersion, "");
 		
 		
 		logger.debug("initialized GUI defaults");
@@ -220,7 +222,9 @@ public class GUIPI extends AbstractPreferenceInitializer {
 		for (IConfigurationElement element : configElements) {
 			try {
 				String fullID = IDForTextModificatorEnablement(element.getAttribute("id"));
-				defaults.putBoolean(fullID, true);
+				String value = element.getAttribute("defaultenabled");
+
+				defaults.putBoolean(fullID, value == null?true:Boolean.parseBoolean(value));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

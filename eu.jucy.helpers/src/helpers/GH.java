@@ -125,7 +125,8 @@ public final class GH {
 		}
 		return (K)source.toArray()[nextInt(source.size())];
 	}
-	public static  <K> K getRandomElement(List<K> source) {
+	
+	public static <K> K getRandomElement(List<K> source) {
 		if (source.isEmpty()) {
 			return null;
 		}

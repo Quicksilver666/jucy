@@ -15,9 +15,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
 
 
 
@@ -52,8 +49,8 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 	
 	protected final ConnectionProtocol cp; //our Connection protocol..
 	
-	protected volatile CharsetDecoder charsetDecoder;
-	protected volatile CharsetEncoder charsetEncoder;
+//	protected volatile CharsetDecoder charsetDecoder;
+//	protected volatile CharsetEncoder charsetEncoder;
 	
 	protected final ICryptoManager cryptoManager;
 	
@@ -80,10 +77,10 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 	
 
 	
-	/* (non-Javadoc)
-	 * @see uc.protocols.IConnection#send(java.lang.String)
-	 */
-	public abstract void send(String toSend) throws IOException ;
+//	/* (non-Javadoc)
+//	 * @see uc.protocols.IConnection#send(java.lang.String)
+//	 */
+//	public abstract void send(String toSend) throws IOException ;
 	
 	
 	/* (non-Javadoc)
@@ -148,17 +145,17 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 	public abstract void setIncomingDecompression(Compression comp) throws IOException;
 	
 
-	/* (non-Javadoc)
-	 * @see uc.protocols.IConnection#refreshCharsetCoders()
-	 */
-	public void refreshCharsetCoders() {
-		charsetDecoder = cp.getCharset().newDecoder();
-		charsetDecoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
-		charsetDecoder.onMalformedInput(CodingErrorAction.REPLACE);  
-		charsetEncoder = cp.getCharset().newEncoder();
-		charsetEncoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
-		charsetEncoder.onMalformedInput(CodingErrorAction.REPLACE); 
-	}
+//	/* (non-Javadoc)
+//	 * @see uc.protocols.IConnection#refreshCharsetCoders()
+//	 */
+//	public void refreshCharsetCoders() {
+//		charsetDecoder = cp.getCharset().newDecoder();
+//		charsetDecoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
+//		charsetDecoder.onMalformedInput(CodingErrorAction.REPLACE);  
+//		charsetEncoder = cp.getCharset().newEncoder();
+//		charsetEncoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
+//		charsetEncoder.onMalformedInput(CodingErrorAction.REPLACE); 
+//	}
 	
 	/* (non-Javadoc)
 	 * @see uc.protocols.IConnection#usesEncryption()

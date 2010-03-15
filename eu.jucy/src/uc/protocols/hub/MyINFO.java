@@ -16,9 +16,9 @@ import org.apache.log4j.Logger;
 import uc.User;
 import uc.IUser.AwayMode;
 import uc.IUser.Mode;
+import uc.IUserChangedListener.UserChange;
+import uc.IUserChangedListener.UserChangeEvent;
 import uc.crypto.HashValue;
-import uc.listener.IUserChangedListener.UserChange;
-import uc.listener.IUserChangedListener.UserChangeEvent;
 import uc.protocols.DCProtocol;
 import uc.protocols.SendContext;
 

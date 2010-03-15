@@ -6,7 +6,7 @@
          point="org.eclipse.ui.editors">
       <editor
             class="eu.jucy.ui.hublist.HublistEditor"
-            icon="icons/PublicHubs.png"
+            icon="icons/PublicHubs.22.png"
             id="eu.jucy.ui.hublist"
             name="Hublists">
       </editor>
@@ -50,7 +50,7 @@
                id="eu.jucy.ui.hublist.toolbar">
          <command
                commandId="eu.jucy.ui.hublist.openhublist"
-               icon="icons/PublicHubs.png"
+               icon="icons/PublicHubs.22.png"
                label="Public Hubs"
                tooltip="Open Public Hubs">
          </command>
@@ -60,7 +60,7 @@
             locationURI="menu:view?after=additions">
          <command
                commandId="eu.jucy.ui.hublist.openhublist"
-               icon="icons/PublicHubs.png"
+               icon="icons/PublicHubs.22.png"
                label="Public Hubs"
                tooltip="Open Public Hubs">
          </command>

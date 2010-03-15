@@ -3,6 +3,8 @@ package eu.jucy.gui.texteditor;
 
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,12 +36,14 @@ import uc.files.MagnetLink;
 import uc.files.filelist.FileListFile;
 import uc.files.filelist.IOwnFileList;
 import uc.files.filelist.IOwnFileList.AddedFile;
+import uc.protocols.hub.FeedType;
 
 import uihelpers.SUIJob;
 import uihelpers.SelectionProviderIntermediate;
 
 
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
+import eu.jucy.gui.Lang;
 import eu.jucy.gui.UCMessageEditor;
 import eu.jucy.gui.UCWorkbenchPart;
 import eu.jucy.gui.texteditor.hub.ItemSelectionProvider;
@@ -47,7 +51,8 @@ import eu.jucy.gui.texteditor.hub.ItemSelectionProvider;
 /**
  * 
  * holds common functionality of Hub and PM editor
- * 
+ * protected fields not set by this must be set by implementing classes
+ * -> hard to extend...
  * 
  * @author Quicksilver
  *
@@ -59,6 +64,9 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	private static final Logger logger = LoggerFactory.make();
 	
 	protected SendingWriteline sendingWriteline;
+	protected LabelViewer feedLabelViewer;
+	protected StyledTextViewer textViewer;
+	protected boolean messagesWaiting = false;
 	
 	protected TextUserSelectionprovider tus;
 	
@@ -68,18 +76,27 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	
 	/**
 	 * first cleans up added user then adds the latest again..
-	 * @param usr
+	 * @param usr - true if the user wasn't present before..
 	 */
-	protected void put(IUser usr) {
+	protected boolean put(IUser usr) {
 		long removeAllBefore = System.currentTimeMillis()-15*60*1000; //15 Minutes
 		synchronized (recentlyChatted) {	
 			Iterator<Entry<IUser,Long>> it = recentlyChatted.entrySet().iterator();
 			while (it.hasNext()) {
-				if (it.next().getValue() < removeAllBefore) {
+				Entry<IUser,Long> e = it.next();
+				if (e.getValue() < removeAllBefore) {
 					it.remove();
+					userRemovedFromRecentChatted(e.getKey());
 				}
 			}
-			recentlyChatted.put(usr, System.currentTimeMillis());
+			if (recentlyChatted.size() > 1000) { //protection against floods
+				removeAll();
+			}
+			if (recentlyChatted.put(usr, System.currentTimeMillis()) == null) {
+				userAddedToRecentChatted(usr);
+				return true;
+			}
+			return false;
 		}
 	}
 	protected boolean contains(IUser usr) {
@@ -87,6 +104,29 @@ public abstract class UCTextEditor extends UCMessageEditor {
 			return recentlyChatted.containsKey(usr);
 		}
 	}
+	
+	protected void removeAll() {
+		synchronized (recentlyChatted) {
+			for (IUser usr: new ArrayList<IUser>(recentlyChatted.keySet())) {
+				recentlyChatted.remove(usr);
+				userRemovedFromRecentChatted(usr);
+			}
+		}
+	}
+	
+	protected void userRemovedFromRecentChatted(IUser usr) {}
+	protected void userAddedToRecentChatted(IUser usr) {}
+	
+	/**
+	 * 
+	 * @param usr
+	 * @param join
+	 */
+	protected void showJoinsParts(IUser usr,boolean join) {
+		String joinmes = "*** "+String.format(join?Lang.UserJoins:Lang.UserParts,usr.getNick())+" ***";
+		appendText( joinmes , usr,false);	
+	}
+	
 	
 	public UCTextEditor() {}
 
@@ -128,17 +168,76 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	}
 	
 	public abstract void storedPM(IUser receiver,String message,boolean me);
-	public abstract void statusMessage(final String message,  int severity);
 	
+	protected abstract void setTitleImage();
+	
+	public void statusMessage(final String message,  int severity) {
+		appendText( "*** " +message,null,false);			
+		changeLabel(message,severity);
+	}
+	
+	
+	protected void changeLabel(final String message, final int severity) {
+		new SUIJob(feedLabelViewer.getLabel()) {
+			public void run() {
+				FeedType ft;
+				switch(severity) {
+				case 1: 
+					ft = FeedType.WARN;
+				break;
+				case 2: 
+					ft = FeedType.ERROR;
+				break;
+				default: 
+					ft = FeedType.NONE;
+				}
+				feedLabelViewer.addFeedMessage(ft,message);
+			}
+			
+		}.scheduleOrRun();
+	}
+	
+	public void appendText(String text,IUser usr,boolean chatmessage) {
+		appendText(text, usr,System.currentTimeMillis(),chatmessage);
+	}
+	
+	
+	
+	/**
+	 * 
+	 * @param text - fully formatted text to append (except textmodificators)
+	 * @param usr - usr associated with text.. potentially null
+	 * @param received - timestamp text is associated with
+	 * @param message - true if that append is a message and not just some text
+	 * (if true put will be called)
+	 */
+	public void appendText(final String text,final IUser usr,final long received , final boolean chatMessage) {
+		new SUIJob(textViewer.getText()) {
+			public void run() {
+				if (usr != null && !getHub().getSelf().equals(usr) && chatMessage) {
+					put(usr);
+				}
+				textViewer.addMessage(text,usr,new Date(received));
+			}	
+		}.scheduleOrRun();
+	}
 	
 	@Override
 	public void partActivated() {
 		super.partActivated();
 		getText().redraw();
+		messagesWaiting = false;
+		setTitleImage();
 	}
 
 
 	public abstract IHub getHub();
+	
+	public void dispose() {
+		removeAll();
+		super.dispose();
+		
+	}
 	
 	
 	private final class MagnetDropAdapter extends DropTargetAdapter {

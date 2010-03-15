@@ -42,8 +42,6 @@ public abstract class FinishedTransfersColumn extends ColumnDescriptor<TransferR
 	
 
 	
-
-	
 	public static class NameTransfCol  extends  FinishedTransfersColumn {
 
 		public NameTransfCol() {
@@ -54,7 +52,6 @@ public abstract class FinishedTransfersColumn extends ColumnDescriptor<TransferR
 		public String getText(TransferRecord x) {
 			return x.getName();
 		}
-		
 	}
 	
 	public static class SizeCol  extends  FinishedTransfersColumn {
@@ -166,6 +163,21 @@ public abstract class FinishedTransfersColumn extends ColumnDescriptor<TransferR
 				}
 				
 			};
+		}
+	}
+	
+	public static class PathTransfCol  extends  FinishedTransfersColumn {
+
+		public PathTransfCol() {
+			super(300, Lang.Path);
+		}
+
+		@Override
+		public String getText(TransferRecord x) {
+			if (x.getFile() != null) {
+				return x.getFile().getParent();
+			}
+			return "";
 		}
 	}
 	

@@ -36,7 +36,7 @@ public class TigerTreeHasher2  implements IHasher {
 	private static final int PrivateLevels = 7;
 	private static final int BufferSize = 1024 * (int)Math.pow(2, PrivateLevels-1);
 	
-	
+	private static final int MAX_PROCESSORS = 16;
 	private final BlockingQueue<HashPart> partsForHashing = new LinkedBlockingQueue<HashPart>(100);
 	
 	private volatile boolean hashRunning;
@@ -66,7 +66,8 @@ public class TigerTreeHasher2  implements IHasher {
 		if (size == 0) { //handle the special case of size 0
 			return new InterleaveHashes(new HashValue[]{TigerHashValue.ZEROBYTEHASH});
 		}
-		hashThreads = size <= BufferSize*10? 1 :Runtime.getRuntime().availableProcessors();  
+		int processors = Runtime.getRuntime().availableProcessors();
+		hashThreads = size <= BufferSize*10? 1 : Math.min(processors,MAX_PROCESSORS);  
 		
 		initialiseLevels(getLevel(size));
 	

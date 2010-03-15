@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -20,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
-import java.util.regex.Matcher;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
@@ -79,8 +77,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	private final Object bufferLock = new Object();
 	
 	private volatile ByteBuffer byteBuffer = ByteBuffer.allocate(1024*2); //in Buffer.. 
-	private final CharBuffer outcharBuffer = CharBuffer.allocate(1024);
-	private final ByteBuffer outBuffer = ByteBuffer.allocate(outcharBuffer.capacity()*4);
+//	private final CharBuffer outcharBuffer = CharBuffer.allocate(1024);
+//	private final ByteBuffer outBuffer = ByteBuffer.allocate(outcharBuffer.capacity()*4);
 	
 	private ByteBuffer encrypting, decrypting; //bytebuffers for encrypting and decrypting data..
 	
@@ -92,10 +90,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	private Object target; // socketchannel... or hubaddy in string format
 	
 	
-	/**
-	 * store for unfinished commands..
-	 */
-	private final StringBuffer stringbuffer = new StringBuffer();
+
 	
 
 
@@ -163,29 +158,25 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		});
 	}
 	
-	public void send(String toSend) {
-		logger.debug("send("+toSend+")");
-
-		if (charsetEncoder == null) {
-			refreshCharsetCoders();
-		}
-		synchronized (charsetEncoder) {
-			outcharBuffer.clear();
-			if (toSend.length() < outcharBuffer.remaining()) {
-				outcharBuffer.put(toSend).flip();
-				outBuffer.clear();
-				charsetEncoder.encode(outcharBuffer, outBuffer, true);
-				outBuffer.flip();
-				send(outBuffer);
-
-			} else {
-				send(toSend.substring(0, toSend.length()/2));
-				send(toSend.substring(toSend.length()/2));
-			}
-		}
-		
-		
-	}
+//	public void send(String toSend) {
+//		logger.debug("send("+toSend+")");
+//
+//
+//		synchronized (charsetEncoder) {
+//			outcharBuffer.clear();
+//			if (toSend.length() < outcharBuffer.remaining()) {
+//				outcharBuffer.put(toSend).flip();
+//				outBuffer.clear();
+//				charsetEncoder.encode(outcharBuffer, outBuffer, true);
+//				outBuffer.flip();
+//				send(outBuffer);
+//
+//			} else {
+//				send(toSend.substring(0, toSend.length()/2));
+//				send(toSend.substring(toSend.length()/2));
+//			}
+//		}
+//	}
 	
 	public void send(ByteBuffer toSend) {
 		synchronized (bufferLock) {
@@ -344,20 +335,18 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 						if (cp.getState() == ConnectionState.CONNECTING) {
 							if (getInetSocketAddress() != null) { // check one last time for socket addy being set..
 								cp.onConnect();
+								semaphore.release();
 							} else {
 								asynchClose();
 							}
-						} else if (Platform.inDevelopmentMode() && cp.getState() != ConnectionState.DESTROYED) {//TODO remove here .. only debug
-							 logger.warn("bad connection state: "+cp.getState()+"  "+cp.getClass().getSimpleName());
-						}
-			
+						} 
 					} catch (IOException ioe) {
 						logger.debug(ioe, ioe);
 					} finally {
 						l.unlock();
 					}
 					
-					semaphore.release();
+					
 					synchronized (bufferLock) { //check if VarInBuffer already contains sth..
 						checkRead();
 					}
@@ -536,46 +525,29 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 * ConnectionProtocol
 	 */
 	private void processread() {
-		
 		boolean stopp = false;
 		do {
+			byte[] sBa;
 			synchronized (bufferLock) {
-				String s = varInBuffer.readUntil((byte)cp.getCommandStopByte(), charsetDecoder);
-				if (GH.isEmpty(s)) {
+				sBa = varInBuffer.readUntil((byte)cp.getCommandStopByte());
+				if (sBa.length == 0) {
 					return;
 				}
-				stringbuffer.append(s);
 			}
 			
 			Lock l = cp.writeLock();
 			l.lock();
 			try {
-				//logger.debug("processread("+stringbuffer.toString()+")");
-				Matcher m = null;
-				while ((m = cp.getCommandRegexPattern().matcher(stringbuffer)).find()) {
-					String found = m.group(1);
-					//	logger.debug("command: "+found);
-					if (!GH.isNullOrEmpty(found)) {
-						stringbuffer.delete(0, m.end());
-						try {
-							cp.receivedCommand(found);
-						} catch (IOException ioe) {
-							close();
-							logger.debug(ioe,ioe);
-						} catch (RuntimeException re) {
-							close();
-							logger.warn(re,re); 
-						}
-
-					}  else {
-						stringbuffer.deleteCharAt(0);
-						break;
-					}
-				}
+				cp.receivedCommand(sBa);
+			} catch (IOException ioe) {
+				close();
+				logger.debug(ioe,ioe);
+			} catch (RuntimeException re) {
+				close();
+				logger.warn(re,re); 
 			} finally {
 				l.unlock();
 			}
-
 
 			synchronized(bufferLock) {
 				stopp = !varInBuffer.hasRemaining();
@@ -598,10 +570,9 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		connectSent = false;
 		logger.debug("in reset(sochan)");
 
-		refreshCharsetCoders();
-		outBuffer.clear();
-		outBuffer.flip(); //nothing available in the outBuffer..
-		outcharBuffer.clear();
+		
+//		outBuffer.clear();
+//		outBuffer.flip(); //nothing available in the outBuffer..
 		byteBuffer.clear();
 		
 		
@@ -611,7 +582,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		synchronized (varOutBuffer) {
 			varOutBuffer.clear();
 		}
-		stringbuffer.delete(0, stringbuffer.length()); //clear
+		
 		
 		if (encryption) {
 			try {

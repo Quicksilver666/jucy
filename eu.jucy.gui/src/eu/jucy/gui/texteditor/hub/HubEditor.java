@@ -6,10 +6,7 @@ package eu.jucy.gui.texteditor.hub;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-
-
 
 import helpers.GH;
 import helpers.SizeEnum;
@@ -99,10 +96,13 @@ import eu.jucy.gui.transferview.TransfersView;
 
 import uc.FavHub;
 import uc.IHasUser;
+import uc.IHub;
 import uc.IUser;
+import uc.IUserChangedListener;
 import uc.LanguageKeys;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.ConnectionState;
+import uc.protocols.hub.FeedType;
 import uc.protocols.hub.Hub;
 import uc.protocols.hub.IHubListener;
 import uc.protocols.hub.PrivateMessage;
@@ -122,7 +122,7 @@ import uihelpers.TableViewerAdministrator.ColumnDescriptor;
  * @author Quicksilver
  *
  */
-public class HubEditor extends UCTextEditor implements IHubListener {
+public class HubEditor extends UCTextEditor implements IHubListener,IUserChangedListener {
 	
 	private static final int MAXTABLENGTH = 20; 
 
@@ -160,15 +160,14 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	private Hub hub;
 	
 	
-	private boolean messagesWaiting = false;
+	
 	private boolean nickWasCalled = false;
 
 	
 	private TableViewerAdministrator<IUser> tva;
 	
-	private StyledTextViewer textViewer;
+	//private StyledTextViewer textViewer;
 	
-	private LabelViewer labelViewer;
 	
 	private DelayedTableUpdater<IUser> updater;
 	
@@ -244,7 +243,6 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 				
 		
 		tva.apply();
-		
 
 		
 		spi.addViewer(tableViewer); //->texteditor deleagte
@@ -340,22 +338,22 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		
 		this.hub = ApplicationWorkbenchWindowAdvisor.get().getHub(getInput(),false);   //here retrieve the hub  
 		
-		labelViewer = new LabelViewer(feedLabel,hub);
+		feedLabelViewer = new LabelViewer(feedLabel,hub);
 		textViewer = new StyledTextViewer(hubText,hub,false);
 		hubText.setViewer(textViewer);
 		
-		sendingWriteline = new HubSendingWriteline(writeline,getHub().getUserPrefix(),getHub(),this);
+		sendingWriteline = new HubSendingWriteline(writeline,hub.getUserPrefix(),hub,this);
 		
 		updater = new DelayedTableUpdater<IUser>(tableViewer) {
 			protected void updateDone() {
-				userLabel.setText(getHub().getUsers().size()+" "+Lang.Users );
-				sharesizeLabel.setText(SizeEnum.getReadableSize(getHub().getTotalshare()));
+				userLabel.setText(hub.getUsers().size()+" "+Lang.Users );
+				sharesizeLabel.setText(SizeEnum.getReadableSize(hub.getTotalshare()));
 			}
 		};
 		
 		tableViewer.setInput(getHub());
-		getHub().registerHubListener(this);//register the listeners..
-		
+		hub.registerHubListener(this);//register the listeners..
+		hub.registerUserChangedListener(this);
 	
 		
 		makeActions(); //create menu and actions
@@ -432,10 +430,9 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	
 	@Override
 	public void partActivated() {
-		super.partActivated();
-		messagesWaiting = false;
 		nickWasCalled = false;
-		setTitleImage();
+		super.partActivated();
+
 	}
 	
 
@@ -472,8 +469,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		case CONNECTED:
 			updater.add(uce.getChanged());
 			if (shouldJoinPartBeShown(uce.getChanged())) {
-				String joinmes = "*** "+String.format(Lang.UserJoins,uce.getChanged().getNick())+" ***";
-				appendText( joinmes ,uce.getChanged());	
+				 showJoinsParts(uce.getChanged(),true);
 			}
 			break;
 		case CHANGED:
@@ -483,20 +479,19 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		case QUIT:
 			updater.remove(uce.getChanged());
 			if (shouldJoinPartBeShown(uce.getChanged())) {
-				String partMessage = "*** "+String.format(Lang.UserParts,uce.getChanged().getNick())+" ***";
-				appendText(partMessage, uce.getChanged());
+				showJoinsParts(uce.getChanged(),false);
 			}
 			break;
 		}
 	}
 	
 	private boolean shouldJoinPartBeShown(IUser usr) {
-		FavHub fav= getInput();
-		return 	!logInRecent() &&  
-				ConnectionState.LOGGEDIN.equals(hub.getState()) &&
-						(	fav.isShowJoins() 
-						|| (fav.isShowFavJoins() && usr.isFavUser()) 
-						|| (fav.isShowRecentChatterJoins() && contains(usr)))
+		FavHub fav = getInput();
+		return 		!logInRecent()   
+				&& 	ConnectionState.LOGGEDIN.equals(hub.getState()) 
+				&&	(	fav.isShowJoins() 
+					|| (fav.isShowFavJoins() && usr.isFavUser()) 
+					|| (fav.isShowRecentChatterJoins() && contains(usr)))
 				;
 	}
 
@@ -506,14 +501,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	}
 
 	
-	/* (non-Javadoc)
-	 * @see UC.listener.IMCReceived#mcReceived(java.lang.String)
-	 */
-	public void statusMessage(final String message,  int severity) {
-		appendText( "*** " +message,null);			
-		changeLabel(message,severity);
-	}
-	
+
 	
 	
 	@Override
@@ -527,30 +515,11 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	 * @see UC.protocols.hub.IMCReceivedListener#mcReceived(java.lang.String)
 	 */
 	public void mcReceived(String message) {
-		appendText(message, null );
+		appendText(message, null ,true);
 	}
 
 
-	private void changeLabel(final String message, final int severity) {
-		new SUIJob(feedLabel) {
-			public void run() {
-				FeedType ft;
-				switch(severity) {
-				case 1: 
-					ft = FeedType.WARN;
-				break;
-				case 2: 
-					ft = FeedType.ERROR;
-				break;
-				default: 
-					ft = FeedType.NONE;
-				}
-				labelViewer.addFeedMessage(ft,message);
-		
-			}
-			
-		}.schedule();
-	}
+
 	
 
 	/* (non-Javadoc)
@@ -563,8 +532,8 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		} else {
 			mes = "<"+sender.getNick()+"> "+message;
 		}
-		appendText(mes,sender);
-		put(sender);
+		appendText(mes,sender,true);
+		
 	}
 	
 	/**
@@ -572,16 +541,16 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	 * @param text
 	 * @param usr - who sent the message... may be null
 	 */
-	public void appendText(final String text,final IUser usr){
+	@Override
+	public void appendText(final String text,final IUser usr,final long date,boolean chatmessage) {
+		super.appendText(text,usr,date,chatmessage);
 		SUIJob job = new SUIJob(hubText) {
 			public void run() {
-				textViewer.addMessage(text,usr,new Date()); 
-				boolean activeEditor = HubEditor.this.getSite().getPage().getActiveEditor() == HubEditor.this;
 				//notify because of nick found
 				if (!hub.getSelf().equals(usr) && text.contains(hub.getSelf().getNick())
-						&& usr != null && ! (usr.isOp() && usr.getShared() == 0)) { //here check if it is not is a bot..
+						&& usr != null && !(usr.isOp() && usr.getShared() == 0)) { //here check if it is not is a bot..
 					
-					if (!activeEditor) {
+					if (!isActiveEditor()) {
 						nickWasCalled = true;
 					}
 					if (GUIPI.getBoolean(GUIPI.addSoundOnNickinMC)) {
@@ -591,7 +560,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 						ToasterUtil.showMessage(text,GUIPI.getInt(GUIPI.toasterTime));
 					}
 				}
-				if (!activeEditor && !logInRecent()) {
+				if ( !isActiveEditor() && !logInRecent()) {
 					messagesWaiting = true;
 					setTitleImage();
 				}
@@ -600,8 +569,7 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		job.scheduleOrRun();
 	}
 	
-	private void setTitleImage() {
-		Hub hub = getHub();
+	protected void setTitleImage() {
 		ConnectionState state = hub.getState();
 		if (messagesWaiting && state != ConnectionState.DESTROYED) {
 			if (nickWasCalled) {
@@ -730,14 +698,20 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 		logger.debug("received message: "+ft+" "+message);
 		new SUIJob(feedLabel) { 
 			public void run() {
-				labelViewer.addFeedMessage(ft, message);
+				feedLabelViewer.addFeedMessage(ft, message);
 			}
 		}.schedule();
 	}
 
+	
 
 	
-	public Hub getHub() {
+	public void redirectReceived(FavHub target) {
+		statusMessage(String.format(Lang.RedirectReceived,target.getSimpleHubaddy()),0);
+	}
+
+
+	public IHub getHub() {
 		return hub;
 	}
 	
@@ -749,10 +723,11 @@ public class HubEditor extends UCTextEditor implements IHubListener {
 	
 	public void dispose() {
 		
-		getHub().unregisterHubListener(this);
+		hub.unregisterHubListener(this);
+		hub.unregisterUserChangedListener(this);
 		//if this is the last Hubeditor on this hub.. 
 		if (!anotherEditorIsOpenOnHub() && getHub().getState() != ConnectionState.DESTROYED) {
-			getHub().close();//disconnect and no reconnect;
+			hub.close();//disconnect and no reconnect;
 		}
 		if (transfersListener != null) {
 			ISelectionService sel= getSite().getWorkbenchWindow().getSelectionService();

@@ -34,7 +34,7 @@ import eu.jucy.gui.logeditor.LogEditorInput;
 import eu.jucy.gui.logeditor.OpenLogEditorHandler;
 
 import uc.IHub;
-import uc.protocols.hub.IFeedListener.FeedType;
+import uc.protocols.hub.FeedType;
 import uihelpers.SUIJob;
 
 
@@ -50,7 +50,8 @@ public class LabelViewer {
 	private static final int HISTORY = 150;
 	
 	private final CLabel label;
-	
+
+
 	private SimpleDateFormat dateFormat;
 	
 	private boolean timeStamps;
@@ -246,6 +247,10 @@ public class LabelViewer {
 		
 	}
 
+
+	public CLabel getLabel() {
+		return label;
+	}
 
 
 
