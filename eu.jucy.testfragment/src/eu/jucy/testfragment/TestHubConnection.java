@@ -37,7 +37,7 @@ public class TestHubConnection implements IConnection {
 	private final List<String> ignoredPrefixes = new CopyOnWriteArrayList<String>();
 	
 	
-	private final BlockingQueue<Object> messagesSent = new LinkedBlockingQueue<Object>();
+	private final BlockingQueue<ByteBuffer> messagesSent = new LinkedBlockingQueue<ByteBuffer>();
 	
 		
 	private final ConnectionProtocol cp;
@@ -50,15 +50,15 @@ public class TestHubConnection implements IConnection {
 		this.fingerp = fingerp;
 	}
 	
-	public void send(String toSend) throws IOException {
-		boolean ignore = false;
-		for (String s:ignoredPrefixes) {
-			ignore = ignore || toSend.startsWith(s);
-		}
-		if (!ignore) {
-			messagesSent.offer(toSend);
-		}
-	}
+//	public void send(String toSend) throws IOException {
+//		boolean ignore = false;
+//		for (String s:ignoredPrefixes) {
+//			ignore = ignore || toSend.startsWith(s);
+//		}
+//		if (!ignore) {
+//			messagesSent.offer(toSend);
+//		}
+//	}
 	
 	
 	public void close() {
@@ -121,7 +121,14 @@ public class TestHubConnection implements IConnection {
 
 
 	public void send(ByteBuffer toSend) throws IOException {
-		messagesSent.add(toSend);
+		String s = new String(toSend.array(),0,toSend.limit());
+		boolean ignore = false;
+		for (String prefix:ignoredPrefixes) {
+			ignore = ignore || s.startsWith(prefix);
+		}
+		if (!ignore) {
+			messagesSent.offer(toSend);
+		}
 	}
 
 	public void setIncomingDecompression(Compression comp) throws IOException {
@@ -174,12 +181,10 @@ public class TestHubConnection implements IConnection {
 	 * @throws UnsupportedEncodingException 
 	 */
 	public String pollNextMessage(boolean removeLastChar) throws InterruptedException, UnsupportedEncodingException {
-		Object o = messagesSent.take();
-		if (o instanceof ByteBuffer) {
-			o = new String(((ByteBuffer)o).array(),DCProtocol.NMDCCHARENCODING);
-		}
+		ByteBuffer o = messagesSent.take();
+
+		String s = DCProtocol.NMDCCHARSET.decode(o).toString();
 		
-		String s = (String)o;
 		if (removeLastChar) {
 			s = s.substring(0, s.length()-1);
 		}
@@ -188,9 +193,12 @@ public class TestHubConnection implements IConnection {
 	//
 	
 	public String pollNextMessage(long millisecondstimeout) throws InterruptedException {
-		String s = (String)messagesSent.poll(millisecondstimeout, TimeUnit.MILLISECONDS);
+		ByteBuffer buf = messagesSent.poll(millisecondstimeout, TimeUnit.MILLISECONDS);
+		if (buf != null) {
+			return DCProtocol.NMDCCHARSET.decode(buf).toString();
+		}
 		
-		return s;
+		return null;
 	}
 	
 	/**

@@ -23,9 +23,9 @@ public class UCWorkbenchPart {
 	public static final String USER_ADDITIONS_ID= "useradditions"; 
 	public static final String POST_USER_ADDITIONS_ID= "postuseradditions"; 
 	
-	public static Color background;
-	public static Color fontColour;
-	public static Font font;
+	private static Color background;
+	private static Color fontColour;
+	private static Font font;
 	
 	private static CopyOnWriteArrayList<UCWorkbenchPart> active = new CopyOnWriteArrayList<UCWorkbenchPart>();
 	

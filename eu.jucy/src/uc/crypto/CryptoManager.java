@@ -22,7 +22,6 @@ import javax.net.ssl.X509TrustManager;
 
 import logger.LoggerFactory;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import uc.DCClient;
@@ -34,7 +33,7 @@ import uc.PI;
 
 public class CryptoManager implements ICryptoManager {
 
-	private static Logger logger = LoggerFactory.make(Level.DEBUG); 
+	private static Logger logger = LoggerFactory.make(); 
 	
 
 	

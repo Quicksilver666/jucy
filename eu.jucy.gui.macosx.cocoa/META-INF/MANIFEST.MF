@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Cocoa gui Fragment
 Bundle-SymbolicName: eu.jucy.gui.macosx.cocoa;singleton:=true
-Bundle-Version: 1.1.10
+Bundle-Version: 1.83.0.qualifier
 Fragment-Host: eu.jucy.gui
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Eclipse-PlatformFilter: (& (osgi.os=macosx) (osgi.ws=cocoa))

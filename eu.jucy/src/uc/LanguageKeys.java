@@ -70,8 +70,13 @@ public class LanguageKeys {
 		,STA53SlotsFull
 		,STA54NoHashSupportOverlapClient
 		,SendingPassword
+		,StartedConnectionHandler
+		,StartedEncConnectionHandler
 		,StartedRefreshingTheFilelist
+		,TCPPortInUse
 		,TransferFinished
+		,UDPStarted
+		,UNIXPortWarning
 		,UserConnected
 		,UserDisconnected
 		,UserLeft

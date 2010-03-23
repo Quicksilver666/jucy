@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gui Plug-in
 Bundle-SymbolicName: eu.jucy.gui;singleton:=true
-Bundle-Version: 1.1.10
+Bundle-Version: 1.83.0.qualifier
 Bundle-Localization: nl/gui
 Require-Bundle: eu.jucy.logging,
  org.eclipse.core.runtime,
@@ -17,7 +17,8 @@ Require-Bundle: eu.jucy.logging,
  org.eclipse.equinox.p2.repository;bundle-version="1.0.0",
  org.eclipse.equinox.p2.director;bundle-version="1.0.100",
  eu.jucy,
- lib.org.eclipse.equinox.p2.ui;bundle-version="1.1.0"
+ lib.org.eclipse.equinox.p2.ui;bundle-version="1.1.0",
+ eu.jucy.eliza;bundle-version="1.0.0"
 Export-Package: eu.jucy.gui,
  eu.jucy.gui.favhub,
  eu.jucy.gui.filelist,

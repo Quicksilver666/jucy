@@ -61,6 +61,7 @@ public abstract class UCTextEditor extends UCMessageEditor {
 
 	public static final String TEXT_POPUP_ID = "eu.jucy.gui.texteditor";
 	
+	private static final long NOT_CHATTED_TIME = 60 * 60 *1000;
 	private static final Logger logger = LoggerFactory.make();
 	
 	protected SendingWriteline sendingWriteline;
@@ -79,7 +80,7 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	 * @param usr - true if the user wasn't present before..
 	 */
 	protected boolean put(IUser usr) {
-		long removeAllBefore = System.currentTimeMillis()-15*60*1000; //15 Minutes
+		long removeAllBefore = System.currentTimeMillis() - NOT_CHATTED_TIME; 
 		synchronized (recentlyChatted) {	
 			Iterator<Entry<IUser,Long>> it = recentlyChatted.entrySet().iterator();
 			while (it.hasNext()) {
@@ -101,7 +102,12 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	}
 	protected boolean contains(IUser usr) {
 		synchronized (recentlyChatted) {
-			return recentlyChatted.containsKey(usr);
+			Long chattedLast= recentlyChatted.get(usr);
+			if (chattedLast == null) {
+				return false;
+			} else {
+				return chattedLast >  System.currentTimeMillis() - NOT_CHATTED_TIME;
+			}
 		}
 	}
 	

@@ -31,7 +31,7 @@ public class UserContentProposal implements IContentProposal {
 	
 
 	public String getContent() {
-		return usr.getNick(); 
+		return usr.getNick()+" "; 
 	}
 
 

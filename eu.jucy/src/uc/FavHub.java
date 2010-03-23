@@ -28,25 +28,26 @@ import uihelpers.ComplexListEditor.IPrefSerializer;
  */
 public class FavHub implements Comparable<FavHub> {
 	
-	public static final String ADDRESS = "(?:(dchubs?|nmdcs?|adcs?)://)?([^/:]+):?("+
+	public static final String ADDRESS = "(?:(dchubs?|nmdcs?|adcs?)://)?([^/:\\s]+):?("+
 					IProtocolCommand.PORT+")?/?(?:\\?kp=SHA256/(.+))?";
 	
 	public static final Pattern ADDRESSP = Pattern.compile(ADDRESS);
 	
-	public static void main(String... args) {
-		test("adcs://beta.indigosakura.com:24728/?kp=SHA256/BXL7GBLER72YOQFELQXFZJX6D757F7AJMVEZZKDLFBQ7KBZ2S6UA");
-		test("dchub://chronicsstash.no-ip.info:420");
-		test("du-hub1.dnsalias.com");
-	}
-	private static void test(String address) {
-		Pattern p = Pattern.compile(ADDRESS);
-		Matcher m = p.matcher(address);
-		if (m.matches()) {
-			System.out.println(m.group(1)+"  "+m.group(2)+"  "+m.group(3)+"  "+m.group(4));
-		} else {
-			System.out.println("no match");
-		}
-	}
+//	public static void main(String... args) {
+//		test("adcs://devpublic.adcportal.com:16591/?kp=SHA256/G3PJC4F4MQ5KOXGE2MPYJW5EW63IC6M7RN7OS663JLLWN2M5I6FQ");
+//		test("dchub://chronicsstash.no-ip.info:420");
+//		test("du-hub1.dnsalias.com");
+//	}
+//	
+//	private static void test(String address) {
+//		Pattern p = Pattern.compile(ADDRESS);
+//		Matcher m = p.matcher(address);
+//		if (m.matches()) {
+//			System.out.println(m.group(1)+"  "+m.group(2)+"  "+m.group(3)+"  "+m.group(4));
+//		} else {
+//			System.out.println("no match");
+//		}
+//	}
 	
 	private int order; // the order in which this hub should be displayed and started..
 	private boolean autoconnect = false; //auto-connect on startup

@@ -344,11 +344,11 @@ public class TableViewerAdministrator<T> {
 			return new Comparator<X>() {
 				
 				public int compare(X o1, X o2) {
-					String t1 = null,t2;
+					String t1 = null,t2 = null;
 					if (o1 == null || o2 == null || (t1=getText(o1))==null || (t2=getText(o2))==null ) {
-						if (o1 != null && t1 == null && Platform.inDevelopmentMode()) {
-							System.err.println("TableViewerAdministrator getComparator() failed: "+o1);
-						}
+//						if (o1 != null && t1 == null && Platform.inDevelopmentMode()) {
+//							System.err.println("TableViewerAdministrator getComparator() failed: "+o1);
+//						}
 						return 0;
 					}
 					return t1.compareTo(t2);

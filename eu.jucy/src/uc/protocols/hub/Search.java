@@ -165,7 +165,7 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 		
 		IUser self = hub.getSelf();
 		String command="$Search "+ 
-		(self.isActive() ?  
+		(self.isUDPActive() ?  
 				self.getIp().getHostAddress()
 				+":"+self.getUdpPort()+" ":
 		"Hub:%[myNI] ");

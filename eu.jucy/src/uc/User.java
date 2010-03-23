@@ -419,6 +419,33 @@ public class User implements IUser , IHasUser {
 	}
 	
 	
+	
+	
+	public boolean isUDPActive() {
+		if (isADCUser()) {
+			Identity id =   hub.getIdentity();
+			boolean active 	= i4 != null && udpPort != 0  && supports.contains(UDP4) && id.isIPv4Used() ;
+			active 			= active ||  (i6 != null && udp6Port != 0  && supports.contains(UDP6) && id.isIPv6Used());
+			return active;
+		} else {
+			return getModechar() == Mode.ACTIVE;
+		}
+	}
+
+
+	public boolean isTCPActive() {
+		if (isADCUser()) {
+			Identity id =   hub.getIdentity();
+			String sup = getSupports();
+			boolean active 	= i4 != null && sup.contains(TCP4) && id.isIPv4Used() ;
+			active 			= active ||  (i6 != null && sup.contains(TCP6) && id.isIPv6Used());
+			return active; 
+		} else {
+			return getModechar() == Mode.ACTIVE;
+		}
+	}
+
+
 	public void removeFromDownloadQueue() {
 		if (extended != null && extended.dqes != null) { 
 			for (AbstractDownloadQueueEntry dqe: extended.dqes) {
@@ -709,9 +736,6 @@ public class User implements IUser , IHasUser {
 		return modechar;
 	}
 	
-	public boolean isActive() {
-		return getModechar() == Mode.ACTIVE;
-	}
 
 	/**
 	 * @param modechar the modechar to set
@@ -835,7 +859,7 @@ public class User implements IUser , IHasUser {
 		} else {
 			String v = getVersion();
 			return "<"+( v == null? "   " : v) +
-					",M:"+getModechar()+
+					",M:"+ (isADCUser()? (isTCPActive()?"A":"P") : getModechar())+
 					",H:"+getNormHubs()+"/"+getRegHubs()+"/"+getOpHubs()+
 					",S:"+getSlots()+ ">"; 
 		}

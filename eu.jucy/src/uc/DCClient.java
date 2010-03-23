@@ -121,9 +121,19 @@ import uc.protocols.hub.Hub;
  in transmission)))
  *  
  * 
- *
+ * TODO ugly bug: downloading tons of files to the same file i.e. selecting several files
+ * downloading them to one target file as recommended in menu gets us in terribly undefined state
+ * -> file not deletable in DownloadQueue
+ * ->>partially fixed on next restart will not be loaded.. again still problematic..
+ * 
+ * TODO potentially Empty interleaves provided bug might show itself when file is already present on disc?
+ * 
+ * TODO plugin management dialog .. i.e. disabling and uninstalling of plugins.. better wait till 3.6 final?
  *
  * TODO ... new special user category for tons of settings..
+ * may be create not one special user category but rather many categories... make FavUsers one such categorie..
+ * 
+ * 
  * i.e. special treatment for PMs ... and and and..
  * 
  * TODO transferred size boxes in statusline could on click change between showing total
@@ -139,11 +149,12 @@ import uc.protocols.hub.Hub;
  * on a per hub basis.. hideshare = no filelist..
  * 
  * 
- * TODO .. change with new DB adding already TTH to DB should work better..
  * 
  * TODO  may be some statistics window?? drawing what is currently transferred...
  *
  * TODO translation function : http://code.google.com/p/google-api-translate-java/ might be good
+ * 
+ * TODO viewing image magnetlink doesn't work if the image is already in share i.e. can't eb added for download..
  * 
  * 
  * TODO preview of files using some mediaplayer...
@@ -157,7 +168,13 @@ import uc.protocols.hub.Hub;
  * TODO warning when running out of space.. 
  * -> not possible due to Missing api in 1.5 
  * --> wait for 1.6 as requirement
- * TODO LuaJava plugin... -> wait till java 6 mandatory
+ * TODO LuaJava plugin... -> wait till java 6 mandatory for "kahlua"
+ * otherwise use lua java? probably better -> real lua..
+ * use with scripting engine...
+ * i.e. 
+ * http://cadmium.x9c.fr/downloads.html -> ocaml scripting
+ * Jython -> python
+ * more: https://scripting.dev.java.net/
  *  
  * @author Quicksilver
  */
@@ -593,9 +610,8 @@ public final class DCClient {
     	udphandler.start();
     	monitor.worked(1);
 
-    	
-    	logEvent("Loading DownloadQueue");
-    	downloadQueue.loadDQ(); //loads the download queue 
+
+    	downloadQueue.loadDQ(); 
     	monitor.worked(2);
     	
 

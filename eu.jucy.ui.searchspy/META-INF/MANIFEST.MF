@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Searchspy
 Bundle-SymbolicName: eu.jucy.ui.searchspy; singleton:=true
-Bundle-Version: 1.1.5
+Bundle-Version: 1.1.6.qualifier
 Bundle-Localization: nl/searchspy
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,

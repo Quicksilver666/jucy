@@ -417,13 +417,16 @@ public class ConnectionHandler extends Observable<StatusObject>
 				}
 
 			});
-			dcc.logEvent("Started "+(ssi.encrypted?"encrypted":"normal")+ " connection handler on TCP-Port: "+ssi.ssc.socket().getLocalPort());
+			dcc.logEvent(String.format(
+							ssi.encrypted	?LanguageKeys.StartedEncConnectionHandler
+											:LanguageKeys.StartedConnectionHandler
+							, ssi.ssc.socket().getLocalPort()));//  "Started "+(ssi.encrypted?"encrypted":"normal")+ " connection handler on TCP-Port: "+ssi.ssc.socket().getLocalPort());
 
 		} catch(ClosedByInterruptException ie) {
 			logger.debug("Connection handler socket closed by interruption");
 			ssi.close();
 		} catch(BindException be) {
-			logger.error("TCP port in use! Change TCP port!",be);
+			logger.error(String.format(LanguageKeys.TCPPortInUse, ssi.getPort()),be);// "TCP port %d in use! Change TCP port!",be);
 			ssi.close();
 		} catch (IOException e) {
 			logger.warn("error in serversock "+e,e);
@@ -433,17 +436,6 @@ public class ConnectionHandler extends Observable<StatusObject>
 	}
 	
 	public void notifyOfChange(int detail,ClientProtocol cp,Object other) {
-//		if (Platform.inDevelopmentMode()) {
-//			IUser usr = null;
-//			if (other instanceof ClientProtocolStateMachine) {
-//				 usr = ((ClientProtocolStateMachine)other).getUser();
-//			} else if (cp != null) {
-//				usr = cp.getUser();
-//			}
-//			if (usr != null) {
-//				checkAdd(usr,detail,cp);
-//			}
-//		}
 		StatusObject so =  new StatusObject(cp,ChangeType.CHANGED,detail,other );
 		switch(detail) {
 		case USER_IDENTIFIED_IN_CONNECTION:

@@ -3,7 +3,6 @@ package uc.protocols.hub;
 import helpers.GH;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
 import java.util.HashSet;
@@ -75,22 +74,20 @@ TRACE Hub.java Line:463
 		if (flags.containsKey(Flag.TY)) {
 			onlyDirectories = flags.get(Flag.TY).equals("2");  //only files is currently ignored..
 		}
-		InetAddress ia = null;
-		int port = 0;
-		Identity id = hub.getIdentity();
-		if (id.isIPv6Used() && usr.getSupports().contains(User.UDP6)) {
-			ia = usr.getI6();
-			port = usr.getUDP6Port();
-		} else if (id.isIPv4Used() && usr.getSupports().contains(User.UDP4)) {
-			ia = usr.getIp();
-			port = usr.getUdpPort();
-		}
 		
-		boolean passive = (ia == null)  || (port == 0);
+		Identity id = hub.getIdentity();
+		
+		boolean active = usr.isUDPActive();
 		
 		InetSocketAddress ias  = null;
-		if (!passive) {
-			ias = new InetSocketAddress(ia,usr.getUdpPort());
+		if (active) {
+			if (id.isIPv6Used() && usr.getSupports().contains(User.UDP6)) {
+				ias = new InetSocketAddress(usr.getI6(),usr.getUDP6Port());
+			} else if (id.isIPv4Used() && usr.getSupports().contains(User.UDP4)) {
+				ias = new InetSocketAddress(usr.getIp(),usr.getUdpPort());
+			} else {
+				throw new IllegalStateException();
+			}
 		}
 		
 		byte[] encryptionKey = null;
@@ -101,12 +98,12 @@ TRACE Hub.java Line:463
 		
 		if (flags.containsKey(Flag.TR)) {
 			HashValue hash = HashValue.createHash(flags.get(Flag.TR));
-			hub.searchReceived(hash, passive, usr,  ias, flags.get(Flag.TO),encryptionKey);
+			hub.searchReceived(hash, !active, usr,  ias, flags.get(Flag.TO),encryptionKey);
 		} else {
 			SearchParameter sp = new SearchParameter(
 					includes,excludes,minsize,maxsize,equalssize,endings, onlyDirectories);
 			
-			hub.searchReceived(sp,passive, usr , ias, flags.get(Flag.TO),encryptionKey);
+			hub.searchReceived(sp,!active, usr , ias, flags.get(Flag.TO),encryptionKey);
 		}
 	}
 	

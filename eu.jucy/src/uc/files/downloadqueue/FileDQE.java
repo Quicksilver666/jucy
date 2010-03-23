@@ -286,7 +286,7 @@ public class FileDQE extends AbstractFileDQE {
 	}
 	
 	public static void restore(DQEDAO restoredata,DownloadQueue dq) {
-		logger.debug("in FileDQE.restore()");
+		logger.debug("in FileDQE.restore() "+restoredata);
 		AbstractDownloadQueueEntry dqe = null;
 		
 		if (restoredata.getSize() <= MAX_SIZE_NO_INTERLEAVES || restoredata.getIh() != null) {
@@ -299,7 +299,6 @@ public class FileDQE extends AbstractFileDQE {
 		} else {
 			dqe = new TTHLDQE(dq,restoredata,restoredata.getTarget(),restoredata.getAdded()); 
 		}
-		
 		
 		dq.addDownloadQueueEntry(dqe);
 		for (IUser usr: restoredata.getIterable()) {

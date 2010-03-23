@@ -67,7 +67,9 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 			@Override
 			public void preferenceChanged(String preference,String oldvalue,String newValue) {
 				if (!tthRoots.isEmpty()) { //restart if the DownloadQueue is not empty..
-					dcc.logEvent("restarting: " + PlatformUI.getWorkbench().restart());
+					logger.info("restarting workbench");
+					PlatformUI.getWorkbench().restart();
+					
 				}
 			}
 		};
@@ -97,6 +99,7 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 	 */
 	public Future<?> loadDQ() {
 		//move files if needed
+		dcc.logEvent("Loading DownloadQueue");
 		String oldDir = PI.get(PI.changedTempDownloadDirectory);
 		if (GH.isNullOrEmpty(oldDir)) {
 			oldDir = PI.get(PI.tempDownloadDirectory);
@@ -108,9 +111,9 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 		if (!PI.get(PI.tempDownloadDirectory).equals(oldDir)) {
 			File old = new File(oldDir);
 			File actual = PI.getTempDownloadDirectory();
-			dcc.logEvent("Moving files to new Temp Download directory");
+			dcc.logEvent("Moving files to new temp Download directory");
 			move(old,actual);
-			dcc.logEvent("Finished Moving files");
+			dcc.logEvent("Finished moving files");
 			//delete moving notification
 			PI.put(PI.changedTempDownloadDirectory,PI.get(PI.tempDownloadDirectory));
 		}
@@ -123,12 +126,18 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 				public void run() {
 					synchronized(dqes) {
 						logger.debug("Start adding");
+						Set<String> presentTargetPaths = new HashSet<String>();
 						try {
 							for (DQEDAO dqedao : dqes) {
-								FileDQE.restore(dqedao,DownloadQueue.this);
+								if (presentTargetPaths.add(dqedao.getPath())) {
+									FileDQE.restore(dqedao,DownloadQueue.this);
+								} else {
+									logger.info("Redundant TargetPath "+dqedao.getPath()+" "+dqedao.getTTHRoot());
+									dcc.getDatabase().deleteDQE(dqedao);
+								}
 							}
 						} catch(Exception e) {
-							logger.warn(e,e);
+							logger.error(e,e);
 						}
 						logger.debug("end adding");
 					}

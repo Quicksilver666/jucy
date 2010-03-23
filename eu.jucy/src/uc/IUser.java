@@ -140,11 +140,15 @@ public interface IUser  {
 	
 	Mode getModechar();
 	
-	/**
-	 * simple way to ask if Mode == Active
-	 * @return true if active
-	 */
-	boolean isActive();
+//	/**
+//	 * simple way to ask if Mode == Active
+//	 * @return true if active
+//	 * 
+//	 */
+//	boolean isActive();
+	
+	boolean isUDPActive();
+	boolean isTCPActive();
 	
 	String getConnection();
 	

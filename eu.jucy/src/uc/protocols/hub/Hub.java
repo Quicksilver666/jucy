@@ -964,7 +964,7 @@ public class Hub extends DCProtocol implements IHub {
 	}
 
 	public void sendRCM(IUser target,CPType protocol,String token) {
-		if (!favHub.isChatOnly() && target.isActive()) {		
+		if (!favHub.isChatOnly() && target.isTCPActive()) {		
 			if (nmdc) {
 				RevConnectToMe.sendRCM(this, target);
 			} else {
@@ -1344,14 +1344,14 @@ public class Hub extends DCProtocol implements IHub {
 			super.timer();
 			synchronized(loginTimeoutSynch) {
 				if (!reconnectRunning && !isLoginDone() && ++timerLogintimeout == 40) { //40 seconds connection/ login timeout
-					logger.info("login Timeout: "+getName());
+					logger.debug("login Timeout: "+getName());
 					timerLogintimeout = 0;
 					switch(getState()) {
-					case CONNECTED:
-						statusMessage(LanguageKeys.LoginTimeout,0);
-						break;
 					case CONNECTING: 
 						statusMessage(LanguageKeys.ConnectionTimeout,0);
+						break;
+					case CONNECTED:
+						statusMessage(LanguageKeys.LoginTimeout,0);
 						break;
 					case CLOSED:
 					case DESTROYED:
@@ -1363,7 +1363,7 @@ public class Hub extends DCProtocol implements IHub {
 					
 				}
 			}
-			if (isNoTrafficTimeOut() && getState().isOpen()) {
+			if (isNoTrafficTimeOut() && getState().equals(ConnectionState.LOGGEDIN)) {
 				synchronized(lastCommandSynch) {
 					logger.debug("no command received for long time - checking connection: " + (System.currentTimeMillis()-lastCommandTime) );
 				}
@@ -1372,16 +1372,15 @@ public class Hub extends DCProtocol implements IHub {
 					//by sending a MyINFO we check if the connection of the hub is fine
 				} else {
 					//in ADC we have STA as NOP
-					STA.sendSTAtoHub(this, new ADCStatusMessage("PING",0,0));
+					STA.sendSTAtoHub(this, new ADCStatusMessage("PING",
+										ADCStatusMessage.SUCCESS,ADCStatusMessage.Generic));
 				}
 			}
 			
 			
 			if (reconnectRunning && --waitTime < 0 ) {
 				reconnectRunning = false;
-				unsuccessfulConnectionsInARow++; //will be cleared on successful connect.. so ok
-				
-				
+				unsuccessfulConnectionsInARow++;
 				waitTime = Math.min(50,unsuccessfulConnectionsInARow) *(10 + GH.nextInt(30)); //reset the wait time..
 				if (dcc.isRunningHub(favHub)) { //reconnect if the hub didn't do this already..
 					logger.debug("reconnecting");

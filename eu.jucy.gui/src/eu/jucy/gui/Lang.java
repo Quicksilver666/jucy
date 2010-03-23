@@ -145,6 +145,7 @@ public class Lang {
 		,ImportFromDCPPDescription
 		,IncludedFiles
 		,IncomingConnectionSettings
+		,InvalidAddress
 		,LastRequest
 		,LineSpeed
 		,LogFeed

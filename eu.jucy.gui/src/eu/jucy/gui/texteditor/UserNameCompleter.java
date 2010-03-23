@@ -67,7 +67,6 @@ public class UserNameCompleter extends TextContentAdapter implements IContentPro
 			
 				logger.debug("lastkey:"+lastkey);
 				
-				
 				return UserContentProposal.create(
 						users.subMap(prefix, lastkey).values());
 			

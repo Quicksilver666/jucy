@@ -715,8 +715,8 @@ public class HSQLDB implements IDatabase {
 			*/
 			PreparedStatement dqesstm = 
 				c.prepareStatement("SELECT downloadqueue.* , interleaves.interleaves " 
-						+ " FROM downloadqueue LEFT OUTER JOIN interleaves ON  downloadqueue.tthroot =  interleaves.tthroot " 
-						+ " WHERE downloadqueue.tthroot = interleaves.tthroot");
+						+ " FROM downloadqueue LEFT OUTER JOIN interleaves ON  downloadqueue.tthroot =  interleaves.tthroot " );
+					//	+ " WHERE downloadqueue.tthroot = interleaves.tthroot");
 			
 			ResultSet rs2 = dqesstm.executeQuery();
 			
@@ -728,7 +728,7 @@ public class HSQLDB implements IDatabase {
 				String inter = rs2.getString("interleaves");
 				long size  = rs2.getLong("size");
 				InterleaveHashes ih = null;
-				if (inter != null && inter.length() != 0) {
+				if (!GH.isNullOrEmpty(inter)) {
 					ih = new InterleaveHashes(inter);
 				}
 		

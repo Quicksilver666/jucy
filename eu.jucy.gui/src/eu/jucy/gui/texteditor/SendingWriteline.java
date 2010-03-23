@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Text;
 
 
 
+import eu.jucy.eliza.ElizaSession;
 import eu.jucy.gui.texteditor.hub.HubEditor;
 import eu.jucy.gui.texteditor.pmeditor.PMEditor;
 
@@ -36,6 +37,7 @@ import uc.DCClient;
 import uc.IUser;
 import uc.IUser.PMResult;
 import uc.protocols.hub.Hub;
+import uc.protocols.hub.PrivateMessage;
 import uihelpers.SUIJob;
 
 
@@ -62,7 +64,7 @@ public abstract class SendingWriteline  {
 	}
 	
 	
-	private final Text writeline;
+	protected final Text writeline;
 	
 
 	/**
@@ -237,23 +239,37 @@ public abstract class SendingWriteline  {
 	public static class UserSendingWriteline extends SendingWriteline {
 		private final IUser usr;
 		private final PMEditor pme;
+		private final ElizaSession elizaSession;
 
 		public UserSendingWriteline(Text line, SortedMap<String, IUser> users, IUser other, PMEditor pme) {
 			super(line, users, new CommandInterpreter(other,pme));
 			this.usr = other;
 			this.pme = pme;
+			elizaSession = other.getHub().getSelf().equals(other)?new ElizaSession():null;
 		}
 
 		@Override
 		public void send(final String s) {
-			DCClient.execute(new Runnable() {
-				public void run() {
-					PMResult pmres = usr.sendPM(s, false, true);
-					if (pmres == PMResult.STORED) {
-						pme.storedPM(usr,s, false);
+			if (elizaSession == null) {
+				DCClient.execute(new Runnable() {
+					public void run() {
+						PMResult pmres = usr.sendPM(s, false, true);
+						if (pmres == PMResult.STORED) {
+							pme.storedPM(usr,s, false);
+						}
 					}
-				}
-			});
+				});
+			} else {
+				pme.pmReceived(new PrivateMessage(usr, usr, s, false));
+				new SUIJob(writeline) {
+					@Override
+					public void run() {
+						pme.appendText("<Psychotherapist> "+ elizaSession.saySomethingToEliza(s),
+								null, true);
+					}
+				}.schedule(GH.nextInt(2000)+1000);
+				
+			}
 		}
 	}
 	

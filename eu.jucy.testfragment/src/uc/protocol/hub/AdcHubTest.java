@@ -42,7 +42,6 @@ import uc.UDPhandler;
 
 import uc.DCClient.Initializer;
 import uc.FavFolders.SharedDir;
-import uc.IUser.Mode;
 import uc.crypto.BloomFilter;
 import uc.crypto.HashValue;
 import uc.crypto.UDPEncryption;
@@ -221,8 +220,8 @@ public class AdcHubTest {
 			
 			assertEquals("Received client inf: "+receivedINF,ConnectionState.LOGGEDIN, hub.getState());
 			assertEquals("found: "+(userINF.size()+1)+" "+hub.getUsers().size(),userINF.size()+1 , hub.getUsers().size() ); //check all users noted down..
-			assertEquals(Mode.PASSIVE,hub.getUserByNick("Miraculix").getModechar()); // check modechar correctly found
-			assertEquals(Mode.ACTIVE,hub.getUserByNick("Asterix").getModechar()); // same
+			assertTrue(!hub.getUserByNick("Miraculix").isTCPActive()); // check modechar correctly found
+			assertTrue(hub.getUserByNick("Asterix").isTCPActive()); // same
 			
 			
 		} catch (Exception e) {

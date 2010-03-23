@@ -21,7 +21,17 @@ public class QuickConnectHandler extends AbstractHandler implements IHandler {
 		
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		InputDialog dialog = new InputDialog(window.getShell(),Lang.QuickConnect,
-				Lang.Address,"",(IInputValidator)null);
+				Lang.Address,"",new IInputValidator() {
+					public String isValid(String newText) {
+						String s = newText.trim();
+						if (GH.isEmpty(s) || new FavHub(s).isValid()) {
+							return null;
+						} else {
+							return Lang.InvalidAddress;
+						}
+					}
+				});
+	
 		dialog.setBlockOnOpen(true);
 		
 		if (dialog.open() == Dialog.OK) {

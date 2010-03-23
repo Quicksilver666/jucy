@@ -1057,6 +1057,10 @@ UPnP: %s</ru>
 <it>Impostazioni connessioni in arrivo</it>
 <ru>Настройки входящих соединений</ru>
 </Trl>
+<Trl id="InvalidAddress">
+<de>Ungültiger Addresse!</de>
+<en>Invalid address!</en>
+</Trl>
 <Trl id="LastRequest">
 <de>Letzte Anfrage</de>
 <en>Last request</en>
@@ -2816,7 +2820,16 @@ UPnP могло не сработать из-за программного бр�
 <it>Impostazioni</it>
 <ru>Настройки</ru>
 </Trl>
---><Trl id="StartedRefreshingTheFilelist">
+-->
+<Trl id="StartedConnectionHandler">
+<de>TCP Port %d für eingehende Verbindungen geöffnet.</de>
+<en>Opened TCP port %d for incoming connections.</en>
+</Trl>
+<Trl id="StartedEncConnectionHandler">
+<de>TCP Port %d für eingehende verschlüsselte Verbindungen geöffnet.</de>
+<en>Opened TCP port %d for incoming encrypted connections.</en>
+</Trl>
+<Trl id="StartedRefreshingTheFilelist">
 <de>Dateilisten Aktualisierung gestartet</de>
 <en>Started refreshing the filelist</en>
 <hu>Fájllista frissítésének kezdése</hu>
@@ -2830,12 +2843,25 @@ UPnP могло не сработать из-за программного бр�
 <it>Tempo</it>
 <ru>Время</ru>
 </Trl>
---><Trl id="TransferFinished">
+-->
+<Trl id="TCPPortInUse">
+<de>TCP Port %d wird bereits benutzt! Bitte ändere den TCP port!</de>
+<en>TCP port %d in use! Change the TCP port!</en>
+</Trl>
+<Trl id="TransferFinished">
 <de>Transfer beendet</de>
 <en>Transfer finished</en>
 <hu>Ávitel befejezve</hu>
 <it>Trasferimento completo</it>
 <ru>Передача завершена</ru>
+</Trl>
+<Trl id="UDPStarted">
+<de>UDP Port %d geöffnet.</de>
+<en>Opened UDP port %d.</en>
+</Trl>
+<Trl id="UNIXPortWarning">
+<de>%s benötigt root-Rechte um einen Port unter 1024 zu nutzen!</de>
+<en>%s needs root rights to use ports lower than 1024!</en>
 </Trl>
 <Trl id="UserConnected">
 <de>User verbunden</de>

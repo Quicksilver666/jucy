@@ -142,6 +142,12 @@ public class DQEDAO extends AbstractDownloadableFile implements IDownloadableFil
 	public User getUser() {
 		throw new UnsupportedOperationException();
 	}
+
+	@Override
+	public String toString() {
+		return "DQEDAO [hashValue=" + hashValue + ", size=" + size
+				+ ", target=" + target + "]";
+	}
 	
 	
 	

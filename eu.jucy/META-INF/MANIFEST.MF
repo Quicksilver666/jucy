@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: jucy Main Plug-in
 Bundle-SymbolicName: eu.jucy; singleton:=true
-Bundle-Version: 1.1.10
+Bundle-Version: 1.83.0.qualifier
 Bundle-ClassPath: .
 Export-Package: uc,
  uc.crypto,

@@ -152,7 +152,7 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 		public static Image getUserImage(IUser usr,boolean large) {
 			int i = large?6:0;
 			i += (usr.isOp()?3:0);
-			i += (usr.isOnline()? (usr.isActive()?0:1) :2) ;
+			i += (usr.isOnline()? (usr.isTCPActive()?0:1) :2) ;
 			return USERIMAGES[i];
 			
 //			if (usr.isOnline()) {

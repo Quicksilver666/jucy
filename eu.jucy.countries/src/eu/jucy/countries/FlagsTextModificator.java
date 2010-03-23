@@ -67,8 +67,8 @@ public class FlagsTextModificator implements ITextModificator {
 				
 			} else if (!askingForIP.contains(user) 
 					&& SendingWriteline.lastTypingOccurred(300000)  //only ask for users if we are on the keyboard..-> prevents spamming..
-					&& (hub.getSelf().isActive() 
-							|| user.isActive()
+					&& (hub.getSelf().isTCPActive()
+							|| user.isTCPActive()
 							|| hub.supportsUserIP()) 
 					&& user.getShared() != 0 ) {
 				
