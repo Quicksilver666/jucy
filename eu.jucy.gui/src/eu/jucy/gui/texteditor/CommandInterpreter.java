@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GUIPI;
+import eu.jucy.gui.GuiAppender;
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.search.OpenSearchEditorHandler;
 
@@ -189,7 +190,7 @@ public class CommandInterpreter {
 				if (fh1.isValid()) {
 					fh1.connect(ApplicationWorkbenchWindowAdvisor.get());
 				} else {
-					logger.info("Invalid address: "+addy);
+					logger.log(GuiAppender.GUI,"Invalid address: "+addy); //TODO internetionalize
 				}
 				break;
 			case PM:
@@ -239,19 +240,19 @@ public class CommandInterpreter {
 			case SHOWJOINS:
 				FavHub fh = hub.getFavHub();
 				fh.setShowJoins(!fh.isShowJoins());
-				hub.statusMessage(String.format(Lang.ShowJoins, fh.isShowJoins()? Lang.Yes:Lang.No),0); 
+				hub.statusMessage(Lang.ShowJoins+": "+(fh.isShowJoins()? Lang.Yes:Lang.No),0); 
 				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
 				break;
 			case SHOWFAVJOINS:
 				FavHub fhs = hub.getFavHub();
 				fhs.setShowFavJoins(!fhs.isShowFavJoins());
-				hub.statusMessage(String.format(Lang.ShowFavJoins, fhs.isShowFavJoins()? Lang.Yes:Lang.No),0);//"Show Favjoins: "+fhs.isShowFavJoins(),0);
+				hub.statusMessage(Lang.ShowFavJoins+": "+(fhs.isShowFavJoins()? Lang.Yes:Lang.No),0);//"Show Favjoins: "+fhs.isShowFavJoins(),0);
 				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
 				break;
 			case SHOWCHATTERJOINS:
 				FavHub favHub = hub.getFavHub();
 				favHub.setShowRecentChatterJoins(!favHub.isShowRecentChatterJoins());
-				hub.statusMessage(String.format(Lang.ShowChatterJoins, favHub.isShowRecentChatterJoins()? Lang.Yes:Lang.No),0);//"Show Chatterjoins: "+favHub.isShowRecentChatterJoins(),0);
+				hub.statusMessage(Lang.ShowChatterJoins+": "+ (favHub.isShowRecentChatterJoins()? Lang.Yes:Lang.No),0);//"Show Chatterjoins: "+favHub.isShowRecentChatterJoins(),0);
 				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
 				break;
 			case PASS:

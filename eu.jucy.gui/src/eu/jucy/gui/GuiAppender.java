@@ -107,7 +107,7 @@ public class GuiAppender extends AppenderSkeleton implements ILogEventListener,I
 	 *  c.getChildren()[0] is instanceof CLabel 
 	 * @param tooltip
 	 */
-	public  void setToolTipToStatusLine(String tooltip) {
+	public void setToolTipToStatusLine(String tooltip) {
 		Control c = getToolTipControl() ;
 		if (c != null) {
 			c.setToolTipText(tooltip);

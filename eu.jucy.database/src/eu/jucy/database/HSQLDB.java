@@ -725,8 +725,9 @@ public class HSQLDB implements IDatabase {
 				Date added =  new Date(rs2.getLong("date"));
 				File path = new File(rs2.getString("path") );
 				int priority = rs2.getInt("priority");
-				String inter = rs2.getString("interleaves");
 				long size  = rs2.getLong("size");
+				
+				String inter = rs2.getString("interleaves");
 				InterleaveHashes ih = null;
 				if (!GH.isNullOrEmpty(inter)) {
 					ih = new InterleaveHashes(inter);

@@ -50,7 +50,7 @@ public class ConnectionDebugger extends Observable<StatusObject> implements ICon
 			current.unregisterDebugger(this);
 		}
 		init(attacheTo);
-		logger.info("Attached : "+ia+"  connection: "+attacheTo);
+		logger.debug("Attached : "+ia+"  connection: "+attacheTo);
 	}
 	
 	public void init(InetAddress ia) {
@@ -134,7 +134,7 @@ public class ConnectionDebugger extends Observable<StatusObject> implements ICon
 				currentCI = new CryptoInfo();
 			
 				cp.getConnection().getCryptoInfo(currentCI);
-				logger.info("Connected: "+newStatus);
+				logger.debug("Connected: "+newStatus);
 				notifyObservers(new StatusObject(currentCI,ChangeType.CHANGED));
 			}
 		}

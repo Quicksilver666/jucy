@@ -126,32 +126,32 @@ public abstract class UserHandlers extends AbstractHandler {
 	public static class GetFilelistHandler extends UserHandlers {
 
 		public static final String COMMAND_ID = "eu.jucy.gui.getfilelist";
-	//	public static final String PARM_COMMAND_ID = "eu.jucy.gui.getfilelistBYUSERID";
 		
 
-
-
-
-		protected void doWithUser(final IUser usr,final ExecutionEvent event){
-			final IDownloadable id = getDownloadableForUsr(usr, HandlerUtil.getCurrentSelection(event));
-			usr.downloadFilelist().addDoAfterDownload(new IDownloadFinished() {
-
-				public void finishedDownload(File f) {
-					FilelistHandler.openFilelist(usr,id,HandlerUtil.getActiveWorkbenchWindow(event));
-				}
-
-				@Override
-				public boolean equals(Object obj) {
-					if (obj == null) return false;
-					return this.getClass().equals(obj.getClass());
-				}
-
-				@Override
-				public int hashCode() {
-					return this.getClass().hashCode();
-				}
+		protected void doWithUser(final IUser usr,final ExecutionEvent event) {
+			if (usr.getShared()> 0 || usr.getNumberOfSharedFiles() > 0) {
+				final IDownloadable id = getDownloadableForUsr(usr, 
+						HandlerUtil.getCurrentSelection(event));
 				
-			});	
+				usr.downloadFilelist().addDoAfterDownload(new IDownloadFinished() {
+	
+					public void finishedDownload(File f) {
+						FilelistHandler.openFilelist(usr,id,HandlerUtil.getActiveWorkbenchWindow(event));
+					}
+	
+					@Override
+					public boolean equals(Object obj) {
+						if (obj == null) return false;
+						return this.getClass().equals(obj.getClass());
+					}
+	
+					@Override
+					public int hashCode() {
+						return this.getClass().hashCode();
+					}
+					
+				});	
+			}
 		}
 		
 		private static IDownloadable getDownloadableForUsr(IUser usr,ISelection selection) {
@@ -186,22 +186,24 @@ public abstract class UserHandlers extends AbstractHandler {
 		public static final String COMMAND_ID = "eu.jucy.gui.matchqueue";
 		
 		protected void doWithUser(final IUser usr,ExecutionEvent event) {
-			usr.downloadFilelist().addDoAfterDownload( new IDownloadFinished() { 
-				public void finishedDownload(File f) { 
-					usr.getFilelistDescriptor().getFilelist().match();
-				}
-				
-				@Override
-				public boolean equals(Object obj) {
-					if (obj == null) return false;
-					return this.getClass().equals(obj.getClass());
-				}
-
-				@Override
-				public int hashCode() {
-					return this.getClass().hashCode();
-				}
-			}); 
+			if (usr.getShared() > 0 || usr.getNumberOfSharedFiles() > 0) {
+				usr.downloadFilelist().addDoAfterDownload( new IDownloadFinished() { 
+					public void finishedDownload(File f) { 
+						usr.getFilelistDescriptor().getFilelist().match();
+					}
+					
+					@Override
+					public boolean equals(Object obj) {
+						if (obj == null) return false;
+						return this.getClass().equals(obj.getClass());
+					}
+	
+					@Override
+					public int hashCode() {
+						return this.getClass().hashCode();
+					}
+				}); 
+			}
 		}
 	}
 	

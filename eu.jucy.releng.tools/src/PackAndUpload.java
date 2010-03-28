@@ -17,6 +17,17 @@ public class PackAndUpload {
 
 	}
 	
+	public static String get(String key) {
+		if (prop == null) {
+			try {
+				loadProperties("deploy.properties");
+			} catch(IOException ioe) {
+				throw new IllegalStateException(ioe);
+			}
+		}
+		return prop.get(key).toString();
+	}
+	
 	private static void loadProperties(String file) throws IOException {
 		prop = new Properties();
 		File loadProp = new File(file);

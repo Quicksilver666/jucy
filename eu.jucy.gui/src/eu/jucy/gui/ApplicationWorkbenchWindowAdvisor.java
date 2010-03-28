@@ -60,6 +60,7 @@ import eu.jucy.gui.texteditor.hub.RedirectReceivedProvider;
 import uc.DCClient;
 import uc.FavHub;
 import uc.IHubCreationListener;
+import uc.LanguageKeys;
 import uc.PI;
 import uihelpers.SUIJob;
 
@@ -163,7 +164,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	
     	registerListeners(window);
     	
-    	new Job("Starting "+DCClient.LONGVERSION) {
+    	new Job(String.format(LanguageKeys.StartingJucy, DCClient.LONGVERSION)) {
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {

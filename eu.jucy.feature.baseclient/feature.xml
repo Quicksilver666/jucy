@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.baseclient"
       label="Baseclient Feature"
-      version="1.83.0.qualifier"
+      version="1.83.1.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.product1">
 
@@ -55,49 +55,49 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.logging"
          download-size="0"
          install-size="0"
-         version="1.83.0.qualifier"
+         version="1.83.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.database"
          download-size="0"
          install-size="0"
-         version="1.83.0.qualifier"
+         version="1.83.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.gui"
          download-size="0"
          install-size="0"
-         version="1.83.0.qualifier"
+         version="1.83.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.hashengine"
          download-size="0"
          install-size="0"
-         version="1.83.0.qualifier"
+         version="1.83.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.helpers"
          download-size="0"
          install-size="0"
-         version="1.83.0.qualifier"
+         version="1.83.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="eu.jucy"
          download-size="0"
          install-size="0"
-         version="1.83.0.qualifier"
+         version="1.83.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.gui.help"
          download-size="0"
          install-size="0"
-         version="1.83.0.qualifier"
+         version="1.83.1.qualifier"
          unpack="false"/>
 
    <plugin
@@ -106,7 +106,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          ws="cocoa"
          download-size="0"
          install-size="0"
-         version="1.83.0.qualifier"
+         version="1.83.1.qualifier"
          fragment="true"
          unpack="false"/>
 
@@ -114,21 +114,21 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.product1"
          download-size="0"
          install-size="0"
-         version="1.83.0.qualifier"
+         version="1.83.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.eliza"
          download-size="0"
          install-size="0"
-         version="1.83.0.qualifier"
+         version="1.83.1.qualifier"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.ui.hublist"
          download-size="0"
          install-size="0"
-         version="1.83.0.qualifier"
+         version="1.83.1.qualifier"
          unpack="false"/>
 
 </feature>

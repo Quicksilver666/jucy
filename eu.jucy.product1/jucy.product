@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="jucy" id="eu.jucy.product1.product" application="eu.jucy.gui.application" version="0.83.0" useFeatures="true" includeLaunchers="true">
+<product name="jucy" id="eu.jucy.product1.product" application="eu.jucy.gui.application" version="0.83.1" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/eu.jucy.product1/icons/sidebar.png"/>
@@ -172,7 +172,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    <features>
       <feature id="eu.jucy.feature.libraries" version="1.0.0.qualifier"/>
-      <feature id="eu.jucy.feature.baseclient" version="1.83.0.qualifier"/>
+      <feature id="eu.jucy.feature.baseclient" version="1.83.1.qualifier"/>
    </features>
 
 

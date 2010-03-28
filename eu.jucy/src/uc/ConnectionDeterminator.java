@@ -65,17 +65,10 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	
 
 	
-	/*private static class CDHolder {
-		private static final ConnectionDeterminator singleton = new ConnectionDeterminator();
-	}*/
 	
 	private final Set<FavHub> hubsPresentingLocalIP = new HashSet<FavHub>();
 	
-/*	public static ConnectionDeterminator get() {
-		return CDHolder.singleton;
-	} */
-	
-//	private volatile boolean leftCreation = false;
+
 	private PortMapping udpActive = null;
 	
 	
@@ -189,7 +182,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 */
 	public void start() {
 		identity.addObserver(fcal);
-		//init settings so url connections don'T Block too long...
+		//init settings so url connections don'Tt block too long...
 		if (identity.isDefault()) {
 			System.getProperties().setProperty("sun.net.client.defaultConnectTimeout", "10000") ;
 			System.getProperties().setProperty("sun.net.client.defaultReadTimeout", "10000" ) ;
@@ -334,7 +327,7 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 					dcc.getSchedulerDir().schedule(new Runnable() {
 						public void run() {
 							notifyObservers();
-							if (!udpReceived && identity.isDefault()) { //only default identity ha sseperate TCP
+							if (!udpReceived && identity.isDefault()) { //only default identity has separate TCP
 								createPortmapping(false, PI.getInt(PI.udpPort),null);
 							}
 						}
@@ -434,25 +427,21 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 	 * @throws IOException
 	 */
 	private Inet4Address getIP() throws IOException {
-		BufferedReader br = null;
+		
+		List<String> urls =  new ArrayList<String>(
+				Arrays.asList(PI.get(PI.failOverDetection).split(Pattern.quote(";"))
+				));
 
-		try {
+		Collections.shuffle(urls);
+		urls.add(0, PI.get(PI.defaultIPDetection)); 
 
-			List<String> urls =  new ArrayList<String>(
-					Arrays.asList(
-					"http://checkip.dyndns.org:8245/"
-					,"http://www.ipchicken.com/"
-					,"http://www.ip-adress.com/ip_lokalisieren/"
-					,"http://www.myip.ch/"
-					,"http://ipswift.com/"
-			));
-			Collections.shuffle(urls);
-			urls.add(0, "http://jucy.eu/ip.php"); //own address always first..
-
-			Pattern p = Pattern.compile("("+IProtocolCommand.IPv4+")");
+		Pattern p = Pattern.compile("("+IProtocolCommand.IPv4+")");
 
 
-			for (String url:urls) {
+		for (String url:urls) {
+			logger.debug("trying: "+url);
+			BufferedReader br = null;
+			try {
 				URL u = new URL(url);
 				URLConnection uc;
 				InetAddress ia = AbstractConnection.getBindAddress(identity.get(PI.bindAddress));
@@ -474,15 +463,18 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 					if (m.find()) {
 						String ip = m.group(1);
 						dcc.logEvent(String.format(LanguageKeys.CDDeterminedIPOverWeb,ip));
-						return (Inet4Address)InetAddress.getByName(ip);
+						Inet4Address ia4=(Inet4Address)InetAddress.getByName(ip);
+						return ia4;
 					}
 				}
 				logger.debug("no ip found for url: "+url);
+			} catch(IOException ioe) {
+				logger.debug("failed on url: "+url);
+			} finally {
+				GH.close(br);
 			}
-			throw new IOException("No Detection Service available");
-		} finally {
-			GH.close(br);
 		}
+		throw new IOException("No Detection Service available");
 	}
 	
 	private void determineIPv6Working() {

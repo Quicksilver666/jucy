@@ -45,6 +45,7 @@ public class Lang {
 		,CSUNKNOWN
 		,CSWORKING
 		,ChatOnly
+		,ChatOnlyDescription
 		,ChooseFolder
 		,Close
 		,CloseAllPM

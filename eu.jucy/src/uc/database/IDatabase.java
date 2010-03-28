@@ -125,7 +125,7 @@ public interface IDatabase {
 	 * (users that are favorite or have a favSlot.. and users )
 	*
 	 * retrieves all DQEs from the DB
-	 * and calls restore on them..
+	 *
 	 */
 	Set<DQEDAO> loadDQEsAndUsers();
 	

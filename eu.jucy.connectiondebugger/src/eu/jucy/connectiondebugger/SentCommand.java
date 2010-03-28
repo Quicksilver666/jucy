@@ -43,7 +43,10 @@ public class SentCommand {
 	}
 	
 	public String toString() {
-		return DateCol.SDF.format(getTimeReceived())+(incoming?" < ":" > ")+command;
+		String inc = incoming == null
+							? " - "
+							: (incoming? " < " : " > " );
+		return DateCol.SDF.format(getTimeReceived())+inc+command;
 	}
 	
 }

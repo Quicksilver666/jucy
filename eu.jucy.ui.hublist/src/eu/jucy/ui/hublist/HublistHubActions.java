@@ -9,30 +9,27 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
+
 import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
+import eu.jucy.gui.GuiHelpers;
 import eu.jucy.gui.Lang;
 import eu.jucy.hublist.Column;
 import eu.jucy.hublist.HublistHub;
 
-
+/**
+ * TODO  -> move to core commands 
+ *
+ */
 public abstract class HublistHubActions extends Action implements
 		IWorkbenchAction ,ISelectionChangedListener, ISelectionListener{
 
 	private static final String partialID="eu.jucy.ui.hublist.HublistHubAction.";
 	
-	private static Logger logger = LoggerFactory.make();
-	static {
-		logger.setLevel(Level.ALL);
-	}
+	private static Logger logger = LoggerFactory.make(Level.DEBUG);
 	
 	
 	private IStructuredSelection selection;
@@ -123,15 +120,10 @@ public abstract class HublistHubActions extends Action implements
 		
 		
 		protected void doWith(HublistHub hub) {
-			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			Clipboard clipboard= new Clipboard(window.getShell().getDisplay());
+
 			String textData = hub.getAttribute(Column.ADDRESS);
-			
+			GuiHelpers.copyTextToClipboard(textData);
 			logger.debug("copy: "+textData);
-			
-			TextTransfer textTransfer = TextTransfer.getInstance();
-			clipboard.setContents(new Object[]{textData}, new Transfer[]{textTransfer});
-			clipboard.dispose();
 		}
 	}
 	

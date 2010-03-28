@@ -2,7 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Hublist
 Bundle-SymbolicName: eu.jucy.ui.hublist;singleton:=true
-Bundle-Version: 1.83.0.qualifier
+Bundle-Localization: nl/publichubs
+Bundle-Version: 1.83.1.qualifier
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  eu.jucy.helpers,

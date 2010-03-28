@@ -19,10 +19,23 @@ public class CreateZip {
 	public static void createZipOfBuildDir(File buildfolder) throws IOException {
 		for (File f:buildfolder.listFiles()) {
 			if (f.isDirectory() && f.listFiles().length == 1) {
-				System.out.println("Creating new Zipfile of: "+f.listFiles()[0].getPath());
-				createZipOfDir(f.listFiles()[0]);
+				File dir = f.listFiles()[0];
+				System.out.println("Creating new Zipfile of: "+dir.getPath());
+				setExecutableExecutable(dir);
+				createZipOfDir(dir);
 			}
 		}
+	}
+	
+	private static void setExecutableExecutable(File parentFolder) {
+		String executableName= PackAndUpload.get("executableName");
+		for (File f: parentFolder.listFiles()) {
+			if (f.isFile() && f.equals(executableName)) {
+				boolean success=f.setExecutable(true, false);
+				System.out.println("set executable: "+f);
+			}
+		}
+				
 	}
 	
 	private static void createZipOfDir(File dir) throws IOException {

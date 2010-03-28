@@ -73,6 +73,8 @@ public class LanguageKeys {
 		,StartedConnectionHandler
 		,StartedEncConnectionHandler
 		,StartedRefreshingTheFilelist
+		,StartingHubs
+		,StartingJucy
 		,TCPPortInUse
 		,TransferFinished
 		,UDPStarted

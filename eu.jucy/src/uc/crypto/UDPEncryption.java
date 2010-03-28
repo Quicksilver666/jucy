@@ -3,7 +3,6 @@ package uc.crypto;
 
 import helpers.GH;
 
-import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.List;
@@ -42,16 +41,16 @@ public class UDPEncryption {
 		return CIPHER != null;
 	}
 	
-	public static void main(String... args) throws IOException,Exception {
-		byte[] keyBytes = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
-	        0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
-		
-		byte[] message = "hello world".getBytes();
-		byte[] cypher = encryptMessage(message,keyBytes);
-		System.out.println("Message size: "+message.length+ " cipherlength: "+cypher.length +"  "+new String(cypher));
-		byte[] decrypted = decryptMessage(cypher, keyBytes);
-		System.out.println(new String(decrypted));
-	}
+//	public static void main(String... args) throws IOException,Exception {
+//		byte[] keyBytes = new byte[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+//	        0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
+//		
+//		byte[] message = "hello world".getBytes();
+//		byte[] cypher = encryptMessage(message,keyBytes);
+//		System.out.println("Message size: "+message.length+ " cipherlength: "+cypher.length +"  "+new String(cypher));
+//		byte[] decrypted = decryptMessage(cypher, keyBytes);
+//		System.out.println(new String(decrypted));
+//	}
 	
 	public static byte[] encryptMessage(byte[] input,byte[] keyBytes) throws GeneralSecurityException {
 		if (keyBytes.length != KEYLENGTH) {
@@ -127,16 +126,6 @@ public class UDPEncryption {
 		return null;
 	}
 	
-//	public static byte[] tokenStringToKey(String token)  {
-//		try {
-//			byte[] bytes = token.getBytes(DCProtocol.ADCCHARSET.name());
-//			byte[] keyFull = Tiger.tigerOfBytes(bytes).getRaw();
-//			byte[] key = GH.subarray(keyFull, 0, UDPEncryption.KEYLENGTH);
-//			return key;
-//		} catch (UnsupportedEncodingException e) {
-//			throw new IllegalStateException(e);
-//		}
-//	}
 	
 	public static byte[] getRandomKey() {
 		byte[] encryptionKey = new byte[KEYLENGTH];

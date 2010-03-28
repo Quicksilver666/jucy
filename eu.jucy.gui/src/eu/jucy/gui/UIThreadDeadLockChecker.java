@@ -17,7 +17,6 @@ public class UIThreadDeadLockChecker {
 	private static final Object synch = new Object();
 	private static int counter = 0;
 	
-	//private static volatile boolean deadLockFound = false; 
 	
 	private static volatile ScheduledFuture<?> checker;
 	

@@ -67,7 +67,7 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 			@Override
 			public void preferenceChanged(String preference,String oldvalue,String newValue) {
 				if (!tthRoots.isEmpty()) { //restart if the DownloadQueue is not empty..
-					logger.info("restarting workbench");
+					logger.debug("restarting workbench");
 					PlatformUI.getWorkbench().restart();
 					
 				}
@@ -121,30 +121,38 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 		
 		//load persistence data from the db
 		final Set<DQEDAO> dqes = getDatabase().loadDQEsAndUsers();
-		synchronized(dqes) {
-			return dcc.getSchedulerDir().submit(new Runnable() {
-				public void run() {
-					synchronized(dqes) {
-						logger.debug("Start adding");
-						Set<String> presentTargetPaths = new HashSet<String>();
-						try {
-							for (DQEDAO dqedao : dqes) {
-								if (presentTargetPaths.add(dqedao.getPath())) {
-									FileDQE.restore(dqedao,DownloadQueue.this);
-								} else {
-									logger.info("Redundant TargetPath "+dqedao.getPath()+" "+dqedao.getTTHRoot());
-									dcc.getDatabase().deleteDQE(dqedao);
-								}
-							}
-						} catch(Exception e) {
-							logger.error(e,e);
-						}
-						logger.debug("end adding");
-					}
-				}
-			});
+		synchronized (dqes) {
+			logger.debug("dqes loaded: "+dqes.size());
 		}
+		Future<?> fut;
+		
+		fut = dcc.getSchedulerDir().submit(new Runnable() {
+			public void run() {
+				synchronized(dqes) {
+					logger.debug("Start adding");
+					Set<String> presentTargetPaths = new HashSet<String>();
+					try {
+						for (DQEDAO dqedao : dqes) {
+							if (presentTargetPaths.add(dqedao.getPath())) {
+								FileDQE.restore(dqedao,DownloadQueue.this);
+							} else {
+								logger.info("Redundant TargetPath "+dqedao.getPath()+" "+dqedao.getTTHRoot());
+								dcc.getDatabase().deleteDQE(dqedao);
+							}
+						}
+					} catch(Exception e) {
+						logger.error(e,e);
+					}
+					logger.debug("end adding");
+				}
+			}
+		});
+		
+		return fut;
+
 	}
+	
+	
 	
 	/**
 	 * deletes all FileList files from the list..

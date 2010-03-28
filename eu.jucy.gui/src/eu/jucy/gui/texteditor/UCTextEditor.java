@@ -62,6 +62,7 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	public static final String TEXT_POPUP_ID = "eu.jucy.gui.texteditor";
 	
 	private static final long NOT_CHATTED_TIME = 60 * 60 *1000;
+	
 	private static final Logger logger = LoggerFactory.make();
 	
 	protected SendingWriteline sendingWriteline;
@@ -100,6 +101,7 @@ public abstract class UCTextEditor extends UCMessageEditor {
 			return false;
 		}
 	}
+	
 	protected boolean contains(IUser usr) {
 		synchronized (recentlyChatted) {
 			Long chattedLast= recentlyChatted.get(usr);
@@ -130,7 +132,12 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	 */
 	protected void showJoinsParts(IUser usr,boolean join) {
 		String joinmes = "*** "+String.format(join?Lang.UserJoins:Lang.UserParts,usr.getNick())+" ***";
-		appendText( joinmes , usr,false);	
+		appendText( joinmes , usr,false);
+		Long lastChatted;
+		if (!join && (lastChatted = recentlyChatted.get(usr)) != null) {
+			recentlyChatted.put(usr, lastChatted-(NOT_CHATTED_TIME/3) );
+		}
+		
 	}
 	
 	

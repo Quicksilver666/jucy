@@ -10,11 +10,12 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
+import uc.IStoppable.IStartable;
 import uc.crypto.HashValue;
 import uihelpers.ComplexListEditor;
 import uihelpers.ComplexListEditor.IPrefSerializer;
 
-public class StoredPM implements IUserChangedListener {
+public class StoredPM implements IUserChangedListener ,IStartable {
 	
 	/**
 	 * delete messages after that amount of time..
@@ -33,14 +34,19 @@ public class StoredPM implements IUserChangedListener {
 	}
 	
 	
-	public void init() {
+
+	
+	public void stop() {
+		pop.unregisterUserChangedListener(this);
+	}
+
+
+	public void start() {
 		load();
 		pop.registerUserChangedListener(this);
 	}
-	
-	public void dispose() {
-		pop.unregisterUserChangedListener(this);
-	}
+
+
 	
 	private static class Message {
 		private final HashValue userID;

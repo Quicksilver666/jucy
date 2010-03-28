@@ -22,6 +22,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.IContentProposalListener2;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -68,6 +70,7 @@ import eu.jucy.gui.DownloadableColumn.UserWrapper;
 import eu.jucy.gui.UserColumns.Connection;
 import eu.jucy.gui.UserColumns.HubName;
 import eu.jucy.gui.UserColumns.IPColumn;
+import eu.jucy.gui.itemhandler.DownloadableHandlers.DownloadHandler;
 
 
 
@@ -234,9 +237,6 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 		final Label distanceholder = new Label(sideBarComposite, SWT.NONE);
 		distanceholder.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 
-	//	final Label sizeLabel = new Label(sideBarComposite, SWT.NONE);
-	//	sizeLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1));
-	//	sizeLabel.setText(Lang.Size);
 		
 		Group sizeComp = new Group(sideBarComposite,SWT.NONE);
 		sizeComp.setText(Lang.Size);
@@ -362,6 +362,12 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 		treeViewer = new TreeViewer(sashForm, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER);
 		searchResultTable = treeViewer.getTree();
 		searchResultTable.setHeaderVisible(true);
+		
+		treeViewer.addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent event) {
+				executeCommand(DownloadHandler.ID);
+			}
+		});
 		
 		
 		tva = new TableViewerAdministrator<IDownloadable>(treeViewer,

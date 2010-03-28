@@ -26,6 +26,10 @@ public class MiscAdvancedFavHub implements IFavHubAdvanced {
 	
 	private Button chatOnlyButton;
 	
+	private Button showJoinsButton;
+	private Button showFavJoinsButton;
+	private Button showChatterJoinsButton;
+	
 	private static final String DEFAULT = "Default";
 	
 	public MiscAdvancedFavHub() {
@@ -54,19 +58,35 @@ public class MiscAdvancedFavHub implements IFavHubAdvanced {
 		
 		
 		chatOnlyButton = new Button(parent,SWT.CHECK);
-		chatOnlyButton.setText("Chat Only");
-		chatOnlyButton.setToolTipText("Disables sharing, searching and Up-/Downloading in this hub, \nhub is no longer counted in description");
+		chatOnlyButton.setText(Lang.ChatOnly);
+		chatOnlyButton.setToolTipText(Lang.ChatOnlyDescription);
 		chatOnlyButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		chatOnlyButton.setSelection(favHub.isChatOnly());
 		
+		showJoinsButton = new Button(parent,SWT.CHECK);
+		showJoinsButton.setText(Lang.ShowJoins);
+		showJoinsButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		showJoinsButton.setSelection(favHub.isShowJoins());
 		
+		showFavJoinsButton = new Button(parent,SWT.CHECK);
+		showFavJoinsButton.setText(Lang.ShowFavJoins);
+		showFavJoinsButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		showFavJoinsButton.setSelection(favHub.isShowFavJoins());
+		
+		showChatterJoinsButton = new Button(parent,SWT.CHECK);
+		showChatterJoinsButton.setText(Lang.ShowChatterJoins);
+		showChatterJoinsButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		showChatterJoinsButton.setSelection(favHub.isShowRecentChatterJoins());
 		
 		
 		return new ICompControl() {
 			public void okPressed(FavHub favHub) {
-				favHub.setChatOnly(chatOnlyButton.getSelection());
 				String charset = charsetCombo.getText();
 				favHub.setCharset(charset.equals(DEFAULT)? "" : charset);
+				favHub.setChatOnly(chatOnlyButton.getSelection());
+				favHub.setShowJoins(showJoinsButton.getSelection());
+				favHub.setShowFavJoins(showFavJoinsButton.getSelection());
+				favHub.setShowRecentChatterJoins(showChatterJoinsButton.getSelection());
 			}
 		};
 		

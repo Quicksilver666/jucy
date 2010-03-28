@@ -1,6 +1,10 @@
 package uc;
 
+import helpers.GH;
+
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import logger.LoggerFactory;
 
@@ -55,6 +59,10 @@ public class PI extends AbstractPreferenceInitializer {
 	description			=	"Description", //default userdescription
 //	connection			=	"Connection", //what connection IE 0.2 or 20 MBit
 	connectionNew		=	"Connection2", //connection in Byte/s
+	
+	defaultIPDetection	=	"defaultIPDetection",
+	failOverDetection	=	"failOverDetection",
+	
 	udpPort				=	"UDPPort",
 	slots				=	"Slots",
 	nick				=	"Nick",
@@ -183,6 +191,19 @@ public class PI extends AbstractPreferenceInitializer {
 		
 
 		defaults.put(externalIp, "" );
+		
+		defaults.put(defaultIPDetection, "http://jucy.eu/ip.php");
+		List<String> urls =  Arrays.asList(
+				"http://checkip.dyndns.org:8245/"
+				,"http://www.ipchicken.com/"
+				,"http://www.flylinkdc.ru/getip.php"
+				,"http://checkip.dyndns.com/"
+				,"http://www.myip.ch/"
+				,"http://ipswift.com/"
+		);
+		
+		defaults.put(failOverDetection, GH.concat(urls, ";", ""));
+		
 		
 
 		defaults.put(defaultAFKMessage, "I am currently away. Feel free to leave a message.");

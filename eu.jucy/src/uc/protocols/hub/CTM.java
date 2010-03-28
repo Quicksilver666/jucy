@@ -50,7 +50,7 @@ public class CTM extends AbstractADCHubCommand {
 					ADCStatusMessage.RECOVERABLE,
 					ADCStatusMessage.ProtocolTransferProtocolUnsupported,flags);
 			STA.sendSTAtoUser(hub, other,adcsm);
-			logger.info("command: "+command);
+			logger.debug("command: "+command);
 		} else if (isa != null) {
 			hub.ctmReceived(isa,other,CPType.fromString(protocol), token);
 		}	

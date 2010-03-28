@@ -38,6 +38,8 @@ public class PropertyTesterUser extends PropertyTester {
 			return expectedValue.equals(usr.getHub() != null);
 		} else if ("isIPKnown".equals(property)) {
 			return expectedValue.equals(usr.getIp() != null);
+		} else if ("isShareing".equals(property)) {
+			return expectedValue.equals(usr.getShared() > 0 || usr.getNumberOfSharedFiles() > 0);
 		}
 		
 		throw new IllegalStateException();

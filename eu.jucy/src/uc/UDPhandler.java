@@ -72,7 +72,7 @@ public class UDPhandler implements IUDPHandler {
 	private volatile boolean running = true;
 	private final PreferenceChangedAdapter pca;
 	
-	private volatile DatagramChannel datagramChannel;
+	private volatile DatagramChannel datagramChannel = null;
 	
 	private static final int UDPMAXPAYLOAD = 65536; 
 	private ByteBuffer packet = ByteBuffer.allocate(UDPMAXPAYLOAD/4); //larger than 16KiB won'T arrive anyway..

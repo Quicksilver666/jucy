@@ -81,8 +81,8 @@ public final class GuiHelpers {
 
 	public static void copyTextToClipboard(String text) {
 		Display d = Display.getCurrent();
-		if (d != null) {
-			Clipboard clipboard= new Clipboard(d);
+		if (d != null && text != null) {
+			Clipboard clipboard = new Clipboard(d);
 			TextTransfer textTransfer = TextTransfer.getInstance();
 			clipboard.setContents(new Object[]{text}, new Transfer[]{textTransfer});
 			clipboard.dispose();

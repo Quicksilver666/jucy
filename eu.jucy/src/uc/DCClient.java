@@ -154,7 +154,7 @@ import uc.protocols.hub.Hub;
  *
  * TODO translation function : http://code.google.com/p/google-api-translate-java/ might be good
  * 
- * TODO viewing image magnetlink doesn't work if the image is already in share i.e. can't eb added for download..
+ * TODO viewing image magnetlink doesn't work if the image is already in share i.e. can't be added for download..
  * 
  * 
  * TODO preview of files using some mediaplayer...
@@ -205,7 +205,7 @@ public final class DCClient {
 					try {
 						r.run();
 					} catch(Throwable e) {
-						logger.warn("execution of runnable failed.."+e+" isShutdown:"+exec.isShutdown(), e);
+						logger.warn("execution of runnable failed.."+e+" isShutdown:"+exec.isShutdown() , e);
 					}
 				}
 			}); 
@@ -217,7 +217,7 @@ public final class DCClient {
 	private final ScheduledExecutorService scheduler;
 		
 	public static ScheduledExecutorService getScheduler() {
-		return DCClient.get().scheduler;
+		return get().scheduler;
 	}
 	
 	public ScheduledExecutorService getSchedulerDir() {
@@ -593,7 +593,7 @@ public final class DCClient {
     	synchronized (synchSingleton) {
     		singleton = this;
     	}
-    	monitor.beginTask("starting DCClient", 11);
+    	monitor.beginTask(String.format(LanguageKeys.StartingJucy, DCClient.LONGVERSION), 10);
     	
     	// favs are loaded.. time to register Database to be notified on userchanges..
     	population.registerUserChangedListener(databaseUserChanges); 
@@ -613,7 +613,6 @@ public final class DCClient {
 
     	downloadQueue.loadDQ(); 
     	monitor.worked(2);
-    	
 
     	
     	try { //wait for deferred tasks...
@@ -625,15 +624,15 @@ public final class DCClient {
     		logger.warn(e,e);
 		}
     	monitor.worked(3);
-    	storedPM.init();
+    	storedPM.start();
     	
-    	logEvent("starting hubs");
+    	logEvent(LanguageKeys.StartingHubs); 
     	//downloads can be started..
     	favHubs.openAutoStartHubs();
     	monitor.worked(3);
     	//can take some time.. we usually won't need this from start..-> done in separate thread..
     	OwnFileList.loadSharedDirsForIconManager(favFolders); 
-    	monitor.worked(2);
+    	
 
     	altSearch.start();
     	slotManager.init();
@@ -660,7 +659,7 @@ public final class DCClient {
     	if (PI.getBoolean(PI.deleteFilelistsOnExit)) {
     		FileList.deleteFilelists();
     	}
-    	storedPM.dispose();
+    	storedPM.stop();
     	for (IHub hub:getHubs().values()) {
     		hub.close();
     	}
@@ -687,32 +686,7 @@ public final class DCClient {
     	
     }
     
-//    /**
-//     * creates some UUID for this client 
-//     * @deprecated -> moved to identity
-//     */
-//    private static HashValue loadPID() {
-//    	String uuid = PI.get(PI.uUID);
-//    	if (GH.isEmpty(uuid)) {
-//    		SecureRandom sr = new SecureRandom();
-//        	byte[] b = new byte[1024];
-//        	sr.nextBytes(b);
-//        	HashValue hash = Tiger.tigerOfBytes(b);
-//        	uuid = hash.toString();
-//    		PI.put(PI.uUID, uuid);
-//    	}
-//    	
-//    	return HashValue.createHash(uuid);
-//	}
-    
-   
-//    /**
-//     * 
-//     * @return the PID of the client 
-//     */
-//    public HashValue getPID() {
-//    	return pid;
-//    }
+
     
   
     
@@ -1087,7 +1061,7 @@ public final class DCClient {
 	
 	/**
 	 * 
-	 * @return TODO for multiple identitys this needs to be changed..
+	 * @return TODO for multiple identities this needs to be changed..
 	 */
 	public List<ConnectionHandler> getAllConnectionHandler() {
 		return Collections.singletonList(defaultIdentity.getConnectionHandler());
@@ -1389,12 +1363,13 @@ public final class DCClient {
 	private Future<?> stopAll(IStoppable... stoppables) {
 		final List<Future<?>> future = new ArrayList<Future<?>>();
 		for (IStoppable s:stoppables) {
-			future.add(stop(s));
+			Future<?> f= stop(s);
+			future.add(f);
 		}
 		return scheduler.submit(new Runnable() {
 			public void run() {
 				for (Future<?> f:future) {
-					try {
+					try {	
 						f.get();
 					} catch (InterruptedException e) {
 						logger.warn(e,e);

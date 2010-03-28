@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 import logger.LoggerFactory;
 
-import org.apache.log4j.Level;
+
 import org.apache.log4j.Logger;
 
 
@@ -50,6 +50,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import eu.jucy.gui.Application;
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GUIPI;
+import eu.jucy.gui.GuiAppender;
 import eu.jucy.gui.GuiHelpers;
 import eu.jucy.gui.IImageKeys;
 import eu.jucy.gui.Lang;
@@ -60,6 +61,7 @@ import eu.jucy.gui.texteditor.StyledTextViewer.TextReplacement;
 
 
 
+import uc.DCClient;
 import uc.FavHub;
 import uc.IHub;
 import uc.PI;
@@ -71,7 +73,7 @@ import uihelpers.SUIJob;
 
 public class URLTextModificator implements ITextModificator {
 
-	private static final Logger logger =  LoggerFactory.make(Level.INFO);
+	private static final Logger logger =  LoggerFactory.make();
 
 //	private static final char URL_CHAR = '\uFFFC';
 	
@@ -187,7 +189,7 @@ public class URLTextModificator implements ITextModificator {
 					Menu menu = new Menu(link);
 					MenuItem mi = new MenuItem(menu,SWT.PUSH);
 					mi.setData(this.replacedText);
-					mi.setText("Copy URI to Clipboard");
+					mi.setText(Lang.CopyAddressToClipboard);
 					mi.addSelectionListener(adapter);
 					link.setMenu(menu);
 					
@@ -450,7 +452,7 @@ public class URLTextModificator implements ITextModificator {
 			MagnetLink magnetLink; 
 			if ((magnetLink = MagnetLink.parse(matched)) != null) {	
 				magnetLink.download();
-				logger.info(String.format(Lang.AddedFileViaMagnet,magnetLink.getName()));
+				logger.log(GuiAppender.GUI,String.format(Lang.AddedFileViaMagnet,magnetLink.getName()));
 			}
 		}
 
@@ -463,26 +465,32 @@ public class URLTextModificator implements ITextModificator {
 			
 			if ((magnetLink = MagnetLink.parse(uri)) != null) {	
 				point.obj.setEnabled(false);
-				File target = new File(PI.getTempPath(),magnetLink.getName());
-				if (target.isFile()) {
-					 openFile(target,uri,point,mod);
+				DCClient dcc = ApplicationWorkbenchWindowAdvisor.get();
+				File target = dcc.getFilelist().getFile(magnetLink.getTTHRoot());
+				if (target != null && target.isFile()) {
+					openFile(target,uri,point,mod);
 				} else {
-					AbstractDownloadQueueEntry adqe = magnetLink.download(target);
-					if (adqe != null) {
-						adqe.addDoAfterDownload(new IDownloadFinished() {
-							public void finishedDownload(final File f) {
-								new SUIJob() {
-									@Override
-									public void run() {
-										openFile(f,uri,point,mod);
-										f.deleteOnExit();
-									}
-								}.schedule();
-							}
-						});
+					target = new File(PI.getTempPath(),magnetLink.getName());
+					if (target.isFile()) {
+						 openFile(target,uri,point,mod);
+					} else {
+						AbstractDownloadQueueEntry adqe = magnetLink.download(target);
+						if (adqe != null) {
+							adqe.addDoAfterDownload(new IDownloadFinished() {
+								public void finishedDownload(final File f) {
+									new SUIJob() {
+										@Override
+										public void run() {
+											openFile(f,uri,point,mod);
+											f.deleteOnExit();
+										}
+									}.schedule();
+								}
+							});
+							logger.log(GuiAppender.GUI,String.format(Lang.AddedFileViaMagnet,magnetLink.getName()));
+						}
 					}
 				}
-				logger.info(String.format(Lang.AddedFileViaMagnet,magnetLink.getName()));
 			}
 		}
 		
@@ -492,7 +500,7 @@ public class URLTextModificator implements ITextModificator {
 				Image img  = GraphicalFileDownloader.scaleIfNeeded(imgda);
 				mod.addLabelReplacementImage(point.x, uri, img);
 			} catch (Exception e) {
-				logger.info("Download failed: "+e,e);
+				logger.log(GuiAppender.GUI,"Download failed: "+e,e);
 			}
 		}
 

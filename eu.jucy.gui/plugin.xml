@@ -1096,108 +1096,7 @@
                   commandId="org.eclipse.ui.file.exit">
             </command>
          </menuContribution>
-   <!--      <menuContribution
-               locationURI="popup:org.eclipse.ui.popup.any?after=useradditions">
-               <command
-                     commandId="eu.jucy.gui.getfilelist"
-                     icon="icons/filelist.16.gif"
-                     style="push">
-                  <visibleWhen>
-                     <reference
-                           definitionId="eu.jucy.gui.user.hasUsers">
-                     </reference>
-                  </visibleWhen>
-            </command>
-            <command
-                  commandId="eu.jucy.gui.browsefilelist"
-                  style="push">
-                     <visibleWhen>
-                     <reference
-                           definitionId="eu.jucy.gui.user.hasUsers">
-                     </reference>
-                  </visibleWhen>
-            </command>
-            <command
-                  commandId="eu.jucy.gui.matchqueue"
-                  style="push">
-                  <visibleWhen>
-                     <reference
-                           definitionId="eu.jucy.gui.user.hasUsers">
-                     </reference>
-                  </visibleWhen>
-            </command>
-            <command
-                  commandId="eu.jucy.gui.sendpm"
-                  icon="icons/sendpm.16.gif"
-                  style="push">
-                  <visibleWhen>
-                     <reference
-                           definitionId="eu.jucy.gui.user.hasUsers">
-                     </reference>
-                  </visibleWhen>
-            </command>
-            <command
-                  commandId="eu.jucy.gui.addtofavourites"
-                  icon="icons/favusers.16.gif"
-                  style="push">
-                  <visibleWhen>
-                     <reference
-                           definitionId="eu.jucy.gui.user.oneNonFavUser">
-                     </reference>
-                  </visibleWhen>
-            </command>
-            <command
-                  commandId="eu.jucy.gui.removefromfavourites"
-                  icon="icons/favusers.16.gif"
-                  style="push">
-                 <visibleWhen>
-                     <reference
-                           definitionId="eu.jucy.gui.user.oneFavUser">
-                     </reference>
-                  </visibleWhen>
-            </command>
-            <command
-                  commandId="eu.jucy.gui.grantextraslot"
-                  style="push">
-                  <visibleWhen>
-                     <reference
-                           definitionId="eu.jucy.gui.user.oneUserWithoutSlot">
-                     </reference>
-                  </visibleWhen>
-            </command> 
-            <command
-                  commandId="eu.jucy.gui.revokeextraslot"
-                  style="push">
-                   <visibleWhen>
-                     <reference
-                           definitionId="eu.jucy.gui.user.oneUserWithSlot">
-                     </reference>
-                  </visibleWhen>
-            </command>
-            <separator
-                  name="eu.jucy.gui.hub.separator1"
-                  visible="true">
-                  
-            </separator>
-            <command
-                  commandId="eu.jucy.gui.removeuserfromqueue"
-                  style="push">
-                  <visibleWhen>
-                     <reference
-                           definitionId="eu.jucy.gui.user.hasUsers">
-                     </reference>
-                  </visibleWhen>
-            </command>
-            <command
-                  commandId="eu.jucy.gui.copynicktoclipboard"
-                  style="push">
-                  <visibleWhen>
-                     <reference
-                           definitionId="eu.jucy.gui.user.hasUsers">
-                     </reference>
-                  </visibleWhen>
-            </command>
-         </menuContribution> -->
+  
          
          <menuContribution
                locationURI="popup:eu.jucy.hub?after=additions">
@@ -1320,6 +1219,7 @@
                locationURI="popup:eu.jucy.Filelist?after=additions">
            <command 
                   commandId="eu.jucy.gui.Remove"
+                  icon="icons/stop.16.gif"
                   style="push">
                   <visibleWhen>
                      <reference
@@ -1655,7 +1555,7 @@
                commandId="eu.jucy.gui.getfilelist">
             <activeWhen>
                <reference
-                     definitionId="eu.jucy.gui.user.hasUsers">
+                     definitionId="eu.jucy.gui.user.atleastOneShareingUser">
                </reference>
             </activeWhen>
          </handler>
@@ -1682,7 +1582,7 @@
                commandId="eu.jucy.gui.matchqueue">
                <activeWhen>
                   <reference
-                        definitionId="eu.jucy.gui.user.hasUsers">
+                        definitionId="eu.jucy.gui.user.atleastOneShareingUser">
                   </reference>
               
             </activeWhen>
@@ -2265,7 +2165,7 @@
                class="eu.jucy.gui.itemhandler.PropertyTesterUser"
                id="eu.jucy.properties.user"
                namespace="eu.jucy.properties.user"
-               properties="isFavUser,hasDownloadedFilelist,hasFilesInQueue,hasSlotGranted,isHubKnown,isIPKnown"
+               properties="isFavUser,hasDownloadedFilelist,hasFilesInQueue,hasSlotGranted,isHubKnown,isIPKnown,isShareing"
                type="uc.IHasUser">
          </propertyTester>
          <propertyTester
@@ -2393,6 +2293,20 @@
                   </test>
                </iterate>
             </and>
+         </with>
+      </definition>
+            <definition
+            id="eu.jucy.gui.user.atleastOneShareingUser">
+         <with
+               variable="selection">
+    
+               <iterate
+                     operator="or">
+                  <test
+                        property="eu.jucy.properties.user.isShareing"
+                        value="true">
+                  </test>
+               </iterate>
          </with>
       </definition>
       <definition

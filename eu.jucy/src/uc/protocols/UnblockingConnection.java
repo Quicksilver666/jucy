@@ -158,25 +158,6 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		});
 	}
 	
-//	public void send(String toSend) {
-//		logger.debug("send("+toSend+")");
-//
-//
-//		synchronized (charsetEncoder) {
-//			outcharBuffer.clear();
-//			if (toSend.length() < outcharBuffer.remaining()) {
-//				outcharBuffer.put(toSend).flip();
-//				outBuffer.clear();
-//				charsetEncoder.encode(outcharBuffer, outBuffer, true);
-//				outBuffer.flip();
-//				send(outBuffer);
-//
-//			} else {
-//				send(toSend.substring(0, toSend.length()/2));
-//				send(toSend.substring(toSend.length()/2));
-//			}
-//		}
-//	}
 	
 	public void send(ByteBuffer toSend) {
 		synchronized (bufferLock) {

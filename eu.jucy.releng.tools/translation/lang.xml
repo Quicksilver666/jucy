@@ -367,10 +367,16 @@ UPnP: %s</ru>
 </Trl>
 <Trl id="ChatOnly">
 <de>Nur Chat</de>
-<en>ChatOnly</en>
+<en>Chat Only</en>
 <hu>Csak Chat</hu>
 <it>Solo Chat</it>
 <ru>Только чат</ru>
+</Trl>
+<Trl id="ChatOnlyDescription">
+<de>Deaktiviert Share, Suche und Hoch-/Herunterladen in diesem hub.
+Hub wird dann auch nicht mehr mitgezählt in der Beschreibung.</de>
+<en>Disables sharing, searching and Up-/Downloading in this hub. 
+Hub is also no longer counted in description</en>
 </Trl>
 <Trl id="ChooseFolder">
 <de>Wähle Ordner</de>
@@ -456,7 +462,7 @@ UPnP: %s</ru>
 <ru>Условия</ru>
 </Trl>
 <Trl id="CopyAddressToClipboard">
-<de>Kopiere Addresse ins clipboard</de>
+<de>Kopiere Addresse ins Clipboard</de>
 <en>Copy address to clipboard</en>
 <hu>Cím másolása a vágólapra</hu>
 <it>Copia indirizzo</it>
@@ -1749,16 +1755,16 @@ UPnP: %s</ru>
 <ru>Показывать число хабов</ru>
 </Trl>
 <Trl id="ShowJoins">
-<de>Zeige kommen/gehen: %s</de>
-<en>Show joins/parts: %s</en>
+<de>Zeige kommen/gehen</de>
+<en>Show joins/parts</en>
 </Trl>
 <Trl id="ShowFavJoins">
-<de>Zeige kommen/gehen von Favoriten: %s</de>
-<en>Show Favourite's joins/parts: %s</en>
+<de>Zeige kommen/gehen von Favoriten</de>
+<en>Show Favourite's joins/parts</en>
 </Trl>
 <Trl id="ShowChatterJoins">
-<de>Zeige kommen/gehen von Chattern: %s</de>
-<en>Show Chatter's joins/parts: %s</en>
+<de>Zeige kommen/gehen von Chattern</de>
+<en>Show Chatter's joins/parts</en>
 </Trl>
 <Trl id="ShowPMInMainchat">
 <de>Zeige PMs im Mainchat anstelle im PM Fenster</de>
@@ -2790,6 +2796,14 @@ UPnP могло не сработать из-за программного бр�
 <hu>No hash support overlap in SUP between clients</hu>
 <it>No hash support overlap in SUP between clients</it>
 <ru>Клиент не поддерживает ваши алгоритмы хеширования</ru>
+</Trl>
+<Trl id="StartingJucy">
+<de>Starte %s</de>
+<en>Starting %s</en>
+</Trl>
+<Trl id="StartingHubs">
+<de>Starte Hubs...</de>
+<en>Starting hubs...</en>
 </Trl>
 <!--<Trl id="SearchString">
 <de>Such String</de>

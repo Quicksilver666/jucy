@@ -15,6 +15,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.resource.ImageDescriptor;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Control;
@@ -100,10 +102,19 @@ public class GraphicalFileDownloader {
 	public static Image scaleIfNeeded(ImageData  imaged) {
 		if (imaged.width > 500 || imaged.height > 800 ) {
 			double scale = Math.max(imaged.width / 500d, imaged.height/800d);
-			
-			imaged = imaged.scaledTo((int)(imaged.width/scale),(int) (imaged.height/scale));
+			Image img = new Image(null,imaged);
+			int newWidth = (int)(imaged.width/scale);
+			int newHeight= (int) (imaged.height/scale);
+			Image target = new Image(null,newWidth,newHeight);
+			GC gc = new GC(target);
+			gc.setInterpolation(SWT.HIGH);
+			gc.drawImage(img, 0, 0, imaged.width, imaged.height, 0, 0, newWidth, newHeight);
+			gc.dispose();
+			img.dispose();
+			return target;
+			//imaged = imaged.scaledTo((int)(imaged.width/scale),(int) (imaged.height/scale));
 		}
-		return  ImageDescriptor.createFromImageData(imaged).createImage();
+		return new Image(null,imaged);// ImageDescriptor.createFromImageData(imaged).createImage();
 	}
 	
 }

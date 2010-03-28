@@ -131,9 +131,9 @@ public class SmileyTextModificator implements ITextModificator {
 				imageData[x].transparentPixel = imageData[x].getPixel(0, 0);
 				imArray[x] = new Image(Display.getCurrent(),imageData[x]);
 			}
-			if (imArray.length != 1) {
-				logger.info("smiley with "+imArray.length+" pics "+smiley);
-			}
+//			if (imArray.length != 1) {
+//				logger.info("smiley with "+imArray.length+" pics "+smiley);
+//			}
 			images.add(imArray);
 			smileyToCorrespondingText.addAll(Collections.singletonMap(i,smileys[0]).entrySet());
 			for (String value:smileys) {
@@ -157,7 +157,7 @@ public class SmileyTextModificator implements ITextModificator {
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
 				loadAll();
-				logger.info("reloading smileys");
+				logger.debug("reloading smileys");
 			}
 		};
 	}

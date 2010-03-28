@@ -79,8 +79,6 @@ public class AdvancedFavHubPropertiesDialog extends Dialog {
 		}
 		super.okPressed();
 	}
-	
-	
-	
+		
 	
 }
