@@ -53,4 +53,14 @@ public class SHA256HashValue extends HashValue {
 		return new SHA256HashValue(raw);
 	}
 
+
+
+	@Override
+	public HashValue internalHash(HashValue rightChild) {
+		byte[] toHash = GH.concatenate(new byte[]{1},getRaw(),rightChild.getRaw());
+		return hashData(toHash);
+	}
+	
+	
+
 }

@@ -786,15 +786,6 @@ public class User implements IUser , IHasUser {
 		return opHubs;
 	}
 
-	/*
-	 * @param opHubs the opHubs to set
-	 *
-	public void setOpHubs(int opHubs) {
-		if (opHubs > Short.MAX_VALUE) {
-			opHubs = Short.MAX_VALUE;
-		}
-		this.opHubs = (short)opHubs;
-	} */
 
 	/**
 	 * @return the regHubs
@@ -803,15 +794,7 @@ public class User implements IUser , IHasUser {
 		return regHubs;
 	}
 
-	/*
-	 * @param regHubs the regHubs to set
-	 *
-	public void setRegHubs(int regHubs) {
-		if (regHubs > Short.MAX_VALUE) {
-			regHubs = Short.MAX_VALUE;
-		}
-		this.regHubs = (short)regHubs;
-	} */
+
 
 	/**
 	 * @return the shared

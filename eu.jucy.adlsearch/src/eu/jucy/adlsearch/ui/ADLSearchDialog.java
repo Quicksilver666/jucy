@@ -1,5 +1,8 @@
 package eu.jucy.adlsearch.ui;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import logger.LoggerFactory;
 import helpers.GH;
 import helpers.SizeEnum;
@@ -7,14 +10,18 @@ import helpers.SizeEnum;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.IShellProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -38,6 +45,9 @@ public class ADLSearchDialog extends Dialog {
 	private Text targetFolderText;
 	private Text searchStringText;
 	
+	private Button regexpButton;
+	private Button caseSensitiveRegexpButton;
+	private Text regExpTesterText;
 	
 	private final ADLSearchEntry adlEntry;
 
@@ -58,6 +68,7 @@ public class ADLSearchDialog extends Dialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
+		getShell().setText(Lang.ADL_ADLEntry);
         // create composite
         Composite composite = (Composite) super.createDialogArea(parent);
         final GridLayout gridLayout = new GridLayout();
@@ -137,6 +148,48 @@ public class ADLSearchDialog extends Dialog {
         downloadmatchesButton.setText(Lang.ADL_DownloadMatches);
         downloadmatchesButton.setSelection(adlEntry.isDownloadMatches());
         
+        regexpButton = new Button(composite_2, SWT.CHECK);
+        regexpButton.setText(Lang.ADL_REGEXP);
+        regexpButton.setToolTipText(Lang.ADL_REGEXPTT);
+        regexpButton.setSelection(adlEntry.isRegExp());
+        regexpButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				caseSensitiveRegexpButton.setEnabled(regexpButton.getSelection());
+			}
+        });
+
+       	caseSensitiveRegexpButton = new Button(composite_2, SWT.CHECK);
+        caseSensitiveRegexpButton.setText(Lang.ADL_CASESENSITIVE);
+        caseSensitiveRegexpButton.setSelection(adlEntry.isCaseSensitive());
+        caseSensitiveRegexpButton.setEnabled(regexpButton.getSelection());
+        
+        
+        final Group regexpTesterGroup = new Group(composite, SWT.NONE);
+        regexpTesterGroup.setText(Lang.ADL_REGEXPTESTER);
+        final GridLayout gridLayout_3 = new GridLayout();
+        gridLayout_3.numColumns = 2;
+        regexpTesterGroup.setLayout(gridLayout_3);
+        regexpTesterGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
+
+        regExpTesterText = new Text(regexpTesterGroup, SWT.BORDER);
+        regExpTesterText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+        regExpTesterText.setText("");
+        
+        final Button matchButton = new Button(regexpTesterGroup, SWT.NONE);
+        matchButton.setText(Lang.ADL_REGEXPMATCH);
+        matchButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(final SelectionEvent e) {
+				boolean caseSensitive = caseSensitiveRegexpButton.getSelection();
+				Pattern p = Pattern.compile(searchStringText.getText(),
+						Pattern.DOTALL |(caseSensitive?  0:Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE));
+				
+				boolean matches = p.matcher(regExpTesterText.getText()).matches();
+				MessageDialog.openInformation(getParentShell(),Lang.ADL_REGEXPTESTER, 
+						matches? Lang.ADL_REGEXPMATCH_SUCC : Lang.ADL_REGEXPMATCH_FAIL );
+			}
+		});
+        
         setSizes();
         
         return composite;
@@ -146,23 +199,35 @@ public class ADLSearchDialog extends Dialog {
 
 	@Override
 	protected void okPressed() {
+		boolean allok = true;
 		try {
-		adlEntry.setSearchString(searchStringText.getText());
-		adlEntry.setActive(activeButton.getSelection());
-		adlEntry.setDownloadMatches(downloadmatchesButton.getSelection());
-		
-		Object o = searchTypeCombo.getData(searchTypeCombo.getText());
-		adlEntry.setSearchType((ADLSearchType)o);
-		
-		adlEntry.setMinSize( parseSize(minSizeText.getText()));
-		adlEntry.setMaxSize( parseSize(maxSizeText.getText()));
-		
-		adlEntry.setTargetFolder(targetFolderText.getText());
+			adlEntry.setSearchString(searchStringText.getText());
+			adlEntry.setActive(activeButton.getSelection());
+			adlEntry.setDownloadMatches(downloadmatchesButton.getSelection());
+			
+			Object o = searchTypeCombo.getData(searchTypeCombo.getText());
+			adlEntry.setSearchType((ADLSearchType)o);
+			
+			adlEntry.setMinSize( parseSize(minSizeText.getText()));
+			adlEntry.setMaxSize( parseSize(maxSizeText.getText()));
+			
+			adlEntry.setTargetFolder(targetFolderText.getText());
+			adlEntry.setCaseSensitive(caseSensitiveRegexpButton.getEnabled());	
+			adlEntry.setRegExp(regexpButton.getSelection());
+			
+			if (adlEntry.isRegExp()) { // test validity..
+				Pattern.compile(adlEntry.getSearchString());
+			}
+		} catch(PatternSyntaxException pse) {
+			MessageDialog.openWarning(getShell(), "Error", pse.toString());
+			allok  = false;
 		} catch(RuntimeException re) {
-			logger.warn(re,re);
+			logger.error(re,re);
+			allok  = false;
 		}
-		
-		super.okPressed();
+		if (allok) {
+			super.okPressed();
+		}
 	}
 
 	private long parseSize(String s) {

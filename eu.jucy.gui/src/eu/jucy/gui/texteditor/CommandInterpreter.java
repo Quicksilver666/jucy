@@ -96,13 +96,14 @@ public class CommandInterpreter {
 	
 	private static enum Command {
 		
-		AWAY,BACK,UC,REFRESH,ME,PM,SEARCH,SLOTS,REBUILD,PRUNEHASHES,JOIN,CLEAR,TS,CLOSE,GETLIST,FAVORITES,FAV,PASS,HELP,SHOWJOINS,SHOWFAVJOINS,SHOWCHATTERJOINS,FILELISTTEST;
+		AWAY,BACK,UC,JUCY,REFRESH,ME,PM,SEARCH,SLOTS,TOPIC,REBUILD,PRUNEHASHES,JOIN,CLEAR,TS,CLOSE,GETLIST,FAVORITES,FAV,PASS,HELP,SHOWJOINS,SHOWFAVJOINS,SHOWCHATTERJOINS,FILELISTTEST;
 		
 	
 		Command() {}
 		
 		public void execute(String line,final Hub hub,final IUser usr, final UCTextEditor editor) {
 			switch(this) {
+			case JUCY:
 			case UC:
 				List<String> phrases = Arrays.asList(
 						"I don't even know what to say. \nThis client is so simple yet so feature complete.    -- Todi",  //said as fun when still thinking the client didn't exist and was a April Fools joke
@@ -122,10 +123,9 @@ public class CommandInterpreter {
 				if (usr != null) {
 					DCClient.execute(new Runnable() {
 						public void run() {
-							PMResult pmres = usr.sendPM(s, true, true);
+							PMResult pmres = usr.sendPM(s, false, true);
 							if (pmres == PMResult.STORED) {
-								
-								editor.storedPM(usr,s, true);
+								editor.storedPM(usr,s, false);
 							}
 						}
 					});
@@ -190,7 +190,7 @@ public class CommandInterpreter {
 				if (fh1.isValid()) {
 					fh1.connect(ApplicationWorkbenchWindowAdvisor.get());
 				} else {
-					logger.log(GuiAppender.GUI,"Invalid address: "+addy); //TODO internetionalize
+					logger.log(GuiAppender.GUI,Lang.InvalidAddress); 
 				}
 				break;
 			case PM:
@@ -206,6 +206,10 @@ public class CommandInterpreter {
 				}
 				
 				break;
+			case TOPIC:
+				hub.statusMessage(hub.getTopic(),0);
+				//TODO print topic so it can be copied..
+				break;
 			case REBUILD:
 				ApplicationWorkbenchWindowAdvisor.get().rebuildFilelist();
 				break;
@@ -214,7 +218,7 @@ public class CommandInterpreter {
 					public void run() {
 						int i = hub.getDcc().pruneHashes();
 						hub.statusMessage(String.format(
-								"Deleted %d unused hashes", i), 0);
+								Lang.DeletedUnusedHashes, i), 0);
 					}
 				});
 				break;
@@ -281,7 +285,7 @@ public class CommandInterpreter {
 				}
 				break;
 			case HELP:
-				hub.statusMessage("/away <msg>, /me <msg>, /back, /refresh, /slots #, /uc, /rebuild, /pruneHashes, /join <hub-ip>,"
+				hub.statusMessage("/away <msg>, /me <msg>, /back, /refresh, /slots #, /uc, /rebuild, /topic, /pruneHashes, /join <hub-ip>,"
 						+" /clear, /ts, /close, /fav, /pm <user> [message], /getList <user>, /showjoins, /showfavjoins, /showchatterjoins ",0);
 				break;
 			}

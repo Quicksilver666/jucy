@@ -142,6 +142,11 @@ public abstract class HashValue implements Comparable<HashValue> {
 	 * hashofHash(h(x)) = h(h(x))
 	 */
 	public abstract HashValue hashOfHash();
+	
+
+	public abstract HashValue internalHash(HashValue rightChild);
+	
+
 
 	@Override
 	public boolean equals(Object obj) {

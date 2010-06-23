@@ -136,7 +136,7 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 	/* (non-Javadoc)
 	 * @see uc.protocols.IConnection#flush(int)
 	 */
-	public abstract boolean flush(int miliseconds);
+//	public abstract boolean flush(int miliseconds);
 	
 	
 	/* (non-Javadoc)

@@ -3,6 +3,7 @@ package uc.crypto;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -37,6 +38,21 @@ public class InterleaveHashes {
 			bbuf.get(array);
 			interleaves.add(HashValue.createHash(array));
 		}
+	}
+	
+	public InterleaveHashes getParentInterleaves() {
+		List<HashValue> nextValues = new ArrayList<HashValue>(interleaves.size()/2 +1);
+		
+		Iterator<HashValue> it = interleaves.iterator();
+		while (it.hasNext()) {
+			HashValue first = it.next();
+			if (it.hasNext()) {
+				nextValues.add(first.internalHash(it.next())); 
+			} else {
+				nextValues.add(first);
+			}
+		}
+		return new InterleaveHashes(nextValues);
 	}
 	
 	/**
@@ -91,7 +107,7 @@ public class InterleaveHashes {
 	 * @return the minimum size of verification for this file
 	 */
 	public long getGranularity(long filesize){
-		long gran	=(long)(filesize/interleaves.size());
+		long gran	= filesize / interleaves.size();
 		
 		long roundup = 1024;
 		while ( roundup < gran ) {

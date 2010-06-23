@@ -43,6 +43,7 @@ public class ToasterUtil {
 	}
 	
 	public static void showMessage(String message,long closeDelay) {
+		
 		if (message.length() > MAX_MESSAGE_SIZE) {
 			message = 	 message.substring(0, MAX_MESSAGE_SIZE/2)
 						+ "..." 
@@ -52,6 +53,25 @@ public class ToasterUtil {
 		t.open();
 
 	}
+	
+//	/**
+//	 * try showing the message in growl
+//	 * @param message
+//	 * @return
+//	 */
+//	public static boolean showGrowl(String message) {
+//		Growl notifier;
+//		notifier = new Growl("AppName", new com.apple.cocoa.foundation.NSData());
+//		String[] tmpNotif = {"AppNotification"};
+//		notifier.setAllowedNotifications(tmpNotif);
+//		notifier.register();
+//
+//		try{
+//		notifier.notifyGrowlOf("AppNotification", "Message Title", "My Cool Growl Message");
+//		}
+//		catch(Exception e){}
+//
+//	}
 	
 	
 }

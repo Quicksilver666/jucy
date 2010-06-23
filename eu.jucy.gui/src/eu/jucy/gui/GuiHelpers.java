@@ -28,6 +28,8 @@ import org.eclipse.ui.handlers.IHandlerService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import logger.LoggerFactory;
 
@@ -160,4 +162,29 @@ public final class GuiHelpers {
 		
 		return new Image(null, id);
 	}
+	
+	/**
+	 * takes toString() output and creates rect from it
+	 * "Rectangle {" + x + ", " + y + ", " + width + ", " + height + "}"
+	 * 
+	 * @param s
+	 * @return
+	 */
+	public static Rectangle fromString(String s) {
+		String regexp = "Rectangle {(d+), (d+), (d+), (d+)}";
+		Pattern p = Pattern.compile(regexp);
+		Matcher m = p.matcher(s);
+		if (m.matches()) {
+			return new Rectangle(Integer.parseInt(m.group(1))
+					, Integer.parseInt(m.group(2))
+					, Integer.parseInt(m.group(3))
+					, Integer.parseInt(m.group(4)));
+		} else {
+			return null;
+		}
+		
+	}
+	
+	
+	
 }

@@ -408,6 +408,22 @@ public class Tiger {
     	}
     }
     
+    /**
+     * Computes  the  internal hash value of to childs in the tree..
+     * @param firstchild
+     * @param secondchild
+     * @return
+     */
+    public static HashValue internalHash(HashValue leftchild, HashValue rightchild){
+    	synchronized(staticmessageDigest) {
+    		staticmessageDigest.reset();
+    		staticmessageDigest.update((byte)1);
+    		staticmessageDigest.update(leftchild.getRaw());
+	    	byte[] hash = staticmessageDigest.digest(rightchild.getRaw());
+	    	return new TigerHashValue(hash);
+    	}
+    }
+    
     
 
 }

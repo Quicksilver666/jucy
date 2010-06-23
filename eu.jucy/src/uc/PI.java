@@ -241,8 +241,9 @@ public class PI extends AbstractPreferenceInitializer {
 		defaults.put(includeFiles, ".*");
 		defaults.put( excludedFiles, "\\.antifrag$|^__INCOMPLETE___|^download[0-9]{16,18}\\.dat$|" 
 				+"^INCOMPLETE~|\\.dctmp$|part\\.met|\\.bc!$|\\.!ut$|\\.bt!$|"  //newer and older p2p stuff..
-				+"^.DS_Store$|"			//MAC os files..
-				+"\\.mp3\\.exe$|\\.avi\\.exe$"); //Viruses
+				+"^.DS_Store$|^icon\\?$|"			//MAC OS X files..
+				+"\\.mp3\\.exe$|\\.avi\\.exe$"//Viruses
+			); 
 		
 		defaults.putBoolean(deleteFilelistsOnExit, true);
 		defaults.putInt(filelistRefreshInterval, 60);

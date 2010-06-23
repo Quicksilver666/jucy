@@ -2,11 +2,15 @@ package eu.jucy.gui.search;
 
 
 
+
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
@@ -28,7 +32,16 @@ public class ToolBarSearch extends WorkbenchWindowControlContribution {
 
 	@Override
 	protected Control createControl(Composite parent) {
-		final Text searchText = new Text(parent, SWT.SEARCH|SWT.ICON_SEARCH);
+		Composite comp  = new Composite(parent,SWT.NONE);
+		GridLayout gl = new GridLayout();
+		gl.marginHeight = 2;
+		gl.marginWidth = 2;
+//		gl.verticalSpacing = 0;
+//		gl.horizontalSpacing = 0;
+		comp.setLayout(gl);
+		
+		final Text searchText = new Text(comp, SWT.SEARCH|SWT.ICON_SEARCH);
+		searchText.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, true));
 		searchText.setMessage(String.format("%-25s", Lang.EnterSearch));
 		searchText.addKeyListener(new KeyAdapter() {
 			public void keyPressed(final KeyEvent e) {
@@ -49,8 +62,9 @@ public class ToolBarSearch extends WorkbenchWindowControlContribution {
 				}
 			}
 		});
+		comp.pack();
 		
-		return searchText;
+		return comp;
 	}
 
 }

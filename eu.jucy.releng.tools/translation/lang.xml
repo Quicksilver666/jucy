@@ -81,6 +81,38 @@ xsi:schemaLocation="http://jucy.eu/lang platform:/resource/eu.jucy.releng.tools/
 <it>ADL Search</it>
 <ru>ADL-поиск</ru>
 </Trl>
+<Trl id="ADL_ADLEntry">
+<de>ADL Eintrag</de>
+<en>ADL Entry</en>
+</Trl>
+<Trl id="ADL_REGEXP">
+<de>RegExp</de>
+<en>RegExp</en>
+</Trl>
+<Trl id="ADL_REGEXPTESTER">
+<de>RegExp Tester</de>
+<en>RegExp tester</en>
+</Trl>
+<Trl id="ADL_REGEXPMATCH">
+<de>teste</de>
+<en>test</en>
+</Trl>
+<Trl id="ADL_REGEXPMATCH_SUCC">
+<de>Das ist ein Treffer!</de>
+<en>It's a match!</en>
+</Trl>
+<Trl id="ADL_REGEXPMATCH_FAIL">
+<de>Kein Treffer!</de>
+<en>No match!</en>
+</Trl>
+<Trl id="ADL_REGEXPTT">
+<de>Interpretiere Sucheingabe als regulären Ausdruck</de>
+<en>Interprete searchstring as regular expression</en>
+</Trl>
+<Trl id="ADL_CASESENSITIVE">
+<de>Groß-/Kleinschreibung</de>
+<en>Case sensitive</en>
+</Trl>
 </Plugin>
 <Plugin id="eu.jucy.countries" name="countries" langclass="eu.jucy.countries.Lang">
 <Trl id="Flags">
@@ -502,6 +534,10 @@ Hub is also no longer counted in description</en>
 <it>Cartella di download predefinita</it>
 <ru>Папка для закачек по умолчанию</ru>
 </Trl>
+<Trl id="DeletedUnusedHashes">
+<de>%d unbenutzte Hashwerte gelöscht!</de>
+<en>Deleted %d unused hashes!</en>
+</Trl>
 <Trl id="DeleteLog">
 <de>Lösche Log</de>
 <en>Delete Log</en>
@@ -821,6 +857,10 @@ Hub is also no longer counted in description</en>
  Größe der Warteschlange: %s</de>
 <en> Files in Queue: %d
  Size in Queue: %s</en>
+</Trl>
+<Trl id="FilterUserlist">
+<de>filtere Userliste</de>
+<en>filter userlist</en>
 </Trl>
 <Trl id="Find">
 <de>Finde</de>
@@ -2311,7 +2351,12 @@ Hub is also no longer counted in description</en>
 <ru>Частота: %.2f</ru>
 </Trl>
 
---><Trl id="CDCheckFirewall">
+-->
+<Trl id="CertificateCreationFailed">
+<de>Zertifikat erstellen/laden fehlgeschlagen, TLS unterstützung für client-client  Verbindungen wird abgeschalten: %s</de>
+<en>Certificate creation/loading failed, TLS support for client-client connections is being switched off: %s</en>
+</Trl>
+<Trl id="CDCheckFirewall">
 <de>Falls eine Firewall vorhanden ist überprüfe ob sie jucy erlaubt.</de>
 <en>If a firewall is present check if it allows jucy's traffic.</en>
 <hu>Ha van tüzfalad, ellenõrizd h engedélyezi a jucy-nak az adatforgalmat.</hu>
@@ -2551,6 +2596,10 @@ UPnP могло не сработать из-за программного бр�
 <it>In attesa</it>
 <ru>Свободно</ru>
 </Trl>
+<Trl id="IndexingTextfiles">
+<de>Indiziere Textdateien</de>
+<en>Indexing Textfiles</en>
+</Trl>
 <Trl id="IPv6DetectionFailed">
 <de>Keine IPv6 Konnektivität entdeckt</de>
 <en>No IPv6 connectivity detected</en>
@@ -2617,6 +2666,10 @@ UPnP могло не сработать из-за программного бр�
 <Trl id="NewPublicIP">
 <de>Neue öffentliche IP: %s</de>
 <en>New public IP: %s</en>
+</Trl>
+<Trl id="NoCertFound">
+<de>Kein Zertifikat gefunden. Lösche %s falls du willst das neue erstellt werden sollen!</de>
+<en>No Cert found. Delete %s if you want new cetificates to be created!</en>
 </Trl>
 <!--<Trl id="OK">
 <de>OK</de>

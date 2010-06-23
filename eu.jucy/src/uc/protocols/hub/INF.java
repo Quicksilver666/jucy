@@ -101,7 +101,7 @@ public class INF extends AbstractADCHubCommand {
 				hub.setTopic(attribs.get(INFField.DE));
 			}
 			if (attribs.containsKey(INFField.VE)) {
-				hub.statusMessage(attribs.get(INFField.VE), 0);
+				hub.setVersion(attribs.get(INFField.VE));
 			}
 		}
 	}

@@ -35,7 +35,7 @@ public class CryptoManager implements ICryptoManager {
 
 	private static Logger logger = LoggerFactory.make(); 
 	
-
+	private static final char[] PASS = new char[] {'1','2','3','4','5','6'};
 	
 	private final DCClient dcc;
 	
@@ -78,7 +78,7 @@ public class CryptoManager implements ICryptoManager {
 			
 			
 			tlsinit = SSLContext.getInstance("TLSv1");
-			KeyManager[] managers =  identity.getBoolean(PI.allowTLS)? loadManager(fingerPrintPointer):null;
+			KeyManager[] managers =  identity.getBoolean(PI.allowTLS)? loadManager(fingerPrintPointer,true):null;
 			tlsinit.init(managers,trustAllCerts , null);
 			
 			tlsPointer[0]= managers != null && managers.length > 0 ;
@@ -117,7 +117,7 @@ public class CryptoManager implements ICryptoManager {
 	
 	
 	
-	 private  KeyManager[] loadManager(HashValue[] fingerPrintPointer) {
+	 private KeyManager[] loadManager(HashValue[] fingerPrintPointer,boolean retry) {
 	    	FileInputStream fis = null;
 			try {
 				File f = new File(PI.getStoragePath()+File.separator+ identity.getCertFileName() );
@@ -130,10 +130,10 @@ public class CryptoManager implements ICryptoManager {
 				KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 				KeyStore store = KeyStore.getInstance(KeyStore.getDefaultType());
 				
-				char[] pass = new char[] {'1','2','3','4','5','6'};
+				
 				fis = new FileInputStream(f);
-				store.load(fis, pass );
-				kmf.init(store, pass);
+				store.load(fis, PASS );
+				kmf.init(store, PASS);
 				dcc.logEvent(LanguageKeys.LoadedCertificate);
 				KeyManager[] managers = kmf.getKeyManagers();
 				Certificate cert = store.getCertificate(aliasForAlg("RSA"));
@@ -141,7 +141,12 @@ public class CryptoManager implements ICryptoManager {
 					fingerPrintPointer[0] = SHA256HashValue.hashData(cert.getEncoded());
 					logger.debug("fingerPrint: "+fingerPrintPointer[0]);
 				} else {
-					logger.error("No Cert found. Delete "+f+" if you want new cetificates to be created!");
+					GH.close(fis);
+					if (retry && (f.renameTo(new File(f.getParentFile(),"invalid_keystore"))||f.delete())) {
+						return loadManager(fingerPrintPointer, false);
+					} else {
+						logger.error(String.format(LanguageKeys.NoCertFound,f));
+					}
 				}
 				
 				logger.debug("Managers created: "+managers.length);
@@ -149,8 +154,7 @@ public class CryptoManager implements ICryptoManager {
 			} catch(RuntimeException re) {
 				throw re;
 			} catch(Exception e) {
-				logger.warn("Certificate creation/loading failed, TLS " +
-						" support for client-client connections is being switched off.\n"+ e, e);
+				logger.warn(String.format(LanguageKeys.CertificateCreationFailed,e),e);
 	
 				identity.put(PI.allowTLS, false);
 			
@@ -174,7 +178,7 @@ public class CryptoManager implements ICryptoManager {
 				 keytool ,
 				 "-genkey",   //"-genkeypair"  would not work with java 1.5 though "-genkey" will work with newer java
 				 "-storepass",
-				 "123456", 
+				new String(PASS), 
 				 "-keyalg",
 				 alg,  //"RSA" /"DSA"
 				 "-alias",

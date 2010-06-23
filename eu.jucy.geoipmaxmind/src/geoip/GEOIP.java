@@ -87,7 +87,12 @@ public final class GEOIP {
 	 * @return the location to the IP
 	 */
 	public Location getLocation(String ip) {
-		return ls.getLocation(ip);
+		try {
+			return ls.getLocation(ip);
+		} catch(RuntimeException e) {
+			logger.debug(e,e);
+		}
+		return null;
 	}
 	
 	/**
@@ -95,20 +100,29 @@ public final class GEOIP {
 	 * @return the location to the IP
 	 */
 	public Location getLocation(InetAddress ip) {
-		return ls.getLocation(ip);
+		try {
+			return ls.getLocation(ip);
+		} catch(RuntimeException e) {
+			logger.debug(e,e);
+		}
+		return null;
 	}
 	
 	
 	public Country getCountry(InetAddress ip) {
 		if (country) {
-			return ls.getCountry(ip);
+			try {
+				return ls.getCountry(ip);
+			} catch(RuntimeException e) {
+				logger.debug(e,e);
+			}
 		} else {
 			Location loc = getLocation(ip);
 			if (loc != null) {
 				return new Country(loc.countryCode,loc.countryName);
 			}
-			return null;
 		}
+		return null;
 	}
 	
 	public String getCountryCode(InetAddress ip) {

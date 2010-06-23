@@ -57,6 +57,7 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.helpers.AttributesImpl;
 
 
@@ -241,17 +242,19 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 
 			SAXParserFactory saxFactory = SAXParserFactory.newInstance();
 			
-			
-			SchemaFactory schFactory =  SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		
-			schFactory.setFeature("http://apache.org/xml/features/validation/schema-full-checking", false);
-			Bundle bundle = Platform.getBundle(PI.PLUGIN_ID);
-			Path path = new Path("XMLSchema/FilelistSchema.xml"); 
+			try {
+				SchemaFactory schFactory =  SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+				schFactory.setFeature("http://apache.org/xml/features/validation/schema-full-checking", false);
+				Bundle bundle = Platform.getBundle(PI.PLUGIN_ID);
+				Path path = new Path("XMLSchema/FilelistSchema.xml"); 
 
-			URL url = FileLocator.find(bundle, path, Collections.EMPTY_MAP);
+				URL url = FileLocator.find(bundle, path, Collections.EMPTY_MAP);
 
-			Schema schema = schFactory.newSchema(url);
-			saxFactory.setSchema(schema); 
+				Schema schema = schFactory.newSchema(url);
+				saxFactory.setSchema(schema); 
+			} catch(SAXNotRecognizedException snre) {
+				logger.debug("Checking not supported "+snre, snre);
+			}
 
 			SAXParser saxParser = saxFactory.newSAXParser();
 
@@ -313,9 +316,9 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 		
 			out.flush();
 		} catch(SAXException sax) {
-			throw new missing16api.IOException(sax);
+			throw new IOException(sax);
 		} catch (TransformerConfigurationException pce) {
-			throw new missing16api.IOException(pce);
+			throw new IOException(pce);
 		}
 	}
 	

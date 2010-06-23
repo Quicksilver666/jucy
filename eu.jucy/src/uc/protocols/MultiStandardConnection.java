@@ -16,14 +16,16 @@ import java.nio.channels.SocketChannel;
 
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 import logger.LoggerFactory;
 
 
-import org.apache.log4j.Level;
+
 import org.apache.log4j.Logger;
 
 import uc.DCClient;
@@ -45,14 +47,14 @@ import uc.DCClient;
 public class MultiStandardConnection implements Runnable {
 
 	private static final Logger logger = LoggerFactory.make();
-	static {
-		logger.setLevel(Level.INFO);
-	}
+
 	
 	private static MultiStandardConnection msc = null;
 	
-	private final Queue<Runnable> executeingQueue =  new ConcurrentLinkedQueue<Runnable>();
-	private final Object synch = new Object();
+	private final Queue<Runnable> executeingQueue =  new LinkedList<Runnable>();
+	private final ReentrantLock lock = new ReentrantLock();
+	private final Condition cond = lock.newCondition();
+//	private final Object synch = new Object();
 
 	//private HashMap<ConnectionProtocol,SelectionKey> protocolToKey = new HashMap<ConnectionProtocol,SelectionKey>();
 	private Selector selector = null;
@@ -64,19 +66,21 @@ public class MultiStandardConnection implements Runnable {
 	public synchronized static MultiStandardConnection get() {
 		logger.debug("in get()");
 		if (msc == null) {
-			Thread t = new Thread(msc = new MultiStandardConnection(),"IO-Thread");
+			msc = new MultiStandardConnection();
+			Thread t = new Thread(msc,"IO-Thread");
 			t.setDaemon(true);
 			t.start();
-		}
-		try {
-			//wait for selector getting set
-			while (msc.selector == null) {
-				synchronized(msc) {
-					msc.wait(30);
+			try {
+				//wait for selector getting set
+				while (msc.selector == null) {
+					synchronized(msc) {
+						msc.wait(30);
+					}
 				}
-			}
-			
-		} catch(InterruptedException ie) {}
+				
+			} catch(InterruptedException ie) {}
+		}
+
 		logger.debug("end of get");
 		return msc;
 	}
@@ -131,28 +135,37 @@ public class MultiStandardConnection implements Runnable {
 	
 	
 	public void synchExec(Runnable run) {
-		executeingQueue.offer(run);
-		do {
-			synchronized(synch) {
-				try {
-					synch.wait(1000);
-				} catch (InterruptedException ie) {}
-			}
-		} while(executeingQueue.contains(run));
+		lock.lock();
+		try {
+			executeingQueue.offer(run);
+			do {
+				cond.awaitUninterruptibly();
+			} while(executeingQueue.contains(run));
+		
+		} finally {
+			lock.unlock();
+		}
 	}
 	
 	public void asynchExec(Runnable run) {
-		executeingQueue.offer(run);
+		lock.lock();
+		try {
+			executeingQueue.offer(run);
+		} finally {
+			lock.unlock();
+		}
 	}
 	
 	private void runSubmitted() {
-
-		Runnable run;
-		while (null != (run = executeingQueue.poll())) {
-			run.run();
-		}
-		synchronized(synch) {
-			synch.notifyAll();
+		lock.lock();
+		try {
+			Runnable run;
+			while (null != (run = executeingQueue.poll())) {
+				run.run();
+			}
+			cond.signalAll();
+		} finally {
+			lock.unlock();
 		}
 	}
 

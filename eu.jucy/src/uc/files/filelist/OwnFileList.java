@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -76,12 +77,14 @@ public class OwnFileList implements IOwnFileList  {
 	private static final Logger logger = LoggerFactory.make();
 	
 	private static final int REFRESH_CHECK_MINUTES = 5;
+	
 	private final DCClient dcc;
 	private volatile ISearchMap<IFileListItem> filelistmap = 
 		new InvertedIndex<IFileListItem>(new FileListMapping());
 	
 	private final TextIndexer pdfIndex;
 
+	private ScheduledFuture<?> refresher;
 
 	
 	private final List<TopFolder> topFolders =   new CopyOnWriteArrayList<TopFolder>(); 
@@ -116,8 +119,10 @@ public class OwnFileList implements IOwnFileList  {
 	/**
 	 * variable to store if the FileList in ram is the same as the one
 	 * on the HDD
+	 *  or lately if some adding failed..
+	 * 
 	 */
-	private volatile boolean defersFromFilelistOnDisc = false;
+	private volatile boolean filelistNeedsRefresh = false;
 	
 	private final PreferenceChangedAdapter pca;
 	
@@ -208,26 +213,37 @@ public class OwnFileList implements IOwnFileList  {
 	/**
 	 * called on creating for faster 
 	 */
-	public void initialise() {
+	public void start() {
 		refresh(true);
 		//updates the FileList every 60 Minutes or every 5 Minutes if hashing..
-		dcc.getSchedulerDir().scheduleAtFixedRate(new Runnable(){
+		refresher = dcc.getSchedulerDir().scheduleAtFixedRate(new Runnable(){
 			int counter = 0;
 			public void run() {
 				if (++counter * REFRESH_CHECK_MINUTES >= PI.getInt(PI.filelistRefreshInterval)  || 
-						defersFromFilelistOnDisc || checkSharedDirs()) {
+						filelistNeedsRefresh || checkSharedDirs()) {
 					refresh(false);
 					counter = 0;
 				}
 			}
-		}, REFRESH_CHECK_MINUTES * 60 , REFRESH_CHECK_MINUTES * 60 , TimeUnit.SECONDS);
+		}, REFRESH_CHECK_MINUTES , REFRESH_CHECK_MINUTES , TimeUnit.MINUTES);
 		
 		dcc.notifyChangedInfo(InfoChange.Sharesize);
 		
 		if (PI.getBoolean(PI.fullTextSearch)) {
 			pdfIndex.init(this);
 		}
+		pca.reregister();
+	}
+	
+	public void stop() {
+		if (pdfIndex != null) {
+			pdfIndex.stop();
+		}
 		
+		if (refresher != null) {
+			refresher.cancel(false);
+		}
+		pca.dispose();
 	}
 	
 	/**
@@ -311,7 +327,7 @@ public class OwnFileList implements IOwnFileList  {
 		if (oldFilelist.getSharesize() != fileList.getSharesize()||oldFilelist.getNumberOfFiles() != fileList.getNumberOfFiles()) { //equals for hub..
 			dcc.notifyChangedInfo(InfoChange.Sharesize);
 		}
-		defersFromFilelistOnDisc = false; // now its the same again in ram as on disc..
+		filelistNeedsRefresh = false; // now its the same again in ram as on disc..
 	}
 	
 	
@@ -381,7 +397,9 @@ public class OwnFileList implements IOwnFileList  {
 				public void hashedFile(HashedFile hf, InterleaveHashes ilh) {
 					database.addOrUpdateFile(hf, ilh);
 					addFile(hf.getPath(),parent,Collections.singletonMap(hf.getPath(), hf),filelistmap,false);
-					defersFromFilelistOnDisc = true;  //TODO bad! i.e. not really needed anymore.. should go when filelist stuff is rewritten..
+					if (parent.getFilelist() != fileList) {
+						filelistNeedsRefresh = true;  
+					}
 				}
 			});	
 		} else {
@@ -442,33 +460,35 @@ public class OwnFileList implements IOwnFileList  {
 			((SpecialFileListFile) addedFile).add(restrictForUser);
 		}
 		if (addedFile == null && tf != null) {
-
-			String dirPath = tf.getRealPath().getPath()+File.separator;
-			String[] pathLeft = file.getParent().substring(dirPath.length()).split(Pattern.quote(File.separator));
-			FileListFolder current = tf;
-			for (String s:pathLeft) {
-				FileListFolder next = current.getChildPerName(s);
-				if (next == null) {
-					next = new FileListFolder(current, s);
+			String dirPath = tf.getRealPath().getPath() + File.separator;
+			String parentPath = file.getParentFile().getPath();
+			if (parentPath.length() > dirPath.length()) {
+				String[] pathLeft = parentPath.substring(dirPath.length()).split(Pattern.quote(File.separator));
+				FileListFolder current = tf;
+				for (String s:pathLeft) {
+					FileListFolder next = current.getChildPerName(s);
+					if (next == null) {
+						next = new FileListFolder(current, s);
+					}
+					current = next;
 				}
-				current = next;
-			}
-			FileListFile present = current.getFilePerName(file.getName()); //due to concurrency could now be present...
-			if (present == null) {
-				addedFile = addFile(file,current,Collections.singletonMap(file, hf),filelistmap,true); 
-			} else {
-				addedFile = present;
+				FileListFile present = current.getFilePerName(file.getName()); //due to concurrency could now be present...
+				if (present == null) {
+					addedFile = addFile(file,current,Collections.singletonMap(file, hf),filelistmap,true); 
+				} else {
+					addedFile = present;
+				}
 			}
 		}
 		boolean addedOutsideOfShare = false;
-		if (addedFile == null && force) {
+		if (addedFile == null && tf == null && force) {
 			addedFile = new SpecialFileListFile(hf, hiddenTop,restrictForUser);
 			addedOutsideOfShare = true;
 		}
+		
 		if (addedFile != null) {
 			callback.addedFile(addedFile, addedOutsideOfShare);
 		}
-	
 		//logger.debug("Added file: "+file+"  added? "+added);
 		
 	}
@@ -674,12 +694,7 @@ public class OwnFileList implements IOwnFileList  {
 
 
 	
-	public void stop() {
-		if (pdfIndex != null) {
-			pdfIndex.stop();
-		}
-		pca.dispose();
-	}
+
 	
 	public static class TopFolder extends FileListFolder {
 

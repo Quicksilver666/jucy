@@ -37,11 +37,12 @@
       </win>
    </launcher>
 
+
    <vm>
    </vm>
 
    <license>
-        <url>http://www.jucy.eu/index.php/licence.html</url>
+        <url>http://www.jucy.eu/license.html</url>
         <text>
    Copyright (c) 2009, Quicksilver   
 All rights reserved.

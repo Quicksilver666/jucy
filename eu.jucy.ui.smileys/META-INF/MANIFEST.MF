@@ -4,7 +4,7 @@ Bundle-Name: Smileys Plug-in
 Bundle-Localization: nl/translation
 Bundle-SymbolicName: eu.jucy.ui.smileys;singleton:=true
 Bundle-Version: 1.1.7.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: eu.jucy.gui,
  eu.jucy.helpers,
  org.eclipse.ui,

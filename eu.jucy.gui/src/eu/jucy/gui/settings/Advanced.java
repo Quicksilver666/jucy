@@ -1,6 +1,9 @@
 package eu.jucy.gui.settings;
 
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
@@ -20,11 +23,40 @@ public class Advanced extends UCPrefpage {
 	@Override
 	protected void createFieldEditors() {
 		StringFieldEditor includes = new StringFieldEditor(PI.includeFiles,Lang.IncludedFiles ,50 ,
-				getFieldEditorParent());
+				getFieldEditorParent()) {
+
+			@Override
+			public boolean doCheckState() {
+				try {
+					String s = getStringValue();
+					Pattern.compile(s);
+				} catch(PatternSyntaxException e) {
+					return false;
+				}
+				return true;
+			}
+
+		};
+
 		addField(includes);	
 		
 		StringFieldEditor excludes = new StringFieldEditor(PI.excludedFiles,Lang.ExcludedFiles ,50, 
-				getFieldEditorParent());
+				getFieldEditorParent()) {
+
+			@Override
+			public boolean doCheckState() {
+				try {
+					String s = getStringValue();
+					Pattern.compile(s);
+				} catch(PatternSyntaxException e) {
+					return false;
+				}
+				return true;
+			}
+
+	
+			
+		};
 		addField(excludes);	
 		
 		IntegerFieldEditor maxHashSpeed= new IntegerFieldEditor(PI.maxHashSpeed,

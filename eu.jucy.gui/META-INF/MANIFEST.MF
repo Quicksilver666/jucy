@@ -28,7 +28,7 @@ Export-Package: eu.jucy.gui,
  eu.jucy.gui.texteditor.hub,
  eu.jucy.gui.transferview
 Bundle-ClassPath: .
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: eu.jucy.gui.Activator
 Bundle-ActivationPolicy: lazy
 Plugin-Class: eu.jucy.gui.Activator

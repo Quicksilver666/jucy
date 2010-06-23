@@ -12,9 +12,13 @@ import java.text.Collator;
 import java.util.Arrays;
 import java.util.List;
 
+import logger.LoggerFactory;
 
 
 
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -83,7 +87,18 @@ import uihelpers.TableViewerAdministrator;
 
 public class FilelistEditor extends UCEditor implements ISearchableEditor , IObserver<StatusObject> {
 	
+	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
+	private static final int MAX_OPEN_EDITORS = 10;
 	
+	public static boolean isAnotherEditorPossible() {
+		return OPEN_FILELIST_EDITORS < MAX_OPEN_EDITORS;
+	}
+	
+	public static boolean isAnotherEditorOpen() {
+		return OPEN_FILELIST_EDITORS > 0;
+	}
+	
+	private static volatile int OPEN_FILELIST_EDITORS = 0;
 	
 	private CLabel containedSize;
 	private CLabel containedFiles;
@@ -113,13 +128,15 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor , IObs
 	private final SelectionProviderIntermediate spi = new SelectionProviderIntermediate();
 
 	
-	
+	public FilelistEditor() {
+		OPEN_FILELIST_EDITORS++;
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.part.WorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
 	 */
 	@Override
-	public void createPartControl(Composite parent) {	
+	public void createPartControl(Composite parent) {
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.verticalSpacing = 0;
 		gridLayout.marginWidth = 0;
@@ -260,7 +277,7 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor , IObs
 		
 		setControlsForFontAndColour(tableViewer.getTable(),treeViewer.getTree());
 		
-		addListener();
+		
 		
 		//makeActions();
 		
@@ -270,67 +287,60 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor , IObs
 		createContextPopup(tableViewer);
 		createContextPopup(treeViewer);
 
-		treeViewer.refresh();
+	//	treeViewer.refresh();
 		updateTotal();
 		treeViewer.expandToLevel(2);
-		
+		addListener();
 		FileList list = getList();
 		IDownloadable in = ((FilelistEditorInput)getEditorInput()).getInitialSelection();
-		FileListFile select = null;
+		IFileListItem item = null;
 		IDownloadable input = list.getRoot();
-		if ( in != null) {
-			IDownloadable parentFolder = list.getRoot().getByPath(in.getOnlyPath());
+		if ( in != null) { //TODO might not work correctly with multiple users..
+			FileListFolder parentFolder = list.getRoot().getByPath(in.getOnlyPath());
+			
+			
 			if (in.isFile()) {
-				select = list.search( ((IDownloadableFile)in).getTTHRoot() );
-				if (parentFolder == null && select != null) {
-					parentFolder = select.getParent();
+				if (parentFolder != null) {
+					item = parentFolder.getFilePerName(in.getName());
+				}
+				
+				if (item == null) {
+					item = list.search( ((IDownloadableFile)in).getTTHRoot() );
+					if (item != null) {
+						parentFolder = item.getParent();
+					}
+				}
+			} else {
+				if (parentFolder != null) {
+					item =  parentFolder.getChildPerName(in.getName());
 				}
 			}
+	//		logger.debug("item: "+item.getPath());
+//			if (in.isFile()) {
+//				select = list.search( ((IDownloadableFile)in).getTTHRoot() );
+//				if (parentFolder == null && select != null) {
+//					parentFolder = select.getParent();
+//				}
+//			}
 			if (parentFolder != null) {
 				input = parentFolder;
+			//	logger.debug(input.getPath());
 			}
 		}
-		tableViewer.setInput(input);
-		if (select != null) {
-			tableViewer.setSelection(new StructuredSelection(select), true);
-		}
+		final Object iInput = input;
+		final Object selected = item;
+		new SUIJob(tree) {
+			@Override
+			public void run() {
+				tableViewer.setInput(iInput);
+				if (selected != null) {
+					tableViewer.setSelection(new StructuredSelection(selected), true);
+				}
+			}
+		}.schedule();
+
+		
 		getList().addObserver(this);
-//		new SUIJob(tree) {
-//			@Override
-//			public void run() {
-//				treeViewer.refresh();
-//				updateTotal();
-//			//	setTotalsize(getList().getSharesize());
-//			//	setTotalFiles(getList().getNumberOfFiles());
-//				
-//				if (!getList().isCompleted()) {
-//					schedule(1000);
-//				} else {
-//					treeViewer.expandToLevel(2);
-//					FileList list = getList();
-//					IDownloadable in= ((FilelistEditorInput)getEditorInput()).getInitialSelection();
-//					FileListFile select = null;
-//					IDownloadable input = list.getRoot();
-//					if ( in != null) {
-//						IDownloadable parentFolder = list.getRoot().getByPath(in.getOnlyPath());
-//						if (in.isFile()) {
-//							select = list.search( ((IDownloadableFile)in).getTTHRoot() );
-//							if (parentFolder == null && select != null) {
-//								parentFolder = select.getParent();
-//							}
-//						}
-//						if (parentFolder != null) {
-//							input = parentFolder;
-//						}
-//					}
-//					tableViewer.setInput(input);
-//					if (select != null) {
-//						tableViewer.setSelection(new StructuredSelection(select), true);
-//					}
-//				}
-//				
-//			}
-//		}.schedule();
 	}
 	
 	
@@ -361,6 +371,7 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor , IObs
 			fileList.deleteObserver(this);
 			fileList = null;
 		}
+		OPEN_FILELIST_EDITORS--;
 		super.dispose();
 	}
 	
@@ -413,6 +424,7 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor , IObs
 
 				Object selectedFolder = selection.getFirstElement();
 				tableViewer.setInput(selectedFolder);
+				logger.debug("TreeViewer setting selected: "+selectedFolder+ "  "+event.getSource().toString());
 		      }
 		    });
 		
@@ -443,7 +455,22 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor , IObs
 
 			}
 		 });
+		 tableViewer.addSelectionChangedListener(new ISelectionChangedListener(){
+			 public void selectionChanged(SelectionChangedEvent event){
+				 IStructuredSelection selection =
+					 (IStructuredSelection) event.getSelection();
 
+				 Object selected = selection.getFirstElement();
+				 if (selected instanceof IFileListItem) {
+					 IFileListItem item = (IFileListItem)selected;
+					 StructuredSelection newSel = new StructuredSelection(item.getParent());
+					 if (!newSel.equals(treeViewer.getSelection())) {
+						 treeViewer.setSelection(newSel,true);
+					 }
+				 }
+
+			 }
+		 });
 	}
 	
 	private void updateTotal() {

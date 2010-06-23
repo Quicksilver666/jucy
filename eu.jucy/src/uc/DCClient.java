@@ -40,7 +40,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.ThreadPoolExecutor.DiscardPolicy;
 import java.util.concurrent.TimeUnit;
 
 
@@ -98,19 +98,100 @@ import uc.protocols.hub.Hub;
 
 
 /** 
+ -> need viewer for DB content..
+WARN  HSQLDB.java Line:505 		 java.sql.SQLException: integrity constraint violation: foreign key no parent; SYS_FK_58 table: DQETOUSER
+arj: 13 Apr 2010 22:20:58,269 WARN  HSQLDB.java Line:505 		 java.sql.SQLException: integrity constraint violation: foreign key no parent; SYS_FK_58 table: DQETOUSER
+java.sql.SQLException: integrity constraint violation: foreign key no parent; SYS_FK_58 table: DQETOUSER
+	at org.hsqldb.jdbc.Util.sqlException(Unknown Source)
+	at org.hsqldb.jdbc.JDBCPreparedStatement.fetchResult(Unknown Source)
+	at org.hsqldb.jdbc.JDBCPreparedStatement.execute(Unknown Source)
+	at eu.jucy.database.HSQLDB.addUserToDQE(HSQLDB.java:497)
+	at uc.files.downloadqueue.AbstractFileDQE.addUserSuper(AbstractFileDQE.java:94)
+	at uc.files.downloadqueue.AbstractDownloadQueueEntry.addUser(AbstractDownloadQueueEntry.java:194)
+	at uc.files.downloadqueue.DownloadQueue.match(DownloadQueue.java:329)
+	at uc.files.filelist.FileList.match(FileList.java:406)
+	at eu.jucy.gui.itemhandler.UserHandlers$MatchQueueHandler$1.finishedDownload(UserHandlers.java:192)
+	at uc.files.downloadqueue.AbstractDownloadQueueEntry$1.run(AbstractDownloadQueueEntry.java:415)
+	at uc.DCClient$3.run(DCClient.java:206)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:619)
+ * 
+ * 
+ * TODO NAT traversal : http://dcpp.wordpress.com/2010/06/15/nat-traversal-constraints/
+ * 
+ * TODO add setting for auto extending downloads .. http://jucy.eu/forum/read.php?5,151
+ * 
+ * TODO flicker occurs on URL widgets when hub window gets text added but does not scroll down..
+ * 
+ * TODO temp download dir noct creatable ... handle more gracefully
+ * http://pastebin.com/xpgjhqUt
+ * 
+ * TODO severe: hub Line 1394  sometimes reconnects don't work
+ * 
+ * TODO think about option to place unfinished downloads next into target folder so no moving of files occur
+ * after finishing the download..
+ * 
  * TODO discfree,total uptime .. total download..
+ * 
+ * TODO open filelist via menu needs progress and must be done outside of UI thread..
+ * 
+ * TODO filelist of user was not eligible for deletion even though should be..
+ * downloaded sth from that user  cause?
+ * 
+ * TODO triggers for external programs / or try grow plugin
+ * 
+ * TODO max upload limit per slot/User 
+ *  - additional semaphore / value based on usercategory settings?
+ *  - uploadlimit max= Min(limiting,slots*normlimit);
+ *  
+ *  TODO little picture with scroll Lock for hub / may be also alike button for hide/show of nicklist
+ *  i.e. like scroll Lock of Console in eclipse
+ * 
+ * TODO function to send screenshot ..
+ * 
+ * 		GC gc = new GC(display);
+ *      final Image image = new Image(display, display.getBounds());
+ *      gc.copyArea(image, 0, 0);
+ *      gc.dispose();
+ * 		Display.getMonitors()  for bounds.. what ever..
+ * 
+ * TODO add mechanism that write deadlock detections to file and deletes on normal close..
+ * only bring up on next start..
+ * 
+ * TODO afk message not sending to users with CT_Bot ...
+ * 
+ * TODO no GetFilelist when chatonly...(disable getFilelist entry)
+ * 
+ * TODO Option in settings to auto open desired tabs after application start (like download queue, upload queue, finished downloads, finished uploads etc.)
+ *  
+ * TODO adding keyboard shortcuts for "refresh share", download queue, upload queue, finished downloads, finished uploads would be helpful as well. 
+ *  
+ * TODO write a help entry for tmpsharedfiles folder
  * 
  * TODO take a look at JAXB -> sounds interesting and useful (Java-xml binding)
  * 
- *  TODO animated smilies
+ * TODO not open more than x filelist as jucy crashes otherwise.. (TODO serialize opening also for non editor... i.e. not too many matches should happen at once..)
+ * 
+ * 
+ * TODO animated smileys
  *  
- *  TODO identity management (adding identities i.e. a identity includes different FileList / CID / TCP/SSL-Ports / Certificate(KeyPrint) )
- *
+ * TODO identity management (adding identities i.e. a identity includes different FileList / CID / TCP/SSL-Ports / Certificate(KeyPrint) )
  *
  *				
+ * TODO discovery UI for installing extensions  https://bugs.eclipse.org/bugs/show_bug.cgi?id=295273
+ * http://tasktop.com/blog/eclipse/mylyn-connector-discovery
  *
  * TODO Presentation of magnet -> save as button could be added 
  *
+ * TODO comments on favUsers.. 
+ * 
+ * TODO CO-OP plugin  cooperative OP work .. tagging user so other ops can read it and setting timecounters 
+ * for them having something done.. i.e. distributed remember me function
+ * 
+ * TODO http://jid3.blinkenlights.org/ ID3 tag reading for search indexing... possibly there also was some lib for lucene that covered more filetypes??
+ * 
+ * TODO no gui option ..possibly simple commandline steering..
  * 
  * My Personal Bugtracker:
  *  
@@ -128,6 +209,7 @@ import uc.protocols.hub.Hub;
  * 
  * TODO potentially Empty interleaves provided bug might show itself when file is already present on disc?
  * 
+ * 
  * TODO plugin management dialog .. i.e. disabling and uninstalling of plugins.. better wait till 3.6 final?
  *
  * TODO ... new special user category for tons of settings..
@@ -142,6 +224,8 @@ import uc.protocols.hub.Hub;
  * -> or may be rather add possibility for a total transferred box..
  * 
  *   
+ *   <iakona> In DC++ there's a "Download Whole Directory" search item context menu option. Is that possible with Jucy?
+ *   
  * TODO store tested segments in DB... -> no rehashing for everything on start... 
  * could save lots of computing power..
  * 
@@ -149,6 +233,14 @@ import uc.protocols.hub.Hub;
  * on a per hub basis.. hideshare = no filelist..
  * 
  * 
+ * TODO (un)checkable actions in popup menu for do after download in DownloadQueue (open filelist,open file)
+ * - possibly as extension point?
+ * 
+ * TODO may be some google wave binding that moves hubchat into a wave...
+ * 
+ * 
+ * TODO upload folder    folder where people can upload files (maximum size) 
+ * and possibly also delete files  (i.e. client behaves like a och  legality?)
  * 
  * TODO  may be some statistics window?? drawing what is currently transferred...
  *
@@ -156,6 +248,7 @@ import uc.protocols.hub.Hub;
  * 
  * TODO viewing image magnetlink doesn't work if the image is already in share i.e. can't be added for download..
  * 
+ * TODO may be add enum to messages for type of message  i.e. PM,MC,JOIN/PART, could help colouring...
  * 
  * TODO preview of files using some mediaplayer...
  * 
@@ -226,7 +319,7 @@ public final class DCClient {
 	
 	{
 		ScheduledThreadPoolExecutor ste = new ScheduledThreadPoolExecutor(5);
-		ste.setRejectedExecutionHandler(new CallerRunsPolicy());
+		ste.setRejectedExecutionHandler(new DiscardPolicy());
 		scheduler = Executors.unconfigurableScheduledExecutorService(ste);
 	}
 	
@@ -237,7 +330,7 @@ public final class DCClient {
 	private static final ExecutorService exec = new ThreadPoolExecutor(0, 150,
             60L, TimeUnit.SECONDS,
             new SynchronousQueue<Runnable>(),
-            new CallerRunsPolicy() 
+            new DiscardPolicy() 
             );
 	
 
@@ -257,15 +350,15 @@ public final class DCClient {
 	
 	private final User fileListSelf; //the self that holds our own FileList
 
-
-	
-	/**
-	 * check if FileList was initialized ..
-	 *  fall back mechanism if FileList initializer in the beginning wasn't called
-	 *  so client still has a legal startup
-	 */
-	private Future<?> fileListInitialised;
-	
+//
+//	
+//	/**
+//	 * check if FileList was initialized ..
+//	 *  fall back mechanism if FileList initializer in the beginning wasn't called
+//	 *  so client still has a legal startup
+//	 */
+//	private Future<?> fileListInitialised;
+//	
 	
 	
 	private final Object synchAway = new Object();
@@ -564,21 +657,17 @@ public final class DCClient {
     	return pruned.size();
     }
 
-    /**
-     * initialises the own FileList, as this takes the most
-     * time here separate method that can be called from the 
-     * splashScreen is provided..
-     */
-    synchronized Future<?> initialiseFilelist() {
-    	if (null == fileListInitialised) {
-    		fileListInitialised = exec.submit(new Runnable() {
-				public void run() {
-		    		filelist.initialise(); 
-				}
-    		});
-    	}
-    	return fileListInitialised;
-    } 
+//    /**
+//     * initialises the own FileList, as this takes the most
+//     * time here separate method that can be called from the 
+//     * splashScreen is provided..
+//     */
+//    synchronized Future<?> initialiseFilelist() {
+//    	if (null == fileListInitialised) {
+//    		fileListInitialised = start(filelist);
+//    	}
+//    	return fileListInitialised;
+//    } 
 
     /**
      * starts the DCClient
@@ -600,7 +689,7 @@ public final class DCClient {
     	
     	monitor.worked(1);
     	
-    	Future<?> filelistInit = initialiseFilelist(); 
+    	Future<?> filelistInit =   start(filelist); //initialiseFilelist(); 
     	Future<?> identity = start(defaultIdentity);
  
     	upQueue.start();
@@ -779,7 +868,7 @@ public final class DCClient {
     }
     
     
-    public Hub getHub(FavHub favHub, boolean showInUI) {
+    public Hub getHub(FavHub favHub, final boolean showInUI) {
 
     	Hub hub = hubs.get(favHub);
     	if (hub != null) {
@@ -788,39 +877,85 @@ public final class DCClient {
     	synchronized (this) {
     		hub = hubs.get(favHub);
     		if (hub == null) {
-    			favHub = favHubs.internal(favHub);
-    			Identity id = getIdentity(favHub.getIdentityName());
-    			id.addRunningHub(favHub);
-    			hub = new Hub(favHub,id,this);
-    			
-    			hubs.put(favHub, hub);
-    			final Hub hubf = hub; 
-    			final Semaphore sem = new Semaphore(0);
-
-    			Runnable finish = new Runnable() {
-    				public  void run() {
-    					sem.release();
-    				}
-    			};
-    			for (IHubCreationListener hubl:hublisteners) {
-    				hubl.hubCreated(favHub,showInUI,finish);
+    			final FavHub ifavHub = favHubs.internal(favHub);
+    			Identity id = getIdentity(ifavHub.getIdentityName());
+    			id.addRunningHub(ifavHub);
+    			hub = new Hub(ifavHub,id,this);
+    			final Hub iHub = hub;
+    			hubs.put(ifavHub, hub);
+    			final Object synchSerialStart = new Object();
+    			synchronized (synchSerialStart) { 
+	    			DCClient.execute(new Runnable() {
+	        			public void run() {
+	        				Semaphore sem = new Semaphore(0,false);
+	        				synchronized (synchSerialStart) {
+		    		    		for (IHubCreationListener hubl:hublisteners) {
+		    						hubl.hubCreated(ifavHub,showInUI,sem);
+		    					}
+		    		    		synchSerialStart.notify();
+	        				}
+	    		    		sem.acquireUninterruptibly(hublisteners.size());
+	    					iHub.start();
+	    					notifyChangedInfo(InfoChange.Hubs);
+	        			}
+	        		});
+	    			try {
+	    				synchSerialStart.wait();
+					} catch (InterruptedException e) {
+						logger.error(e,e);
+					}
     			}
-
-    			DCClient.execute(new Runnable() {
-    				public  void run() {
-    					sem.acquireUninterruptibly(hublisteners.size());
-    					scheduler.schedule(new Runnable() {
-    						public void run() {
-    							hubf.start();
-    							notifyChangedInfo(InfoChange.Hubs);
-    						}
-    						//wait with starting some time (race condition though helps registering listeners)
-    					}, 100, TimeUnit.MILLISECONDS);
-    				}
-    			});   			
-
     		}
     	}
+
+    	
+//    		if (hub == null) {
+//    			final FavHub ifavHub = favHubs.internal(favHub);
+//    			Identity id = getIdentity(ifavHub.getIdentityName());
+//    			id.addRunningHub(ifavHub);
+//    			hub = new Hub(ifavHub,id,this);
+//    			
+//    			hubs.put(ifavHub, hub);
+//    			final Hub hubf = hub; 
+    		//	final Semaphore sem = new Semaphore(0);
+
+//    			Runnable finish = new Runnable() {
+//    				public  void run() {
+//    					sem.release();
+//    				}
+//    			};
+//    			DCClient.execute(new Runnable() {
+//    				public  void run() {
+//		    			for (IHubCreationListener hubl:hublisteners) {
+//		    				hubl.hubCreated(ifavHub,showInUI);
+//		    			}
+//		    			hubf.start();
+//						notifyChangedInfo(InfoChange.Hubs);
+//		    			scheduler.schedule(new Runnable() {
+//    						public void run() {
+//    							hubf.start();
+//    							notifyChangedInfo(InfoChange.Hubs);
+//    						}
+//    						//wait with starting some time (race condition though helps registering listeners)
+//    					}, 100, TimeUnit.MILLISECONDS);
+//    				}	
+//    			});
+
+//    			DCClient.execute(new Runnable() {
+//    				public  void run() {
+//    					sem.acquireUninterruptibly(hublisteners.size());
+//    					scheduler.schedule(new Runnable() {
+//    						public void run() {
+//    							hubf.start();
+//    							notifyChangedInfo(InfoChange.Hubs);
+//    						}
+//    						//wait with starting some time (race condition though helps registering listeners)
+//    					}, 100, TimeUnit.MILLISECONDS);
+//    				}
+//    			});   			
+
+//
+    	
 
     	return hub;
     }
@@ -947,37 +1082,38 @@ public final class DCClient {
 				iic.infoChanged(Collections.singleton(type));
 			}
     	} else {
-	    	changes.add(type);
-	    	synchronized(infSynch) {
-		    	if (myInfoUpdater != null && myInfoUpdater.getDelay(TimeUnit.MILLISECONDS) > type.getDelay()) {
-		    		myInfoUpdater.cancel(false);
-		    		myInfoUpdater = null;
-		    	}
-		    	
-		    	if (myInfoUpdater == null) {
-		    		myInfoUpdater = scheduler.schedule(new Runnable() {
-		    			public void run() {
-		    				synchronized(infSynch) {
-		    					myInfoUpdater = null;
-		    				}
-		    				for (Hub hub : hubs.values()) {
-		    					synchronized(hub) {
-			    					if (hub.getState() == ConnectionState.LOGGEDIN) {
-			    						hub.sendMyInfo();
+	    	if (changes.add(type)) {
+		    	synchronized(infSynch) {
+			    	if (myInfoUpdater != null && myInfoUpdater.getDelay(TimeUnit.MILLISECONDS) > type.getDelay()) {
+			    		myInfoUpdater.cancel(false);
+			    		myInfoUpdater = null;
+			    	}
+			    	
+			    	if (myInfoUpdater == null) {
+			    		myInfoUpdater = scheduler.schedule(new Runnable() {
+			    			public void run() {
+			    				synchronized(infSynch) {
+			    					myInfoUpdater = null;
+			    				}
+			    				for (Hub hub : hubs.values()) {
+			    					synchronized(hub) {
+				    					if (hub.getState() == ConnectionState.LOGGEDIN) {
+				    						hub.sendMyInfo();
+				    					}
 			    					}
-		    					}
-		    					Set<InfoChange> copy;
-		    					synchronized(changes) {
-		    						copy = new HashSet<InfoChange>(changes);
-		    						changes.clear();
-		    					}
-		    					for (IInfoChanged iic: changedInfo) {
-		    						iic.infoChanged(copy);
-		    					}
-		    				}
-		    						
-		    			}
-		    		}, type.getDelay(), TimeUnit.MILLISECONDS);
+			    					Set<InfoChange> copy;
+			    					synchronized(changes) {
+			    						copy = new HashSet<InfoChange>(changes);
+			    						changes.clear();
+			    					}
+			    					for (IInfoChanged iic: changedInfo) {
+			    						iic.infoChanged(copy);
+			    					}
+			    				}
+			    						
+			    			}
+			    		}, type.getDelay(), TimeUnit.MILLISECONDS);
+			    	}
 		    	}
 	    	}
     	}

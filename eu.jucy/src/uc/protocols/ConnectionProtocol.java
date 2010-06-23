@@ -31,7 +31,6 @@ import java.io.IOException;
 
 import logger.LoggerFactory;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
 
@@ -50,7 +49,7 @@ import org.eclipse.core.runtime.Platform;
  * */
 public abstract class ConnectionProtocol implements ReadWriteLock {
 
-	private static Logger logger = LoggerFactory.make(Level.INFO); 
+	private static Logger logger = LoggerFactory.make(); 
 	
 	
 	private static final ProtocolTimer mt = new ProtocolTimer();
@@ -214,9 +213,10 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	 */
 	public void onLogIn() throws IOException {
 		synchronized(csSynch) {
-			if (state != ConnectionState.CONNECTED) {
-				if (Platform.inDevelopmentMode()) {
-					logger.warn("Bad state: "+state);
+			//because sometimes the connection gets closed during login -> check
+			if (state != ConnectionState.CONNECTED) { 
+				if (Platform.inDevelopmentMode() && ConnectionState.DESTROYED != state) {
+					logger.warn("Bad state: "+state+"  "+toString(),new Throwable());
 				}
 				return;
 			}

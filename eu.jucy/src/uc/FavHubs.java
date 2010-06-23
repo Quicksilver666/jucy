@@ -42,6 +42,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 	private final Map<Integer,FavHub> favHubs = Collections.synchronizedMap(new HashMap<Integer,FavHub>() {
 
 		/**
+		 * 
 		 * make sure new Order is set to the hub..
 		 */
 		@Override
@@ -63,6 +64,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 	/* (non-Javadoc)
 	 * @see uc.IFavHubs#store()
 	 */
+	@Override
 	public void store()  {
 	//	boolean legacymode = false;
 	//	if (!legacymode) {
@@ -114,6 +116,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 	/* (non-Javadoc)
 	 * @see uc.IFavHubs#getFavHubs()
 	 */
+	@Override
 	public List<FavHub> getFavHubs() {
 		return Collections.unmodifiableList(new ArrayList<FavHub>(favHubs.values()));
 	}
@@ -121,6 +124,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 	/**
 	 * adds the hub to favorites .. (setting the order if not set)
 	 */
+	@Override
 	public void addToFavorites(FavHub hub) {
 		if (hub.getOrder() == -1) {
 			hub.setOrder(favHubs.size());
@@ -135,6 +139,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 	 * removes a hub from FavHubs and moves all other hubs 
 	 * @param hub
 	 */
+	@Override
 	public void removeFromFavorites(FavHub hub) {
 		favHubs.remove(hub.getOrder());
 		repairOrders();
@@ -150,6 +155,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 	 * @param favHub - the hub 
 	 * @param up
 	 */
+	@Override
 	public void changeOrder(FavHub favHub, boolean up) {
 		int curOrder = favHub.getOrder();
 		int newOrder = curOrder + (up? -1:1);
@@ -168,6 +174,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 	 * @param old
 	 * @param newHub
 	 */
+	@Override
 	public void exchange(FavHub old,FavHub newHub) {
 		if (old.getOrder() != newHub.getOrder()) {
 			throw new IllegalArgumentException();
@@ -182,6 +189,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 	/* (non-Javadoc)
 	 * @see uc.IFavHubs#openAutoStartHubs()
 	 */
+	@Override
 	public void openAutoStartHubs() {
 		DCClient.execute(new Runnable() {
 			public void run() {

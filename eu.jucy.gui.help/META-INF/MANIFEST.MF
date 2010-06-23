@@ -4,4 +4,4 @@ Bundle-Name: Help Plug-in
 Bundle-SymbolicName: eu.jucy.gui.help; singleton:=true
 Bundle-Version: 1.83.1.qualifier
 Require-Bundle: org.eclipse.ui
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -67,7 +67,7 @@ public class HubList {
 				try {
 					in = new CBZip2InputStream(in);
 				} catch (NullPointerException npe) {
-					throw new missing16api.IOException("No Hublist found",npe);
+					throw new IOException("No Hublist found",npe);
 				}
 				//logger.debug("loading with compression");
 			}
@@ -96,7 +96,7 @@ public class HubList {
 		
 
 		} catch(ParserConfigurationException e) {
-			throw new missing16api.IOException("Parser config Exception: "+e,e);
+			throw new IOException("Parser config Exception: "+e,e);
 		}
 		
 		columns.addAll(hp.getColumns());

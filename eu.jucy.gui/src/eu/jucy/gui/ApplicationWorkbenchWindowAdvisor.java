@@ -5,6 +5,8 @@ package eu.jucy.gui;
 
 
 
+import java.util.concurrent.Semaphore;
+
 import logger.LoggerFactory;
 
 
@@ -213,7 +215,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	dcc.getHashEngine().registerHashedListener(GuiAppender.get());
     	
     	hubCreationListener = new IHubCreationListener() {
-			public void hubCreated(final FavHub fh, boolean showInUI, final Runnable callback) {
+			public void hubCreated(final FavHub fh, boolean showInUI,final Semaphore sem) {
 				if (showInUI) {
 					new SUIJob() {
 						public void run() {
@@ -222,12 +224,14 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 				        	} catch(PartInitException pie) {
 				        		MessageDialog.openError(window.getShell(), "Error", "Error open hub:" + pie.getMessage());
 				        	}	
-				        	DCClient.execute(callback);
+				        	sem.release();
 						}
 					}.schedule();
+				} else {
+					sem.release();
 				}
 			}
-    		
+
     	};
     	
     	dcc.register(hubCreationListener);

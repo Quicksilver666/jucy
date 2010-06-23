@@ -65,6 +65,7 @@ public class Lang {
 		,DefaultAwayMessage
 		,DefaultDownloadDirectory
 		,DeleteLog
+		,DeletedUnusedHashes
 		,Description
 		,DifferentFiles
 		,Directory
@@ -111,6 +112,7 @@ public class Lang {
 		,Filename
 		,Files
 		,FilesLeft
+		,FilterUserlist
 		,Find
 		,FindDescription
 		,FindExtensions

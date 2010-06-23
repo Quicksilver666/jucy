@@ -324,6 +324,7 @@ public class URLTextModificator implements ITextModificator {
 			public void mouseDown(MouseEvent e) {
 				String uri = (String)e.widget.getData();
 				addLabelImage(op.x,uri);
+				text.redraw(); 
 			}
 		});
 		lab.addDisposeListener(new DisposeListener() {
@@ -496,7 +497,7 @@ public class URLTextModificator implements ITextModificator {
 		
 		private void openFile(File f,String uri,ObjectPoint<Control> point,URLTextModificator mod) {
 			try {
-				ImageData imgda = ImageDescriptor.createFromURL(f.toURL()).getImageData();
+				ImageData imgda = ImageDescriptor.createFromURL(f.toURI().toURL()).getImageData();
 				Image img  = GraphicalFileDownloader.scaleIfNeeded(imgda);
 				mod.addLabelReplacementImage(point.x, uri, img);
 			} catch (Exception e) {

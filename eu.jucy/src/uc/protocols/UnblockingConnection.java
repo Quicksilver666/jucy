@@ -163,12 +163,14 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		synchronized (bufferLock) {
 			if (encryption) {
 				try {
-					encrypting.clear();
-					SSLEngineResult ssler = engine.wrap(toSend, encrypting);
-					encrypting.flip();
-					varOutBuffer.putBytes(encrypting);
-					evaluateHandshakeStatus(ssler.getHandshakeStatus());
-				
+					do {
+						encrypting.clear();
+						SSLEngineResult ssler = engine.wrap(toSend, encrypting);
+						encrypting.flip();
+						varOutBuffer.putBytes(encrypting);
+						evaluateHandshakeStatus(ssler.getHandshakeStatus());
+					} while (toSend.hasRemaining()); //even empty buffers need to execute this at least once..
+					
 				} catch(RuntimeException re) {
 					addProblematic(re);
 				} catch(SSLException ssle) {
@@ -182,6 +184,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		if (!blocking) {
 			addInterestOp(SelectionKey.OP_WRITE);
 		}
+		
 	}
 	
 	
@@ -748,37 +751,38 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 
 	@Override
 	public void close() {
+		final Semaphore sem = new Semaphore(0);
 		Runnable r = new Runnable() {
 			public void run() {
 				if (key != null) {
-					if (encryption && key.channel().isOpen()) {
-						engine.closeOutbound();
-						send(ByteBuffer.allocate(0)); //used for wrapping remaining data..
-						flush(250);
+					if (key.channel().isOpen()) {
+						if (encryption) {
+							engine.closeOutbound();
+							send(ByteBuffer.allocate(0)); //used for wrapping remaining data..
+						}
+						flush(encryption?800:400);
 					}
 				
 					GH.close(key.channel());
 					key.cancel();
-				}
+				
 
-				try {
-					if (key != null && !key.isValid()) {
-						onDisconnect();
+					try {
+						if (!key.isValid()) {
+							onDisconnect();
+						}
+					} catch(IOException ioe){
+						logger.warn(ioe, ioe);
 					}
-				} catch(IOException ioe){
-					logger.warn(ioe, ioe);
 				}
+				sem.release();
 			}
 		};
-		if (blocking) {
-			r.run();
-		} else {
-			MultiStandardConnection.get().synchExec(r);
-		}
+		DCClient.execute(r);
+		sem.acquireUninterruptibly();
 	}
 	
 	
-	@Override
 	public boolean flush(int milliseconds) {
 		if (blocking) {
 			try {
@@ -793,26 +797,19 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			return varOutBuffer.hasRemaining();
 			
 		} else {
-			int sleptTotal = 0;
-			boolean hasRemaining;
+			
+			long sleepEnd = System.currentTimeMillis() + milliseconds;
 			synchronized(bufferLock) {
-				hasRemaining = varOutBuffer.hasRemaining();
-			}
-			while (hasRemaining && sleptTotal < milliseconds) {
-				int sleep = milliseconds - sleptTotal;
-				if (sleep > 20 ) {
-					sleep = Math.min(100, sleep);
-				} else {
-					sleep = 100;
+				while (varOutBuffer.hasRemaining()&& System.currentTimeMillis() < sleepEnd) {
+					try {
+						bufferLock.wait(20);
+					} catch (InterruptedException e) {
+						Thread.interrupted();
+						break;
+					}
 				}
-				sleptTotal += sleep;
-				GH.sleep(sleep );
-				
-				synchronized(bufferLock) {
-					hasRemaining = varOutBuffer.hasRemaining();
-				}
+				return varOutBuffer.hasRemaining();
 			}
-			return hasRemaining;
 		}
 	}
 
@@ -895,15 +892,24 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		}
 
 		public int read(ByteBuffer dst) throws IOException {
+			boolean varInBufferHasRemaining;
 			synchronized (bufferLock) {
-				while (!varInBuffer.hasRemaining()) {
-					UnblockingConnection.this.read();
+				varInBufferHasRemaining = varInBuffer.hasRemaining();
+			}
+			while (!varInBufferHasRemaining) {
+				UnblockingConnection.this.read();
+				synchronized (bufferLock) {
 					if (!encryption || engine.isInboundDone()) { //without encryption read is always successful... also we need a break if encryption is done..
 						break;
 					}
-				} 
+					varInBufferHasRemaining = varInBuffer.hasRemaining();
+				}
+					
+			} 
+			synchronized (bufferLock) {
 				return varInBuffer.getBytes(dst);
 			}
+			
 		}
 
 		public void close() throws IOException {

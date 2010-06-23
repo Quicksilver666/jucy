@@ -30,7 +30,7 @@ public class CreateZip {
 	private static void setExecutableExecutable(File parentFolder) {
 		String executableName= PackAndUpload.get("executableName");
 		for (File f: parentFolder.listFiles()) {
-			if (f.isFile() && f.equals(executableName)) {
+			if (f.isFile() && f.getName().equals(executableName)) {
 				boolean success=f.setExecutable(true, false);
 				System.out.println("set executable: "+f);
 			}

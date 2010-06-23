@@ -226,7 +226,7 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 		
 		
 		
-		tableViewer= new TableViewer(sashForm, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER );
+		tableViewer= new TableViewer(sashForm, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER  );
 		table = tableViewer.getTable();
 		table.setHeaderVisible(true);
 	//	tableViewer.setUseHashlookup(true);
@@ -261,19 +261,20 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 
 		writeline = new Text(composite_1,  SWT.MULTI | SWT.BORDER);
 	
-		writeline.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		writeline.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		writeline.setText("");
 	
 		
 
-		filterText = new Text(composite_1, SWT.BORDER);
+		filterText = new Text(composite_1, SWT.BORDER | SWT.SEARCH| SWT.ICON_SEARCH);
 		filterText.addModifyListener(new ModifyListener() {
 			public void modifyText(final ModifyEvent e) {
 				setFilter(filterText.getText());
 			}
 		});
-		final GridData gridData_2 = new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1);
-		gridData_2.widthHint = 80;
+		filterText.setMessage("<"+Lang.FilterUserlist+">"); 
+		final GridData gridData_2 = new GridData(SWT.FILL, SWT.FILL, false, false);
+		gridData_2.widthHint = 120;
 		filterText.setLayoutData(gridData_2);
 
 		gridLayout.verticalSpacing = 0;
@@ -322,7 +323,11 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 					sashForm.setWeights(new int[] {300, 0 });     // make only HubTextpart visible.. 
 				} else {	
 					table.setVisible(true); //set visible
-					sashForm.setWeights(weights);                //and old weights
+					try {
+						sashForm.setWeights(weights);                //and old weights
+					} catch(IllegalArgumentException iae) {
+						sashForm.setWeights(new int[]{300,100});
+					}
 					weights = null;
 				}
 			}

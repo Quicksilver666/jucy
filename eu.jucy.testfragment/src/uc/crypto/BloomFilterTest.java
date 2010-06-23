@@ -35,6 +35,8 @@ public class BloomFilterTest {
 		assertTrue(blom2.possiblyContains(hash2));
 		assertFalse(blom2.possiblyContains(hash3));
 		
+		
+		
 		byte[] b = blom2.getBytes();
 		
 		assertEquals(1024 / 8, b.length);
@@ -45,7 +47,8 @@ public class BloomFilterTest {
 		assertTrue(blom2copy.possiblyContains(hash2));
 		assertFalse(blom2copy.possiblyContains(hash3));
 		
-		
+	//	System.out.println("BLOM 1: "+BASE32Encoder.encode(blom.getBytes()));
+	//	System.out.println("BLOM 2: "+BASE32Encoder.encode(blom2.getBytes()));
 	}
 	
 	/**
@@ -88,7 +91,7 @@ public class BloomFilterTest {
 	private static void write(PrintStream ps,int m, int h, int k,HashValue... toadd) {
 		BloomFilter blom = new BloomFilter(m,h,k);
 		
-		ps.println("Bloomfilter attib  m: "+m+" h:"+h+" k:"+k);
+		ps.println("Bloomfilter attrib  m: "+m+" h:"+h+" k:"+k);
 		for (HashValue hv:toadd)  {
 			blom.addHashValue(hv);
 			ps.println("Added hashValue: "+hv);

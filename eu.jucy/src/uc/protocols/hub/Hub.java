@@ -162,9 +162,14 @@ public class Hub extends DCProtocol implements IHub {
 		Collections.synchronizedSet(new HashSet<String>()); // The SupportString of the other side 
 	
 	/**
-	 * string containing only the name .. if possible not the whole topic
+	 * containing only the name .. if possible not the whole topic
 	 */
 	private String topic = "";
+	
+	/**
+	 *  VE INF field of ADC ..
+	 */
+	private String version = "";
 	
 	/**
 	 * summed share over all users in the hub..
@@ -556,6 +561,7 @@ public class Hub extends DCProtocol implements IHub {
 	public void beforeConnect() {
 		logger.debug("beforeConnect()");
 		topic = ""; //delete topic
+		version = "";
 		registered = false;
 		
 		self = createSelf();
@@ -679,6 +685,8 @@ public class Hub extends DCProtocol implements IHub {
 		unsuccessfulConnectionsInARow = 0;
 		//now information if we are registered or operator may have changed
 		dcc.notifyChangedInfo(InfoChange.Hubs); 
+		
+		//hubs may fail to send user IP to us therefore ask for it if not sent
 		dcc.getSchedulerDir().schedule(
 		new Runnable() {
 			public void run() {
@@ -1304,11 +1312,11 @@ public class Hub extends DCProtocol implements IHub {
 			weWantToReconnect	=	false;
 			unregisterCTMListener(identity.getConnectionHandler());
 			dcc.internal_unregisterHub(favHub);
-			connection.close();
-			end();
 		} finally {
 			lock.unlock();
 		}
+		connection.close(); //call to close may not be locked as synch itself
+		end();
 	}
 
 	/**
@@ -1385,7 +1393,7 @@ public class Hub extends DCProtocol implements IHub {
 				if (dcc.isRunningHub(favHub)) { //reconnect if the hub didn't do this already..
 					logger.debug("reconnecting");
 					statusMessage(LanguageKeys.Reconnecting,0);
-					connection.reset(favHub.getInetSocketaddress());
+					connection.reset(favHub.getInetSocketaddress()); //TODO here some connection reset failed timeout otherwise jucy stops connecting
 				}
 				
 			}
@@ -1530,6 +1538,17 @@ public class Hub extends DCProtocol implements IHub {
 				ihcl.hubnameChanged(hubname,topic);
 			}
 		}
+	}
+	
+	void setVersion(String version) {
+		if (!version.equals(this.version)) {
+			this.version = version;
+			statusMessage(version, 0);
+		}
+	}
+	
+	public String getVersion() {
+		return version;
 	}
 
 

@@ -35,7 +35,7 @@ TRACE Hub.java Line:463
 
 	public void handle(String command) throws ProtocolException, IOException {
 		User usr = getOther();
-		if (usr == null) {
+		if (usr == null || usr.equals(hub.getSelf())) {
 			return;
 		}
 		

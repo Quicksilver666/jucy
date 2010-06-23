@@ -294,7 +294,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 				return found.getUser();
 			} else {
 				if (Platform.inDevelopmentMode()) {
-					logger.warn("not found EF for "+nick);
+					logger.warn("not found CTM info for "+nick+"  user was not expected to connect!");
 				}
 				return null;
 			}

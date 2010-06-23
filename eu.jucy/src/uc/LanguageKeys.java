@@ -21,6 +21,7 @@ public class LanguageKeys {
 		,CDDeterminedIPOverWeb
 		,CDUPnPNotPresent
 		,CDUPnPNotWorking
+		,CertificateCreationFailed
 		,Closed
 		,Connected
 		,Connecting
@@ -39,11 +40,13 @@ public class LanguageKeys {
 		,IPv6DetectionFailed
 		,IPv6PublicIPFound
 		,Idle
+		,IndexingTextfiles
 		,LoadedCertificate
 		,LoggedIn
 		,LoginTimeout
 		,MatchedXFilesWithUserY
 		,NewPublicIP
+		,NoCertFound
 		,Reconnecting
 		,RefreshingFilelist
 		,STA11HubFull

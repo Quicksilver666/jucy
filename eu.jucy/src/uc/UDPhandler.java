@@ -23,6 +23,7 @@ import java.nio.charset.CodingErrorAction;
 
 
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 
 
@@ -38,6 +39,7 @@ import org.eclipse.core.runtime.Platform;
 
 import uc.crypto.UDPEncryption;
 import uc.protocols.DCProtocol;
+import uc.protocols.IConnectionDebugger;
 import uc.protocols.Socks;
 import uc.protocols.DCPacketReceiver.ADCReceiver;
 import uc.protocols.DCPacketReceiver.NMDCReceiver;
@@ -62,6 +64,9 @@ public class UDPhandler implements IUDPHandler {
 	
 	private final CopyOnWriteArrayList<byte[]> keysActive = new CopyOnWriteArrayList<byte[]>();
 
+	private final CopyOnWriteArraySet<IConnectionDebugger> debuggers = 
+		new CopyOnWriteArraySet<IConnectionDebugger>();
+	
 	/**
 	 * communication variable to signal port changed in the settings 
 	 */
@@ -118,10 +123,9 @@ public class UDPhandler implements IUDPHandler {
 	    	dcc.logEvent(String.format(LanguageKeys.UDPStarted, port));// "UDP handler gone up on Port: "+port);
 		} catch (SecurityException se) {
 			if (port <= 1024 && (Platform.getOS().equals(Platform.OS_MACOSX) || Platform.getOS().equals(Platform.OS_LINUX)) ) {
-				
-				throw new missing16api.IOException(String.format(LanguageKeys.UNIXPortWarning, Platform.getOS()),se); // "Unix based OS need root rights to use ports lower than 1024!",se );
+				throw new IOException(String.format(LanguageKeys.UNIXPortWarning, Platform.getOS()),se); // "Unix based OS need root rights to use ports lower than 1024!",se );
 			} 
-			throw new missing16api.IOException(se);
+			throw new IOException(se);
 		}
     }
     
@@ -202,6 +206,9 @@ public class UDPhandler implements IUDPHandler {
     		
     		if (r != null && r.matches(packet.get(1), packet.get(2), packet.get(3))) {
     			r.packetReceived(packet, from);
+//    			for (IConnectionDebugger debugger:debuggers) {
+//    				debugger.receivedCommand(commandHandler, t, command)
+//    			}
     		} else if (possiblyEncrypted && packet.remaining() > UDPEncryption.KEYLENGTH*2) {
     			byte[] encrypted = new byte[packet.remaining()];
     			packet.get(encrypted);
@@ -330,6 +337,14 @@ public class UDPhandler implements IUDPHandler {
 		if (keysActive.size() > 10) {
 			keysActive.remove(keysActive.size()-1);
 		}
+	}
+	
+	public void registerConnectionDebugger(IConnectionDebugger debugger) {
+		debuggers.add(debugger);
+	}
+	
+	public void unregisterConnectionDebugger(IConnectionDebugger debugger) {
+		debuggers.remove(debugger);
 	}
 	
 

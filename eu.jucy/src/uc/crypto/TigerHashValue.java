@@ -65,6 +65,14 @@ public class TigerHashValue extends HashValue {
 		return Tiger.tigerOfHash(this);
 	}
 	
+
+	@Override
+	public HashValue internalHash(HashValue rightChild) {
+		return Tiger.internalHash(this, rightChild);
+	}
+
+
+
 	public static void main(String[] args) {
 		byte[] startWithCID = BASE32Encoder.decode("JUCYR"); 
 		byte[] startWithPID = BASE32Encoder.decode("LOVEA"); 
@@ -95,6 +103,7 @@ public class TigerHashValue extends HashValue {
 		}
 		System.out.println("fin: PID :"+ BASE32Encoder.encode(hash)+"  CID:"+BASE32Encoder.encode(cid));
 	}
+	
 	
 
 }

@@ -89,15 +89,7 @@ public class FavHubEditor extends UCEditor implements IObserver<FavHub> {
 	
 	private Table table;
 	private CheckboxTableViewer tableViewer;
-//	private OpenHubAction openHubAction;
-//	private CreateFavHubAction createFavHubAction;
-//	private ChangePropertiesAction changePropertiesAction;
-	
-	
-	
 	private TableViewerAdministrator<FavHub> tva;
-
-	
 	private IFavHubs favHubs = ApplicationWorkbenchWindowAdvisor.get().getFavHubs();
 
 	
@@ -111,12 +103,6 @@ public class FavHubEditor extends UCEditor implements IObserver<FavHub> {
 		parent.setLayout(new GridLayout());
 
 		table = new Table(parent,SWT.CHECK | SWT.SINGLE|SWT.FULL_SELECTION |SWT.HIDE_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.HIDE_SELECTION );
-	/*	table.addMouseListener(new MouseAdapter() {
-			public void mouseDoubleClick(final MouseEvent e) {
-				logger.debug("doubleClick received. ");
-				connect();
-			}
-		}); */
 		
 		
 		tableViewer = new CheckboxTableViewer( table );
@@ -151,11 +137,6 @@ public class FavHubEditor extends UCEditor implements IObserver<FavHub> {
 	
 		
 		getSite().setSelectionProvider(tableViewer);
-		
-
-//		makeActions();
-		
-		//createPopUpMenu();
 		createContextPopup(tableViewer);
 		
 
@@ -170,69 +151,14 @@ public class FavHubEditor extends UCEditor implements IObserver<FavHub> {
 		fillLayout.spacing = 5;
 		composite.setLayout(fillLayout);
 		
-		final Button newButton = new Button(composite, SWT.NONE);
-		CommandButton.setCommandToButton(CreateFavHubsHandler.COMMAND_ID, newButton, getSite(),false);
-		
-//		newButton.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				create();
-//			}
-//		});
-//		
-//		newButton.setText(createFavHubAction.getText());
-
-		final Button propertiesButton = new Button(composite, SWT.NONE);
-		CommandButton.setCommandToButton(ChangeFHPropertiesHandler.COMMAND_ID, propertiesButton, getSite(),false);
-		
-//		propertiesButton.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				changeProperties();
-//			}
-//		});
-//		propertiesButton.setText(changePropertiesAction.getText());
-		
-		
-		
-
-		final Button removeButton = new Button(composite, SWT.NONE);
-		CommandButton.setCommandToButton(RemoveHandler.COMMAND_ID, removeButton, getSite(),false);
-//		removeButton.setText(Lang.Remove);
-//		removeButton.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				remove();
-//			}
-//		});
-
-		final Button moveUpButton = new Button(composite, SWT.NONE);
-		CommandButton.setCommandToButton(MoveUpHandler.COMMAND_ID, moveUpButton, getSite(),false);
-		
-//		moveUpButton.setText(Lang.MoveUp);
-//		moveUpButton.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				move(true);
-//			}
-//		});
-
-		final Button moveDownButton = new Button(composite, SWT.NONE);
-		CommandButton.setCommandToButton(MoveDownHandler.COMMAND_ID, moveDownButton, getSite(),false);
-//		moveDownButton.setText(Lang.MoveDown);
-//		moveDownButton.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				move(false);
-//			}
-//		});
-		final Button connectButton = new Button(composite, SWT.NONE);
-		CommandButton.setCommandToButton(OpenHubHandler.COMMAND_ID, connectButton, getSite(),false);
-		
-//		connectButton.setText(openHubAction.getText());
-//		connectButton.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				connect();
-//			}
-//		});
-		//
-		
-	
+		for (String command:new String[]{
+				CreateFavHubsHandler.COMMAND_ID,ChangeFHPropertiesHandler.COMMAND_ID,
+				RemoveHandler.COMMAND_ID,MoveUpHandler.COMMAND_ID,
+				MoveDownHandler.COMMAND_ID,OpenHubHandler.COMMAND_ID}) {
+			
+			Button button = new Button(composite, SWT.NONE);
+			CommandButton.setCommandToButton(command, button, getSite(),false);
+		}
 	
 		tableViewer.setInput(favHubs);
 		favHubs.addObserver(this);
@@ -245,129 +171,8 @@ public class FavHubEditor extends UCEditor implements IObserver<FavHub> {
 		return getPartName();
 	}
 
+	
 
-
-//	private void makeActions() {
-//		IWorkbenchWindow window = getSite().getWorkbenchWindow();
-//		openHubAction = new OpenHubAction(tableViewer);
-//		createFavHubAction = new CreateFavHubAction(window);
-//		changePropertiesAction = new ChangePropertiesAction(window,tableViewer);
-//	}
-	
-	
-//	private void createPopUpMenu() {
-//		final Menu menu = new Menu(table);
-//		
-//		
-//		final MenuItem menuItem = new MenuItem(menu, SWT.NONE);
-//		menuItem.setText(openHubAction.getText());
-//		menuItem.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				connect();
-//			}
-//		});
-//		menuItem.setAccelerator(SWT.ALT | 'C');
-//		
-//
-//		final MenuItem menuItem_1 = new MenuItem(menu, SWT.NONE);
-//		menuItem_1.setText(createFavHubAction.getText());
-//		
-//		menuItem_1.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				create();
-//			}
-//		});
-//		menuItem_1.setAccelerator(createFavHubAction.getAccelerator());
-//		
-//		
-//		final MenuItem menuItem_2 = new MenuItem(menu, SWT.NONE);
-//		menuItem_2.setText(changePropertiesAction.getText());
-//		menuItem_2.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				changeProperties();
-//			}
-//		});
-//		menuItem_2.setAccelerator(changePropertiesAction.getAccelerator());
-//		
-//
-//		final MenuItem menuItem_3 = new MenuItem(menu, SWT.NONE);
-//		menuItem_3.setText(Lang.MoveUp);
-//		menuItem_3.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				move(true);
-//			}
-//		});
-//		
-//		final MenuItem menuItem_4 = new MenuItem(menu, SWT.NONE);
-//		menuItem_4.setText(Lang.MoveDown);
-//		menuItem_4.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				move(false);
-//			}
-//		});
-//		
-//
-//		new MenuItem(menu, SWT.SEPARATOR);
-//
-//		final MenuItem menuItem_5 = new MenuItem(menu, SWT.NONE);
-//		menuItem_5.setText(Lang.Remove);
-//		menuItem_5.addSelectionListener(new SelectionAdapter() {
-//			public void widgetSelected(final SelectionEvent e) {
-//				remove();
-//			}
-//		});
-//		table.setMenu(menu);
-//	}
-	
-//	private void remove() {
-//		FavHub fh = getCurrent();
-//		
-//		if (fh != null) {
-//			fh.removeFromFavHubs(favHubs);
-//			//tableViewer.remove(fh);
-//			//tableViewer.refresh();
-//		}
-//	}
-//	
-//	private void move(boolean up) {
-//		FavHub fh = getCurrent();
-//		
-//		if (fh != null) {
-//			fh.changePriority(up,favHubs);
-//			//tableViewer.refresh();
-//		}
-//	}
-//
-//	public void changeProperties() {
-//		if (changePropertiesAction.isEnabled()) {
-//			changePropertiesAction.run();
-//		}
-//	}
-//	
-//	
-//	private void connect(){
-//		if (openHubAction.isEnabled()) {
-//			openHubAction.run();
-//		}
-//	}
-//	
-//	private FavHub getCurrent() {
-//		ISelection selection = tableViewer.getSelection();
-//		if (selection instanceof IStructuredSelection && !((IStructuredSelection)selection).isEmpty() )
-//			return (FavHub)((IStructuredSelection)selection).getFirstElement();
-//		
-//		return null;
-//	}
-//	
-//	private void create() {
-//		createFavHubAction.run();
-//		tableViewer.refresh();
-//	}
-
-	
-	
-	
-	
 	public void update(IObservable<FavHub> o, FavHub arg) {
 		new SUIJob() {
 			public void run() {
@@ -376,7 +181,6 @@ public class FavHubEditor extends UCEditor implements IObserver<FavHub> {
 			}
 			
 		}.schedule();
-		
 	}
 
 	

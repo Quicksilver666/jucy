@@ -21,6 +21,7 @@ import uc.IUser;
 import uc.crypto.HashValue;
 import uc.files.IDownloadable;
 import uc.files.IDownloadable.IDownloadableFile;
+import uc.files.MagnetLink;
 import uc.files.filelist.FileListFolder;
 import uc.protocols.hub.AbstractADCHubCommand;
 import uc.protocols.hub.INFField;
@@ -242,7 +243,13 @@ public class SendContext {
 		fileSI(FormatterType.FILE,"fileSIsize","filesize"),
 		fileSIshort(FormatterType.FILE,"filesizeshort"),
 		fileTR(FormatterType.FILE,"tth"),
+		fileMN(FormatterType.FILE),
 		type(FormatterType.FILE),
+		
+		hubNI(FormatterType.HUB),
+		hubDE(FormatterType.HUB),
+		hubVE(FormatterType.HUB),
+		
 		//line(FormatterType.OTHER), .. line is not allowed here..
 		DEFAULT(FormatterType.OTHER);
 		
@@ -410,15 +417,26 @@ public class SendContext {
 				} else {
 					return "";
 				}
+			case fileMN:
+				if (file.isFile()) {
+					return new MagnetLink((IDownloadableFile)file).toString();
+				} else {
+					return "";
+				}
 			case type:
 				if (file.isFile()) {
 					return "File";
 				} else {
 					return "Directory";
 				}
+			case hubNI:
+				return sc.getHub().getName();
+			case hubDE:
+				return sc.getHub().getTopic();
+			case hubVE:
+				return sc.getHub().getVersion();
 			case DEFAULT:
 				return "%["+formatString+"]";
-				
 			}
 			
 			return "%["+formatString+"]";

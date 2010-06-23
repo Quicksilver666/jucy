@@ -91,7 +91,7 @@ public class TTHLDQE extends AbstractFileDQE {
 						List<IUser> users = new ArrayList<IUser>(TTHLDQE.this.users);
 				
 					
-						remove(); 
+						remove(); //remove the TTHLDQE from the Queue 
 				
 						dq.addDownloadQueueEntry(fdqe); //add the FDQE now to the queue..
 					

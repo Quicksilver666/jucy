@@ -1,6 +1,7 @@
 package uc.files.filelist;
 
 import helpers.GH;
+import helpers.SizeEnum;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,6 +54,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import uc.LanguageKeys;
 import uc.PI;
 import uc.crypto.HashValue;
 
@@ -293,7 +295,7 @@ public class TextIndexer {
 						pdfFiles.add(file);
 					}
 				}
-				monitor.beginTask("Indexing Textfiles", pdfFiles.size());
+				monitor.beginTask(LanguageKeys.IndexingTextfiles, pdfFiles.size());
 				logger.debug("Files total: "+pdfFiles.size());
 				for (FileListFile file: pdfFiles) {
 					File f = null;
@@ -308,7 +310,10 @@ public class TextIndexer {
 							if (monitor.isCanceled()) {
 								break;
 							}
-							addPDFIfAbsent(f, file.getTTHRoot());
+							if (!exists(file.getTTHRoot())) {
+								monitor.subTask(String.format("%s (%s)",file.getName(),SizeEnum.getReadableSize(file.getSize())));
+								addPDFIfAbsent(f, file.getTTHRoot());
+							}
 						}
 					}
 					monitor.worked(1);

@@ -5,8 +5,9 @@ Bundle-SymbolicName: eu.jucy.connectiondebugger; singleton:=true
 Bundle-Version: 1.0.1.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
- eu.jucy;bundle-version="1.1.7",
- eu.jucy.helpers;bundle-version="1.1.5",
- eu.jucy.logging;bundle-version="1.1.3",
- eu.jucy.gui;bundle-version="1.1.8"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+ eu.jucy,
+ eu.jucy.helpers,
+ eu.jucy.logging,
+ eu.jucy.gui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+

@@ -87,13 +87,13 @@ public interface IConnection extends Closeable {
 	 */
 	boolean returnChannel(ByteChannel sochan);
 
-	/**
+	/*
 	 * should try to flush the stream for up to provided time
 	 * @param miliseconds - how long it should try to flush
 	 * @returns true if after flushing there is no data more to be sent
 	 *  false if still some data is waiting to be sent..
 	 */
-	boolean flush(int miliseconds);
+//	boolean flush(int miliseconds);
 
 	/**
 	 * turn on and off decompression of incoming data

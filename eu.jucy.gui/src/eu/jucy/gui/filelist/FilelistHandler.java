@@ -1,6 +1,7 @@
 package eu.jucy.gui.filelist;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -12,6 +13,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import uc.DCClient;
 import uc.IUser;
 import uc.Population;
 import uc.files.IDownloadable;
@@ -21,24 +23,34 @@ import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 
 public class FilelistHandler extends AbstractHandler {
 
+	
+	
 	public static void openFilelist(IUser usr,IWorkbenchWindow window) {
 		openFilelist(usr,null,window);
 	}
 	
 	public static void openFilelist(final IUser usr,final IDownloadable initialSelection,final IWorkbenchWindow window) {
 		if (usr != null && usr.getFilelistDescriptor() != null && window != null) {
-			final FileList fl = usr.getFilelistDescriptor().getFilelist(); // force loading Filelist outside of UI thread..
-			new SUIJob() {
-				public void run() {
-					FilelistEditorInput fei = new FilelistEditorInput(usr.getFilelistDescriptor(),initialSelection);
-					try {
-						window.getActivePage().openEditor(fei,FilelistEditor.ID);
-					} catch(PartInitException pie) {
-						MessageDialog.openError(window.getShell(), "Error", "Error opening Filelisteditor: " + pie.getMessage()+"  "+fl.getUsr());
+			if (FilelistEditor.isAnotherEditorPossible()) {
+				final FileList fl = usr.getFilelistDescriptor().getFilelist(); // force loading Filelist outside of UI thread..
+				new SUIJob() {
+					public void run() {
+						FilelistEditorInput fei = new FilelistEditorInput(usr.getFilelistDescriptor(),initialSelection);
+						try {
+							window.getActivePage().openEditor(fei,FilelistEditor.ID,!FilelistEditor.isAnotherEditorOpen());
+						} catch(PartInitException pie) {
+							MessageDialog.openError(window.getShell(), "Error", "Error opening Filelisteditor: " + pie.getMessage()+"  "+fl.getUsr());
+						}
 					}
-					
-				}
-			}.schedule();
+				}.schedule();
+			} else {
+				DCClient.getScheduler().schedule(new Runnable() {//can't get scheduler directly for illegal thread access..from AWWAdvisor
+					@Override
+					public void run() {
+						openFilelist(usr, initialSelection,window);
+					}
+				}, 1, TimeUnit.SECONDS);
+			}
 		}
 	}
 	

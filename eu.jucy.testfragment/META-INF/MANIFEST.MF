@@ -4,7 +4,7 @@ Bundle-Name: Testfragment Fragment
 Bundle-SymbolicName: eu.jucy.testfragment;singleton:=true
 Bundle-Version: 1.0.0
 Fragment-Host: eu.jucy;bundle-version="1.0.14"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.junit4;bundle-version="4.5.0"
 Bundle-ClassPath: socks/lib/socks_apps.jar,
  socks/lib/socks.jar,

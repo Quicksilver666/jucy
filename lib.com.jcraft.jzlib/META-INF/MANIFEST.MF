@@ -3,6 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Jzlib
 Bundle-SymbolicName: lib.com.jcraft.jzlib
 Bundle-Version: 1.0.7
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.jcraft.jzlib
 Bundle-ClassPath: .

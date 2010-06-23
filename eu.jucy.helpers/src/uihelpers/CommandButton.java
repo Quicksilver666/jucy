@@ -15,7 +15,7 @@ import org.eclipse.ui.services.IServiceLocator;
 public class CommandButton {
 
 	/**
-	 * sets the buttons test to the Name of the provided command
+	 * sets the buttons text to the Name of the provided command
 	 * the tootip to its description
 	 * and registers a listener on the button that will execute the provided command if 
 	 * button is selected 
@@ -23,7 +23,7 @@ public class CommandButton {
 	 * @param commandID - which command should be executed on selection and should be used for caption of the button
 	 * @param button button to be decorated
 	 * @param isl the servicelocator i.e. workbenchpartsite or WorkbenchWindow
-	 * @param setTooltip  if the button should get the description of the command set as tooltip or not
+	 * @param setTooltip  if the button should get the description of the command set as tooltip too or not
 	 */
 	public static void setCommandToButton(final String commandId,Button button,final IServiceLocator isl,boolean setTooltip) {
 		IExtensionRegistry reg = Platform.getExtensionRegistry();

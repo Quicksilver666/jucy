@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.libraries"
       label="Libraries"
-      version="1.0.0.qualifier"
+      version="1.0.2.qualifier"
       provider-name="Various Third Parties">
 
    <description>
@@ -85,7 +85,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="lib.org.apache.pdfbox"
          download-size="0"
          install-size="0"
-         version="0.8.2"
+         version="1.1.0"
          unpack="false"/>
 
    <plugin
@@ -105,6 +105,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="lib.org.hsqldb"
          download-size="0"
          install-size="0"
-         version="1.9.8"/>
+         version="2.0.0"/>
 
 </feature>

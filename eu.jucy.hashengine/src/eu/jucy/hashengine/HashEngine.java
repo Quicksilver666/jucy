@@ -297,6 +297,9 @@ public class HashEngine implements IHashEngine {
 				
 				
 				InterleaveHashes inter = getHasher().hash( fc , file.length(), monitor);
+				while (inter.byteSize() > 1024*256) { //128 Kib max size -> db does not grow to large 
+					inter = inter.getParentInterleaves();
+				}
 				
 				HashValue root = getHasher().hash(inter);
 				

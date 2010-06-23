@@ -37,18 +37,7 @@ public class MSG extends AbstractADCHubCommand {
 		} else {// else if(attr.containsKey(Flag.ME)) {
 			hub.mcMessageReceived(other, text,me);
 		}
-	//	} else {
-	//		hub.mcMessageReceived(other, text,false);
-	//	}
-		
-		/*if (matcher.groupCount() == 5) { // PM
-			User originator = hub.getUserBySID( SIDToInt(matcher.group(5)));
-			hub.pmReceived(originator,other , text);
-		} else if (matcher.groupCount() == 4) { //ME1 msg
-			hub.mcMessageReceived(other, text,true);
-		} else if (matcher.groupCount() == 3) { //4  MCM
-			hub.mcMessageReceived(other, text,false);
-		} */
+
 	}
 	
 	public static void sendPM(Hub hub,IUser target,String message,boolean me) {

@@ -1,18 +1,14 @@
 package eu.jucy.op.ui;
 
-import java.util.regex.Pattern;
 
 import logger.LoggerFactory;
 import helpers.GH;
 import helpers.SizeEnum;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.window.IShellProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -45,7 +41,7 @@ public class OpADLDialog extends TrayDialog {
 	private Button breakAfterRawButton;
 	
 	
-	private Text regExpTesterText;
+	
 	private Text commentText;
 	private Combo counterNameCombo;
 	private ComboBoxViewer<CounterFactory> comboViewer;
@@ -61,8 +57,7 @@ public class OpADLDialog extends TrayDialog {
 	private Combo searchTypeCombo;
 	private Text searchStringText;
 	private Spinner incrementBySpinner;
-	private Button regexpButton;
-	private Button caseSensitiveRegexpButton;
+
 	
 	private final OpADLEntry adlEntry;
 	
@@ -171,20 +166,7 @@ public class OpADLDialog extends TrayDialog {
 
 
 
-        regexpButton = new Button(composite_2, SWT.CHECK);
-        regexpButton.setText("RegExp");
-        regexpButton.setSelection(adlEntry.isRegExp());
-        regexpButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				caseSensitiveRegexpButton.setEnabled(regexpButton.getSelection());
-			}
-        });
 
-       	caseSensitiveRegexpButton = new Button(composite_2, SWT.CHECK);
-        caseSensitiveRegexpButton.setText("Case sensitive");
-        caseSensitiveRegexpButton.setSelection(adlEntry.isCaseSensitive());
-        caseSensitiveRegexpButton.setEnabled(regexpButton.getSelection());
 
         final Group actionsWhenFoundGroup = new Group(composite, SWT.NONE);
         actionsWhenFoundGroup.setText("Actions");
@@ -238,30 +220,7 @@ public class OpADLDialog extends TrayDialog {
         commentText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
         commentText.setText(adlEntry.getComment());
 
-        final Group regexpTesterGroup = new Group(composite, SWT.NONE);
-        regexpTesterGroup.setText("RegExp tester");
-        final GridLayout gridLayout_3 = new GridLayout();
-        gridLayout_3.numColumns = 2;
-        regexpTesterGroup.setLayout(gridLayout_3);
-        regexpTesterGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
-
-        regExpTesterText = new Text(regexpTesterGroup, SWT.BORDER);
-        regExpTesterText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-        regExpTesterText.setText("");
-        
-        final Button matchButton = new Button(regexpTesterGroup, SWT.NONE);
-        matchButton.setText("match");
-        matchButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(final SelectionEvent e) {
-				boolean caseSensitive = caseSensitiveRegexpButton.getSelection();
-				Pattern p = Pattern.compile(searchStringText.getText(),
-						Pattern.DOTALL |(caseSensitive?  0:Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE));
-				
-				boolean matches = p.matcher(regExpTesterText.getText()).matches();
-				MessageDialog.openInformation(getParentShell(), "RegExTester", 
-						matches? "It's a match!" : "No match!" );
-			}
-		});
+       
         
         
         setSizes();
@@ -289,8 +248,7 @@ public class OpADLDialog extends TrayDialog {
 			
 			adlEntry.setIncrementBy(incrementBySpinner.getSelection());
 			adlEntry.setCounter(comboViewer.getSelectedString());
-			adlEntry.setCaseSensitive(caseSensitiveRegexpButton.getEnabled());
-			adlEntry.setRegExp(regexpButton.getSelection());
+			
 			adlEntry.setComment(commentText.getText());
 			adlEntry.setRaw(rawCommandText.getText());
 			

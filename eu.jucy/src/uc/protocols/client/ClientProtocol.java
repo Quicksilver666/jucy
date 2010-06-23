@@ -547,7 +547,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 			if (fileTransfer != null) {
 				fileTransfer.cancel();
 			} else {
-				connection.flush(500); //for up to half a second we try flushing.. so MaxedOut can get through
+			//	connection.flush(500); //for up to half a second we try flushing.. so MaxedOut can get through
 				logger.debug("closed Connection: "+connection.getClass().getSimpleName());
 				connection.close();
 			}

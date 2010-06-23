@@ -74,7 +74,7 @@ public class UserCommand extends AbstractNMDCHubProtocolCommand {
 			path = path.trim();
 			Command com = hub.getLastUserCommand();
 			if (GH.isEmpty(path) && com != null) {
-				path = com.getParentPath()+"\\-"; //  \\- adds - as name to the parent path 
+				path = com.getParentPath()+"\\"; //  
 				logger.debug("path of sep: "+path);
 			}
 			hub.addUserCommand(new Command(where,path,hub.getFavHub().getHubaddy()));

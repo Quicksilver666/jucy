@@ -1,5 +1,7 @@
 package uc;
 
+import java.util.concurrent.Semaphore;
+
 
 
 
@@ -16,10 +18,10 @@ public interface IHubCreationListener {
 	 * 
 	 * @param fh - the FavHub used to create the hub..
 	 * @param showInUI tells if the hub should be shown to the user
-	 * @param callback  must be called when finished with the method 
-	 *  implemented due to synchronization complexity of making this method blocking
+	 * @param sem .. must release one permit on the semaphore after finishing..
+	 *  but method should not block..
 	 */
-	void hubCreated(FavHub fh, boolean showInUI,Runnable callback);
+	void hubCreated(FavHub fh, boolean showInUI,Semaphore sem);
 	
 	
 	

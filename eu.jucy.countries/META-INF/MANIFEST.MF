@@ -4,7 +4,7 @@ Bundle-Name: Country Plug-in
 Bundle-SymbolicName: eu.jucy.countries;singleton:=true
 Bundle-Version: 1.1.6
 Bundle-Localization: nl/countries
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: eu.jucy.geoipmaxmind,
  eu.jucy.gui,
  eu.jucy,

@@ -4,6 +4,7 @@ import helpers.GH;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -14,7 +15,7 @@ import uc.files.filelist.FileListFolder;
 
 public class ADLSearchEntry {
 
-	protected static final int ArrayLength = 7;
+	protected static final int ArrayLength = 9;
 	public static enum ADLSearchType {
 		Filename(Lang.ADL_Filename),Directory(Lang.ADL_Directory),FullPath(Lang.ADL_FullPath); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		
@@ -46,6 +47,9 @@ public class ADLSearchEntry {
 	
 	private boolean downloadMatches = false;
 	
+	private boolean regExp = false;
+	private boolean caseSensitive = true;
+	private Pattern p;
 	
 	//not persisted information
 	
@@ -156,7 +160,9 @@ public class ADLSearchEntry {
 				""+maxSize, //$NON-NLS-1$
 				""+minSize, //$NON-NLS-1$
 				searchString,
-				targetFolder};
+				targetFolder
+				,""+regExp
+				,""+caseSensitive};
 	} 
 	
 	private List<String> getOnSearch() {
@@ -186,14 +192,27 @@ public class ADLSearchEntry {
 		if (size < minSize || (maxSize != -1 && size > maxSize )) {
 			return false;
 		}
-		String toMatch = getToMatch(file,true);
 		
-		for (String check:getOnSearch()) {
-			if (!toMatch.contains(check)) {
-				return false;
+		if (regExp) {
+			Matcher m = getPattern().matcher(getToMatch(file,false));
+			return m.matches();
+		} else {
+			String toMatch = getToMatch(file,true);
+			for (String check:getOnSearch()) {
+				if (!toMatch.contains(check)) {
+					return false;
+				}
 			}
 		}
 		return true;
+	}
+	
+	private Pattern getPattern() {
+		if (p == null) {
+			p = Pattern.compile(getSearchString(), 
+					Pattern.DOTALL |(caseSensitive?  0:Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE));
+		}
+		return p;
 	}
 	
 	/**
@@ -203,12 +222,12 @@ public class ADLSearchEntry {
 	 * @param file - the file from which we want the string to search
 	 * @return the string to match against
 	 */
-	protected String getToMatch(FileListFile file,boolean caseinsensitive) {
+	protected String getToMatch(FileListFile file,boolean allLowercase) {
 		String toMatch;
 		switch(aDLSearchType) {
 		case Filename:
 			toMatch = file.getName();
-			if (caseinsensitive) {
+			if (allLowercase) {
 				toMatch = toMatch.toLowerCase();
 			}
 			break;
@@ -216,17 +235,17 @@ public class ADLSearchEntry {
 			if (file.getParent() != lastParentFolder) {
 				lastParentFolder = file.getParent();
 				lastParentPath = file.getParent().getPath()+java.io.File.separator;
-				if (caseinsensitive) {
+				if (allLowercase) {
 					lastParentPath = lastParentPath.toLowerCase();
 				}
 			}
-			toMatch = lastParentPath+  (caseinsensitive? file.getName().toLowerCase():file.getName());
+			toMatch = lastParentPath+  (allLowercase? file.getName().toLowerCase():file.getName());
 			break;
 		case Directory:
 			if (file.getParent() != lastParentFolder) {
 				lastParentFolder = file.getParent();
 				lastParentPath = file.getParent().getPath()+java.io.File.separator;
-				if (caseinsensitive) {
+				if (allLowercase) {
 					lastParentPath = lastParentPath.toLowerCase();
 				}
 			}
@@ -247,6 +266,7 @@ public class ADLSearchEntry {
 		lastParentFolder = null;
 		lastParentPath = null;
 		onSearch = null;
+		p = null;
 	}
 	
 	
@@ -265,8 +285,29 @@ public class ADLSearchEntry {
 		minSize = Long.valueOf(s[4]);
 		searchString = s[5];
 		targetFolder = s[6];
+		if (s.length >= 9 ) {
+			regExp = Boolean.parseBoolean(s[7]);
+			caseSensitive = Boolean.parseBoolean(s[8]);
+		}
 	}
 	
+	public boolean isRegExp() {
+		return regExp;
+	}
+
+	public void setRegExp(boolean regExp) {
+		this.regExp = regExp;
+	}
+	
+
+
+	public boolean isCaseSensitive() {
+		return caseSensitive;
+	}
+
+	public void setCaseSensitive(boolean caseSensitive) {
+		this.caseSensitive = caseSensitive;
+	}
 
 	
 }

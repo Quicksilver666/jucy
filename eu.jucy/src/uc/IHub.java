@@ -74,6 +74,18 @@ public interface IHub {
 	String getName();
 	
 	/**
+	 * 
+	 * @return the topic of the hub (DE field in ADC)
+	 */
+	String getTopic();
+	
+	/**
+	 * 
+	 * @return VE field in ADC .. empty in NMDC
+	 */
+	String getVersion();
+	
+	/**
 	 * sends raw message to the hub. Context provides info
 	 * for filling out %[] tags
 	 * @param message raw message to the hub

@@ -5,8 +5,7 @@ package eu.jucy.op;
 import helpers.GH;
 
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 import uc.IHub;
 import uc.files.filelist.FileListFile;
@@ -24,8 +23,8 @@ public class OpADLEntry  extends ADLSearchEntry {
 	private String raw = "";
 	
 	
-	private boolean regExp = false;
-	private boolean caseSensitive = true;
+//	private boolean regExp = false;
+//	private boolean caseSensitive = true;
 	
 	/**
 	 * a black and white list pair
@@ -48,7 +47,7 @@ public class OpADLEntry  extends ADLSearchEntry {
 	
 
 
-	private Pattern p;
+
 	
 
 	
@@ -61,7 +60,7 @@ public class OpADLEntry  extends ADLSearchEntry {
 			throw new IllegalStateException();
 		}
 		
-		String[] allData = new String[data.length+9];
+		String[] allData = new String[data.length+7];
 		System.arraycopy(data, 0, allData, 0, data.length);
 		
 
@@ -70,11 +69,11 @@ public class OpADLEntry  extends ADLSearchEntry {
 		allData[i+1] = ""+incrementBy;
 		allData[i+2] = raw;
 		allData[i+3] = ""+breakAfterRaw;
-		allData[i+4] = ""+regExp;
-		allData[i+5] = ""+caseSensitive;
-		allData[i+6] = comment;
-		allData[i+7] = listName;
-		allData[i+8] = searchType.name();
+//		allData[i+4] = ""+regExp;
+//		allData[i+5] = ""+caseSensitive;
+		allData[i+4] = comment;
+		allData[i+5] = listName;
+		allData[i+6] = searchType.name();
 		
 		
 		return allData;
@@ -90,37 +89,25 @@ public class OpADLEntry  extends ADLSearchEntry {
 		oae.incrementBy = Integer.parseInt(data[i+1]);
 		oae.raw = data[i+2];
 		oae.breakAfterRaw = Boolean.parseBoolean(data[i+3]);
-		oae.regExp = Boolean.parseBoolean(data[i+4]);
-		oae.caseSensitive = Boolean.parseBoolean(data[i+5]);
-		oae.comment = data[i+6];
-		oae.listName = data[i+7];
-		if (data.length > i+8) {
-			oae.searchType = SearchType.valueOf(data[i+8]);
-		}
+//		oae.regExp = Boolean.parseBoolean(data[i+4]);
+//		oae.caseSensitive = Boolean.parseBoolean(data[i+5]);
+		oae.comment = data[i+4];
+		oae.listName = data[i+5];
+		oae.searchType = SearchType.valueOf(data[i+6]);
+		
 		
 		return oae;
 	}
 	
 
 	
-	
-	
-	@Override
-	public void finishedSearch() {
-		p = null;
-		super.finishedSearch();
-	}
+
 
 	@Override
 	public boolean matches(FileListFile file) {
 		boolean matches = searchType.matches(file);
 		if (matches) {
-			if (isRegExp()) {
-				Matcher m = getPattern().matcher(getToMatch(file,false));
-				matches = m.matches();
-			} else {
-				matches = super.matches(file);
-			}
+			matches = super.matches(file);
 		}
 		return matches;
 	}
@@ -148,13 +135,7 @@ public class OpADLEntry  extends ADLSearchEntry {
 		return counter;
 	}
 	
-	private Pattern getPattern() {
-		if (p == null) {
-			p = Pattern.compile(getSearchString(), 
-					Pattern.DOTALL |(caseSensitive?  0:Pattern.UNICODE_CASE|Pattern.CASE_INSENSITIVE));
-		}
-		return p;
-	}
+
 
 	public void setCounter(String counter) {
 		this.counter = counter;
@@ -176,21 +157,6 @@ public class OpADLEntry  extends ADLSearchEntry {
 		this.raw = raw;
 	}
 
-	public boolean isRegExp() {
-		return regExp;
-	}
-
-	public void setRegExp(boolean regExp) {
-		this.regExp = regExp;
-	}
-
-	public boolean isCaseSensitive() {
-		return caseSensitive;
-	}
-
-	public void setCaseSensitive(boolean caseSensitive) {
-		this.caseSensitive = caseSensitive;
-	}
 
 	public String getComment() {
 		return comment;

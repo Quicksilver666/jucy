@@ -5,10 +5,10 @@ Bundle-SymbolicName: eu.jucy.helpers;singleton:=true
 Bundle-Version: 1.83.1.qualifier
 Bundle-Localization: nl/helpers
 Export-Package: helpers,
- missing16api,
  uihelpers
 Require-Bundle: org.eclipse.ui,
  eu.jucy.logging,
  org.eclipse.core.runtime,
- lib.com.jcraft.jzlib;bundle-version="1.0.7"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+ lib.com.jcraft.jzlib
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+

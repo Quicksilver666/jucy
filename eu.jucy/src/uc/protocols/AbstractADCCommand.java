@@ -8,6 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import logger.LoggerFactory;
+
+
+import org.apache.log4j.Logger;
+
 
 
 import uc.protocols.hub.Flag;
@@ -15,6 +20,7 @@ import uc.protocols.hub.INFField;
 
 public abstract class AbstractADCCommand extends AbstractDCProtocolCommand implements IProtocolCommand {
 	
+	private static Logger logger = LoggerFactory.make(); 
 	
 	public static Map<INFField,String> INFMap(String attributes) {
 		String[] splits = space.split(attributes);
@@ -102,10 +108,11 @@ public abstract class AbstractADCCommand extends AbstractDCProtocolCommand imple
 	 * @throws IllegalArgumentException - is thrown on illegal replace
 	 */
 	public static String revReplaces(String s) throws IllegalArgumentException {
-		for (int i=0 ; i < s.length()-1 ; i++) {
-			if (s.charAt(i) == '\\') {
+		StringBuilder build = new StringBuilder(s);
+		for (int i=0 ; i+1 < build.length() ; i++) {
+			if (build.charAt(i) == '\\') {
 				String repl;
-				switch(s.charAt(i+1)) {
+				switch(build.charAt(i+1)) {
 				case '\\':
 					repl = "\\";
 					break;
@@ -116,13 +123,14 @@ public abstract class AbstractADCCommand extends AbstractDCProtocolCommand imple
 					repl = " ";
 					break;
 				default:
-					throw new IllegalArgumentException();
+					repl= ""+build.charAt(i+1);
+					logger.info("invalid replacement found: "+s);
 				}
-				s = s.substring(0, i)+ repl+ s.substring(i+2);
+				build.replace(i, i+2, repl);
 				//i++;
 			}
 		}
-		return s;
+		return build.toString();
 	}
 
 }

@@ -104,7 +104,7 @@ public class BloomFilter {
 			throw new IllegalArgumentException("h:"+h);
 		}
 		if (m % 64 != 0) {
-			throw new IllegalArgumentException("M:"+m);
+			throw new IllegalArgumentException("m:"+m);
 		}
 		
 		this.m = m;
@@ -158,7 +158,7 @@ public class BloomFilter {
 	
 	private int calcPos(byte[] hash, int startpos) {
 		long pos = getLong(hash,startpos,h);
-		if (pos < 0 ) {
+		if (pos < 0 ) { //circumvent sign for negative numbers..
 			long modpos = pos >>> 1;
 			long res = modpos % m +  pos % 2 ;
 			return (int)res % m;

@@ -132,7 +132,7 @@ public abstract class AbstractWritableFileInterval extends AbstractFileInterval 
 						if (ih.verify(dqe.getTTHRoot())) {
 							dqe.onDownloadOfInterleaves(ih);
 						} else {
-							throw new IOException("Interleaves do not match TTH root");
+							throw new IOException("Interleaves do not match root hash");
 						}
 					}
 					open = false;

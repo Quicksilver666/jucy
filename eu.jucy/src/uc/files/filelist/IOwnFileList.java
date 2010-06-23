@@ -3,12 +3,13 @@ package uc.files.filelist;
 import java.io.File;
 import java.util.Set;
 
-import uc.IStoppable;
+
 import uc.IUser;
+import uc.IStoppable.IStartable;
 import uc.crypto.HashValue;
 import uc.files.filelist.OwnFileList.SearchParameter;
 
-public interface IOwnFileList extends IStoppable {
+public interface IOwnFileList extends IStartable {
 
 	/** <sizerestricted>?<ismaxsize>?<size>?<datatype>?<searchpattern>
 	 * 
@@ -48,7 +49,7 @@ public interface IOwnFileList extends IStoppable {
 	
 	void refresh(boolean wait);
 	
-	void initialise();
+
 	
 	FileList getFileList();
 	

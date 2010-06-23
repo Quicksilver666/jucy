@@ -26,5 +26,5 @@ Require-Bundle: org.eclipse.core.runtime,
  lib.org.apache.lucene,
  lib.org.apache.pdfbox,
  lib.com.jcraft.jzlib;bundle-version="1.0.7"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

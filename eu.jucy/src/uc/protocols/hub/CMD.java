@@ -22,15 +22,7 @@ public class CMD extends AbstractADCHubCommand {
 		
 		String name = revReplaces(matcher.group(HeaderCapt+1));
 		name = GH.switchChars(name, '/', '\\');
-//		//replace all / with \   and vice versa..
-//		char a='/',b='\\',found;
-//		for (int i=0; i < name.length();i++) {
-//			found = name.charAt(i);
-//			if (a == found || b == found) {
-//				name = name.substring(0, i)+ (a == found?b:a )+name.substring(i+1);
-//			}
-//		}
-//		//end replace..
+
 		
 		Map<Flag,String> flags = getFlagMap(matcher.group(HeaderCapt+2));
 		int context  =  0;
@@ -42,10 +34,12 @@ public class CMD extends AbstractADCHubCommand {
 		
 		Command c;
 		if (seperator) {
-			Command com = hub.getLastUserCommand();
-			if (GH.isEmpty(name) && com != null) {
-				name = com.getParentPath()+"\\";
-			}
+		//	Command com = hub.getLastUserCommand();
+		//	if (GH.isEmpty(name) && com != null) {
+			//if (!name.endsWith("\\")) {
+			//	name += "\\";
+		//	}
+		//	}
 			c = new Command(context,name,hub.getFavHub().getHubaddy());
 		} else {
 			String exec = flags.get(Flag.TT);

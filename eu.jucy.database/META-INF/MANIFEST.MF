@@ -9,4 +9,4 @@ Require-Bundle: eu.jucy,
  eu.jucy.helpers
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
