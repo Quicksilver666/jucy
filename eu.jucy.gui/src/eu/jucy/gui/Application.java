@@ -125,8 +125,7 @@ public class Application implements IApplication {
 		} catch (IOException ioe) {
 			System.err.println("Could not accquire lock on workspace: "+ioe);
 		}
-		return true;
-
+		return false;
 	}
 	
 	private boolean checkSanity() {

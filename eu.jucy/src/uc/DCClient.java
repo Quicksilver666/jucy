@@ -117,68 +117,36 @@ java.sql.SQLException: integrity constraint violation: foreign key no parent; SY
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
 	at java.lang.Thread.run(Thread.java:619)
  * 
- * 
  * TODO NAT traversal : http://dcpp.wordpress.com/2010/06/15/nat-traversal-constraints/
  * 
  * TODO add setting for auto extending downloads .. http://jucy.eu/forum/read.php?5,151
  * 
- * TODO flicker occurs on URL widgets when hub window gets text added but does not scroll down..
- * 
- * TODO temp download dir noct creatable ... handle more gracefully
- * http://pastebin.com/xpgjhqUt
- * 
- * TODO severe: hub Line 1394  sometimes reconnects don't work
  * 
  * TODO think about option to place unfinished downloads next into target folder so no moving of files occur
  * after finishing the download..
  * 
  * TODO discfree,total uptime .. total download..
  * 
- * TODO open filelist via menu needs progress and must be done outside of UI thread..
- * 
- * TODO filelist of user was not eligible for deletion even though should be..
+ * TODO file list of user was not eligible for deletion even though should be..
  * downloaded sth from that user  cause?
+ * 
+ * TODO maybe load file lists to db? and not keep them in ram...?
  * 
  * TODO triggers for external programs / or try grow plugin
  * 
  * TODO max upload limit per slot/User 
  *  - additional semaphore / value based on usercategory settings?
- *  - uploadlimit max= Min(limiting,slots*normlimit);
+ *  - uploadlimit max = Min(limiting,slots*normlimit);
  *  
- *  TODO little picture with scroll Lock for hub / may be also alike button for hide/show of nicklist
- *  i.e. like scroll Lock of Console in eclipse
- * 
- * TODO function to send screenshot ..
- * 
- * 		GC gc = new GC(display);
- *      final Image image = new Image(display, display.getBounds());
- *      gc.copyArea(image, 0, 0);
- *      gc.dispose();
- * 		Display.getMonitors()  for bounds.. what ever..
- * 
  * TODO add mechanism that write deadlock detections to file and deletes on normal close..
  * only bring up on next start..
  * 
- * TODO afk message not sending to users with CT_Bot ...
- * 
- * TODO no GetFilelist when chatonly...(disable getFilelist entry)
- * 
  * TODO Option in settings to auto open desired tabs after application start (like download queue, upload queue, finished downloads, finished uploads etc.)
- *  
- * TODO adding keyboard shortcuts for "refresh share", download queue, upload queue, finished downloads, finished uploads would be helpful as well. 
- *  
- * TODO write a help entry for tmpsharedfiles folder
- * 
- * TODO take a look at JAXB -> sounds interesting and useful (Java-xml binding)
- * 
- * TODO not open more than x filelist as jucy crashes otherwise.. (TODO serialize opening also for non editor... i.e. not too many matches should happen at once..)
- * 
  * 
  * TODO animated smileys
  *  
  * TODO identity management (adding identities i.e. a identity includes different FileList / CID / TCP/SSL-Ports / Certificate(KeyPrint) )
- *
- *				
+ *			
  * TODO discovery UI for installing extensions  https://bugs.eclipse.org/bugs/show_bug.cgi?id=295273
  * http://tasktop.com/blog/eclipse/mylyn-connector-discovery
  *
@@ -208,6 +176,7 @@ java.sql.SQLException: integrity constraint violation: foreign key no parent; SY
  * ->>partially fixed on next restart will not be loaded.. again still problematic..
  * 
  * TODO potentially Empty interleaves provided bug might show itself when file is already present on disc?
+ * 
  * 
  * 
  * TODO plugin management dialog .. i.e. disabling and uninstalling of plugins.. better wait till 3.6 final?
@@ -251,6 +220,8 @@ java.sql.SQLException: integrity constraint violation: foreign key no parent; SY
  * TODO may be add enum to messages for type of message  i.e. PM,MC,JOIN/PART, could help colouring...
  * 
  * TODO preview of files using some mediaplayer...
+ * 
+ * TODO colouring join parts simpel differently..
  * 
  * TODO test maximise on jucy icon  under kde  3 doubleclicks or 
  * 3 times clicking on Maximise.. needed according to hali -
@@ -883,79 +854,24 @@ public final class DCClient {
     			hub = new Hub(ifavHub,id,this);
     			final Hub iHub = hub;
     			hubs.put(ifavHub, hub);
-    			final Object synchSerialStart = new Object();
-    			synchronized (synchSerialStart) { 
-	    			DCClient.execute(new Runnable() {
-	        			public void run() {
-	        				Semaphore sem = new Semaphore(0,false);
-	        				synchronized (synchSerialStart) {
-		    		    		for (IHubCreationListener hubl:hublisteners) {
-		    						hubl.hubCreated(ifavHub,showInUI,sem);
-		    					}
-		    		    		synchSerialStart.notify();
-	        				}
-	    		    		sem.acquireUninterruptibly(hublisteners.size());
-	    					iHub.start();
-	    					notifyChangedInfo(InfoChange.Hubs);
-	        			}
-	        		});
-	    			try {
-	    				synchSerialStart.wait();
-					} catch (InterruptedException e) {
-						logger.error(e,e);
-					}
-    			}
+    			final Semaphore creation = new Semaphore(0,false);
+    		
+    			DCClient.execute(new Runnable() {
+    				public void run() {
+    					Semaphore sem = new Semaphore(0,false);
+
+    					for (IHubCreationListener hubl:hublisteners) {
+    						hubl.hubCreated(ifavHub,showInUI,sem);
+    					}
+    					creation.release();
+    					sem.acquireUninterruptibly(hublisteners.size());
+    					iHub.start();
+    					notifyChangedInfo(InfoChange.Hubs);
+    				}
+    			});
+    			creation.acquireUninterruptibly();
     		}
     	}
-
-    	
-//    		if (hub == null) {
-//    			final FavHub ifavHub = favHubs.internal(favHub);
-//    			Identity id = getIdentity(ifavHub.getIdentityName());
-//    			id.addRunningHub(ifavHub);
-//    			hub = new Hub(ifavHub,id,this);
-//    			
-//    			hubs.put(ifavHub, hub);
-//    			final Hub hubf = hub; 
-    		//	final Semaphore sem = new Semaphore(0);
-
-//    			Runnable finish = new Runnable() {
-//    				public  void run() {
-//    					sem.release();
-//    				}
-//    			};
-//    			DCClient.execute(new Runnable() {
-//    				public  void run() {
-//		    			for (IHubCreationListener hubl:hublisteners) {
-//		    				hubl.hubCreated(ifavHub,showInUI);
-//		    			}
-//		    			hubf.start();
-//						notifyChangedInfo(InfoChange.Hubs);
-//		    			scheduler.schedule(new Runnable() {
-//    						public void run() {
-//    							hubf.start();
-//    							notifyChangedInfo(InfoChange.Hubs);
-//    						}
-//    						//wait with starting some time (race condition though helps registering listeners)
-//    					}, 100, TimeUnit.MILLISECONDS);
-//    				}	
-//    			});
-
-//    			DCClient.execute(new Runnable() {
-//    				public  void run() {
-//    					sem.acquireUninterruptibly(hublisteners.size());
-//    					scheduler.schedule(new Runnable() {
-//    						public void run() {
-//    							hubf.start();
-//    							notifyChangedInfo(InfoChange.Hubs);
-//    						}
-//    						//wait with starting some time (race condition though helps registering listeners)
-//    					}, 100, TimeUnit.MILLISECONDS);
-//    				}
-//    			});   			
-
-//
-    	
 
     	return hub;
     }

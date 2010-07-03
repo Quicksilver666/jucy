@@ -766,6 +766,18 @@ public class User implements IUser , IHasUser {
 	public boolean isOp() {
 		return ct >= 4; 
 	}
+	
+	
+
+	@Override
+	public boolean isBot() {
+		if (isADCUser()) {
+			return (ct & ct_BOT ) != 0;
+		} else {
+			return isOp() && getShared() == 0 && getSlots() == 0;
+		}
+	}
+
 
 	/**
 	 * @param op the op to set

@@ -267,9 +267,12 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	 */
 	public File getTempPath() { 
 		String id = getID().toString();
-		for (File f : PI.getTempDownloadDirectory().listFiles()) {
-			if (f.isFile() && f.getName().contains(id)) {
-				return f;
+		File[] files = PI.getTempDownloadDirectory().listFiles();
+		if (files != null) {
+			for (File f : files) {
+				if (f.isFile() && f.getName().contains(id)) {
+					return f;
+				}
 			}
 		}
 		return new File(PI.getTempDownloadDirectory(), 

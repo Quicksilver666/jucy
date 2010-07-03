@@ -235,6 +235,13 @@ xsi:schemaLocation="http://jucy.eu/lang platform:/resource/eu.jucy.releng.tools/
 <it>Tutti</it>
 <ru>Все</ru>
 </Trl>
+<Trl id="All_cpscreen">
+<de>Alles</de>
+<en>All</en>
+<hu>Mind</hu>
+<it>Tutti</it>
+<ru>Все</ru>
+</Trl>
 <Trl id="AllXUsersOffline">
 <de>Alle %1$s User offline</de>
 <en>All %1$s Users offline</en>
@@ -1645,6 +1652,10 @@ Hub is also no longer counted in description</en>
 <it>Rimuovi slot extra</it>
 <ru>Отобрать эктра-слот</ru>
 </Trl>
+<Trl id="ScreenXYZ">
+<de>Anzeige %d (%dx%d)</de>
+<en>Display %d (%dx%d)</en>
+</Trl>
 <Trl id="Search">
 <de>Suche</de>
 <en>Search</en>
@@ -1719,6 +1730,10 @@ Hub is also no longer counted in description</en>
 <hu>Privát Üzenet küldése</hu>
 <it>Invia un messaggio privato</it>
 <ru>Послать личное сообщение</ru>
+</Trl>
+<Trl id="SendScreen">
+<de>Sende Bildschriminhalt</de>
+<en>Send screenshot</en>
 </Trl>
 <Trl id="Separator">
 <en>Separator</en>

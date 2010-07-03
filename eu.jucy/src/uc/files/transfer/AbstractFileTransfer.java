@@ -9,6 +9,8 @@ package uc.files.transfer;
 
 import helpers.IObservable;
 import helpers.Observable;
+import helpers.StatusObject;
+import helpers.StatusObject.ChangeType;
 
 import java.io.IOException;
 import java.nio.channels.ByteChannel;
@@ -22,6 +24,8 @@ import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 
 
+
+import uc.ConnectionHandler;
 import uc.DCClient;
 import uc.IUser;
 import uc.protocols.Compression;
@@ -106,7 +110,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 			throw new IOException("could not create a transfer from a non valid transfer info");
 		}
 		
-		addObserver(new ServiceListener(cp.getDcc()));
+		addObserver(new ServiceListener(cp.getDcc(),cp.getCh()));
 //		registerTransferListener();
 	}
 	
@@ -238,8 +242,11 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 		private ScheduledFuture<?> sf;
 		private final DCClient dcc;
 		
-		public ServiceListener(DCClient dcc){
+		private final ConnectionHandler ch;
+		
+		public ServiceListener(DCClient dcc,ConnectionHandler ch){
 			this.dcc = dcc;
+			this.ch = ch;
 		}
 		
 
@@ -250,14 +257,14 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 		
 
 		
-		public synchronized void update(IObservable<TransferChange> ch, TransferChange change) {
-
+		public synchronized void update(IObservable<TransferChange> fileTransfer, TransferChange change) {
 			switch(change) {
 			case STARTED:
 				logger.debug("started has fired.."+getOther()+"  "+AbstractFileTransfer.this.cp.getState());
-				sf = dcc.getSchedulerDir().scheduleAtFixedRate(update, 100, 500, TimeUnit.MILLISECONDS);
+				sf = dcc.getSchedulerDir().scheduleAtFixedRate(update, 500, 500, TimeUnit.MILLISECONDS);
 				starttime = new Date();
 				active.addIfAbsent(AbstractFileTransfer.this);
+				ch.notifyTransferObservers(new StatusObject(AbstractFileTransfer.this, ChangeType.ADDED));
 				break;
 			case BYTESTRANSFERRED:
 
@@ -290,6 +297,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 					timesSpeedIsZero = 0;
 				}
 				updateCompressionRatio();
+				ch.notifyTransferObservers(new StatusObject(AbstractFileTransfer.this, ChangeType.CHANGED));
 				break;
 			case FINISHED:
 				logger.debug("finished has fired: "+getOther()+"  "+AbstractFileTransfer.this.cp.getState());
@@ -298,6 +306,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 				currentSpeed = 0;
 				finished = true;
 				active.remove(AbstractFileTransfer.this);
+				ch.notifyTransferObservers(new StatusObject(AbstractFileTransfer.this, ChangeType.REMOVED));
 				break;
 			}
 

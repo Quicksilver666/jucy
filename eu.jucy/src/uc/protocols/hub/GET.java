@@ -58,7 +58,7 @@ public class GET extends AbstractADCHubCommand {
 			byte[] bloomBytes = comp.compress(blom.getBytes());
 
 			
-			byte[] snd = ("HSND blom / 0 "+(m/8)+comp.toString()+" BK"+k+" BH"+h+"\n").getBytes(DCProtocol.ADCCHARENCODING);
+			byte[] snd = ("HSND blom / 0 "+(m/8)+comp.toString()+" BK"+k+" BH"+h+"\n").getBytes(DCProtocol.ADC_CHARENCODING);
 			byte[] complete = GH.concatenate(snd,bloomBytes);
 
 			long duration = System.currentTimeMillis() - starttime;

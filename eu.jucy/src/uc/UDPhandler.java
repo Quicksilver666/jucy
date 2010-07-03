@@ -89,17 +89,17 @@ public class UDPhandler implements IUDPHandler {
     /** will handle the incoming Searches  UDP Port */
     public UDPhandler(DCClient dcc) {
     	this.dcc = dcc;
-    	nmdcencoder		= DCProtocol.NMDCCHARSET.newEncoder();
+    	nmdcencoder		= DCProtocol.NMDC_CHARSET.newEncoder();
     	nmdcencoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
     	nmdcencoder.onMalformedInput(CodingErrorAction.REPLACE);
 
 
-    	adcencoder		= DCProtocol.ADCCHARSET.newEncoder();
+    	adcencoder		= DCProtocol.ADC_CHARSET.newEncoder();
       	adcencoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
     	adcencoder.onMalformedInput(CodingErrorAction.REPLACE);
    
     	//listener for port changes in the settings
-    	pca = new PreferenceChangedAdapter(PI.get(),PI.udpPort) {
+    	pca = new PreferenceChangedAdapter(PI.get(),PI.udpPort,PI.passive) {
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
 				portchanged = true;	
@@ -118,7 +118,7 @@ public class UDPhandler implements IUDPHandler {
     private void open() throws IOException {
     	try {
 	    	datagramChannel = DatagramChannel.open();
-	    	datagramChannel.socket().bind( new InetSocketAddress(port));
+	    	datagramChannel.socket().bind(PI.getBoolean(PI.passive)? null : new InetSocketAddress(port));
 	    	datagramChannel.configureBlocking(true);
 	    	dcc.logEvent(String.format(LanguageKeys.UDPStarted, port));// "UDP handler gone up on Port: "+port);
 		} catch (SecurityException se) {
@@ -137,7 +137,7 @@ public class UDPhandler implements IUDPHandler {
 			public void run() {
 				runUDP();
 			}
-    	},"UDP-Handler");
+    	},"UDP-handler");
     	udpThread.start();
     	pca.reregister();
     }

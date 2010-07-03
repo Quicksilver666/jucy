@@ -8,10 +8,18 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+
+import org.eclipse.swt.widgets.Composite;
+
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -30,25 +38,52 @@ public class OpenSmileyDialogHandler extends AbstractHandler implements
 		final Shell shell = new Shell(
 				HandlerUtil.getActiveWorkbenchWindowChecked(event).getShell(),
 				SWT.SHELL_TRIM |SWT.TOOL);
+
+	
+		shell.setLayout(new FillLayout());
+		
+		final ScrolledComposite scrollComposite = new ScrolledComposite(shell,  SWT.H_SCROLL | SWT.V_SCROLL);
+		final Composite parent = new Composite(scrollComposite, SWT.NONE);		
+
+		
 		GridLayout rl = new GridLayout();
 		rl.horizontalSpacing = 1;
 		rl.verticalSpacing = 1;
 		rl.numColumns = (int) Math.sqrt(SmileyTextModificator.getImages().size());
-	
-		shell.setLayout(rl);
+		parent.setLayout(rl);
+		
 		SmileyPoster sp = new SmileyPoster(shell);
+		
+		scrollComposite.setContent(parent);
+		
+		scrollComposite.setExpandVertical(true);
+		scrollComposite.setExpandHorizontal(true);
+		scrollComposite.addControlListener(new ControlAdapter() {
+			public void controlResized(ControlEvent e) {
+				Rectangle r = scrollComposite.getClientArea();
+				scrollComposite.setMinSize(parent.computeSize(r.width, SWT.DEFAULT));
+			}
+		});
 
+
+		
 		for (Entry<Integer,String> e: SmileyTextModificator.getSmileyToCorrespondingText()) {
-			ToolBar toolBar = new ToolBar (shell, SWT.FLAT);
+			final ToolBar toolBar = new ToolBar (parent, SWT.FLAT);
 			toolBar.setLayoutData(new GridData());
 			ToolItem item = new ToolItem (toolBar, SWT.PUSH);
 			item.setData(e.getValue());
 			item.setImage (SmileyTextModificator.getImages().get(e.getKey())[0]);
 			item.addSelectionListener(sp);
 		}
+
+	
+
 		
 		shell.pack();
 		shell.open();
+		scrollComposite.pack();
+		scrollComposite.setMinSize(parent.getSize());
+
 	
 		return null;
 	}

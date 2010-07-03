@@ -770,6 +770,16 @@
                              optional="false">
                        </commandParameter>
                     </command>
+                    <command
+                          defaultHandler="eu.jucy.gui.itemhandler.SendScreenHandler"
+                          id="eu.jucy.gui.itemhandler.send_screen"
+                          name="Send Screen">
+                       <commandParameter
+                             id="SEND_BOUNDS"
+                             name="SEND_BOUNDS"
+                             optional="true">
+                       </commandParameter>
+                    </command>
       </extension>
       <extension
             point="org.eclipse.ui.menus">
@@ -2011,7 +2021,19 @@
 
     		</and>
          </activeWhen>
-       </handler> 
+       </handler>
+           <handler
+                 class="eu.jucy.gui.itemhandler.SendScreenHandler"
+                 commandId="eu.jucy.gui.itemhandler.send_screen">
+              <activeWhen>
+                 <with
+                       variable="activeEditor">
+                    <instanceof
+                          value="eu.jucy.gui.texteditor.UCTextEditor">
+                    </instanceof>
+                 </with>
+              </activeWhen>
+           </handler> 
       </extension>
       <extension
             point="org.eclipse.ui.bindings">
@@ -2097,6 +2119,31 @@
                schemeId="uc.default"
                sequence="F2">
          </key>
+         <key
+               commandId="eu.jucy.gui.refreshfilelist"
+               schemeId="uc.default"
+               sequence="F5">
+         </key>
+         <key
+               commandId="eu.jucy.gui.FinishedDownloads"
+               schemeId="uc.default"
+               sequence="F6">
+         </key>
+         <key
+               commandId="eu.jucy.gui.FinishedUploads"
+               schemeId="uc.default"
+               sequence="F7">
+         </key>
+         <key
+               commandId="eu.jucy.gui.UploadQueue"
+               schemeId="uc.default"
+               sequence="F8">
+         </key>
+         <key
+               commandId="eu.jucy.gui.LogEditor"
+               schemeId="uc.default"
+               sequence="CTRL+1">
+         </key>
       </extension>
       <extension
             point="eu.jucy.gui.TextModificator">
@@ -2165,7 +2212,7 @@
                class="eu.jucy.gui.itemhandler.PropertyTesterUser"
                id="eu.jucy.properties.user"
                namespace="eu.jucy.properties.user"
-               properties="isFavUser,hasDownloadedFilelist,hasFilesInQueue,hasSlotGranted,isHubKnown,isIPKnown,isShareing"
+               properties="isFavUser,hasDownloadedFilelist,hasFilesInQueue,hasSlotGranted,isHubKnown,isIPKnown,isShareing,isInChatOnlyHub"
                type="uc.IHasUser">
          </propertyTester>
          <propertyTester
@@ -2302,10 +2349,16 @@
     
                <iterate
                      operator="or">
-                  <test
-                        property="eu.jucy.properties.user.isShareing"
-                        value="true">
-                  </test>
+                  <and>
+                     <test
+                           property="eu.jucy.properties.user.isShareing"
+                           value="true">
+                     </test>
+                     <test
+                           property="eu.jucy.properties.user.isInChatOnlyHub"
+                           value="false">
+                     </test>
+                  </and>
                </iterate>
          </with>
       </definition>

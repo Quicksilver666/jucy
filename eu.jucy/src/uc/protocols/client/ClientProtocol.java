@@ -29,12 +29,14 @@ import uc.protocols.hub.Flag;
 
 
 import helpers.GH;
+import helpers.SchedulableTask;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 
@@ -71,13 +73,16 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	private static final Logger logger = LoggerFactory.make(); 
 
 
-	private volatile int timerLogintimeout = 0;
+//	private volatile int timerLogintimeout = 0;
+	private final SchedulableTask loginTimeOut;
+	
 
-	private volatile int timerTransferCreateTimeout = 0;
+//	private volatile int timerTransferCreateTimeout = 0;
+	private final SchedulableTask transferCreateTimeOut;
 	
-	private volatile int awaitingADCGet = 0;
-	
-	private volatile boolean getAwaited = false;
+//	private volatile int awaitingADCGet = 0;
+//	
+//	private volatile boolean getAwaited = false;
 	
 	private final ConnectionHandler ch;
 
@@ -188,7 +193,8 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 			CPType protocol,String token,boolean encryption) {
 		super(new int[]{0,0,1}); //we want bandwidth mostly C-C protocol..
 		this.ch = ch;
-		fti = new FileTransferInformation(ch.getDCC());
+		DCClient dcc = ch.getDCC();
+		fti = new FileTransferInformation(dcc);
 		this.incoming = incoming; 
 		this.self = self; // our self the user we represent in that hub may be null
 		othersNumber = 0; // others number -> NMDC data..
@@ -207,6 +213,22 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		} else {
 			connection = new UnblockingConnection(ch.getIdentity().getCryptoManager(),(InetSocketAddress)addyOrSC, this,encryption,fingerPrint);
 		}
+		
+		loginTimeOut = new SchedulableTask(new Runnable() {
+			@Override
+			public void run() {
+				logger.debug("disconnect sent from here");
+				disconnect(DisconnectReason.CONNECTIONTIMEOUT);
+			}
+		},dcc.getSchedulerDir());
+		
+		transferCreateTimeOut =  new SchedulableTask(new Runnable() {
+			@Override
+			public void run() {
+				logger.debug("disconnect sent from here2");
+				disconnect(DisconnectReason.CONNECTIONTIMEOUT);
+			}
+		},dcc.getSchedulerDir());
 	}
 	
 	public DCClient getDcc() {
@@ -219,6 +241,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		try {
 			connection.start();
 			super.start();
+			loginTimeOut.reschedule(60, TimeUnit.SECONDS);
 		} finally {
 			l.unlock();
 		}
@@ -263,6 +286,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 				SUP.sendSUP(this);
 			}
 		}
+		
 	}
 
 	@Override
@@ -289,7 +313,9 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 			throw new IOException("Illegal state for login");
 		}
 		super.onLogIn();
-		
+		loginTimeOut.cancelScheduled();
+	//	logger.info("scheduling transferCreateTimeOut: li "+toString());
+		transferCreateTimeOut.reschedule(30, TimeUnit.SECONDS);
 
 		if (fti.isDownload()) { // Here call the connection handler to know what
 								// we want... if we want something..
@@ -370,6 +396,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 */
 	private void relogin() {
 		logger.debug("relogin");
+		
 		DCClient.execute(new Runnable() {
 			public void run() {
 				WriteLock l = ClientProtocol.this.writeLock();
@@ -421,6 +448,10 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 			fti.getOther().deleteConnection(this);
 		}
 
+		loginTimeOut.cancelScheduled();
+//		logger.info("Canceling login timeout: dc "+toString());
+		transferCreateTimeOut.cancelScheduled();
+//		logger.info("Canceling transferCreateTimeOut: dc "+toString());
 		//ch.removeCons(this);
 		
 		end(); //never reuse..
@@ -479,7 +510,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		}
 		
 		if (fti.isUpload()) {//if this is an upload we will accept ADCGET commands..
-			getAwaited = true;
+		//	getAwaited = true;
 			if (nmdc) {
 				addCommand(new ADCGET(this)); 	
 			} else {
@@ -650,7 +681,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 			ByteChannel source = null;
 			try {
 				if (fti.isUpload()) {
-					getAwaited = false;
+					//getAwaited = false;
 					
 					logger.debug("transfer() is an upload..now sending ADCSND");
 					if (nmdc) {
@@ -676,6 +707,9 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 				if (fti.isDownload()) { //Register download.. with DQE..
 					fti.getDqe().startedDownload(fileTransfer);
 				}
+				transferCreateTimeOut.cancelScheduled();
+			//	logger.info("Canceling transferCreateTimeOut: tf "+toString());
+				
 				logger.debug("transfer() start transferring data..");
 				source = connection.retrieveChannel();
 				fileTransfer.transferData(source); 
@@ -707,7 +741,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 					} else	if (Platform.inDevelopmentMode()) {
 						logger.warn("Problem after transfering: "+getUser()+ "  "+getState());
 					}
-					timerTransferCreateTimeout = 0;
+					//timerTransferCreateTimeout = 0;
 					fileTransfer = null;
 				}
 
@@ -724,10 +758,14 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 				} else if (slot != null) { //upload
 					ch.getSlotManager().returnSlot(slot,fti.getOther());
 					slot = null;
-					awaitingADCGet = 10;
-					getAwaited = true;
+		//			logger.info("rescheduling transferCreateTimeOut: up "+toString());
+					transferCreateTimeOut.reschedule(10, TimeUnit.SECONDS);
+//					awaitingADCGet = 10;
+//					getAwaited = true;
 				} else if (wasDownload && returnSuccessful && getState().isOpen()) { // download:
 					logger.debug("relogin");
+		//			logger.info("rescheduling transferCreateTimeOut: down "+toString());
+					transferCreateTimeOut.reschedule(20, TimeUnit.SECONDS);
 					relogin();
 				}
 				
@@ -755,28 +793,28 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	
 
 
-	/**
-	 * timer used to
-	 */
-	public void timer() {
-
-		if (!isLoginDone() && ++timerLogintimeout > 60) { // 60 seconds login timeout
-			logger.debug("disconnect sent from here");
-			disconnect(DisconnectReason.CONNECTIONTIMEOUT);
-		}
-		
-		// 60 seconds Timeout until a transfer needs to be created.. else we disconnect..
-		if ((fileTransfer == null|| !fileTransfer.hasStarted())   && ++timerTransferCreateTimeout > 30) { 
-			logger.debug("disconnect sent from here2");
-			disconnect(DisconnectReason.CONNECTIONTIMEOUT);
-		}
-		
-		//timeout for if we expect an ADCGet  from the other but don't get one..
-		if (getAwaited && ++awaitingADCGet > 20) {
-			logger.debug("disconnect sent from here3");
-			disconnect(DisconnectReason.CONNECTIONTIMEOUT);
-		}
-	}
+//	/**
+//	 * timer used to
+//	 */
+//	public void timer() {
+//
+//		if (!isLoginDone() && ++timerLogintimeout > 60) { // 60 seconds login timeout
+//			logger.debug("disconnect sent from here");
+//			disconnect(DisconnectReason.CONNECTIONTIMEOUT);
+//		}
+//		
+//		// 30 seconds Timeout until a transfer needs to be created.. else we disconnect..
+//		if ((fileTransfer == null|| !fileTransfer.hasStarted())   && ++timerTransferCreateTimeout > 30) { 
+//			logger.debug("disconnect sent from here2");
+//			disconnect(DisconnectReason.CONNECTIONTIMEOUT);
+//		}
+//		
+//		//timeout for if we expect an ADCGet  from the other but don't get one..
+//		if (getAwaited && ++awaitingADCGet > 20) {
+//			logger.debug("disconnect sent from here3");
+//			disconnect(DisconnectReason.CONNECTIONTIMEOUT);
+//		}
+//	}
 
 
 	/**
@@ -802,7 +840,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 
 
 
-	ConnectionHandler getCh() {
+	public ConnectionHandler getCh() {
 		return ch;
 	}
 

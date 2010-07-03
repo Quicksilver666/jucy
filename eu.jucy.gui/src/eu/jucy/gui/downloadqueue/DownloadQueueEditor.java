@@ -54,18 +54,23 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
+
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 
 
 
+import eu.jucy.gui.Application;
 import eu.jucy.gui.GUIPI;
+import eu.jucy.gui.IImageKeys;
 import eu.jucy.gui.ISearchableEditor;
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.UCEditor;
@@ -107,7 +112,7 @@ public class DownloadQueueEditor extends UCEditor implements IObserver<StatusObj
 	private static final String OverrideFilePrefix = "TARGET:";
 	
 	
-
+	private Image showLeftIcon;
 
 	private CLabel totalSizeLabel;
 	private CLabel nrOfFilesLabel;
@@ -135,6 +140,10 @@ public class DownloadQueueEditor extends UCEditor implements IObserver<StatusObj
 	@Override
 	public void createPartControl(Composite parent) {
 		final GridLayout gridLayout = new GridLayout();
+		gridLayout.verticalSpacing = 1;
+		gridLayout.marginWidth = 2;
+		gridLayout.marginHeight = 1;
+		gridLayout.horizontalSpacing = 3;
 		parent.setLayout(gridLayout);
 
 		composite = new Composite(parent, SWT.NONE);
@@ -164,18 +173,28 @@ public class DownloadQueueEditor extends UCEditor implements IObserver<StatusObj
 		
 
 
-		final Composite composite_1 = new Composite(parent, SWT.NONE);
+		final Composite composite_1 = new Composite(parent, SWT.BORDER);
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		final GridLayout gridLayout_1 = new GridLayout();
 		gridLayout_1.numColumns = 5;
-		gridLayout_1.horizontalSpacing = 5;
+		gridLayout_1.verticalSpacing = 1;
+		gridLayout_1.marginWidth = 2;
+		gridLayout_1.marginHeight = 1;
+		gridLayout_1.horizontalSpacing = 3;
+		
 		composite_1.setLayout(gridLayout_1);
-
-		final Button showSidebarCheckbox = new Button(composite_1, SWT.CHECK);
-		showSidebarCheckbox.addSelectionListener(new SelectionAdapter() {
+		
+		
+		showLeftIcon = 	 AbstractUIPlugin.imageDescriptorFromPlugin(
+				Application.PLUGIN_ID, IImageKeys.SHOW_LEFT_SIDEVIEW).createImage(); 
+		
+		ToolBar toolBar = new ToolBar (composite_1, SWT.HORIZONTAL | SWT.SHADOW_OUT | SWT.FLAT);
+		final ToolItem scroll = new ToolItem (toolBar, SWT.CHECK);
+		scroll.setImage(showLeftIcon);
+		scroll.addSelectionListener(new SelectionAdapter() {
 			private int[] sashweights = null;
 			public void widgetSelected(final SelectionEvent e) {
-				if (showSidebarCheckbox.getSelection()) {
+				if (!scroll.getSelection()) {
 					sashForm.setWeights(sashweights);
 					tree.setVisible(true);
 				} else {
@@ -186,9 +205,30 @@ public class DownloadQueueEditor extends UCEditor implements IObserver<StatusObj
 				sashForm.layout(true);
 			}
 		});
-		showSidebarCheckbox.setSelection(true);
-		showSidebarCheckbox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		showSidebarCheckbox.setText(Lang.ShowSidebar);
+		toolBar.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		
+//		Label placeholder = new Label(composite_1,SWT.NONE);
+//		placeholder.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		
+
+//		final Button showSidebarCheckbox = new Button(composite_1, SWT.CHECK);
+//		showSidebarCheckbox.addSelectionListener(new SelectionAdapter() {
+//			private int[] sashweights = null;
+//			public void widgetSelected(final SelectionEvent e) {
+//				if (showSidebarCheckbox.getSelection()) {
+//					sashForm.setWeights(sashweights);
+//					tree.setVisible(true);
+//				} else {
+//					sashweights = sashForm.getWeights();
+//					tree.setVisible(false);
+//					sashForm.setWeights(new int[]{0,400});
+//				}
+//				sashForm.layout(true);
+//			}
+//		});
+//		showSidebarCheckbox.setSelection(true);
+//		showSidebarCheckbox.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+//		showSidebarCheckbox.setText(Lang.ShowSidebar);
 
 		nrOfSelectedItemsLabel = new CLabel(composite_1, SWT.NONE);
 		final GridData gridData_1 = new GridData(SWT.FILL, SWT.CENTER, false, false);
@@ -496,6 +536,11 @@ public class DownloadQueueEditor extends UCEditor implements IObserver<StatusObj
 //		for (Action a:actions) {
 //			((IWorkbenchAction)a).dispose();
 //		}
+		
+		if (showLeftIcon != null) {
+			showLeftIcon.dispose();
+		}
+		
 		getDQ().deleteObserver(this);
 		super.dispose();
 	}

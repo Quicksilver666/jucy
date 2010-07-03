@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Country Plug-in
 Bundle-SymbolicName: eu.jucy.countries;singleton:=true
-Bundle-Version: 1.1.6
+Bundle-Version: 1.1.7.qualifier
 Bundle-Localization: nl/countries
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: eu.jucy.geoipmaxmind,

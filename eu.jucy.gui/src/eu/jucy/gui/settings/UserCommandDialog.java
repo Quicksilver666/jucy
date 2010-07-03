@@ -1,10 +1,6 @@
 package eu.jucy.gui.settings;
 
 import helpers.GH;
-import logger.LoggerFactory;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.window.IShellProvider;
 import org.eclipse.swt.SWT;
@@ -36,11 +32,8 @@ public class UserCommandDialog extends TrayDialog {
 	private Button hubMenuButton;
 	private Text commandText;
 	private Text nameText;
-	private static final Logger logger = LoggerFactory.make();
 	
-	static {
-		logger.setLevel(Level.INFO);
-	}
+	
 	
 	private final Command command;
 	

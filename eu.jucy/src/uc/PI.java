@@ -341,10 +341,8 @@ public class PI extends AbstractPreferenceInitializer {
 
 	public static File getTempDownloadDirectory() {
 		File f = new File(get(tempDownloadDirectory));
-		if (!f.isDirectory()) {
-			if (!f.mkdirs()) {
-				logger.error("could not create Tempdir");
-			}
+		if (!f.isDirectory() && !f.mkdirs()) {
+			logger.fatal("could not create tmp dir: "+f);
 		}
 		return f;
 	}
@@ -363,7 +361,7 @@ public class PI extends AbstractPreferenceInitializer {
 	public static File getTempPath() {
 		File f  = new File(getStoragePath(),"tmp");
 		if (!f.isDirectory() && !f.mkdir()) {
-			logger.error("temp dir creation failed: "+f);
+			logger.fatal("temp dir creation failed: "+f);
 		}
 		return f;
 	}

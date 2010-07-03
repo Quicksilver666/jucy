@@ -3,9 +3,14 @@ package eu.jucy.gui.filelist;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
@@ -23,7 +28,7 @@ import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 
 public class FilelistHandler extends AbstractHandler {
 
-	
+
 	
 	public static void openFilelist(IUser usr,IWorkbenchWindow window) {
 		openFilelist(usr,null,window);
@@ -58,7 +63,7 @@ public class FilelistHandler extends AbstractHandler {
 	public static final String OPEN_OWN_FILELIST = "OPEN_OWN_FILELIST"; 
 
 	
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		boolean ownfl = Boolean.parseBoolean(event.getParameter(OPEN_OWN_FILELIST));
 		IUser usr = null;
 		if (!ownfl) {
@@ -79,7 +84,17 @@ public class FilelistHandler extends AbstractHandler {
 		} else {
 			usr = ApplicationWorkbenchWindowAdvisor.get().getFilelistself();
 		}
-		openFilelist(usr,HandlerUtil.getActiveWorkbenchWindowChecked(event));
+		final IUser usrf = usr;
+		final IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
+		Job job = new Job("Opening file list: "+usrf.getNick()) {
+			
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				openFilelist(usrf,window);
+				return Status.OK_STATUS;
+			}
+		};
+		job.schedule();
 		
 		
 		return null;

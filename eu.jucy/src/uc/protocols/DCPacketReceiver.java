@@ -61,7 +61,7 @@ public abstract class DCPacketReceiver implements PacketReceiver {
 	public static class NMDCReceiver extends DCPacketReceiver {
 
 		public NMDCReceiver(DCClient dcc) {
-			super(dcc,DCProtocol.NMDCCHARSET,'S','R',' ');
+			super(dcc,DCProtocol.NMDC_CHARSET,'S','R',' ');
 		}
 
 		@Override
@@ -73,7 +73,7 @@ public abstract class DCPacketReceiver implements PacketReceiver {
 	public static class ADCReceiver extends DCPacketReceiver {
 
 		public ADCReceiver(DCClient dcc) {
-			super(dcc,DCProtocol.ADCCHARSET,'R','E','S');
+			super(dcc,DCProtocol.ADC_CHARSET,'R','E','S');
 		}
 
 		@Override

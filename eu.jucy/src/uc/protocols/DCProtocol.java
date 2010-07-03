@@ -20,25 +20,25 @@ import java.util.regex.Pattern;
 public abstract class DCProtocol extends ConnectionProtocol {
 
 
-	public static final String NMDCCHARENCODING = "windows-1252";
+	public static final String NMDC_CHARENCODING = "windows-1252";
 	
-	public static final Charset NMDCCHARSET;
+	public static final Charset NMDC_CHARSET;
 	
-	public static final String ADCCHARENCODING = "utf-8";
+	public static final String ADC_CHARENCODING = "utf-8";
 	
-	public static final Charset ADCCHARSET;
+	public static final Charset ADC_CHARSET;
 	
 	static {
-		NMDCCHARSET = Charset.forName(NMDCCHARENCODING);
-		ADCCHARSET = Charset.forName(ADCCHARENCODING);
+		NMDC_CHARSET = Charset.forName(NMDC_CHARENCODING);
+		ADC_CHARSET = Charset.forName(ADC_CHARENCODING);
 	}
 	
 	public static final Pattern NMDCCommand = Pattern.compile("([^|]+)\\|");
 	public static final Pattern ADCCommand = Pattern.compile("([^\\n]+)\\n");
 	
-	public static final Pattern NMDCPrefixPattern = Pattern.compile("(\\$\\S+)[^|]*");
-	public static final Pattern ADCPrefixPattern = Pattern.compile("[BCDEFHIU]([A-Z][A-Z0-9]{2})[^\\n]*");
-	public static final Pattern NMDCANDADCPrefixPattern = Pattern.compile("[BCDEFHIU]?(\\$?\\S+)[^\\|\\n]*");
+	public static final Pattern NMDC_PREFIX_PATTERN = Pattern.compile("(\\$\\S+)[^|]*");
+	public static final Pattern ADC_PREFIX_PATTERN = Pattern.compile("[BCDEFHIU]([A-Z][A-Z0-9]{2})[^\\n]*");
+	public static final Pattern NMDC_AND_ADC_PREFIX_PATTERN = Pattern.compile("[BCDEFHIU]?(\\$?\\S+)[^\\|\\n]*");
 	
 	public static final Pattern NMDCANDADCCommand = Pattern.compile("([^|\\n]+)[\\|\\n]");
 
@@ -52,11 +52,11 @@ public abstract class DCProtocol extends ConnectionProtocol {
 	protected Boolean nmdc = true;
 
 	public DCProtocol() {
-		setCharset(NMDCCHARSET);
+		setCharset(NMDC_CHARSET);
 	}
 	public DCProtocol(int[] perfPref) {
 		super(perfPref);
-		setCharset(NMDCCHARSET);
+		setCharset(NMDC_CHARSET);
 	}
 	
 	/**
@@ -64,7 +64,7 @@ public abstract class DCProtocol extends ConnectionProtocol {
 	 * based on NMDC variable
 	 */
 	protected void setCharSet() {
-		setCharset(isNMDC()? NMDCCHARSET:ADCCHARSET);
+		setCharset(isNMDC()? NMDC_CHARSET:ADC_CHARSET);
 	}
 	
 	
@@ -79,9 +79,9 @@ public abstract class DCProtocol extends ConnectionProtocol {
 	
 	private void setPrefixPattern() {
 		if (nmdc == null) {
-			setPrefix(NMDCANDADCPrefixPattern);
+			setPrefix(NMDC_AND_ADC_PREFIX_PATTERN);
 		} else  {
-			setPrefix(nmdc?NMDCPrefixPattern: ADCPrefixPattern);
+			setPrefix(nmdc?NMDC_PREFIX_PATTERN: ADC_PREFIX_PATTERN);
 		}
 	}
 	
@@ -153,9 +153,8 @@ public abstract class DCProtocol extends ConnectionProtocol {
 		if (lastpos < 0) {
 			lastpos = lockstr.indexOf(' ', firstpos+1);
 		}
-		//System.out.println(lockstr);
 		
-		byte[] lock = lockstr.substring(firstpos+1, lastpos).getBytes(cs.name()); //lockstr.split(" ", 3)[1].getBytes(cs.name()); 
+		byte[] lock = lockstr.substring(firstpos+1, lastpos).getBytes(cs.name()); 
 
 		byte[] key =  new byte[lock.length];
 

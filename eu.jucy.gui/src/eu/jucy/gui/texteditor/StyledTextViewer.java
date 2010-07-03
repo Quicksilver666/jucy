@@ -92,6 +92,7 @@ public class StyledTextViewer {
 	private final boolean pm;
 	private final IUser usr;
 	
+	private boolean scrollLock = false;
 
 	private final List<ObjectPoint<Image>> imagePoints = new ArrayList<ObjectPoint<Image>>();
 	private final List<ObjectPoint<Control>> controlPoints = new ArrayList<ObjectPoint<Control>>();
@@ -114,7 +115,7 @@ public class StyledTextViewer {
 				new SUIJob(text) {
 					@Override
 					public void run() {
-						if (!text.isFocusControl()) {
+						if (!text.isFocusControl() && !scrollLock) {
 							text.setSelection(text.getCharCount());
 							text.redraw();
 						}
@@ -232,6 +233,16 @@ public class StyledTextViewer {
 	
 	
 	
+	public boolean isScrollLock() {
+		return scrollLock;
+	}
+
+
+	public void setScrollLock(boolean scrollLock) {
+		this.scrollLock = scrollLock;
+	}
+
+
 	public StyledText getText() {
 		return text;
 	}

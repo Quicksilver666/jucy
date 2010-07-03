@@ -52,7 +52,7 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	private static Logger logger = LoggerFactory.make(); 
 	
 	
-	private static final ProtocolTimer mt = new ProtocolTimer();
+//	private static final ProtocolTimer mt = new ProtocolTimer();
 	private final ReentrantReadWriteLock rwLock;
 	
 
@@ -151,22 +151,21 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	}
 	
 	/**
-	 * must be called at the beginning.. when the protocol starts
-	 * overwriting method must call super (though this implementation only registers the timer)
-	 * so if the timer is unwanted not calling this is possible
+	 *  be called at the beginning.. when the protocol starts
+	 *
 	 */
 	public void start() {
-		mt.registerCP(this);
+		//mt.registerCP(this);
 	}
 	
-	/**
-	 * 
-	 * @return true if is registered with timer...
-	 * and will register it again if not as sideeffect
-	 */
-	public boolean debugIsRegistered() {
-		return !mt.registerCP(this);
-	}
+//	/**
+//	 * 
+//	 * @return true if is registered with timer...
+//	 * and will register it again if not as sideeffect
+//	 */
+//	public boolean debugIsRegistered() {
+//		return !mt.registerCP(this);
+//	}
 	
 	public void beforeConnect() {
 		stringbuffer.delete(0, stringbuffer.length()); //clear
@@ -314,7 +313,7 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	 *  a timer for every protocol
 	 *  it is called every second by a global timer
 	 */
-	public void timer() {
+	public final void timer() {
 	}
 	
 	/**
@@ -399,13 +398,11 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	protected void setState(ConnectionState state) {
 		synchronized(csSynch) {
 			if (this.state == ConnectionState.DESTROYED) {
-				throw new IllegalStateException("State was already destroyed");
+				throw new IllegalStateException("State was already destroyed "+this);
 			}
 			this.state = state;
 			
-			if (state == ConnectionState.DESTROYED) {
-				mt.deregisterCP(this);
-			}
+
 	
 			for (IProtocolStatusChangedListener listener: cscl) {
 				if (listener == null) {

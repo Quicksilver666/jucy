@@ -18,7 +18,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
@@ -61,9 +64,10 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	
 	private volatile SSLEngine engine;
 	private volatile HashValue fingerPrint;
-	private volatile boolean connectSent = false;
+	private final AtomicBoolean connectSent = new AtomicBoolean(false);
 	
-	private volatile boolean disconnectSent = false;
+	private final AtomicBoolean disconnectSent = new AtomicBoolean(false);
+//	private final Semaphore disconnectSentSem = new Semaphore(1);
 	
 	private volatile SelectionKey key; 
 	private volatile boolean blocking = false;
@@ -163,13 +167,16 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		synchronized (bufferLock) {
 			if (encryption) {
 				try {
+					
+					int lastRemaining;
 					do {
+						lastRemaining = toSend.remaining();
 						encrypting.clear();
 						SSLEngineResult ssler = engine.wrap(toSend, encrypting);
 						encrypting.flip();
 						varOutBuffer.putBytes(encrypting);
 						evaluateHandshakeStatus(ssler.getHandshakeStatus());
-					} while (toSend.hasRemaining()); //even empty buffers need to execute this at least once..
+					} while (toSend.hasRemaining() && lastRemaining != toSend.remaining()); //even empty buffers need to execute this at least once..
 					
 				} catch(RuntimeException re) {
 					addProblematic(re);
@@ -191,7 +198,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	public void write() throws IOException {
 		synchronized (bufferLock) {
 			if (varOutBuffer.hasRemaining()) {
-				SocketChannel sochan=(SocketChannel)key.channel();
+				SocketChannel sochan = (SocketChannel)key.channel();
 				//outBuffer.flip();
 				int numBytesWritten = varOutBuffer.writeToChannel(sochan);
 				logger.debug("written "+numBytesWritten);
@@ -217,8 +224,9 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			}
 		} */
 		logger.debug("onDisconnect()");
-		if (!disconnectSent) {
-			disconnectSent = true;
+		if (disconnectSent.compareAndSet(false, true)) {
+			
+		//	disconnectSent = true;
 			key.cancel();//unregister with selector
 			SocketChannel sochan = (SocketChannel)key.channel();
 			sochan.close();
@@ -257,11 +265,9 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			return;
 		}
 		
+		
 		int numBytesRead = sochan.read(byteBuffer);
-	//	logger.debug("read "+numBytesRead);
-	//	if (encryption) {
-	//		logger.debug("read "+numBytesRead);
-	//	}
+		
 		
 		if (numBytesRead >= 0) {
 			synchronized(bufferLock) {
@@ -293,7 +299,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			DCClient.execute(new Runnable(){
 				public void run() {
 					try {
-						if (!connectSent && Platform.inDevelopmentMode()) {  //DEBUG  remove
+						if (!connectSent.get() && Platform.inDevelopmentMode()) {  //DEBUG  remove
 							logger.warn("connect not sent: "+varInBuffer.toString());
 						}
 						processread();
@@ -309,8 +315,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 * signals on connect if not already done so..
 	 */
 	private void signalOnConnect() {
-		if (!connectSent) {
-			connectSent = true;
+		if (connectSent.compareAndSet(false, true)) {
+			//connectSent = true;
 			DCClient.execute(new Runnable() {
 				public void run() {
 					Lock l = cp.writeLock();
@@ -344,7 +350,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		switch (status) {
 		case FINISHED:
 		case NOT_HANDSHAKING:
-			boolean tryValidation = fingerPrint != null && !connectSent;
+			boolean tryValidation = fingerPrint != null && !connectSent.get();
 			
 			if (tryValidation && !checkFingerprint()) {
 				return;
@@ -376,10 +382,6 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			break;
 		}
 	}
-	
-
-
-	  
 
 	
 	/*
@@ -387,7 +389,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 */
 	private void unwrap() {
 		int positionLast = 0;
-		while (byteBuffer.position() != positionLast) {
+		
+		while (byteBuffer.position() != positionLast) { // just taking remaining doesn't work sometimes (bytes are in line but can't be decoded)
 			positionLast = byteBuffer.position();
 			byteBuffer.flip();
 			SSLEngineResult ssler = null;
@@ -397,15 +400,21 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				decrypting.flip();
 				//logger.debug("bytes after encryption: "+decrypting.remaining()+" "+ssler);
 				varInBuffer.putBytes(decrypting);
+				
+
 			} catch (Exception e) {  
+				if (e.toString().contains("Cipher buffering error") && Platform.inDevelopmentMode()) {
+					logger.warn(cp.toString());
+				}
 				addProblematic(e);
 				asynchClose();
 			} 
-			
 			byteBuffer.compact();
 			if (ssler != null && !ssler.getHandshakeStatus().equals(HandshakeStatus.NEED_UNWRAP)) {// check against need unwrap prevents recursiveness.. -> we do further unwrapping here anyway..
 				evaluateHandshakeStatus(ssler.getHandshakeStatus());
 			}
+
+			
 		}
 	}
 	/*
@@ -446,7 +455,11 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 *
 	 */
 	public void connected() {
-		disconnectSent = false;
+	//	disconnectSent = false;
+		disconnectSent.set(false);
+	//	disconnectSentSem.drainPermits();
+	//	disconnectSentSem.release();
+		
 		final SocketChannel sochan =(SocketChannel)key.channel();
 		trySetInetAddy(sochan);
 		
@@ -550,8 +563,12 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	public void reset(SocketChannel soChan) {
 		semaphore.drainPermits();
 		
-		disconnectSent = false;
-		connectSent = false;
+	//	disconnectSent = false;
+		disconnectSent.set(false);
+	//	disconnectSentSem.drainPermits();
+	//	disconnectSentSem.release();
+		
+		connectSent.set(false); 
 		logger.debug("in reset(sochan)");
 
 		
@@ -719,7 +736,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	
 
 	public boolean setFingerPrint(HashValue hash) {
-		if (encryption && connectSent && this.fingerPrint == null) {
+		if (encryption && connectSent.get() && this.fingerPrint == null) {
 			this.fingerPrint = hash;
 			return checkFingerprint();
 		} else {
@@ -760,6 +777,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 							engine.closeOutbound();
 							send(ByteBuffer.allocate(0)); //used for wrapping remaining data..
 						}
+						
 						flush(encryption?800:400);
 					}
 				
@@ -782,16 +800,27 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		sem.acquireUninterruptibly();
 	}
 	
+	private final Lock blockingChannelLock = new ReentrantLock();
 	
 	public boolean flush(int milliseconds) {
 		if (blocking) {
+			boolean locked = false;
 			try {
-				((SocketChannel)key.channel()).socket().setSoTimeout(milliseconds);
-				varOutBuffer.writeToChannel((SocketChannel)key.channel());
-				((SocketChannel)key.channel()).socket().setSoTimeout(cp.getSocketTimeout());
-			} catch(IOException ioe) {
-				if (Platform.inDevelopmentMode()) {
-					logger.warn(ioe + toString(),ioe);
+				locked = blockingChannelLock.tryLock(milliseconds,TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				Thread.interrupted();
+			}
+			if (locked) {
+				try {
+					((SocketChannel)key.channel()).socket().setSoTimeout(milliseconds);
+					varOutBuffer.writeToChannel((SocketChannel)key.channel());
+					((SocketChannel)key.channel()).socket().setSoTimeout(cp.getSocketTimeout());
+				} catch(IOException ioe) {
+					if (Platform.inDevelopmentMode()) {
+						logger.warn(ioe + toString(),ioe);
+					}
+				} finally {
+					blockingChannelLock.unlock();
 				}
 			}
 			return varOutBuffer.hasRemaining();
@@ -833,6 +862,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				key.cancel();
 			}
 		});
+		
 		
 		sc.configureBlocking(true);
 		sc.socket().setSoTimeout(10000);
@@ -887,8 +917,13 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 
 		public int write(ByteBuffer src) throws IOException {
 			UnblockingConnection.this.send(src);
-			int toWrite = varOutBuffer.writeToChannel((SocketChannel)key.channel());
-			return toWrite;
+			blockingChannelLock.lock();
+			try {
+				int toWrite = varOutBuffer.writeToChannel((SocketChannel)key.channel());
+				return toWrite;
+			} finally {
+				blockingChannelLock.unlock();
+			}
 		}
 
 		public int read(ByteBuffer dst) throws IOException {
@@ -897,7 +932,12 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				varInBufferHasRemaining = varInBuffer.hasRemaining();
 			}
 			while (!varInBufferHasRemaining) {
-				UnblockingConnection.this.read();
+				blockingChannelLock.lock();
+				try {
+					UnblockingConnection.this.read();
+				} finally {
+					blockingChannelLock.unlock();
+				}
 				synchronized (bufferLock) {
 					if (!encryption || engine.isInboundDone()) { //without encryption read is always successful... also we need a break if encryption is done..
 						break;

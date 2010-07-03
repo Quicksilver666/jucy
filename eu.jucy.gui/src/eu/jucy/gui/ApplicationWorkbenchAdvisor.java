@@ -40,6 +40,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 		
 		boolean save = GUIPI.get(GUIPI.lastStartupVersion).equals(DCClient.VERSION);
 		
+
 		configurer.setSaveAndRestore(save);
 		if (!save) {
 			GUIPI.put(GUIPI.lastStartupVersion, DCClient.VERSION);

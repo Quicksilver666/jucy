@@ -138,6 +138,14 @@ public interface IUser  {
 	 */
 	boolean isOp();
 	
+	/**
+	 * 
+	 * 
+	 * @return true if the other is a bot
+	 * on NMDC some optimistic guessing is done, on ADC INF flags are tested..
+	 */
+	boolean isBot();
+	
 	Mode getModechar();
 	
 //	/**

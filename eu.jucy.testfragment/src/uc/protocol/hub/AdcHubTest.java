@@ -300,13 +300,13 @@ public class AdcHubTest {
 		+" SI"+file.getSize()+" FN"+AbstractADCCommand.doReplaces(file.getPath().replace(File.separatorChar , '/'))  +"\n";
 		
 		tudpH.receivedPacket(new InetSocketAddress("127.0.0.1", 5000), 
-				ByteBuffer.wrap(packet.getBytes(DCProtocol.ADCCHARENCODING)), true);
+				ByteBuffer.wrap(packet.getBytes(DCProtocol.ADC_CHARENCODING)), true);
 		
 		assertEquals("expected exactly one File: ",1, fs.getNrOfFiles());
 		
 		
 		String packet2 = packet.replace(CIDAsterix, CIDObelix); //same result from different user..
-		byte[] packet2bytes = packet2.getBytes(DCProtocol.ADCCHARENCODING);
+		byte[] packet2bytes = packet2.getBytes(DCProtocol.ADC_CHARENCODING);
 		byte[] packet2Ency = UDPEncryption.encryptMessage(packet2bytes, fs.getEncryptionKey());
 		tudpH.receivedPacket(new InetSocketAddress("127.0.0.1", 5001), 
 				ByteBuffer.wrap(packet2Ency), true);

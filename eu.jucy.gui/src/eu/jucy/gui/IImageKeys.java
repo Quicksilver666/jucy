@@ -49,6 +49,9 @@ public class IImageKeys {
 								
 								OFFLINE_16			=	"icons/offline.16.gif",
 
+								SCROLL_LOCK			=	"icons/scroll_lock.16.gif",
+								SHOW_RIGHT_SIDEVIEW		=	"icons/view_right.16.gif",
+								SHOW_LEFT_SIDEVIEW		=	"icons/view_left.16.gif",
 								
 	// misc			
 								STOPICON			=	"icons/stop.16.gif",
@@ -57,7 +60,8 @@ public class IImageKeys {
 								ENCRYPTEDKEYP		=	"icons/encryptedkeyp.16.gif",
 								DECRYPTED			=	"icons/decrypted.16.gif",
 								UPLOAD_ICON			=	"icons/upload.gif" ,
-								DOWNLOAD_ICON		=	"icons/download.gif" 
+								DOWNLOAD_ICON		=	"icons/download.gif" ,
+								SCREENSHOT_ICON		=	"icons/camera.16.gif"
 			
 									;
 								

@@ -171,7 +171,8 @@ public final class GuiHelpers {
 	 * @return
 	 */
 	public static Rectangle fromString(String s) {
-		String regexp = "Rectangle {(d+), (d+), (d+), (d+)}";
+		
+		String regexp = "Rectangle \\{(\\d+), (\\d+), (\\d+), (\\d+)\\}";
 		Pattern p = Pattern.compile(regexp);
 		Matcher m = p.matcher(s);
 		if (m.matches()) {

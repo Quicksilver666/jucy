@@ -113,6 +113,7 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 	private TreeViewer treeViewer;
 	private volatile FileSearch current;
 	
+	private Image showLeftIcon;
 	
 	private Tree searchResultTable;
 	
@@ -424,26 +425,47 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 		gridLayout.numColumns = 3;
 		composite.setLayout(gridLayout);
 
-		final Button showSearchOptions = new Button(composite, SWT.CHECK);
-		showSearchOptions.setSelection(true);
-		showSearchOptions.addSelectionListener(new SelectionAdapter() {
-			private int[] weights = new int[] {130, 430 };
-			private boolean enable = true;
+//		final Button showSearchOptions = new Button(composite, SWT.CHECK);
+//		showSearchOptions.setSelection(true);
+//		showSearchOptions.addSelectionListener(new SelectionAdapter() {
+//			private int[] weights = new int[] {130, 430 };
+//			private boolean enable = true;
+//			public void widgetSelected(final SelectionEvent e) {
+//				if (enable != showSearchOptions.getSelection()) {
+//					enable = !enable;
+//					if (showSearchOptions.getSelection()) {
+//						sashForm.setWeights(weights);
+//					} else {
+//						weights = sashForm.getWeights();
+//						sashForm.setWeights(new int[]{0,500});
+//					}
+//				}
+//			}
+//		});
+//		
+//		showSearchOptions.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+//		showSearchOptions.setText(Lang.ShowSidebar);
+		
+		showLeftIcon = 	 AbstractUIPlugin.imageDescriptorFromPlugin(
+				Application.PLUGIN_ID, IImageKeys.SHOW_LEFT_SIDEVIEW).createImage(); 
+		ToolBar toolBar = new ToolBar (composite, SWT.HORIZONTAL | SWT.SHADOW_OUT | SWT.FLAT);
+		final ToolItem showOptions = new ToolItem (toolBar, SWT.CHECK);
+		showOptions.setImage(showLeftIcon);
+		showOptions.addSelectionListener(new SelectionAdapter() {
+			private int[] weights = null;
 			public void widgetSelected(final SelectionEvent e) {
-				if (enable != showSearchOptions.getSelection()) {
-					enable = !enable;
-					if (showSearchOptions.getSelection()) {
-						sashForm.setWeights(weights);
-					} else {
-						weights = sashForm.getWeights();
-						sashForm.setWeights(new int[]{0,500});
-					}
+				if (!showOptions.getSelection()) {
+					sashForm.setWeights(weights);
+				} else {
+					weights = sashForm.getWeights();
+					sashForm.setWeights(new int[]{0,500});
 				}
 			}
 		});
+		toolBar.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		
-		showSearchOptions.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		showSearchOptions.setText(Lang.ShowSidebar);
+		
+		
 
 		itemCountLabel = new Label(composite, SWT.BORDER);
 		final GridData gridData = new GridData(SWT.LEFT, SWT.FILL, false, false);
@@ -669,6 +691,9 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 
 		if (image != null) {
 			image.dispose();
+		}
+		if (showLeftIcon != null) {
+			showLeftIcon.dispose();
 		}
 	}
 	

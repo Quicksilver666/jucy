@@ -75,6 +75,13 @@ public class ConnectionHandler extends Observable<StatusObject>
 	private final Set<Object> active = 
 		Collections.synchronizedSet(new HashSet<Object>()); 
 
+	private final Observable<StatusObject> fileTransferObservable = new Observable<StatusObject>(); 
+
+	
+	
+	
+
+
 
 	private final FilteredChangedAttributeListener pca;
 
@@ -524,6 +531,17 @@ public class ConnectionHandler extends Observable<StatusObject>
 		return cpsmManager;
 	}
 
+	public void addTransferObserver(helpers.Observable.IObserver<StatusObject> o) {
+		fileTransferObservable.addObserver(o);
+	}
+
+	public void deleteTransferObserver(IObserver<StatusObject> o) {
+		fileTransferObservable.deleteObserver(o);
+	}
+
+	public void notifyTransferObservers(StatusObject arg) {
+		fileTransferObservable.notifyObservers(arg);
+	}
 
 	/**
 	 * bundles of information holding info for us of users that are expected
@@ -613,6 +631,8 @@ public class ConnectionHandler extends Observable<StatusObject>
 		
 		
 	}
+	
+
 
 }
 

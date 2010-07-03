@@ -270,7 +270,7 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
     				String hubip	= sr.substring(braceOpen ,sr.length()-1);
     				Hub hub = dcc.hubForNickAndIP(nick,hubip);
     				if (hub != null) {
-    					if (hub.getCharset().equals(DCProtocol.NMDCCHARSET) || originalpacket == null ) {
+    					if (hub.getCharset().equals(DCProtocol.NMDC_CHARSET) || originalpacket == null ) {
     						receivedSR(hub, sr);
     					//	hub.searchResultReceived(sr);
     					} else {

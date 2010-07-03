@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -14,6 +15,8 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.DND;
@@ -26,6 +29,7 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 
 import uc.IHasUser;
@@ -42,10 +46,13 @@ import uihelpers.SUIJob;
 import uihelpers.SelectionProviderIntermediate;
 
 
+import eu.jucy.gui.Application;
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
+import eu.jucy.gui.IImageKeys;
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.UCMessageEditor;
 import eu.jucy.gui.UCWorkbenchPart;
+import eu.jucy.gui.itemhandler.SendScreenHandler.ScreenShotContributions;
 import eu.jucy.gui.texteditor.hub.ItemSelectionProvider;
 
 /**
@@ -253,6 +260,47 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	}
 	
 	
+	public void getContributionItems(List<IContributionItem> items) {
+		super.getContributionItems(items);
+		
+		MenuManager mm = new MenuManager(Lang.SendScreen
+				,AbstractUIPlugin.imageDescriptorFromPlugin(Application.PLUGIN_ID, IImageKeys.SCREENSHOT_ICON)
+				,null);
+		
+		mm.add(new ScreenShotContributions());
+	
+		items.add( mm );
+	}
+	
+	
+	/**
+	 * 
+	 * @param f - the file that should be dropped
+	 * @param append - if true -> append to writeline else -> send directly..
+	 */
+	public void dropFile(File f,final boolean append) {
+		if (f.isFile()) {
+			IOwnFileList iof = ApplicationWorkbenchWindowAdvisor.get().getFilelist();
+			UCTextEditor uct = UCTextEditor.this;
+			IUser droppedFor =  	  uct instanceof IHasUser 
+								&& ! (uct instanceof IMultiUser) ?
+										((IHasUser)UCTextEditor.this).getUser() 
+										:null;
+					
+			iof.immediatelyAddFile(f, true,droppedFor, new AddedFile() {
+					@Override
+					public void addedFile(final FileListFile file,final boolean addedOutsideShare) {
+						new SUIJob(getText()) {
+							@Override
+							public void run() {
+								UCTextEditor.this.addedFile(file,append,addedOutsideShare);
+							}
+						}.schedule();
+					}
+			});
+		}
+	}
+	
 	private final class MagnetDropAdapter extends DropTargetAdapter {
 		private final boolean append;
 		public MagnetDropAdapter(boolean append) {
@@ -265,26 +313,7 @@ public abstract class UCTextEditor extends UCMessageEditor {
 				fileList = (String[])event.data;
 				for (String file:fileList) {
 					File f = new File(file);
-					if (f.isFile()) {
-						IOwnFileList iof = ApplicationWorkbenchWindowAdvisor.get().getFilelist();
-						UCTextEditor uct = UCTextEditor.this;
-						IUser droppedFor =  	  uct instanceof IHasUser 
-											&& ! (uct instanceof IMultiUser) ?
-													((IHasUser)UCTextEditor.this).getUser() 
-													:null;
-								
-						iof.immediatelyAddFile(f, true,droppedFor, new AddedFile() {
-								@Override
-								public void addedFile(final FileListFile file,final boolean addedOutsideShare) {
-									new SUIJob(getText()) {
-										@Override
-										public void run() {
-											UCTextEditor.this.addedFile(file,append,addedOutsideShare);
-										}
-									}.schedule();
-								}
-						});
-					}
+					UCTextEditor.this.dropFile(f,append);
 				}
 			}
 		}

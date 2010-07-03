@@ -25,6 +25,7 @@ public class Lang {
 		,AdvancedFavHubProperties
 		,All
 		,AllXUsersOffline
+		,All_cpscreen
 		,AllowUsingUPnP
 		,Appearance
 		,AreYouSureYouWantToCloseJucy
@@ -227,6 +228,7 @@ public class Lang {
 		,RequestsReceived
 		,Restore
 		,RevokeGrantedSlot
+		,ScreenXYZ
 		,Search
 		,SearchDescription
 		,SearchFor
@@ -238,6 +240,7 @@ public class Lang {
 		,SelectFont
 		,SendOnceForEachUser
 		,SendPrivateMessage
+		,SendScreen
 		,Separator
 		,SetAwayMessageOnMinimize
 		,SetPriority

@@ -40,6 +40,8 @@ public class PropertyTesterUser extends PropertyTester {
 			return expectedValue.equals(usr.getIp() != null);
 		} else if ("isShareing".equals(property)) {
 			return expectedValue.equals(usr.getShared() > 0 || usr.getNumberOfSharedFiles() > 0);
+		} else if ("isInChatOnlyHub".equals(property)) {
+			return usr.getHub() != null && expectedValue.equals( usr.getHub().getFavHub().isChatOnly() );
 		}
 		
 		throw new IllegalStateException();

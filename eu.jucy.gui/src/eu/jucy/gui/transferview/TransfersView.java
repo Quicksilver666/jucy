@@ -56,8 +56,6 @@ import uc.IUser;
 
 
 import uc.files.transfer.AbstractFileTransfer;
-import uc.files.transfer.IFileTransfer;
-import uc.files.transfer.TransferChange;
 import uc.protocols.client.ClientProtocol;
 import uc.protocols.client.ClientProtocolStateMachine;
 import uihelpers.DelayedTableUpdater;
@@ -81,6 +79,8 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 
 	private TableViewerAdministrator<Object> tva; 
 	private DelayedTableUpdater<Object> update; 
+	
+
 	
 
 	@Override
@@ -121,14 +121,15 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 		//TOOD change model -> registering with every connection Handler is bad..
 		for (ConnectionHandler ch:chs) {
 			ch.addObserver(this);
-			for (Object o : ch.getActive()) {
-				if (o instanceof ClientProtocol) {
-					IFileTransfer ift = ((ClientProtocol)o).getFileTransfer();
-					if (ift != null) {
-						ift.addObserver(transferListener);
-					}
-				}
-			}
+			ch.addTransferObserver(transferListener2);
+//			for (Object o : ch.getActive()) {
+//				if (o instanceof ClientProtocol) {
+//					IFileTransfer ift = ((ClientProtocol)o).getFileTransfer();
+//					if (ift != null) {
+//						ift.addObserver(transferListener);
+//					}
+//				}
+//			}
 		}
 			
 		new ToolTipProvider<Object>(table) {
@@ -175,6 +176,7 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 		List<ConnectionHandler> chs = ApplicationWorkbenchWindowAdvisor.get().getAllConnectionHandler();
 		for (ConnectionHandler ch:chs) {
 			ch.deleteObserver(this);
+			ch.deleteTransferObserver(transferListener2);
 		}
 		super.dispose();
 	}
@@ -200,12 +202,12 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 		case ConnectionHandler.TRANSFER_STARTED:
 			update.remove(arg.getValue());
 			update.add(arg.getValue()); //do structural change.. sorting..
-			((IFileTransfer)arg.getDetailObject()).addObserver(transferListener);
+	//		((IFileTransfer)arg.getDetailObject()).addObserver(transferListener);
 			break;
 		case ConnectionHandler.TRANSFER_FINISHED:
 			update.remove(arg.getValue());
 			update.add(arg.getValue()); //do structural change.. sorting..
-			((IFileTransfer)arg.getDetailObject()).deleteObserver(transferListener);
+	//		((IFileTransfer)arg.getDetailObject()).deleteObserver(transferListener);
 			break;
 			
 		case ConnectionHandler.STATEMACHINE_CREATED:
@@ -222,21 +224,33 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 	}
 		
 	
-	private final IObserver<TransferChange> transferListener = new IObserver<TransferChange>() {
-		public void update(final IObservable<TransferChange> o, TransferChange arg) {
-			new SUIJob() {
+//	private final IObserver<TransferChange> transferListener = new IObserver<TransferChange>() {
+//		public void update(final IObservable<TransferChange> o, TransferChange arg) {
+//			new SUIJob() {
+//				@Override
+//				public void run() { 
+//					if (!table.isDisposed()) {
+//						tableViewer.refresh(((AbstractFileTransfer)o).getClientProtocol());
+//					} else {
+//						o.deleteObserver(transferListener);
+//					}
+//				}
+//			}.schedule();
+//		}
+//	};
+
+	private final IObserver<StatusObject> transferListener2 = new IObserver<StatusObject>() {
+		@Override
+		public void update(IObservable<StatusObject> o, final StatusObject arg) {
+			new SUIJob(table) {
 				@Override
 				public void run() { 
-					if (!table.isDisposed()) {
-						tableViewer.refresh(((AbstractFileTransfer)o).getClientProtocol());
-					} else {
-						o.deleteObserver(transferListener);
-					}
+					tableViewer.refresh(((AbstractFileTransfer)arg.getValue()).getClientProtocol());
 				}
 			}.schedule();
+			
 		}
 	};
-
 
 
 

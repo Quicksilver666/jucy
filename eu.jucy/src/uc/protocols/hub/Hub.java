@@ -3,6 +3,7 @@ package uc.protocols.hub;
 
 
 import helpers.GH;
+import helpers.SchedulableTask;
 
 import java.security.GeneralSecurityException;
 import java.util.Collections;
@@ -20,6 +21,7 @@ import java.util.TreeMap;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.io.IOException;
@@ -201,24 +203,36 @@ public class Hub extends DCProtocol implements IHub {
 	 */
 	private volatile boolean onceConnected = false;
 	
-	private volatile boolean weWantToReconnect = true;  // Variable that tells if the client should automatically reconnect... i.e. set false on badpass or kick..
-	private volatile boolean reconnectRunning = false;
+//	private volatile boolean weWantToReconnect = true;  // Variable that tells if the client should automatically reconnect... i.e. set false on badpass or kick..
+//	private volatile boolean reconnectRunning = false;
+	
+//	private final Object reconnectSynch = new Object();
+//	private ScheduledFuture<?> reconnect = null;
+	
+	private final SchedulableTask reconnectTask;
+	private final SchedulableTask timeOutTask;
 
 
-	private volatile long waitTime = 10+ GH.nextInt(60); //how long to wait until reconnect
+//	private volatile long waitTime = 10+ GH.nextInt(60); //how long to wait until reconnect
 	private volatile int unsuccessfulConnectionsInARow = 0;
 	
-	private final Object loginTimeoutSynch = new Object();
-	private int timerLogintimeout;
+//	private final Object loginTimeoutSynch = new Object();
+//	private int timerLogintimeout;
+	
+	
+	
 	
 	private static final long noCommandReceivedTimeout = 45*1000;
 	private final Object lastCommandSynch = new Object();
+	private ScheduledFuture<?> lastCommandTimer;
 	private long lastCommandTime;
 	
 	{
 		synchronized (lastCommandSynch) {
 			lastCommandTime = System.currentTimeMillis()+45 * 1000 ;
 		}
+		
+		
 	}
 	
 
@@ -286,6 +300,55 @@ public class Hub extends DCProtocol implements IHub {
 		logger.debug("creating hub: "+favHub.getHubaddy());
 
 		self = createSelf();
+		
+		reconnectTask = new SchedulableTask(new Runnable() {
+			@Override
+			public void run() {
+				WriteLock lock = writeLock();
+				lock.lock();
+				try {
+					if (dcc.isRunningHub(favHub)) {
+						logger.debug("reconnecting");
+						statusMessage(LanguageKeys.Reconnecting,0);
+						reconnectTask.reschedule(60, TimeUnit.SECONDS); //if reconnect fails... / not even goes to before connect..
+						connection.reset(favHub.getInetSocketaddress()); 
+					}
+					
+				} finally {
+					lock.unlock();
+				}
+			}
+		}, dcc.getSchedulerDir());
+		
+		timeOutTask = new SchedulableTask(new Runnable() {
+			@Override
+			public void run() {
+				WriteLock lock = writeLock();
+				lock.lock();
+				try {
+					logger.debug("login Timeout: "+getName());
+					switch(getState()) {
+					case CONNECTING: 
+						statusMessage(LanguageKeys.ConnectionTimeout,0);
+						break;
+					case CONNECTED:
+						statusMessage(LanguageKeys.LoginTimeout,0);
+						break;
+					case LOGGEDIN:
+						break;
+					case CLOSED:
+					case DESTROYED:
+						break;
+					default: 
+						throw new IllegalStateException("timeout occured although current state is: "+getState());
+					}
+					connection.close();
+				} finally {
+					lock.unlock();
+				}
+			}
+			
+		}, dcc.getSchedulerDir());
 		
 		connection = inject.getConnection(identity.getCryptoManager(),favHub.getInetSocketaddress(), this,p.encrypted,favHub.getKeyPrint());
 	
@@ -545,6 +608,7 @@ public class Hub extends DCProtocol implements IHub {
 		} finally {
 			lock.unlock();
 		}
+
 	}
 	
 	/**
@@ -568,10 +632,12 @@ public class Hub extends DCProtocol implements IHub {
 
 		othersSupports.clear();
 		userIPReceived = false;
+		
+		reconnectTask.cancelScheduled();
+	//	logger.info(favHub.getHubname()+" cancelling reconnect");
 
-		synchronized(loginTimeoutSynch) {
-			timerLogintimeout = 0;
-		}
+
+		timeOutTask.reschedule(40, TimeUnit.SECONDS);
 		userCommands.clear();
 		
 		super.beforeConnect();
@@ -596,6 +662,9 @@ public class Hub extends DCProtocol implements IHub {
 		logger.debug("onConnect()");
 		super.onConnect();
 	//	statusMessage(LanguageKeys.Connected,0);
+		
+		
+		
 		
 		
 		if (!nmdc) { //in ADC clients sends the first command not the hub
@@ -652,20 +721,33 @@ public class Hub extends DCProtocol implements IHub {
 	public void onDisconnect() throws IOException {
 		super.onDisconnect();
 		disconnectAllUsers();
+		
+		timeOutTask.cancelScheduled();
+		synchronized (lastCommandSynch) {
+			if (lastCommandTimer != null) {
+				lastCommandTimer.cancel(true);
+			}
+		}
 	
-        if (checkReconnect()) { //only reconnect if reconnect was requested by user.. or we already connected once... for security..
+        if (checkReconnect()) { 
         	logger.debug("scheduling reconnect");
-        	reconnectRunning = true;
+        	
+        
+        //	logger.info(favHub.getHubname()+": reconnect running " +  reconnectTask.getDelay(TimeUnit.SECONDS));
+        	
+    		if (!reconnectTask.isScheduled()) {
+    			unsuccessfulConnectionsInARow++;
+				int waitTime = Math.min(50,unsuccessfulConnectionsInARow) *(10 + GH.nextInt(30)); //reset the wait time..
+    			reconnectTask.reschedule(waitTime, TimeUnit.SECONDS);
+    		}
         }
         
 	}
 	
 	public boolean checkReconnect() {
 		return 	dcc.isRunningHub(favHub) 
-				&& weWantToReconnect 
-				&& (	onceConnected
-						|| waitTime <= 0 
-						|| favHub.isFavHub(dcc.getFavHubs()) );
+				&& (onceConnected || favHub.isFavHub(dcc.getFavHubs()) );
+		
 	}
 	
 	
@@ -683,6 +765,7 @@ public class Hub extends DCProtocol implements IHub {
 	public void onLogIn() throws IOException {
 		super.onLogIn();
 		unsuccessfulConnectionsInARow = 0;
+		timeOutTask.cancelScheduled();
 		//now information if we are registered or operator may have changed
 		dcc.notifyChangedInfo(InfoChange.Hubs); 
 		
@@ -697,6 +780,39 @@ public class Hub extends DCProtocol implements IHub {
 				}
 			}
 		},5, TimeUnit.SECONDS);
+		
+		synchronized (lastCommandSynch) {
+			lastCommandTimer = dcc.getSchedulerDir().scheduleWithFixedDelay(new Runnable() {
+				@Override
+				public void run() {
+					if (isNoTrafficTimeOut()) {
+						//logger.info(favHub.getHubname()+" Timeouttimer 2");
+						WriteLock lock = writeLock();
+						
+						try {
+							lock.lockInterruptibly();
+						} catch (InterruptedException e) {
+							if (Thread.interrupted()) {
+								return;
+							}
+						}
+						try {
+							if (nmdc) {
+								MyINFO.sendMyINFO(Hub.this,true); 
+								//by sending a MyINFO we check if the connection of the hub is fine
+							} else {
+								//in ADC we have STA as NOP
+								STA.sendSTAtoHub(Hub.this, new ADCStatusMessage("PING",
+										ADCStatusMessage.SUCCESS,ADCStatusMessage.Generic));
+							}
+						} finally {
+							lock.unlock();
+						}
+					}
+				}
+
+			}, 60, 10, TimeUnit.SECONDS);
+		}
 		
 		if (!nmdc) {
 			addCommand(new QUI(this),new RES(this));
@@ -856,7 +972,8 @@ public class Hub extends DCProtocol implements IHub {
 			listener.pmReceived(pm);
 		}
 
-		if (dcc.isAway() &&  pm.fromEqualsSender()) { // send away notification
+		// if the other is either chatroom or bot afk message is not needed
+		if (dcc.isAway() &&  pm.fromEqualsSender() && !pm.getFrom().isBot()) { 
 			Date sent = lastAwaySent.get(pm.getFrom());
 			if (sent == null || sent.before(new Date(System.currentTimeMillis()-60 *60 *1000))) {
 				lastAwaySent.put(pm.getFrom(), new Date());
@@ -1225,15 +1342,16 @@ public class Hub extends DCProtocol implements IHub {
 	}
 
 	
-	/**
-	 * disconnects and reconnects after the specified time
-	 * @param reconnectTime - if -1 never 
-	 */
-	private void disconnect(int reconnectTime) {
-		weWantToReconnect	=	true;
-		waitTime = reconnectTime < 0? Integer.MAX_VALUE:reconnectTime;
-		connection.close();
-	}
+//	/**
+//	 * disconnects and reconnects after the specified time
+//	 * @param reconnectTime - if -1 never 
+//	 */
+//	private void disconnect(int reconnectTime) {
+//	//	weWantToReconnect	=	true;
+//		waitTime = reconnectTime < 0? Integer.MAX_VALUE:reconnectTime;
+//		
+//		connection.close();
+//	}
 
 	/**
 	 * reconnects the hub ..
@@ -1241,15 +1359,20 @@ public class Hub extends DCProtocol implements IHub {
 	 * if needed..
 	 */
 	public void reconnect(int waitTime) {
-		if (getState() == ConnectionState.CLOSED) {
-			weWantToReconnect = true;
-			reconnectRunning = true;
-			this.waitTime = waitTime < 0? Integer.MAX_VALUE:waitTime;
-		} else {
-			disconnect(waitTime);
+		if (getState() != ConnectionState.CLOSED) {
+			connection.close();
 		}
 		
+		reconnectTask.reschedule(waitTime, TimeUnit.SECONDS);
 	}
+	
+	
+
+	
+//	private void scheduleReconnect(int reconnectTime) {
+//		logger.info(favHub.getHubname()+ " scheduling reconnect: "+reconnectTime);
+//		
+//	}
 
 	void redirectReceived(FavHub addy) {
 		if (addy.isValid()) {
@@ -1309,7 +1432,18 @@ public class Hub extends DCProtocol implements IHub {
 		WriteLock lock = writeLock();
 		lock.lock();
 		try {
-			weWantToReconnect	=	false;
+			reconnectTask.cancelScheduled();
+			if (timeOutTask.isScheduled()) {
+				if (Platform.inDevelopmentMode()) {
+					logger.warn("time out task still scheduled");
+				}
+				timeOutTask.cancelScheduled();
+			}
+			synchronized (lastCommandSynch) {
+				if (lastCommandTimer != null) {
+					lastCommandTimer.cancel(true);
+				}
+			}
 			unregisterCTMListener(identity.getConnectionHandler());
 			dcc.internal_unregisterHub(favHub);
 		} finally {
@@ -1345,63 +1479,31 @@ public class Hub extends DCProtocol implements IHub {
 
 
 
-	public void timer() {
-		WriteLock lock = writeLock();
-		lock.lock();
-		try {
-			super.timer();
-			synchronized(loginTimeoutSynch) {
-				if (!reconnectRunning && !isLoginDone() && ++timerLogintimeout == 40) { //40 seconds connection/ login timeout
-					logger.debug("login Timeout: "+getName());
-					timerLogintimeout = 0;
-					switch(getState()) {
-					case CONNECTING: 
-						statusMessage(LanguageKeys.ConnectionTimeout,0);
-						break;
-					case CONNECTED:
-						statusMessage(LanguageKeys.LoginTimeout,0);
-						break;
-					case CLOSED:
-					case DESTROYED:
-						break;
-					default: 
-						throw new IllegalStateException("timeout occured although current state is: "+getState());
-					}
-					connection.close();
-					
-				}
-			}
-			if (isNoTrafficTimeOut() && getState().equals(ConnectionState.LOGGEDIN)) {
-				synchronized(lastCommandSynch) {
-					logger.debug("no command received for long time - checking connection: " + (System.currentTimeMillis()-lastCommandTime) );
-				}
-				if (nmdc) {
-					MyINFO.sendMyINFO(this,true); 
-					//by sending a MyINFO we check if the connection of the hub is fine
-				} else {
-					//in ADC we have STA as NOP
-					STA.sendSTAtoHub(this, new ADCStatusMessage("PING",
-										ADCStatusMessage.SUCCESS,ADCStatusMessage.Generic));
-				}
-			}
-			
-			
-			if (reconnectRunning && --waitTime < 0 ) {
-				reconnectRunning = false;
-				unsuccessfulConnectionsInARow++;
-				waitTime = Math.min(50,unsuccessfulConnectionsInARow) *(10 + GH.nextInt(30)); //reset the wait time..
-				if (dcc.isRunningHub(favHub)) { //reconnect if the hub didn't do this already..
-					logger.debug("reconnecting");
-					statusMessage(LanguageKeys.Reconnecting,0);
-					connection.reset(favHub.getInetSocketaddress()); //TODO here some connection reset failed timeout otherwise jucy stops connecting
-				}
-				
-			}
-		} finally {
-			lock.unlock();
-		}
-	}
+//	public void timer() {
+//		WriteLock lock = writeLock();
+//		lock.lock();
+//		try {
+//			super.timer();
+//			if (isNoTrafficTimeOut() && ConnectionState.LOGGEDIN == getState()) {
+//				synchronized(lastCommandSynch) {
+//					logger.debug("no command received for long time - checking connection: " + (System.currentTimeMillis()-lastCommandTime) );
+//				}
+//				if (nmdc) {
+//					MyINFO.sendMyINFO(this,true); 
+//					//by sending a MyINFO we check if the connection of the hub is fine
+//				} else {
+//					//in ADC we have STA as NOP
+//					STA.sendSTAtoHub(this, new ADCStatusMessage("PING",
+//										ADCStatusMessage.SUCCESS,ADCStatusMessage.Generic));
+//				}
+//			}
+//			
+//		} finally {
+//			lock.unlock();
+//		}
+//	}
 	    
+
 
 	private void setLastCommand() {
 		synchronized(lastCommandSynch) {
@@ -1684,8 +1786,16 @@ public class Hub extends DCProtocol implements IHub {
 		connection.setIncomingDecompression(Compression.ZLIB_FAST);
 	}
 	
-	public boolean isReconnectRunning() {
-		return reconnectRunning;
+//	public boolean isReconnectRunning() {
+//		return reconnectRunning;
+//	}
+
+
+	@Override
+	public String toString() {
+		return "Hub [Hubname=" + favHub.getHubname() + "]";
 	}
+	
+	
 	
 }

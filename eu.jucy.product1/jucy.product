@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="jucy" id="eu.jucy.product1.product" application="eu.jucy.gui.application" version="0.83.1" useFeatures="true" includeLaunchers="true">
+<product name="jucy" id="eu.jucy.product1.product" application="eu.jucy.gui.application" version="0.84.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/eu.jucy.product1/icons/sidebar.png"/>
@@ -36,7 +36,6 @@
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>
@@ -75,7 +74,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <plugin id="eu.jucy"/>
       <plugin id="eu.jucy.Log4J" fragment=""/>
       <plugin id="eu.jucy.adlsearch"/>
-      <plugin id="eu.jucy.charts"/>
+      <plugin id="eu.jucy.charts" fragment=""/>
       <plugin id="eu.jucy.countries"/>
       <plugin id="eu.jucy.database"/>
       <plugin id="eu.jucy.geoipmaxmind"/>
@@ -172,8 +171,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </plugins>
 
    <features>
-      <feature id="eu.jucy.feature.libraries" version="1.0.0.qualifier"/>
-      <feature id="eu.jucy.feature.baseclient" version="1.83.1.qualifier"/>
+      <feature id="eu.jucy.feature.baseclient" version="1.84.0.qualifier"/>
+      <feature id="eu.jucy.feature.libraries" version="1.0.4.qualifier"/>
    </features>
 
 

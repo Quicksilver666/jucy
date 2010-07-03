@@ -52,20 +52,24 @@ public class Lock extends AbstractNMDCHubProtocolCommand {
 		
 		String validateNick = "$ValidateNick "+hub.getSelf().getNick()+ "|";
 		
+		byte[] send = GH.concatenate(key,validateNick.getBytes(hub.getCharset().name()));
+		
 		if (command.contains("EXTENDEDPROTOCOL")) {
+			send = GH.concatenate(Supports.HUBSUPPORTS.getBytes(hub.getCharset().name()),send);
 			
-			hub.sendUnmodifiedRaw(GH.concatenate(
-					Supports.HUBSUPPORTS.getBytes(hub.getCharset().name()),
-					key,
-					validateNick.getBytes(hub.getCharset().name())));
+	//		hub.sendUnmodifiedRaw(GH.concatenate(
+	//				Supports.HUBSUPPORTS.getBytes(hub.getCharset().name()),
+	//				key,
+	//				validateNick.getBytes(hub.getCharset().name())));
 			
 		//	hub.sendUnmodifiedRaw(Supports.HUBSUPPORTS+key+validateNick);//done so all are sent in the first packet..
+			logger.debug("Lock received -> responded with Key, ValidateNick and Supports: "+new String(key,hub.getCharset().name()));
 		} else {
 			hub.addCommand(new NickList(hub));
-			hub.sendUnmodifiedRaw(GH.concatenate(key,validateNick.getBytes(hub.getCharset().name())));
-			
+			//hub.sendUnmodifiedRaw(GH.concatenate(key,validateNick.getBytes(hub.getCharset().name())));
 		}
-		logger.debug("Lock received -> responded with Key, ValidateNick and Supports: "+new String(key,hub.getCharset().name()));
+		hub.sendUnmodifiedRaw(send);
+
 	}
 
 	

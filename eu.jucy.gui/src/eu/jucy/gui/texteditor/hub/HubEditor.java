@@ -36,6 +36,7 @@ import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -44,10 +45,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 
 import org.eclipse.ui.IEditorReference;
@@ -137,7 +139,9 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 								GREY_LED,
 								GREEN_ENC_LED,
 								GREENLKEYP_LED,
-								NICK_CALLED;     
+								NICK_CALLED,
+								SCROLL_LOCK,
+								SHOW_SIDEVIEW;     
 		
 	static {
 		//load the images that show if the hub is connected or not.. 
@@ -151,7 +155,11 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 		GREEN_ENC_LED = GuiHelpers.addCornerIcon(GREEN_LED, TransferColumns.UserColumn.ENC_ICON);
 		GREENLKEYP_LED =  GuiHelpers.addCornerIcon(GREEN_LED, TransferColumns.UserColumn.ENCKEYP_ICON);
 		NICK_CALLED = AbstractUIPlugin.imageDescriptorFromPlugin(
-				Application.PLUGIN_ID, IImageKeys.NICK_CALLED).createImage();    
+				Application.PLUGIN_ID, IImageKeys.NICK_CALLED).createImage();   
+		SCROLL_LOCK = AbstractUIPlugin.imageDescriptorFromPlugin(
+				Application.PLUGIN_ID, IImageKeys.SCROLL_LOCK).createImage();   
+		SHOW_SIDEVIEW = AbstractUIPlugin.imageDescriptorFromPlugin(
+				Application.PLUGIN_ID, IImageKeys.SHOW_RIGHT_SIDEVIEW).createImage();   
 		
 	}
 
@@ -286,11 +294,13 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 		composite_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 		
 		final Composite composite_2 = new Composite( parent , SWT.BORDER);
+
+		
 		final GridLayout gridLayout_1 = new GridLayout();
 		gridLayout_1.verticalSpacing = 1;
-		gridLayout_1.marginWidth = 1;
+		gridLayout_1.marginWidth = 2;
 		gridLayout_1.marginHeight = 1;
-		gridLayout_1.horizontalSpacing = 2;
+		gridLayout_1.horizontalSpacing = 3;
 		gridLayout_1.numColumns = 4;
 		
 		composite_2.setLayout(gridLayout_1);
@@ -299,32 +309,37 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 		
 		feedLabel = new CLabel(composite_2, SWT.BORDER);
 		feedLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
-		
+
 
 		userLabel = new CLabel(composite_2, SWT.BORDER);
 		userLabel.setLayoutData(new GridData(80, SWT.DEFAULT));
 
 		sharesizeLabel = new CLabel(composite_2, SWT.BORDER);
+		sharesizeLabel.setLayoutData(new GridData(60, SWT.DEFAULT));
 		
 		
-		final GridData gridData_1 = new GridData(SWT.FILL, SWT.CENTER, false, false);
-		gridData_1.widthHint = 60;
-		sharesizeLabel.setLayoutData(gridData_1);
-
-		final Button button = new Button(composite_2, SWT.TOGGLE);
-		button.addSelectionListener(new SelectionAdapter() {
+		ToolBar toolBar = new ToolBar (composite_2, SWT.HORIZONTAL | SWT.SHADOW_OUT | SWT.FLAT);
+		final ToolItem scroll = new ToolItem (toolBar, SWT.CHECK);
+		scroll.setImage(SCROLL_LOCK);
+		scroll.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				textViewer.setScrollLock(!textViewer.isScrollLock());
+			}
+		});
+		
+		ToolItem showUserlist = new ToolItem (toolBar, SWT.CHECK |SWT.BORDER);
+		showUserlist.setImage(SHOW_SIDEVIEW);
+		showUserlist.addSelectionListener(new SelectionAdapter() {
 			int[] weights = sashForm.getWeights();
-			
-			public void widgetSelected(final SelectionEvent e) {
+			public void widgetSelected(SelectionEvent e) {
 				if (table.isVisible()){
-					table.setVisible(false);   //set usertable invisible
-					weights = sashForm.getWeights();                // store the weigths of the sashform
-					sashForm.setWeights(new int[] {300, 0 });     // make only HubTextpart visible.. 
+					table.setVisible(false);   
+					weights = sashForm.getWeights();             
+					sashForm.setWeights(new int[] {300, 0 });  
 				} else {	
-					table.setVisible(true); //set visible
+					table.setVisible(true); 
 					try {
-						sashForm.setWeights(weights);                //and old weights
+						sashForm.setWeights(weights);  
 					} catch(IllegalArgumentException iae) {
 						sashForm.setWeights(new int[]{300,100});
 					}
@@ -332,10 +347,36 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 				}
 			}
 		});
-		final GridData gridData = new GridData(SWT.RIGHT, SWT.FILL, false, false);
-		gridData.heightHint = 10;
-		gridData.widthHint = 10;
-		button.setLayoutData(gridData);
+
+		
+		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		
+
+
+//		final Button button = new Button(composite_2, SWT.TOGGLE);
+//		button.addSelectionListener(new SelectionAdapter() {
+//			int[] weights = sashForm.getWeights();
+//			
+//			public void widgetSelected(final SelectionEvent e) {
+//				if (table.isVisible()){
+//					table.setVisible(false);   //set usertable invisible
+//					weights = sashForm.getWeights();                // store the weigths of the sashform
+//					sashForm.setWeights(new int[] {300, 0 });     // make only HubTextpart visible.. 
+//				} else {	
+//					table.setVisible(true); //set visible
+//					try {
+//						sashForm.setWeights(weights);                //and old weights
+//					} catch(IllegalArgumentException iae) {
+//						sashForm.setWeights(new int[]{300,100});
+//					}
+//					weights = null;
+//				}
+//			}
+//		});
+//		final GridData gridData = new GridData(SWT.RIGHT, SWT.FILL, false, false);
+//		gridData.heightHint = 10;
+//		gridData.widthHint = 10;
+//		button.setLayoutData(gridData);
 		//
 
 		setText(hubText);
@@ -505,10 +546,6 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 		return lastlogin == 0 ||  System.currentTimeMillis() - lastlogin < 10000 ;
 	}
 
-	
-
-	
-	
 	@Override
 	public void storedPM(IUser usr,String message, boolean me) {
 		statusMessage(String.format(Lang.StoredPMUser, usr.getNick(),message),0);//  "stored PM for "+usr.getNick()+": "+message,0); 
@@ -565,7 +602,9 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 						ToasterUtil.showMessage(text,GUIPI.getInt(GUIPI.toasterTime));
 					}
 				}
-				if ( !isActiveEditor() && !logInRecent()) {
+				if ( !isActiveEditor() && !logInRecent() 
+						&& !messagesWaiting && (usr == null || !usr.isBot() ) ) {
+					
 					messagesWaiting = true;
 					setTitleImage();
 				}

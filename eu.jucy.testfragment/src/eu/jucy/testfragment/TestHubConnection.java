@@ -183,7 +183,7 @@ public class TestHubConnection implements IConnection {
 	public String pollNextMessage(boolean removeLastChar) throws InterruptedException, UnsupportedEncodingException {
 		ByteBuffer o = messagesSent.take();
 
-		String s = DCProtocol.NMDCCHARSET.decode(o).toString();
+		String s = DCProtocol.NMDC_CHARSET.decode(o).toString();
 		
 		if (removeLastChar) {
 			s = s.substring(0, s.length()-1);
@@ -195,7 +195,7 @@ public class TestHubConnection implements IConnection {
 	public String pollNextMessage(long millisecondstimeout) throws InterruptedException {
 		ByteBuffer buf = messagesSent.poll(millisecondstimeout, TimeUnit.MILLISECONDS);
 		if (buf != null) {
-			return DCProtocol.NMDCCHARSET.decode(buf).toString();
+			return DCProtocol.NMDC_CHARSET.decode(buf).toString();
 		}
 		
 		return null;
