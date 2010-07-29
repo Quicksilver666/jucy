@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Translate
+Bundle-SymbolicName: lib.com.google.api.translate
+Bundle-Version: 0.92.0
+Export-Package: com.google.api,
+ com.google.api.detect,
+ com.google.api.translate,
+ com.tecnick.htmlutils.htmlentities,
+ org.json
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: google-api-translate-java-0.92.jar

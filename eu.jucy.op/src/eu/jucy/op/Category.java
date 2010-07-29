@@ -21,9 +21,15 @@ public class Category {
 	
 	
 	
-	private final Map<HashValue,ListFile> blacklist = new HashMap<HashValue,ListFile>();
+	/**
+	 * files that definitely fall into that category (a blacklist)
+	 */
+	private final Map<HashValue,ListFile> verifiedList = new HashMap<HashValue,ListFile>();
 	
-	private final Map<HashValue,ListFile> whitelist = new HashMap<HashValue,ListFile>();
+	/**
+	 * files that definitely don't fall into that category (a whitelist)
+	 */
+	private final Map<HashValue,ListFile> falsifiedList = new HashMap<HashValue,ListFile>();
 	
 	
 	public Category() {}
@@ -34,7 +40,7 @@ public class Category {
 	 * @return true if the file is in the whitelist
 	 */
 	public boolean isInWhitelist(IDownloadableFile f) {
-		return whitelist.containsKey(f.getTTHRoot());
+		return falsifiedList.containsKey(f.getTTHRoot());
 	}
 	
 	/**
@@ -43,17 +49,17 @@ public class Category {
 	 * @return true if the file is in the blacklist
 	 */
 	public boolean isInBlacklist(IDownloadableFile f) {
-		return blacklist.containsKey(f.getTTHRoot());
+		return verifiedList.containsKey(f.getTTHRoot());
 	}
 	
 	public void addFile(IDownloadableFile f , boolean blacklistTheFile) {
 		ListFile l = new ListFile(f.getSize(),f.getTTHRoot(),f.getName());
 		if (blacklistTheFile) {
-			blacklist.put(l.hash, l);
-			whitelist.remove(l.hash);
+			verifiedList.put(l.hash, l);
+			falsifiedList.remove(l.hash);
 		} else {
-			whitelist.put(l.hash, l);
-			blacklist.remove(l.hash);
+			falsifiedList.put(l.hash, l);
+			verifiedList.remove(l.hash);
 		}
 	}
 	
