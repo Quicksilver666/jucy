@@ -139,7 +139,7 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	 */
 	protected void showJoinsParts(IUser usr,boolean join) {
 		String joinmes = "*** "+String.format(join?Lang.UserJoins:Lang.UserParts,usr.getNick())+" ***";
-		appendText( joinmes , usr,false);
+		appendText( joinmes , usr,MessageType.JOINPART);
 		Long lastChatted;
 		if (!join && (lastChatted = recentlyChatted.get(usr)) != null) {
 			recentlyChatted.put(usr, lastChatted-(NOT_CHATTED_TIME/3) );
@@ -192,7 +192,7 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	protected abstract void setTitleImage();
 	
 	public void statusMessage(final String message,  int severity) {
-		appendText( "*** " +message,null,false);			
+		appendText( "*** " +message,null,MessageType.STATUS);			
 		changeLabel(message,severity);
 	}
 	
@@ -217,8 +217,8 @@ public abstract class UCTextEditor extends UCMessageEditor {
 		}.scheduleOrRun();
 	}
 	
-	public void appendText(String text,IUser usr,boolean chatmessage) {
-		appendText(text, usr,System.currentTimeMillis(),chatmessage);
+	public void appendText(String text,IUser usr,MessageType type) {
+		appendText(text, usr,System.currentTimeMillis(),type);
 	}
 	
 	
@@ -231,13 +231,13 @@ public abstract class UCTextEditor extends UCMessageEditor {
 	 * @param message - true if that append is a message and not just some text
 	 * (if true put will be called)
 	 */
-	public void appendText(final String text,final IUser usr,final long received , final boolean chatMessage) {
+	public void appendText(final String text,final IUser usr,final long received , final MessageType type) {
 		new SUIJob(textViewer.getText()) {
 			public void run() {
-				if (usr != null && !getHub().getSelf().equals(usr) && chatMessage) {
+				if (usr != null && !getHub().getSelf().equals(usr) && MessageType.CHAT.equals(type)) {
 					put(usr);
 				}
-				textViewer.addMessage(text,usr,new Date(received));
+				textViewer.addMessage(text,usr,new Date(received),type);
 			}	
 		}.scheduleOrRun();
 	}
@@ -250,6 +250,10 @@ public abstract class UCTextEditor extends UCMessageEditor {
 		setTitleImage();
 	}
 
+	public void replaceSelectedText(String replacement,String expectedSelection) {
+		textViewer.replaceSelection(replacement, expectedSelection);
+	}
+	
 
 	public abstract IHub getHub();
 	

@@ -11,7 +11,7 @@ import uc.PI;
 import uc.crypto.HashValue;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import uc.files.downloadqueue.FileDQE;
-import uc.files.downloadqueue.AbstractDownloadQueueEntry.IDownloadFinished;
+import uc.files.downloadqueue.AbstractDownloadFinished;
 import uc.files.filelist.FileListFolder;
 
 
@@ -166,7 +166,7 @@ public abstract class AbstractDownloadable implements IDownloadable , Comparable
 					}
 					
 				} else {
-					usr.downloadFilelist().addDoAfterDownload(new IDownloadFinished() {
+					usr.downloadFilelist().addDoAfterDownload(new AbstractDownloadFinished() {
 						@Override
 						public boolean equals(Object obj) {
 							return obj != null && getClass().equals(obj.getClass());

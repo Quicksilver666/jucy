@@ -98,7 +98,7 @@ public class SearchResult extends AbstractDownloadableFile implements ISearchRes
 	 * @param availabelslots
 	 * @param totalslots
 	 */
-	public SearchResult(FileListFile file,User self,int availabelslots,int totalslots,String token) {
+	public SearchResult(FileListFile file,IUser self,int availabelslots,int totalslots,String token) {
 		this(file.getPath(),file.getTTHRoot(),self,file.getSize(),availabelslots, totalslots,true, token);
 	}
 	

@@ -41,6 +41,7 @@ import uihelpers.StandardContentAndLabelProvider;
 import uihelpers.TableColumnSorter;
 
 
+
 import eu.jucy.gui.UCEditor;
 import eu.jucy.hublist.Column;
 import eu.jucy.hublist.HubList;
@@ -294,6 +295,7 @@ public class HublistEditor extends UCEditor {
 	}
 	
 	private void handleErrorOnOpeningHublist(final Exception e) {
+	
 		new SUIJob(table) {
 
 			@Override
@@ -305,8 +307,7 @@ public class HublistEditor extends UCEditor {
 					String mes = e.getMessage();
 					MessageDialog.openError(getSite().getShell(), "Error", "Error loading Hublist:\n" + (mes != null? mes: e.getClass().getSimpleName()));	
 				}
-				logger.info(e,e);
-				
+				logger.debug(e,e);
 			}
 			
 		}.schedule();

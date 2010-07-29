@@ -459,13 +459,16 @@ Hub is also no longer counted in description</en>
 <it>Esci dall'hub</it>
 <ru>Закрывает данное окно</ru>
 </Trl>
+<Trl id="ColourJoinParts">
+<de>Färbe Nicks in kommen/gehen Nachrichten</de>
+<en>Colour nicks in join/part messages</en>
+</Trl>
 <Trl id="Command">
 <en>Command</en>
 <hu>Parancs</hu>
 <it>Comando</it>
 <ru>Команда</ru>
 </Trl>
-
 <Trl id="Connect">
 <de>Verbinde</de>
 <en>Connect</en>
@@ -545,6 +548,10 @@ Hub is also no longer counted in description</en>
 <de>%d unbenutzte Hashwerte gelöscht!</de>
 <en>Deleted %d unused hashes!</en>
 </Trl>
+<Trl id="DeleteFileListsOnExit">
+<de>Lösche Dateilisten beim Beenden</de>
+<en>Delete file lists on exit</en>
+</Trl>
 <Trl id="DeleteLog">
 <de>Lösche Log</de>
 <en>Delete Log</en>
@@ -586,6 +593,10 @@ Hub is also no longer counted in description</en>
 <hu>Letöltési korlát (KiB/s, 0 = kikapcsolva)</hu>
 <it>Limite Download (KiB/s, 0 = disabilitato)</it>
 <ru>Ограничение скорости скачивания (КБ/с, 0 = отключено)</ru>
+</Trl>
+<Trl id="DownloadParentDir">
+<de>Übergeordnete Verzeichnis herunderladen</de>
+<en>Download parent dir</en>
 </Trl>
 <Trl id="DownloadQueue">
 <de>Download Warteschlange</de>
@@ -1459,6 +1470,10 @@ Hub is also no longer counted in description</en>
 <it>Apri impostazioni</it>
 <ru>Открывает настройки</ru>
 </Trl>
+<Trl id="PreviewExecutablePath">
+<de>Programm zur Vorschau (z.B. vlc player)</de>
+<en>Preview executable path (i.e. vlc player)</en>
+</Trl>
 <Trl id="PrimaryDownloadColour">
 <de>Primäre download Farbe</de>
 <en>Primary download colour</en>
@@ -1826,6 +1841,10 @@ Hub is also no longer counted in description</en>
 <en>Show PMs in Mainchat instead of PM window</en>
 <it>Mostra Messaggi Privati nella Mainchat</it>
 <ru>Показывать личные сообщения в чате вместо лички</ru>
+</Trl>
+<Trl id="ShowPreview">
+<de>Zeige Vorschau</de>
+<en>Show preview</en>
 </Trl>
 <Trl id="ShowPOPUPonChatroom">
 <de>Zeige Pop-up bei neuen Nachrichten in Chaträumen</de>
@@ -3293,6 +3312,24 @@ HSQLDB  (лицензия BSD)
 <hu>Publikus Hubok listája</hu>
 <it>Lista Hub pubblici</it>
 <ru>Список публичных хабов</ru>
+</Trl>
+</Plugin>
+<Plugin id="eu.jucy.ui.translation" name="translation" langclass="eu.jucy.ui.translation.Lang">
+<Trl id="SourceLanguage">
+<de>Quell Sprache</de>
+<en>Source language</en>
+</Trl>
+<Trl id="TargetLanguage">
+<de>Ziel Sprache</de>
+<en>Target language</en>
+</Trl>
+<Trl id="Translation">
+<de>Übersetzung</de>
+<en>Translation</en>
+</Trl>
+<Trl id="Translate">
+<de>übersetze...</de>
+<en>translate...</en>
 </Trl>
 </Plugin>
 </Translation>

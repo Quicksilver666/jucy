@@ -14,7 +14,12 @@ import java.util.regex.Pattern;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+
+
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+
+
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferenceConstants;
 import org.eclipse.ui.PlatformUI;
@@ -28,9 +33,11 @@ public class Application implements IApplication {
 	//private static final Logger logger = LoggerFactory.make(); no logger here -> Application is loaded before logger plug-in
 
 	public static final String PLUGIN_ID = "eu.jucy.gui";
-	public static final String DEFAULT_PRESENTATION_ID =  "eu.jucy.gui.testFactory";
+//	public static final String DEFAULT_PRESENTATION_ID =  "eu.jucy.gui.testFactory";
 	public static final String DEFAULT_KEY_SCHEME = "uc.default", MAC_KEY_SCHEME = "uc.macosx";
 	public static final String SIMPLE_OS = "UC.simpleos";
+	
+	public static volatile Event stored = null;
 	
 	private FileLock lock;
 	
@@ -62,19 +69,21 @@ public class Application implements IApplication {
 				IWorkbenchPreferenceConstants.KEY_CONFIGURATION_ID, keyScheme);
 		
 		
-
-
-
-		PlatformUI.getPreferenceStore().setDefault(
-				IWorkbenchPreferenceConstants.PRESENTATION_FACTORY_ID, 
-				DEFAULT_PRESENTATION_ID);
 		
 		
 		setSimpleOS();
 		
 		Display display = PlatformUI.createDisplay();
-		Display.setAppName(Platform.getProduct().getName());
+		
 
+//    	display.addListener(SWT.OpenDocument, new Listener() {
+//			@Override
+//			public void handleEvent(Event event) {
+//				stored = event;
+//				
+//			}
+//    	});
+		
 		try {
 			
 			int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
@@ -141,7 +150,7 @@ public class Application implements IApplication {
 		
 		
 		if (!checkLock()) {
-			System.out.println("An instance of this application is already running");
+			System.out.println("An instance of this application is already running!");
 			return false;
 		}
 

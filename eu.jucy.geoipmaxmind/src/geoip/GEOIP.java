@@ -16,6 +16,7 @@ import java.util.zip.GZIPInputStream;
 
 import logger.LoggerFactory;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
@@ -38,7 +39,7 @@ public final class GEOIP {
 	private static final String LastVersion = "LastVersion";
 	
 
-	private static final Logger logger = LoggerFactory.make();
+	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
 	
 	private final LookupService ls ;
 	
@@ -103,7 +104,7 @@ public final class GEOIP {
 		try {
 			return ls.getLocation(ip);
 		} catch(RuntimeException e) {
-			logger.debug(e,e);
+			logger.debug(e+"  ip: "+ip,e);
 		}
 		return null;
 	}

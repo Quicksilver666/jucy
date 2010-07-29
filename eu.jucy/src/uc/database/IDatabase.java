@@ -3,6 +3,7 @@ package uc.database;
 
 
 import java.io.File;
+import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -128,6 +129,15 @@ public interface IDatabase {
 	 *
 	 */
 	Set<DQEDAO> loadDQEsAndUsers();
+	
+	
+	/**
+	 * add restoreinfo to a DQE
+	 * 
+	 * @param hash - which dqe
+	 * @param restoreInfo - what restore info bits..
+	 */
+	void addRestoreInfo(HashValue hash,BitSet restoreInfo);
 	
 	/**
 	 * deletes a user from the provided DQE..

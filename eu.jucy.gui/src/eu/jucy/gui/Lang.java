@@ -53,6 +53,7 @@ public class Lang {
 		,CloseAllPMDescription
 		,CloseConnection
 		,CloseDescription
+		,ColourJoinParts
 		,Command
 		,Connect
 		,ConnectingTo
@@ -65,6 +66,7 @@ public class Lang {
 		,CopyTTHToClipboard
 		,DefaultAwayMessage
 		,DefaultDownloadDirectory
+		,DeleteFileListsOnExit
 		,DeleteLog
 		,DeletedUnusedHashes
 		,Description
@@ -72,6 +74,7 @@ public class Lang {
 		,Directory
 		,Download
 		,DownloadLimit
+		,DownloadParentDir
 		,DownloadQueue
 		,DownloadQueueDescription
 		,DownloadTo
@@ -200,6 +203,7 @@ public class Lang {
 		,PopupDissappearanceTime
 		,Preferences
 		,PreferencesDescription
+		,PreviewExecutablePath
 		,PrimaryDownloadColour
 		,PrimaryUploadColour
 		,Priority
@@ -259,6 +263,7 @@ public class Lang {
 		,ShowPOPUPonChatroom
 		,ShowPOPUPonNickinMC
 		,ShowPOPUPonPM
+		,ShowPreview
 		,ShowSharesize
 		,ShowSidebar
 		,ShowSlots

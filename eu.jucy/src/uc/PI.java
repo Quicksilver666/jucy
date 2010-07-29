@@ -108,8 +108,15 @@ public class PI extends AbstractPreferenceInitializer {
 	
 	
 	
-	checkForUpdates		=	"checkForUpdates",
-	lastCheckForUpdates =	"lastCheckForUpdates";
+//	checkForUpdates		=	"checkForUpdates",
+	lastCheckForUpdates =	"lastCheckForUpdates",
+		
+		
+
+	previewPlayerPath 	= "previewPlayerPath",
+		
+	lastFilelistSize	=	"lastFilelistSize",
+	lastNumberOfFiles	=	"lastNumberOfFiles";
 	
 	
 
@@ -241,7 +248,7 @@ public class PI extends AbstractPreferenceInitializer {
 		defaults.put(includeFiles, ".*");
 		defaults.put( excludedFiles, "\\.antifrag$|^__INCOMPLETE___|^download[0-9]{16,18}\\.dat$|" 
 				+"^INCOMPLETE~|\\.dctmp$|part\\.met|\\.bc!$|\\.!ut$|\\.bt!$|"  //newer and older p2p stuff..
-				+"^.DS_Store$|^icon\\?$|"			//MAC OS X files..
+				+"^\\.DS_Store$|^icon\\?$|"			//MAC OS X files..
 				+"\\.mp3\\.exe$|\\.avi\\.exe$"//Viruses
 			); 
 		
@@ -269,8 +276,11 @@ public class PI extends AbstractPreferenceInitializer {
 		
 		defaults.put(PI.storedPMs, "");
 		
-		defaults.putBoolean(checkForUpdates	, true);
-		defaults.putLong(lastCheckForUpdates, 0);
+//		defaults.putBoolean(checkForUpdates	, true);
+//		defaults.putLong(lastCheckForUpdates, 0);
+		
+		defaults.putLong(lastFilelistSize, 0);
+		defaults.putLong(lastNumberOfFiles, 0);
 		
 		defaults.put(favHubs2, LegacyMode);
 		defaults.put(sharedDirs2, LegacyMode);
@@ -279,6 +289,24 @@ public class PI extends AbstractPreferenceInitializer {
 		 */
 		defaults.put(IHashEngine.ExtensionpointID, IHashEngine.defaultID);
 		defaults.put(IDatabase.ExtensionpointID, IDatabase.defaultID);
+		
+		
+		// now guess vlc path ..
+		File path = null;
+		if (Platform.OS_WIN32.equals(Platform.getOS())) {
+			path = new File("C:\\Program Files (x86)\\VideoLAN\\VLC\\vlc.exe");
+		} else if (Platform.OS_LINUX.equals(Platform.getOS())) {
+			path = new File("/usr/bin/vlc");
+		} else if (Platform.OS_MACOSX.equals(Platform.getOS())) {
+			path = new File("/Applications/VLC.app/Contents/MacOS/VLC");
+		}
+		if (path != null && path.isFile()) {
+			defaults.put(previewPlayerPath, path.toString());
+		} else {
+			defaults.put(previewPlayerPath, "");
+		}
+		
+		
 	}
 
 

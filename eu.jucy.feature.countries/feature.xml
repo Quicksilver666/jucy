@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="eu.jucy.feature.countries"
-      label="Country Feature"
-      version="1.1.7.qualifier"
+      label="Country flags"
+      version="1.84.3.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.countries">
 
    <description>
-      Country feature allows showing of flags in mainchat, userlist
+      Country flags feature allows showing of flags in mainchat, userlist
 and transfers view. To show you were other peers are from.
 Flags are used from http://www.famfamfam.com.
    </description>
@@ -66,14 +66,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.countries"
          download-size="0"
          install-size="0"
-         version="1.1.7.qualifier"
+         version="1.84.2.qualifier"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.geoipmaxmind"
          download-size="0"
          install-size="0"
-         version="1.1.7.qualifier"
+         version="1.84.2.qualifier"
          unpack="false"/>
 
 </feature>

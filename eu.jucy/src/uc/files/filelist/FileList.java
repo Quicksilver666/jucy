@@ -13,7 +13,7 @@ import java.io.InputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PushbackInputStream;
@@ -86,11 +86,6 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 
 	private final Map<HashValue,FileListFile> contents = new HashMap<HashValue,FileListFile>();
 
-//	/**
-//	 * holds a Link to full FileLists in upload preventing 
-//	 * too much ram need if FileList is uploaded multiple times simultaneously..
-//	 */
-//	private WeakReference<byte[]> fullFileListinUpload = new WeakReference<byte[]>(null);
 	
 	/**
 	 * creates an empty FileList for the specified user..
@@ -329,23 +324,15 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 	 * writes filelist to a byte[] array
 	 * @return
 	 */
-	public byte[] writeFileList(String path, boolean recursive)  {
+	public byte[] writeFileList(String path, boolean recursive,boolean bz2Compressed)  {
 		logger.debug("("+(path == null? "null":path)+")" );
 		
-//		if (path == null) { //try load filelist from reference... if filelist is currently in upload..
-//			synchronized (this) {
-//				byte[] present = fullFileListinUpload.get();
-//				if (present != null) {
-//					return present;
-//				}
-//			}
-//		}
 		ByteArrayOutputStream baos = null;
 		OutputStream out = null;
 		try {
 			baos = new  ByteArrayOutputStream();
 			out = baos;
-			if (path == null) {
+			if (bz2Compressed) {
 				baos.write('B');
 				baos.write('Z');
 				out 	= new CBZip2OutputStream(baos);
@@ -358,32 +345,26 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 			GH.close(out);
 		}
 		byte[] fileList = baos.toByteArray();
-		
-//		
-//		if (path == null) { //store fileList in ref ..
-//			synchronized (this) {
-//				fullFileListinUpload = new WeakReference<byte[]>(fileList);
-//			}
-//		}
+
 		
 		return fileList;
 	}
-	/**
-	 * 
-	 * @param file - the target where the filelist should be written to..
-	 * @throws IOException - if some error occurs..
-	 * 
-	 */
-	public void writeFilelist(File file) throws IOException {
-		FileOutputStream fos = null;
-		try {
-			fos	= new FileOutputStream(file);
-			fos.write(writeFileList("/", true));
-			fos.flush();
-		} finally {
-			GH.close(fos);
-		}
-	}
+//	/**
+//	 * 
+//	 * @param file - the target where the filelist should be written to..
+//	 * @throws IOException - if some error occurs..
+//	 * 
+//	 */
+//	public void writeFilelist(File file) throws IOException {
+//		FileOutputStream fos = null;
+//		try {
+//			fos	= new FileOutputStream(file);
+//			fos.write(writeFileList("/", true,true));
+//			fos.flush();
+//		} finally {
+//			GH.close(fos);
+//		}
+//	}
 	
 	/**
 	 * deletes all FileLists in the FileList directory

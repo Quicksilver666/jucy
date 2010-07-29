@@ -11,8 +11,16 @@
 package eu.jucy.gui.update;
 
 
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.ui.Policy;
+
+
+
 
 
 /**
@@ -22,16 +30,47 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
  * @since 3.5
  */
 public class CloudPolicy extends Policy {
+	
+	//Group Ids used..
+	
+	private static final String PREFIX = "eu.jucy.feature.",POSTFIX = ".feature.group", ID_UNEQAL = "id != $0" ;
+			
+	
 	public CloudPolicy() {
-		// XXX User has no access to manipulate repositories
-		setRepositoryManipulator(null);
+		//  User has no access to manipulate repositories
+		//setRepositoryManipulator(null);
+		setRepositoriesVisible(false);
 
-		// XXX Default view is by category
-		IUViewQueryContext queryContext = new IUViewQueryContext(
-				IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
+		setRestartPolicy(Policy.RESTART_POLICY_PROMPT);
+		// Default view is by category
+		//IUViewQueryContext queryContext = new IUViewQueryContext(
+		//		IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
 		
-		setQueryContext(queryContext);
-		//TODO .. here changes to query context might be able to change what is seen..
+		setGroupByCategory(true);
+		
+		
+		
+		List<IQuery<IInstallableUnit>> notShown = new ArrayList<IQuery<IInstallableUnit>>();
+		notShown.add(QueryUtil.createIUGroupQuery());
+		
+		for (String partId:new String[]{"baseclient","rcp.help","libraries","rcp.p2","rcp","rcp.help"}) {
+			notShown.add(QueryUtil.createMatchQuery(ID_UNEQAL,PREFIX+partId+POSTFIX));
+		}
+		notShown.add(QueryUtil.createMatchQuery(ID_UNEQAL, "org.eclipse.equinox.executable.feature.group"));
+		notShown.add(QueryUtil.createMatchQuery(ID_UNEQAL, "eu.jucy.product1.product"));
+		
+		IQuery<IInstallableUnit> complete = QueryUtil.createCompoundQuery(
+				notShown
+				, true);
+		
+		setVisibleInstalledIUQuery(complete);
+		setVisibleAvailableIUQuery(complete);
+		
+		
+	
+		
+		//setQueryContext(queryContext);
+	
 	}
 	
 	

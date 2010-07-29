@@ -90,6 +90,7 @@ public class Hub extends DCProtocol implements IHub {
 	
 	public static final int MAX_USERS = 35000;
 	private volatile boolean maxUsersReached = false; 
+
 	
 	private static ConnectionInjector inject = new ConnectionInjector();
 	
@@ -1435,7 +1436,7 @@ public class Hub extends DCProtocol implements IHub {
 			reconnectTask.cancelScheduled();
 			if (timeOutTask.isScheduled()) {
 				if (Platform.inDevelopmentMode()) {
-					logger.warn("time out task still scheduled");
+					logger.warn("time out task still scheduled"); //happened once on early close..after startup
 				}
 				timeOutTask.cancelScheduled();
 			}

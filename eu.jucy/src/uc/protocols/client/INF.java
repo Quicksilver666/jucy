@@ -59,13 +59,11 @@ public class INF extends AbstractADCClientProtocolCommand {
 		} 
 		client.otherIdentified(other);
 		
-		
 		if (!client.isIncoming()) {
 			sendINFOutgoing();	
 		} 
 		
 		client.setDownload(false);
-		
 		client.onLogIn();
 	}
 	

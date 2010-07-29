@@ -18,6 +18,7 @@ import org.eclipse.ui.services.IServiceLocator;
 import uc.FavFolders;
 import uc.FavFolders.FavDir;
 import uihelpers.IconManager;
+import eu.jucy.gui.itemhandler.DownloadableHandlers.DownloadParentdDir;
 import eu.jucy.gui.itemhandler.DownloadableHandlers.DownloadToRecommendedDir;
 import eu.jucy.gui.itemhandler.DownloadableHandlers.DownloadToRecommendedPath;
 
@@ -25,6 +26,15 @@ public class DownloadableContributionItem extends CompoundContributionItem imple
 
 	private static final Logger logger = LoggerFactory.make();
 	
+	private final String commandID;
+	
+	public DownloadableContributionItem() {
+		this(DownloadToRecommendedDir.ID);
+	}
+	
+	public DownloadableContributionItem(String commandID) {
+		this.commandID = commandID;
+	}
 	
 	private IServiceLocator serviceLocator;
 	
@@ -33,7 +43,7 @@ public class DownloadableContributionItem extends CompoundContributionItem imple
 		ArrayList<IContributionItem> contribs = new ArrayList<IContributionItem>();
 		for (FavDir favDir: FavFolders.getFavDirs()) {
 			CommandContributionItemParameter ccip = 
-				new CommandContributionItemParameter(serviceLocator, null, DownloadToRecommendedDir.ID,SWT.PUSH);
+				new CommandContributionItemParameter(serviceLocator, null, commandID,SWT.PUSH);
 			ccip.parameters = Collections.singletonMap(DownloadToRecommendedPath.TargetPath, favDir.getDirectory().getPath());
 			ccip.label = favDir.getName();
 			if (favDir.getDirectory().isDirectory()) {
@@ -50,7 +60,11 @@ public class DownloadableContributionItem extends CompoundContributionItem imple
 		this.serviceLocator = serviceLocator;
 	}
 
-
 	
+	public static class DownloadParentDirContributionItem extends DownloadableContributionItem {
+		public DownloadParentDirContributionItem() {
+			super(DownloadParentdDir.ID);
+		}
+	}
 
 }

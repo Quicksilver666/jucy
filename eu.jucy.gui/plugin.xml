@@ -198,6 +198,12 @@
             id="eu.jucy.gui.FileColouring"
             name="%FileColouring">
       </page>
+      <page
+            category="eu.jucy.gui.Appearance"
+            class="eu.jucy.gui.settings.ChatColoursPage"
+            id="eu.jucy.gui.chatcolourspage"
+            name="Chat colours">
+      </page>
    </extension>
       <extension
             id="application"
@@ -780,6 +786,23 @@
                              optional="true">
                        </commandParameter>
                     </command>
+                    <command
+                          id="eu.jucy.gui.previewmedia"
+                          name="%ShowPreview">
+                    </command>
+                    <command
+                          id="eu.jucy.gui.downloadable.downloadparentdir"
+                          name="%DownloadParentDir">
+                       <commandParameter
+                             id="TargetPath"
+                             name="TargetPath"
+                             optional="true">
+                       </commandParameter>
+                    </command>
+                    <command
+                          id="eu.jucy.gui.downloadable.downloadparentdirbrowse"
+                          name="%Browse">
+                    </command>
       </extension>
       <extension
             point="org.eclipse.ui.menus">
@@ -1059,15 +1082,11 @@
                locationURI="menu:help?after=additions">
             <command
                   commandId="eu.jucy.gui.update.update"
-                  label="%Update"
-                  style="push"
-                  tooltip="%UpdateDescription">
+                  style="push">
             </command>
             <command
                   commandId="eu.jucy.gui.update.findExtensions"
-                  label="%FindExtensions"
-                  style="push"
-                  tooltip="%UpdateDescription">
+                  style="push">
             </command>
             <separator
                   name="eu.jucy.gui.separator1"
@@ -1153,6 +1172,30 @@
                      id="eu.jucy.gui.dynamic2">
                </dynamic>
             </menu>
+            <menu
+                  label="%DownloadParentDir">
+               <command
+                     commandId="eu.jucy.gui.downloadable.downloadparentdir"
+                     label="%Download"
+                     style="push">
+               </command>
+               <separator
+                     name="eu.jucy.gui.srseparator6"
+                     visible="true">
+               </separator>
+               <dynamic
+                     class="eu.jucy.gui.itemhandler.DownloadableContributionItem$DownloadParentDirContributionItem"
+                     id="eu.jucy.gui.search.dynamic5">
+               </dynamic>
+               <separator
+                     name="eu.jucy.gui.srseparator7"
+                     visible="true">
+               </separator>
+               <command
+                     commandId="eu.jucy.gui.downloadable.downloadparentdirbrowse"
+                     style="push">
+               </command>
+            </menu>
             <command
                   commandId="eu.jucy.gui.downloadable.executeafterdownload"
                   style="push">
@@ -1204,6 +1247,10 @@
             <command
                   commandId="eu.jucy.gui.searchforalternates"
                   icon="icons/search.16.gif"
+                  style="push">
+            </command>
+            <command
+                  commandId="eu.jucy.gui.previewmedia"
                   style="push">
             </command>
             <command
@@ -1307,6 +1354,10 @@
             <command
                   commandId="eu.jucy.gui.searchforalternates"
                   icon="icons/search.16.gif"
+                  style="push">
+            </command>
+            <command
+                  commandId="eu.jucy.gui.previewmedia"
                   style="push">
             </command>
             <command
@@ -2033,7 +2084,34 @@
                     </instanceof>
                  </with>
               </activeWhen>
-           </handler> 
+           </handler>
+           <handler
+                 class="eu.jucy.gui.itemhandler.DownloadableHandlers$ShowPreviewHandler"
+                 commandId="eu.jucy.gui.previewmedia">
+              <activeWhen>
+                 <reference
+                       definitionId="eu.jucy.gui.downloadable.hasOnePreviewableFile">
+                 </reference>
+              </activeWhen>
+           </handler>
+           <handler
+                 class="eu.jucy.gui.itemhandler.DownloadableHandlers$DownloadParentdDir"
+                 commandId="eu.jucy.gui.downloadable.downloadparentdir">
+              <activeWhen>
+                 <reference
+                       definitionId="eu.jucy.gui.downloadable.hasOneDownloadable">
+                 </reference>
+              </activeWhen>
+           </handler>
+           <handler
+                 class="eu.jucy.gui.itemhandler.DownloadableHandlers$DownloadParentdDirBrowse"
+                 commandId="eu.jucy.gui.downloadable.downloadparentdirbrowse">
+              <activeWhen>
+                 <reference
+                       definitionId="eu.jucy.gui.downloadable.hasOneDownloadable">
+                 </reference>
+              </activeWhen>
+           </handler>
       </extension>
       <extension
             point="org.eclipse.ui.bindings">
@@ -2219,7 +2297,7 @@
                class="eu.jucy.gui.itemhandler.PropertyTesterHasDownloadable"
                id="eu.jucy.properties.downloadable"
                namespace="eu.jucy.properties.downloadable"
-               properties="isEmpty,isFile,isExecutable,isInQueue"
+               properties="isEmpty,isFile,isExecutable,isInQueue,isPreviewable"
                type="uc.files.IHasDownloadable">
          </propertyTester>
          <propertyTester
@@ -2450,6 +2528,24 @@
          </with>
       </definition>
       <definition
+            id="eu.jucy.gui.downloadable.hasOneDownloadable">
+         <with
+               variable="selection">
+            <and>
+               <count
+                     value="1">
+               </count>
+               <iterate
+                     operator="or">
+                  <test
+                        property="eu.jucy.properties.downloadable.isEmpty"
+                        value="false">
+                  </test>
+               </iterate>
+            </and>
+         </with>
+      </definition>
+      <definition
             id="eu.jucy.gui.downloadable.hasOneFile">
          <with
                variable="selection">
@@ -2498,6 +2594,24 @@
             </and>
          </with>
       </definition>
+       <definition
+             id="eu.jucy.gui.downloadable.hasOnePreviewableFile">
+          <with
+                variable="selection">
+             <and>
+                <count
+                      value="1">
+                </count>
+                <iterate
+                      operator="or">
+                   <test
+                         property="eu.jucy.properties.downloadable.isPreviewable"
+                         value="true">
+                   </test>
+                </iterate>
+             </and>
+          </with>
+       </definition>
        <definition
              id="eu.jucy.gui.transfer.oneClientProtocol">
           <with
@@ -2673,5 +2787,14 @@
          </variable>
       </sourceProvider>
    </extension>
+   <extension
+         point="org.eclipse.ui.installationPages">
+          <page
+            name="Installed Software"
+            class="org.eclipse.equinox.p2.ui.InstalledSoftwarePage"
+            id="10.org.eclipse.equinox.internal.p2.ui.sdk.InstalledSoftwarePage">
+          </page>
+          
+      </extension>
 
 </plugin>

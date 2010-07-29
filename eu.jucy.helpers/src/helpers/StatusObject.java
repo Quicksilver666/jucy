@@ -50,8 +50,13 @@ public class StatusObject {
 		return type;
 	}
 	
+
+
+
+	@Override
 	public String toString() {
-		return type+": "+(value == null? "null":value.toString());
+		return "StatusObject [value=" + value + ", type=" + type + ", detail="
+				+ detail + ", detailObject=" + detailObject + "]";
 	}
 
 

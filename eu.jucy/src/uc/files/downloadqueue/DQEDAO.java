@@ -1,6 +1,7 @@
 package uc.files.downloadqueue;
 
 import java.io.File;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
@@ -42,7 +43,9 @@ public class DQEDAO extends AbstractDownloadableFile implements IDownloadableFil
 	 */
 	private final InterleaveHashes ih;
 	
-	private DQEDAO(AbstractDownloadQueueEntry adqe, File target,InterleaveHashes ih, IDownloadableFile file) {
+	private final BitSet restoreInfo;
+	
+	private DQEDAO(AbstractDownloadQueueEntry adqe, File target,InterleaveHashes ih, IDownloadableFile file,BitSet restoreInfo) {
 		added = adqe.getAdded();
 		this.hashValue = file.getTTHRoot();
 		users = new CopyOnWriteArraySet<IUser>(adqe.getUsers());
@@ -50,9 +53,10 @@ public class DQEDAO extends AbstractDownloadableFile implements IDownloadableFil
 		this.target = target;
 		this.ih = ih ;
 		this.size = file.getSize();
+		this.restoreInfo = restoreInfo;
 	}
 	
-	public DQEDAO(HashValue tthRoot, Date added, int priority,File target,InterleaveHashes ih, long size) {
+	public DQEDAO(HashValue tthRoot, Date added, int priority,File target,InterleaveHashes ih, long size,BitSet restoreInfo) {
 		this.added = new Date(added.getTime());
 		this.hashValue = tthRoot;
 		this.priority = priority;
@@ -60,14 +64,15 @@ public class DQEDAO extends AbstractDownloadableFile implements IDownloadableFil
 		this.ih = ih;
 		this.users = new CopyOnWriteArraySet<IUser>();
 		this.size = size;
+		this.restoreInfo = restoreInfo;
 	}
 	
 	public DQEDAO(TTHLDQE dqe) {
-		this(dqe, dqe.getTargetPath(),null,dqe.downloadableData());
+		this(dqe, dqe.getTargetPath(),null,dqe.downloadableData(),null);
 	}
 	
 	public DQEDAO(FileDQE dqe,InterleaveHashes ih) {
-		this(dqe,dqe.getTargetPath(),ih,dqe.downloadableData());
+		this(dqe,dqe.getTargetPath(),ih,dqe.downloadableData(),null);
 
 	}
 	
@@ -136,6 +141,12 @@ public class DQEDAO extends AbstractDownloadableFile implements IDownloadableFil
 	@Override
 	public String getPath() {
 		return target.toString();
+	}
+	
+	
+
+	public BitSet getRestoreInfo() {
+		return restoreInfo;
 	}
 
 	@Override

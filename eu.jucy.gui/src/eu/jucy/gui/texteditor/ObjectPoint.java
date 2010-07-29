@@ -20,7 +20,7 @@ public class ObjectPoint<V> {
 	 * to the ranges list
 	 * 
 	 * @param x - position in the text
-	 * @param length - how many characters the image point is long
+	 * @param length - how many characters the image point is long must be 1 ;-)
 	 * @param img
 	 * @param ranges
 	 * @return

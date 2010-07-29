@@ -30,7 +30,7 @@ import eu.jucy.adlsearch.ADLSearchEntry.ADLSearchType;
 import eu.jucy.adlsearch.Lang;
 import eu.jucy.op.CounterFactory;
 import eu.jucy.op.OpADLEntry;
-import eu.jucy.op.PI;
+import eu.jucy.op.OPI;
 
 public class OpADLDialog extends TrayDialog {
 
@@ -203,7 +203,7 @@ public class OpADLDialog extends TrayDialog {
         counterNameCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
         
         
-        comboViewer = new ComboBoxViewer<CounterFactory>(counterNameCombo,PI.getCounterFactories(),true);
+        comboViewer = new ComboBoxViewer<CounterFactory>(counterNameCombo,OPI.getCounterFactories(),true);
         comboViewer.selectByString(adlEntry.getCounter() );
         
 

@@ -813,23 +813,28 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			if (locked) {
 				try {
 					((SocketChannel)key.channel()).socket().setSoTimeout(milliseconds);
-					varOutBuffer.writeToChannel((SocketChannel)key.channel());
-					((SocketChannel)key.channel()).socket().setSoTimeout(cp.getSocketTimeout());
-				} catch(IOException ioe) {
-					if (Platform.inDevelopmentMode()) {
-						logger.warn(ioe + toString(),ioe);
+					synchronized (bufferLock) {
+						varOutBuffer.writeToChannel((SocketChannel)key.channel());
 					}
+					((SocketChannel)key.channel()).socket().setSoTimeout(cp.getSocketTimeout());
+					
+					
+				} catch(IOException ioe) {
+					logger.debug(ioe + toString(),ioe);
 				} finally {
 					blockingChannelLock.unlock();
 				}
+				
 			}
+			
 			return varOutBuffer.hasRemaining();
+			
 			
 		} else {
 			
 			long sleepEnd = System.currentTimeMillis() + milliseconds;
 			synchronized(bufferLock) {
-				while (varOutBuffer.hasRemaining()&& System.currentTimeMillis() < sleepEnd) {
+				while (varOutBuffer.hasRemaining() && System.currentTimeMillis() < sleepEnd) {
 					try {
 						bufferLock.wait(20);
 					} catch (InterruptedException e) {
@@ -919,8 +924,10 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			UnblockingConnection.this.send(src);
 			blockingChannelLock.lock();
 			try {
-				int toWrite = varOutBuffer.writeToChannel((SocketChannel)key.channel());
-				return toWrite;
+				synchronized(bufferLock) {
+					int toWrite = varOutBuffer.writeToChannel((SocketChannel)key.channel());
+					return toWrite;
+				}
 			} finally {
 				blockingChannelLock.unlock();
 			}

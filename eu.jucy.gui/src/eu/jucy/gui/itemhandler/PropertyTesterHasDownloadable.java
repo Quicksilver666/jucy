@@ -13,6 +13,7 @@ import uc.files.IDownloadable;
 import uc.files.IHasDownloadable;
 import uc.files.IDownloadable.IDownloadableFile;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
+import uc.files.search.SearchType;
 
 public class PropertyTesterHasDownloadable extends PropertyTester {
 
@@ -39,6 +40,16 @@ public class PropertyTesterHasDownloadable extends PropertyTester {
 				inQueue = adqe != null;
 			}
 			return expectedValue.equals(inQueue);
+		} else if ("isPreviewable".equals(property)) {
+			boolean previewable = ihd != null && ihd.isFile();
+			if (previewable) {
+				IDownloadableFile idf = (IDownloadableFile)ihd;
+				AbstractDownloadQueueEntry adqe =  ApplicationWorkbenchWindowAdvisor.get()
+								.getDownloadQueue().get(ihd.getTTHRoot());
+				previewable = adqe != null && (adqe.getSize()*0.01d < adqe.getTempPath().length());
+				previewable = previewable && (SearchType.Audio.matches(idf) || SearchType.Video.matches(idf));
+			}
+			return expectedValue.equals(previewable);
 		}
 		
 		throw new IllegalStateException();

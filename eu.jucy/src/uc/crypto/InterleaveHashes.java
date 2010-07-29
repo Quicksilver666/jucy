@@ -117,6 +117,10 @@ public class InterleaveHashes {
 		return roundup;
 		
 	}
+	
+	public int hashValuesSize() {
+		return interleaves.size();
+	}
 
 	/**
 	 * 

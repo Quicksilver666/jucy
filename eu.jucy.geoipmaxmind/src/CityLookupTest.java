@@ -9,10 +9,10 @@ import java.io.IOException;
 class CityLookupTest {
     public static void main(String[] args) {
 	try {
-	    LookupService cl = new LookupService("/usr/local/share/GeoIP/GeoIPCity.dat",
+	    LookupService cl = new LookupService("D:\\Programme\\jucy\\db\\GeoLiteCity.dat",
 					LookupService.GEOIP_MEMORY_CACHE );
             Location l1 = cl.getLocation("213.52.50.8");
-            Location l2 = cl.getLocation(args[0]);
+            Location l2 = cl.getLocation("86.52.50.8");
 	    System.out.println("countryCode: " + l2.countryCode +
                                "\n countryName: " + l2.countryName +
                                "\n region: " + l2.region +
@@ -30,7 +30,7 @@ class CityLookupTest {
 	    cl.close();
 	}
 	catch (IOException e) {
-	    System.out.println("IO Exception");
+	    System.out.println("IO Exception "+e);
 	}
     }
 }

@@ -50,6 +50,8 @@ public class IconManager {
 		private static final IconManager singleton = new IconManager();
 	}
 	
+	
+	
 	private static final PaletteData PALETTE_DATA = new PaletteData(0xFF0000, 0xFF00, 0xFF);
 	
 	private final 	Image folder ;
@@ -61,6 +63,7 @@ public class IconManager {
 	
 	private final Map<String,Image> imageCache = new HashMap<String,Image>();
 	
+	private boolean macOsX = Platform.OS_MACOSX.equals(Platform.getOS());
 	
 	private IconManager() {
 		//load unknown file icon and unknown folder icon
@@ -186,6 +189,8 @@ public class IconManager {
 	
 	
 	/**
+	 *  -> method must be static so IconManager is not initialized..
+	 * 
 	 * loads source files and folders  of the provided folder
 	 * and its children
 	 * maps them to file endings so the files can be used 
@@ -249,7 +254,7 @@ public class IconManager {
 	/**
 	 * 
 	 */
-	private static BufferedImage toBufferedImage(Icon icon) {
+	private  BufferedImage toBufferedImage(Icon icon) {
 		
 		java.awt.Image image;
 		 if (icon instanceof ImageIcon) {
@@ -324,7 +329,7 @@ public class IconManager {
 	 * code taken from The Java Developers Almanac
 	 */
     // This method returns true if the specified image has transparent pixels
-    private static boolean hasAlpha(java.awt.Image image) {
+    private boolean hasAlpha(java.awt.Image image) {
         // If buffered image, the color model is readily available
         if (image instanceof BufferedImage) {
             BufferedImage bimage = (BufferedImage)image;
@@ -351,7 +356,7 @@ public class IconManager {
 	  * @param java.awt.image.BufferedImage
 	  * @return org.eclipse.swt.graphics.Image
 	  */
-	 private static final Image convert(Display display, BufferedImage bufferedImage)
+	 private final Image convert(Display display, BufferedImage bufferedImage)
 	 {
 	     ImageData imageData = new ImageData(bufferedImage.getWidth(), bufferedImage.getHeight(), 24, PALETTE_DATA);
 	
@@ -375,7 +380,12 @@ public class IconManager {
 	         }
 	     }
 	     bufferedImage.flush();
+	     
+	     if (macOsX) {
+	    	 imageData.transparentPixel = 0;
+	     }
 	
+	    
 	     return new Image(display, imageData);
 	 } 
 	

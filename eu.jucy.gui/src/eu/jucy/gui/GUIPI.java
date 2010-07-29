@@ -1,5 +1,6 @@
 package eu.jucy.gui;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,10 +19,12 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.StringConverter;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
 
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -97,38 +100,45 @@ public class GUIPI extends AbstractPreferenceInitializer {
 	awayContrib			=	"awayContrib",
 	
 	
+	//MessageColours
+//	chatMessageCol	=	"chatMessageCol",
+	joinPartMessageCol = "joinPartMessageCol",
+	statusMessageCol	= "statusMessageCol",
+	oldMessageCol		= "oldMessageCol",
+	
 	//Nick Colourer
-	ownNickCol = "ownNickCol" ,
-	ownNickFont = "ownNickFont" ,
-	opNickCol = "opNickCol",
-	opNickFont = "opNickFont",
-	favNickCol = "favNickCol",
-	favNickFont = "favNickFont" ,
-	normalNickCol= "normalNickCol",
-	normalNickFont= "normalNickFont",
+	ownNickCol 			= "ownNickCol" ,
+	ownNickFont 		= "ownNickFont" ,
+	opNickCol 			= "opNickCol",
+	opNickFont 			= "opNickFont",
+	favNickCol 			= "favNickCol",
+	favNickFont 		= "favNickFont" ,
+	normalNickCol		= "normalNickCol",
+	normalNickFont		= "normalNickFont",
+	colourJoinParts		= "colourJoinParts",
 	
 	//URL colourer
-	urlModCol = "urlModCol" ,
-	urlModFont = "urlModFont",
+	urlModCol 			= "urlModCol" ,
+	urlModFont 			= "urlModFont",
 //	urlModUnderline = "urlModUnderline",
 	
 	//File colouring
-	fileInDownloadCol= "fileInDownloadCol",
-	fileInShareCol="fileInShareCol",
-	fileMultiUserCol = "fileMultiUserCol",
-	fileDefaultCol = "fileDefaultCol",
+	fileInDownloadCol	= "fileInDownloadCol",
+	fileInShareCol		= "fileInShareCol",
+	fileMultiUserCol 	= "fileMultiUserCol",
+	fileDefaultCol 		= "fileDefaultCol",
 	
-	allowTestRepos = "allowTestRepos",
+	allowTestRepos 		= "allowTestRepos",
 	
-	lastStartupVersion = "lastStartupVersion";
+	lastStartupVersion 	= "lastStartupVersion";
 
 
 	private static Map<FontData,Font> FontRegistry = new HashMap<FontData,Font>();
 	private static Map<RGB,Color> ColorRegistry = new HashMap<RGB,Color>(); 
 	
 	
-	public GUIPI() {
-	}
+	public GUIPI() {}
+	
 
 	@Override
 	public void initializeDefaultPreferences() {
@@ -147,12 +157,19 @@ public class GUIPI extends AbstractPreferenceInitializer {
 	
 		RGB black = new RGB(0,0,0);
 		RGB white = new RGB(255,255,255);
+		RGB dark_Grey = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY).getRGB();
 		defaults.put(downloadColor2, StringConverter.asString(new RGB(53,160,126)));
 		defaults.put(downloadColor1, StringConverter.asString(new RGB(53,160,56)));
 		defaults.put(uploadColor2, StringConverter.asString(new RGB(207,18,88)));
 		defaults.put(uploadColor1, StringConverter.asString(new RGB(207,18,18)));
 		defaults.put(windowColor, StringConverter.asString(white));
 		defaults.put(windowFontColor, StringConverter.asString(black));
+		
+
+	//	defaults.put(chatMessageCol, StringConverter.asString(black ));
+		defaults.put(joinPartMessageCol, StringConverter.asString(black ));
+		defaults.put(statusMessageCol, StringConverter.asString(black ));
+		defaults.put(oldMessageCol,  StringConverter.asString(dark_Grey));
 		
 		// nick colourer
 		defaults.put(ownNickCol, StringConverter.asString(black));
@@ -164,6 +181,8 @@ public class GUIPI extends AbstractPreferenceInitializer {
 		defaults.put(opNickFont, PreferenceConverter.FONTDATA_DEFAULT_DEFAULT.toString());
 		defaults.put(favNickFont, PreferenceConverter.FONTDATA_DEFAULT_DEFAULT.toString());
 		defaults.put(normalNickFont, PreferenceConverter.FONTDATA_DEFAULT_DEFAULT.toString());
+		
+		defaults.putBoolean(colourJoinParts, false);
 		
 		//url colourer
 		defaults.put(urlModCol, StringConverter.asString(white)); //new RGB(0,0,0xff))); //blue
@@ -210,7 +229,11 @@ public class GUIPI extends AbstractPreferenceInitializer {
 		defaults.put(lastStartupVersion, "");
 		
 		
+		
+		
+		
 		logger.debug("initialized GUI defaults");
+		
 		
 		
 		IExtensionRegistry reg = Platform.getExtensionRegistry();

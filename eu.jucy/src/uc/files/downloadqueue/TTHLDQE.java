@@ -81,10 +81,10 @@ public class TTHLDQE extends AbstractFileDQE {
 			DCClient.execute(new Runnable() {
 				public void run() {
 					synchronized (TTHLDQE.this) {
-						FileDQE fdqe = new FileDQE(dq,target,ih,file, 255/2,getAdded());
+						FileDQE fdqe = new FileDQE(dq,target,ih,file, 255/2,getAdded(),null);
 	
 						//add all users and actions
-						for (IDownloadFinished idf : downloadFinished) {
+						for (AbstractDownloadFinished idf : downloadFinished) {
 							fdqe.addDoAfterDownload(idf);
 						}
 				

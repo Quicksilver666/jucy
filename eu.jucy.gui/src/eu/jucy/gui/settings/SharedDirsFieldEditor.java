@@ -198,18 +198,19 @@ private Table table;
 				if (input.open() == InputDialog.OK) {
 					vname = input.getValue();
 					
-					for (TableItem tab : table.getItems()){ //check is something has the same name
-						SharedDir sd= (SharedDir)tab.getData();
-						if ( sd.getName().equals(vname)) { //another item has the same virtualname therefore we return
-							return;
-						}
-					}
-					//ok legal path and filename..
+//					for (TableItem tab : table.getItems()){ //check is something has the same name
+//						SharedDir sd= (SharedDir)tab.getData();
+//						if ( sd.getName().equals(vname)) { //another item has the same virtualname therefore we return
+//							return;
+//						}
+//					}
+//					//ok legal path and filename..  No more checking.. duplicate names are allowed..
+					
 					TableItem ti = new TableItem(table, SWT.NONE );
 					SharedDir sharedDir=new SharedDir(vname,f);
 					setItem(ti,sharedDir);
-					
-				}				
+
+				}
 			}
 		});
 		addbutton.setLayoutData(new GridData(100, SWT.DEFAULT));

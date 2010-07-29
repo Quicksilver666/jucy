@@ -94,12 +94,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          install-size="0"
          version="1.0.2"/>
 
-   <plugin
-         id="lib.org.eclipse.equinox.p2.ui"
-         download-size="0"
-         install-size="0"
-         version="1.1.0"
-         unpack="false"/>
+
 
    <plugin
          id="lib.org.hsqldb"

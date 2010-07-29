@@ -109,9 +109,7 @@ public class Block implements IBlock {
 	private final HashValue hashOfBlock;
 
 	
-
-	
-	public Block(FileDQE dqe,int blocknumber,HashValue hashOfBlock) {
+	public Block(FileDQE dqe,int blocknumber,HashValue hashOfBlock,boolean finished) {
 		this.hashOfBlock = hashOfBlock;
 		this.blocknumber = blocknumber;
 		this.dqe = dqe;	
@@ -119,11 +117,22 @@ public class Block implements IBlock {
 			logger.warn("Block not correctly loaded: "+dqe.toString()+ "  BN: "+blocknumber,new Throwable());
 		}
 		//check for the existence and set empty  if not existing.. else hash it
+
 		if (dqe.getTempPath().isFile() && dqe.getTempPath().length() >= getStartPosition() + getLength()) {
-			verify();
+			if (finished) {
+				state = BlockState.FINISHED;
+			} else {
+				verify();
+			}	
 		} else {
 			state = BlockState.EMPTY;
 		}
+		
+	}
+	
+	
+	public Block(FileDQE dqe,int blocknumber,HashValue hashOfBlock) {
+		this(dqe,blocknumber,hashOfBlock,false);
 	}
 	
 	

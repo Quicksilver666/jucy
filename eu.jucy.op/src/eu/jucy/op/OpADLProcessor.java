@@ -41,10 +41,10 @@ public class OpADLProcessor implements IFilelistProcessor {
 	
 	private void refresh() {
 		allCounters.clear();
-		allCounters.addAll(PI.getCounterFactories());
+		allCounters.addAll(OPI.getCounterFactories());
 		
 		entries.clear();
-		entries.addAll(OpADLFieldEditor.LoadOPADLFromString(PI.get(PI.opADLEntries)));
+		entries.addAll(OpADLFieldEditor.LoadOPADLFromString(OPI.get(OPI.opADLEntries)));
 		
 	}
 	
@@ -59,7 +59,7 @@ public class OpADLProcessor implements IFilelistProcessor {
 			IUser usr = fileList.getUsr();
 			final IHub hub = usr.getHub();
 			if (hub != null && OperatorPlugin.get().isInCheck(usr)) {
-				String check = hub.getFavHub().get(PI.fh_checkUsers);
+				String check = hub.getFavHub().get(OPI.fh_checkUsers);
 				if (Boolean.parseBoolean(check)) {
 					DCClient.execute(new Runnable() {
 						public void run() {

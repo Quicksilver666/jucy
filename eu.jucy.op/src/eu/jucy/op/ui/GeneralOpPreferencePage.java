@@ -5,12 +5,12 @@ import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 
 import eu.jucy.gui.settings.UCPrefpage;
-import eu.jucy.op.PI;
+import eu.jucy.op.OPI;
 
 public class GeneralOpPreferencePage extends UCPrefpage {
 
 	public GeneralOpPreferencePage() {
-		super(PI.PLUGIN_ID);
+		super(OPI.PLUGIN_ID);
 	}
 
 
@@ -18,15 +18,15 @@ public class GeneralOpPreferencePage extends UCPrefpage {
 	protected void createFieldEditors() {
 		
 		BooleanFieldEditor checkUsers = new BooleanFieldEditor(
-				PI.checkUsers,"Check users in enabled hubs",getFieldEditorParent());
+				OPI.checkUsers,"Check users in enabled hubs",getFieldEditorParent());
 		addField(checkUsers);
 		
 		StringFieldEditor protectedUsers = new StringFieldEditor(
-				PI.protectedUsersRegEx,"Protected users Regexp",getFieldEditorParent());
+				OPI.protectedUsersRegEx,"Protected users Regexp",getFieldEditorParent());
 		addField(protectedUsers);
 		
 		IntegerFieldEditor parallelChecks = new IntegerFieldEditor(
-				PI.parallelChecks,"Number of parallel Filelist checks",getFieldEditorParent());
+				OPI.parallelChecks,"Number of parallel Filelist checks",getFieldEditorParent());
 		parallelChecks.setValidRange(1, 100);
 		addField(parallelChecks);
 

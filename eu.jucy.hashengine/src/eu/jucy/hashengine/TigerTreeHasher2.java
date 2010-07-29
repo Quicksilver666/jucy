@@ -98,7 +98,7 @@ public class TigerTreeHasher2  implements IHasher {
 				last = System.currentTimeMillis();
 			}
 			
-			//buf = ByteBuffer.allocate(BufferSize);
+	
 			if (counter % 100 == 0) {
 				monitor.worked(100);
 			}
@@ -163,7 +163,8 @@ public class TigerTreeHasher2  implements IHasher {
 	 */
 	public HashValue hash(InterleaveHashes interleaves) {
 		if (interleaves.getInterleaves().isEmpty()) {
-			throw new IllegalArgumentException("empty interleaves provided");
+			
+			throw new IllegalArgumentException("empty interleaves provided: "+levels.get(levels.size()-1).size()+"  "+levels.get(levels.size()-2).size());
 		}
 		
 		List<HashValue> values = interleaves.getInterleaves();
@@ -241,13 +242,7 @@ public class TigerTreeHasher2  implements IHasher {
 	    private HashValue[] hashes = new HashValue[PrivateLevels]; //64 KiB -> 1 2 4 8 16 32 64 -> 7 levels 
 	    
 		public HashThread() {
-			//super("Hasher-"+number);
-		//	try {
-		        md =  new Tiger(); // MessageDigest.getInstance("Tiger", cr);
-		 //  } catch (NoSuchAlgorithmException nsae) {
-		  //     nsae.printStackTrace();
-		  // }
-		    //setPriority(Thread.MIN_PRIORITY);
+			md =  new Tiger();
 		}
 		
 		public void run() {
@@ -267,9 +262,9 @@ public class TigerTreeHasher2  implements IHasher {
 								addHash(new TigerHashValue(md.digest()),0);
 							}
 						
-							finishTree();
+							HashValue hash = finishTree();
 					
-							finishedHashSegment(hashes[hashes.length-1], part.order,0,md);
+							finishedHashSegment(hash, part.order,0,md);
 							hashes[hashes.length-1] = null;
 						}
 					} else {
@@ -280,7 +275,7 @@ public class TigerTreeHasher2  implements IHasher {
 				}
 				
 			} catch(InterruptedException ie) {
-				
+				Thread.interrupted();
 			}
 			sem.release();
 			Thread.currentThread().setPriority(oldPriority);
@@ -297,9 +292,9 @@ public class TigerTreeHasher2  implements IHasher {
 		
 
 	
-	    private void finishTree() {
+	    private HashValue finishTree() {
 	    	if (hashes[hashes.length-1] != null) { //shortcut ..
-	    		return;
+	    		return hashes[hashes.length-1];
 	    	}
 	    	for (int i = 0 ; i < hashes.length - 1 ; i++) {
 	    		if (hashes[i] != null) {
@@ -307,6 +302,7 @@ public class TigerTreeHasher2  implements IHasher {
 	    			hashes[i]= null;
 	    		}
 	    	}
+	    	return hashes[hashes.length-1];
 	    }
 	    
 	    

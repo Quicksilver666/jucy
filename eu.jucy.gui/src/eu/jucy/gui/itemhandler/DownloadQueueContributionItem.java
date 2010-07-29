@@ -3,6 +3,7 @@ package eu.jucy.gui.itemhandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import logger.LoggerFactory;
 
@@ -20,6 +21,7 @@ import org.eclipse.ui.menus.IWorkbenchContribution;
 import org.eclipse.ui.services.IServiceLocator;
 
 import uc.IUser;
+import uc.files.downloadqueue.AbstractDownloadFinished;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.UserColumns;
@@ -89,6 +91,16 @@ public class DownloadQueueContributionItem extends CompoundContributionItem
 			for (IUser usr: adqe.getRemovedUsers()) {
 				reAddUser.add(create(usr,ReaddSourceHandler.COMMAND_ID));
 			}
+			
+//			Set<AbstractDownloadFinished> doAfter = adqe.getDoAfterDownload();
+//			if (!doAfter.isEmpty()) {
+//				topLevel.add(new Separator());
+//				for (AbstractDownloadFinished adf:doAfter) {
+//					//TODO works with command... HandlerUtil.updateRadioState(event.getCommand(), currentState);
+//					
+//				}
+//			}
+			
 		}
 		
 		
@@ -99,6 +111,7 @@ public class DownloadQueueContributionItem extends CompoundContributionItem
 		CommandContributionItemParameter ccip = 
 			new CommandContributionItemParameter(serviceLocator, null,
 					commandId,SWT.PUSH);
+		
 		if (usr != null) {
 			ccip.parameters = Collections.singletonMap(
 					UserHandlers.USER_BY_ID,usr.getUserid().toString()); 

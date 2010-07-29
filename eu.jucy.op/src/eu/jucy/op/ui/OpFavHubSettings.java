@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Table;
 import uc.FavHub;
 import uihelpers.TableViewerAdministrator;
 import eu.jucy.gui.favhub.IFavHubAdvanced;
-import eu.jucy.op.PI;
+import eu.jucy.op.OPI;
 import eu.jucy.op.StaticReplacement;
 import eu.jucy.op.ui.ReplacementsEditor.NameColumn;
 import eu.jucy.op.ui.ReplacementsEditor.ReplacementColumn;
@@ -41,7 +41,7 @@ public class OpFavHubSettings implements IFavHubAdvanced {
 		
 		
 		final Button checkbox = new Button(fill,SWT.CHECK);
-		checkbox.setSelection( Boolean.parseBoolean(favHub.get(PI.fh_checkUsers)));
+		checkbox.setSelection( Boolean.parseBoolean(favHub.get(OPI.fh_checkUsers)));
 		final Label checkHub = new Label(fill,SWT.NONE);
 		checkHub.setText("Check this hub");
 		
@@ -70,7 +70,7 @@ public class OpFavHubSettings implements IFavHubAdvanced {
         tableViewer.setInput(replacements);
         
         TableViewerAdministrator<StaticReplacement> tva = new TableViewerAdministrator<StaticReplacement>(
-        		tableViewer,Arrays.asList(new NameColumn(),new ReplacementColumn()),PI.staticReplacementTable,0);
+        		tableViewer,Arrays.asList(new NameColumn(),new ReplacementColumn()),OPI.staticReplacementTable,0);
         tva.apply();
         
         GridData data = new GridData(SWT.FILL, SWT.FILL, true, true,2,1);
@@ -111,7 +111,7 @@ public class OpFavHubSettings implements IFavHubAdvanced {
 		
 		return new ICompControl() {
 			public void okPressed(FavHub favHub) {
-				favHub.put(PI.fh_checkUsers,""+checkbox.getSelection());
+				favHub.put(OPI.fh_checkUsers,""+checkbox.getSelection());
 				StaticReplacement.storeReplacements(favHub, replacements);
 			}
 		};

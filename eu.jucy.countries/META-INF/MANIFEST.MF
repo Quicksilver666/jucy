@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Country Plug-in
 Bundle-SymbolicName: eu.jucy.countries;singleton:=true
-Bundle-Version: 1.1.7.qualifier
+Bundle-Version: 1.84.2.qualifier
 Bundle-Localization: nl/countries
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: eu.jucy.geoipmaxmind,
@@ -12,3 +12,4 @@ Require-Bundle: eu.jucy.geoipmaxmind,
  eu.jucy.logging,
  org.eclipse.ui,
  org.eclipse.core.runtime
+Bundle-Vendor: Quicksilver

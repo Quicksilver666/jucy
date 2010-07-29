@@ -3,6 +3,7 @@ package eu.jucy.gui.itemhandler;
 import helpers.GH;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.program.Program;
@@ -26,6 +28,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GuiHelpers;
+import eu.jucy.gui.Lang;
 import eu.jucy.gui.ReplaceLine;
 
 import eu.jucy.gui.itemhandler.DownloadQueueHandlers.DQRemoveHandler;
@@ -33,13 +36,17 @@ import eu.jucy.gui.search.OpenSearchEditorHandler;
 
 import uc.DCClient;
 import uc.IUser;
+import uc.PI;
 import uc.files.IDownloadable;
 import uc.files.IHasDownloadable;
 import uc.files.MagnetLink;
 import uc.files.IDownloadable.IDownloadableFile;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import uc.files.downloadqueue.DownloadQueue;
-import uc.files.downloadqueue.AbstractDownloadQueueEntry.IDownloadFinished;
+import uc.files.downloadqueue.AbstractDownloadFinished;
+import uc.files.filelist.FileList;
+import uc.files.filelist.FileListDescriptor;
+import uc.files.filelist.FileListFolder;
 import uc.protocols.SendContext;
 
 
@@ -76,12 +83,14 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 	}
 	
 	
-	protected abstract void run(List<IDownloadable> files,ExecutionEvent event);
+	protected abstract void run(List<IDownloadable> files,ExecutionEvent event) throws ExecutionException ;
 	
 	
 	public static class DownloadHandler extends DownloadableHandlers {
 		
 		public static final String ID = "eu.jucy.gui.downloadable.download";
+		
+	
 		
 		@Override
 		protected void run(final List<IDownloadable> files,ExecutionEvent event) {
@@ -114,6 +123,7 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 				return new File(target);
 			}
 		}	
+		
 		
 		@Override
 		protected void run(final List<IDownloadable> files,ExecutionEvent event) {
@@ -152,11 +162,13 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 		
 		public static final String ID = "eu.jucy.gui.downloadable.downloadtorecommendedpath";
 		
+		protected File getTargetDir(ExecutionEvent event) {
+			return new File(event.getParameter(TargetPath));
+		}
 		
 		@Override
 		protected void run(final List<IDownloadable> files,ExecutionEvent event) {
-			
-			final File target = new File(event.getParameter(TargetPath));
+			final File target = getTargetDir(event);
 			logger.debug("DownloadTorecpath: "+ target);
 			DCClient.execute(new Runnable() {
 				public void run() {
@@ -181,13 +193,94 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 			DCClient.execute(new Runnable() {
 				public void run() {
 					for (IDownloadable downloadable:files) {
-						//new File(getTargetDir(),downloadable.getName())
 						downloadable.download(new File(target,downloadable.getName()));
 					}
 				}
 			});
 		}
 	}
+	
+	public static class DownloadParentdDir extends DownloadableHandlers {
+		
+		public static final String ID = "eu.jucy.gui.downloadable.downloadparentdir";
+	
+		
+		@Override
+		protected void run(final List<IDownloadable> files,final ExecutionEvent event) {
+			final IDownloadable id = files.get(0);
+			final IUser usr = id.getUser();
+			
+			FileListDescriptor fd = usr.getFilelistDescriptor();
+			if (fd != null) {
+				downloadDirOf(id, fd.getFilelist(),event);
+			} else {
+				usr.downloadFilelist().addDoAfterDownload(new AbstractDownloadFinished() { 
+					public void finishedDownload(File f) { 
+						downloadDirOf(id,usr.getFilelistDescriptor().getFilelist(),event);	
+					}
+				}); 
+			}
+		}
+		
+		private void downloadDirOf(IDownloadable id,FileList fl,ExecutionEvent event) {
+			String target = event.getParameter(TargetPath);
+			
+			FileListFolder flf =  fl.getRoot().getByPath(id.getOnlyPath());
+			if (flf != null) {
+				if (target == null) {
+					flf.download();
+				} else {
+					flf.download( new File(target,flf.getName()));
+				}
+			}
+		}
+	}
+	
+	public static class DownloadParentdDirBrowse extends DownloadableHandlers {
+		
+		public static final String ID = "eu.jucy.gui.downloadable.downloadparentdirbrowse";
+	
+		protected File getTargetDir(ExecutionEvent event) {
+			DirectoryDialog dd = new DirectoryDialog(HandlerUtil.getActiveShell(event));
+			String target = dd.open();
+			if (target == null) {
+				return null;
+			} else {
+				return new File(target);
+			}
+		}	
+		
+		@Override
+		protected void run(List<IDownloadable> files,final ExecutionEvent event) {
+			final IDownloadable id = files.get(0);
+			final IUser usr = id.getUser();
+
+			final File target = getTargetDir(event);
+			
+		
+			if (target != null) {
+				if (usr.hasDownloadedFilelist()) {
+					downloadDirOf(id,target);
+				} else {
+					usr.downloadFilelist().addDoAfterDownload(new AbstractDownloadFinished() { 
+						public void finishedDownload(File f) { 
+							downloadDirOf(id,target);	
+						}
+					}); 
+				}
+			}
+		}
+		
+		private void downloadDirOf(IDownloadable id,File target) {
+			FileList fl = id.getUser().getFilelistDescriptor().getFilelist();
+			FileListFolder flf =  fl.getRoot().getByPath(id.getOnlyPath());
+			if (flf != null && target != null) {
+				flf.download( target );
+			}
+		}
+	}
+	
+	
 	
 	public static class ExecuteAfterDownloadHandler extends DownloadableHandlers {
 		
@@ -198,32 +291,23 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 					for (IDownloadable f: files) {
 						AbstractDownloadQueueEntry adqe = f.download();
 						if (adqe != null) {
-							adqe.addDoAfterDownload(			
-								new IDownloadFinished() {//implement  hash code and equals methods so only one execution can be set
-		
-									public int hashCode() {
-										return getClass().hashCode();
-									};
-									
-									public boolean equals(Object o) { 
-										return o != null && getClass().equals(o.getClass());
-									}
-									
-									public void finishedDownload(File f) {
-										int i = f.getName().lastIndexOf('.');
-										if (i != -1) {
-											Program p = Program.findProgram(f.getName().substring(i));
-											
-											if (p != null) {
-												p.execute(f.getPath());
-											}
+							adqe.addDoAfterDownload(new AbstractDownloadFinished() {
+								public void finishedDownload(File f) {
+									int i = f.getName().lastIndexOf('.');
+									if (i != -1) {
+										Program p = Program.findProgram(f.getName().substring(i));
+										
+										if (p != null) {
+											p.execute(f.getPath());
 										}
 									}
-									
 								}
-							);		
+								
+								public String showToUser() {
+									return Lang.ExecuteAfterDownload;
+								}
+							});		
 						}
-						
 					}
 				}
 			});
@@ -320,5 +404,33 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 		}
 	}
 	
+	public static class ShowPreviewHandler extends DownloadableHandlers  {
+		
+		@Override
+		protected void run(List<IDownloadable> files,ExecutionEvent event) throws ExecutionException {
+			IDownloadableFile idf = (IDownloadableFile)files.get(0);
+			AbstractDownloadQueueEntry adqe = ApplicationWorkbenchWindowAdvisor.get()
+												.getDownloadQueue().get(idf.getTTHRoot());
+			
+			String playerpath = PI.get(PI.previewPlayerPath);
+			if (GH.isNullOrEmpty(playerpath) || !new File(playerpath).isFile()) {
+				MessageDialog.openInformation(HandlerUtil.getActiveShellChecked(event)
+						, "Information", "Path for preview util not set: Preferences -> Misc");
+			} else if (adqe != null) {
+				try {
+					Runtime.getRuntime().exec(new String[] {
+							PI.get(PI.previewPlayerPath)
+							,adqe.getTempPath().toString()
+							});
+					
+				} catch (IOException e) {
+					MessageDialog.openError(HandlerUtil.getActiveShellChecked(event)
+							, "error", "Problem executing preview: "+e);
+				}
+			}
+		}
+	}
 
+
+	
 }

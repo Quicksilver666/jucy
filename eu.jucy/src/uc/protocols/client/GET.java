@@ -15,14 +15,14 @@ import uc.protocols.AbstractADCCommand;
 import uc.protocols.Compression;
 import uc.protocols.TransferType;
 
-public class GET extends AbstractADCClientProtocolCommand {
+public class GET extends AbstractADCClientProtocolCommand  {
 
 	private static Logger logger = LoggerFactory.make(); 
 	
 	private Pattern file;
 	private Pattern interleaves;
 	private Pattern filelist;
-	
+//	
 	/*
 Contexts: C
 
@@ -79,11 +79,14 @@ Note that GET can also be used by extensions for binary transfers between hub an
 			Compression comp = Compression.parseNMDCString(m.group(2));
 			fti.setCompression(comp);
 			boolean partialList = m.group(1).startsWith("list /");
-			client.setPartialList(partialList);
+			fti.setPartialList(partialList);
+			fti.setBz2Compressed(m.group(1).equals("file files.xml.bz2"));
 			if (partialList) {
 				String path =  AbstractADCCommand.revReplaces(m.group(1).substring(5));
 				fti.setPartialFileList(path,"RE1".equals(m.group(3)));
-			}
+			} 
+			
+			
 			
 			client.transfer();
 		}  else {

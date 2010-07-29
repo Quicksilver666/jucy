@@ -72,8 +72,21 @@ public class SND extends AbstractADCClientProtocolCommand {
 	 * @param length - how large the FileList is..
 	 */
 	private static void sendADCSNDforFilelist(ClientProtocol client,long length,Compression comp) {
-		String list = (client.isNewList()? "list "+AbstractADCCommand.doReplaces(client.getFti().getFileListSubPath()):"file files.xml.bz2");
+		FileTransferInformation fti = client.getFti();
+		String list = fti.isPartialList()? 
+				"list "+AbstractADCCommand.doReplaces(fti.getFileListSubPath())
+				:("file files.xml" + (fti.isBz2Compressed()?".bz2":""));
+		
+		
 		client.sendUnmodifiedRaw("CSND "+ list+ " 0 " + length +comp.toString() +"\n");
+		
+//		
+//		String liststr = fti.isPartialList()? 
+//				"list /": 
+//				("file files.xml" + (fti.isBz2Compressed()?".bz2":""));
+//		
+//		
+//		client.sendUnmodifiedRaw(String.format("CSND %s 0 %d%s", liststr,length,comp.toString()));
 	}
 	
 	private static void sendADCSNDforInterleaves(ClientProtocol client,HashValue what,long length,Compression comp) {

@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="eu.jucy.feature.connectiondebugger"
-      label="Connection Debugger"
-      version="1.0.2.qualifier"
+      label="Connection debugger"
+      version="1.84.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.connectiondebugger">
 
    <description>
       Allows a user to see exactly what is going on oin a connection.
-Very helpful if a conenction is encrypted and using wireshark becomes nontrivial.
+Very helpful if a conenction is encrypted and using wireshark
+becomes non-trivial.
    </description>
 
    <copyright>
@@ -50,7 +51,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.connectiondebugger"
          download-size="0"
          install-size="0"
-         version="1.0.2.qualifier"
+         version="1.84.0.qualifier"
          unpack="false"/>
 
 </feature>

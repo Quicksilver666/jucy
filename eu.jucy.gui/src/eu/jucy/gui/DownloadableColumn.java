@@ -14,10 +14,14 @@ import eu.jucy.gui.UserColumns.Nick;
 
 
 import uc.IUser;
+import uc.crypto.HashValue;
 import uc.files.IDownloadable;
 import uc.files.IDownloadable.IDownloadableFile;
 import uc.files.IDownloadable.IDownloadableFolder;
+import uc.files.downloadqueue.DownloadQueue;
+import uc.files.filelist.FileListFile;
 import uc.files.filelist.FileListFolder;
+import uc.files.filelist.IOwnFileList;
 import uc.files.search.ISearchResult;
 import uihelpers.IconManager;
 import uihelpers.SUIJob;
@@ -59,22 +63,54 @@ public abstract class DownloadableColumn extends ColumnDescriptor<IDownloadable>
 	
 	
 	public static Color getDownloadableColor(IDownloadable x) {
+
 		if (x.isFile()) {
 			IDownloadableFile file = (IDownloadableFile)x;
 			if (ApplicationWorkbenchWindowAdvisor.get().getDownloadQueue().containsDQE(file.getTTHRoot())) {
 				return fileInDownloadCol;
 			}
-		//	try {
-				if (ApplicationWorkbenchWindowAdvisor.get().getFilelist().getFile(file.getTTHRoot()) != null) {
-					return fileInShareCol;
-				}
-		//	} catch (FilelistNotReadyException fnre) {}
+		
+			if (ApplicationWorkbenchWindowAdvisor.get().getFilelist().getFile(file.getTTHRoot()) != null) {
+				return fileInShareCol;
+			}
+	
 			if (file.nrOfUsers() > 1) {
 				return fileMultiUserCol;
 			}
+		} else if (x instanceof FileListFolder) {
+			if (x.getUser().equals(ApplicationWorkbenchWindowAdvisor.get().getFilelistself())) {
+				return fileInShareCol;
+			}
+			FileListFolder folder = (FileListFolder)x;
+			IOwnFileList fileList = ApplicationWorkbenchWindowAdvisor.get().getFilelist();
+			DownloadQueue dq = ApplicationWorkbenchWindowAdvisor.get().getDownloadQueue();
+			boolean inDownload = false;
+			boolean completedDownload = false;
+			for (FileListFile fileListFile : folder) {
+				HashValue hash = fileListFile.getTTHRoot();
+				if (fileList.getFile(hash) != null) {
+					completedDownload = true;
+				} else if (dq.containsDQE(hash)) {
+					inDownload = true;
+				} else {
+					return fileDefaultCol;
+				}
+			}
+			
+			
+			if (inDownload) {
+				return fileInDownloadCol;
+			} else if (completedDownload) {
+				return fileInShareCol;
+			} else {
+				return fileDefaultCol;
+			}
+			
 		}
 		return fileDefaultCol;
 	}
+	
+	
 	
 	
 	public DownloadableColumn(int defaultColumnSize, String columnName,int style) {

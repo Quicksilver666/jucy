@@ -12,3 +12,4 @@ Require-Bundle: eu.jucy,
  eu.jucy.logging;bundle-version="1.1.10"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
+Bundle-Vendor: Quicksilver

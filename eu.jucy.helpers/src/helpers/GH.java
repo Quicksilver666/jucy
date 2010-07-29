@@ -20,6 +20,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,6 +46,7 @@ public final class GH {
 	
 	private static final FileSystemView chooser = FileSystemView.getFileSystemView();
 	
+	// http://wiki.eclipse.org/index.php/Equinox_Launcher#Startup.jar
 //	private static final boolean USE_FILE_SYSTEM_VIEW;
 //	static {
 //		boolean win = Platform.getOS().equals(Platform.OS_WIN32);
@@ -626,6 +628,45 @@ public final class GH {
 			intList.add(i);
 		}
 		return intList;
+	}
+	
+	
+	public static BitSet toSet(byte[] bytes) {
+		int ammountBits = bytes.length * 8;
+		BitSet bits = new BitSet(ammountBits);
+		for (int i = 0; i < ammountBits; i++) {
+			bits.set(i, getBit(bytes, i));
+		}
+		return bits;
+	}
+	
+	
+	public static boolean getBit(byte[] source,int position) {
+		byte b = source[position /8];
+		int bitpos = 1 << (position % 8);
+		return (bitpos & b)  != 0;
+	}
+	
+	
+	public static byte[] toBytes(BitSet bits,int ammountBits) {
+		byte[] bytes = new byte[ammountBits/8 ];
+		
+		for (int i = 0; i < bytes.length; i++) {
+			int num = 0;
+			for (int j=0; j < 8; j++ ) {
+				if (bits.get(i*8+j)) {
+					num +=  1 << j; 
+				}
+			}
+			bytes[i] = (byte)num;
+		}
+		
+		return bytes;
+	}
+	
+	public static byte[] toBytes(BitSet bits) {
+		int ammountBits = bits.length() ;
+		return toBytes(bits, ammountBits + (ammountBits%8 == 0 ?0:1));
 	}
 	
 	

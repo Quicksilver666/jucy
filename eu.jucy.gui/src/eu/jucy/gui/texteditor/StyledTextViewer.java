@@ -31,7 +31,7 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 
 
-import org.eclipse.swt.SWT;
+
 import org.eclipse.swt.custom.PaintObjectEvent;
 import org.eclipse.swt.custom.PaintObjectListener;
 import org.eclipse.swt.custom.StyleRange;
@@ -49,7 +49,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.swt.IFocusService;
 
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GUIPI;
@@ -229,6 +230,10 @@ public class StyledTextViewer {
 		refreshSettings();
 		loadOldMessages(loadbeforeTime);
 		
+		IFocusService ifc = (IFocusService)PlatformUI.getWorkbench().getService(IFocusService.class);
+		if (ifc != null) {
+			ifc.addFocusTracker(text, "MyTextViewer");
+		}
 	}
 	
 	
@@ -262,6 +267,16 @@ public class StyledTextViewer {
 		GuiHelpers.copyTextToClipboard(t);
 	}
 	
+	public void replaceSelection(String replacement,String expectedSelection) {
+		Point p = text.getSelection();
+		String t = text.getSelectionText();
+		logger.debug("is: "+t +"  expected: "+expectedSelection);
+		if (expectedSelection.equals(t)) {
+			text.replaceTextRange(p.x, t.length(), replacement);
+		}
+			
+	}
+	
 	private void loadOldMessages(long loadBefore) {
 		if (pm) {
 			DBLogger entity = new DBLogger(usr,ApplicationWorkbenchWindowAdvisor.get());
@@ -292,7 +307,7 @@ public class StyledTextViewer {
 			StyleRange sr = new StyleRange();
 			sr.start = 0;
 			sr.length = s.length();
-			sr.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
+			sr.foreground = MessageType.OLD.getColour();
 			text.setStyleRange(sr);
 			
 		}
@@ -452,8 +467,8 @@ public class StyledTextViewer {
 	 * @param received  The time the message was received
 	 * @param usr A user that can be associated with the message
 	 */
-	public void addMessage(String message,IUser usr,Date received) {
-		Message m = new Message(message,usr,received);
+	public void addMessage(String message,IUser usr,Date received,MessageType type) {
+		Message m = new Message(message,usr,received,type);
 		messages.add(m);
 		if (messages.size() > HISTORY) {
 			messages.remove(0);
@@ -493,17 +508,20 @@ public class StyledTextViewer {
 	
 	
 	public class Message {
+		
+		protected final MessageType type;
 		protected final String message;
 		private final IUser usr;
 		private final Date received;
 		
-		private Message(String message,IUser usr,Date received) {
+		private Message(String message,IUser usr,Date received,MessageType type) {
+			this.type = type;
 			this.message = "\n"+message.replace("\n<", "\n- <").replace("\n[", "\n- [");
 			this.usr = usr;
 			this.received = received;
 		}
-		private Message(String message,Date received) {
-			this(message,null,received);
+		private Message(String message,Date received,MessageType type) {
+			this(message,null,received,type);
 		}
 		
 		public void append(StyledText text,StyledTextViewer stv) {
@@ -526,6 +544,14 @@ public class StyledTextViewer {
 				
 				tr.apply(text, ranges, imagePoints, controlPoints, startOfMessage + addPos+tr.position , this);
 				addPos += tr.replacement.length()- tr.lengthToReplace; 
+			}
+			
+			StyleRange sr = new StyleRange();
+			sr.start = startOfMessage;
+			sr.length = renderedMessage.length();
+			sr.foreground = type.getColour();
+			if (sr.foreground != null) {
+				ranges.add(0, sr);
 			}
 			
 			text.append(renderedMessage);
@@ -558,29 +584,6 @@ public class StyledTextViewer {
 			return message; // "\n"+message.replace("\n<", "\n- <").replace("\n[", "\n- [");  //replace helps showing the difference with pasted text..
 		}
 		
-		//public void setMessage(Styled)
-		
-//		/**
-//		 * currently only checks for URLs may be more later..
-//		 * @param start - start of the message in the text
-//		 * @return all Styled texts that should be applied
-//		 */
-//		protected void setStyleRanges(int start,String renderedMessage) {
-//			
-//			List<StyleRange> ranges = new ArrayList<StyleRange>();
-//			List<ObjectPoint<Image>> images = new ArrayList<ObjectPoint<Image>>();
-//			for (ITextModificator mod:modificators) {
-//				mod.getStyleRange(renderedMessage, start, this,ranges,images);
-//			}
-//			
-//			imagePoints.addAll(images);
-//			for (ObjectPoint<Image> op:images) {
-//				allPointsByX.put(Integer.valueOf(op.x), op);
-//			}
-//			for (StyleRange range:ranges) {
-//				text.setStyleRange(range);
-//			}
-//		}
 		
 		public String getMessage() {
 			return message;
@@ -601,7 +604,7 @@ public class StyledTextViewer {
 	private class OldMessage extends Message {
 		
 		private OldMessage(String message,Date received) {
-			super(message,received);
+			super(message,received,MessageType.OLD);
 		}
 		
 
@@ -617,17 +620,9 @@ public class StyledTextViewer {
 			StyleRange sr = new StyleRange();
 			sr.start = start;
 			sr.length = renderedMessage.length();
-			sr.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
+			sr.foreground = MessageType.OLD.getColour(); 
 			text.setStyleRange(sr);
 		}
-//
-//		protected void setStyleRanges(int start,String renderedMessage) {
-//			StyleRange sr = new StyleRange();
-//			sr.start = start;
-//			sr.length = renderedMessage.length();
-//			sr.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY);
-//			text.setStyleRange(sr);
-//		}
 	}
 	
 
@@ -738,6 +733,7 @@ public class StyledTextViewer {
 
 		public void setViewer(StyledTextViewer viewer) {
 			this.viewer = viewer;
+
 		}
 
 		@Override

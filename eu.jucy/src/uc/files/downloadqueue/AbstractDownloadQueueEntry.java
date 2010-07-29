@@ -87,8 +87,8 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	/**
 	 * Actions that have to be taken when the file has finished its download..
 	 */
-	protected final Set<IDownloadFinished> downloadFinished = 
-		new CopyOnWriteArraySet<IDownloadFinished>();
+	protected final Set<AbstractDownloadFinished> downloadFinished = 
+		new CopyOnWriteArraySet<AbstractDownloadFinished>();
 	
 	
 	private final Date added;          //the time this was added
@@ -406,36 +406,23 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	}
 	
 	
-	public void addDoAfterDownload(IDownloadFinished action) {
+	public void addDoAfterDownload(AbstractDownloadFinished action) {
 		downloadFinished.add(action);
+	}
+	
+	public Set<AbstractDownloadFinished> getDoAfterDownload() {
+		return Collections.unmodifiableSet(downloadFinished);
 	}
 	
 	protected void executeDoAfterDownload() {
 		//execute tasks..
-		for (final IDownloadFinished runnable : downloadFinished) {
+		for (final AbstractDownloadFinished runnable : downloadFinished) {
 			DCClient.execute(new Runnable() {
 				public void run() {
 					runnable.finishedDownload(getTargetPath());
 				}
 			});
 		}
-	}
-	/**
-	 * call back interface
-	 * for finished transfers
-	 * with this interface jobs can register to receive notification 
-	 * when a download is finished..
-	 *  
-	 * @author Quicksilver
-	 *
-	 **/
-	public static interface IDownloadFinished {
-		
-		/**
-		 * 
-		 * @param f - where the file is now
-		 */
-		void finishedDownload(File f);
 	}
 	
 	/**

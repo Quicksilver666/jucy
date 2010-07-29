@@ -87,7 +87,9 @@ public class FileTransferInformation  {
 	 * if not recursive only single directory is sent..
 	 */
 	private String fileListSubPath = null;
-
+	private volatile boolean bz2Compressed = false;
+	private volatile boolean partialList = false;
+	
 
 
 
@@ -310,7 +312,7 @@ public class FileTransferInformation  {
 	
 	public FileListFile getFileListFile() {
 		if (isUpload() && getHashValue() != null) {
-			return dcc.getFilelist().search(getHashValue());
+			return dcc.getFilelist().get(getHashValue());
 		}
 		return null;
 	}
@@ -327,7 +329,7 @@ public class FileTransferInformation  {
 			File f = null;
 			switch(getType()) {
 			case FILE:
-				FileListFile flfile = dcc.getFilelist().search(getHashValue());
+				FileListFile flfile = dcc.getFilelist().get(getHashValue());
 				if (flfile != null && flfile.mayDownload(getOther())) {
 					f  = dcc.getFilelist().getFile(flfile);
 					if (f != null && f.canRead()) {
@@ -346,7 +348,7 @@ public class FileTransferInformation  {
 				}
 				break;
 			case FILELIST:
-				byte[] filelist = dcc.getOwnFileList().writeFileList(fileListSubPath, recursive);
+				byte[] filelist = dcc.getOwnFileList().writeFileList(fileListSubPath, recursive,bz2Compressed);
 
 				fileInterval = new ReadableFileInterval(filelist);
 				setLength(filelist.length);
@@ -400,6 +402,27 @@ public class FileTransferInformation  {
 
 	public boolean isRecursive() {
 		return recursive;
+	}
+	
+	
+	
+
+
+
+	public boolean isBz2Compressed() {
+		return bz2Compressed;
+	}
+
+	public void setBz2Compressed(boolean bz2Compressed) {
+		this.bz2Compressed = bz2Compressed;
+	}
+
+	public boolean isPartialList() {
+		return partialList;
+	}
+
+	public void setPartialList(boolean partialList) {
+		this.partialList = partialList;
 	}
 
 	@Override

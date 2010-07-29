@@ -37,7 +37,7 @@ import uc.files.IDownloadable;
 import uc.files.IDownloadable.IDownloadableFile;
 import uc.files.downloadqueue.Block.FileChannelManager;
 import uc.files.filelist.FileList;
-import uc.protocols.TransferType;
+
 
 
 public class DownloadQueue extends Observable<StatusObject> implements IStoppable {
@@ -166,10 +166,18 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 			adqes = new ArrayList<AbstractDownloadQueueEntry>(tthRoots.values());
 		}
 		for (AbstractDownloadQueueEntry adqe: adqes) {
-			if (TransferType.FILELIST.equals(adqe.getType())) {
+			switch(adqe.getType()) {
+			case FILELIST:
 				adqe.remove();
+				break;
+			case FILE:
+				FileDQE fdqe = (FileDQE)adqe;
+				fdqe.storeRestoreInfo();
+				break;
 			}
 		}
+		
+		
 	}
 
 	

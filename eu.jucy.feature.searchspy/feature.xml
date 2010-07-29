@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="eu.jucy.feature.searchspy"
-      label="Searchspy Feature"
-      version="1.1.6.qualifier"
+      label="Search spy"
+      version="1.84.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.ui.searchspy">
 
    <description>
-      Search Spy feature allows spying on searches users do.
+      Search spy feature allows spying on searches users do.
    </description>
 
    <copyright>
@@ -64,7 +64,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.ui.searchspy"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.84.0.qualifier"
          unpack="false"/>
 
 </feature>

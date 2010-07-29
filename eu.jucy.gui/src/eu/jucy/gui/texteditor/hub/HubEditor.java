@@ -83,6 +83,7 @@ import eu.jucy.gui.itemhandler.UserHandlers.GetFilelistHandler;
 import eu.jucy.gui.sounds.AePlayWave;
 import eu.jucy.gui.sounds.IAudioKeys;
 import eu.jucy.gui.texteditor.LabelViewer;
+import eu.jucy.gui.texteditor.MessageType;
 import eu.jucy.gui.texteditor.StyledTextViewer;
 import eu.jucy.gui.texteditor.UCTextEditor;
 import eu.jucy.gui.texteditor.SendingWriteline.HubSendingWriteline;
@@ -170,6 +171,7 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 	
 	
 	private boolean nickWasCalled = false;
+
 
 	
 	private TableViewerAdministrator<IUser> tva;
@@ -397,8 +399,9 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 			}
 		};
 		
-		tableViewer.setInput(getHub());
+		
 		hub.registerHubListener(this);//register the listeners..
+		tableViewer.setInput(getHub());
 		hub.registerUserChangedListener(this);
 	
 		
@@ -478,7 +481,6 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 	public void partActivated() {
 		nickWasCalled = false;
 		super.partActivated();
-
 	}
 	
 
@@ -557,7 +559,7 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 	 * @see UC.protocols.hub.IMCReceivedListener#mcReceived(java.lang.String)
 	 */
 	public void mcReceived(String message) {
-		appendText(message, null ,true);
+		appendText(message, null ,MessageType.CHAT);
 	}
 
 
@@ -574,7 +576,7 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 		} else {
 			mes = "<"+sender.getNick()+"> "+message;
 		}
-		appendText(mes,sender,true);
+		appendText(mes,sender,MessageType.CHAT);
 		
 	}
 	
@@ -584,8 +586,8 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 	 * @param usr - who sent the message... may be null
 	 */
 	@Override
-	public void appendText(final String text,final IUser usr,final long date,boolean chatmessage) {
-		super.appendText(text,usr,date,chatmessage);
+	public void appendText(final String text,final IUser usr,final long date,MessageType type) {
+		super.appendText(text,usr,date,type);
 		SUIJob job = new SUIJob(hubText) {
 			public void run() {
 				//notify because of nick found

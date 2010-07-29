@@ -111,7 +111,7 @@ public class Upload extends AbstractFileTransfer {
 		ReadableByteChannel source = fileInterval.getReadableChannel();
 		
 	
-		ByteBuffer bb = ByteBuffer.allocate(1024);
+		ByteBuffer bb = ByteBuffer.allocate(BUFFER_SIZE);
 		bb.clear();
 		
 		

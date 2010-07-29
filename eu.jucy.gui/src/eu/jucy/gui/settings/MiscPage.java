@@ -1,6 +1,7 @@
 package eu.jucy.gui.settings;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.FileFieldEditor;
 
 import eu.jucy.gui.Lang;
 
@@ -16,8 +17,10 @@ public class MiscPage extends UCPrefpage {
 	@Override
 	protected void createFieldEditors() {
 		
-		BooleanFieldEditor bfe = new BooleanFieldEditor(PI.checkForUpdates,Lang.AutomaticallyCheckForUpdates,getFieldEditorParent());
-		addField(bfe);
+//		BooleanFieldEditor bfe = new BooleanFieldEditor(PI.checkForUpdates,Lang.AutomaticallyCheckForUpdates,getFieldEditorParent());
+//		addField(bfe);
+		FileFieldEditor vlcExecutable = new FileFieldEditor(PI.previewPlayerPath, Lang.PreviewExecutablePath, getFieldEditorParent());
+		addField(vlcExecutable);
 		
 		BooleanFieldEditor bfe2 = new BooleanFieldEditor(PI.autoSearchForAlternates,Lang.AutomaticallySearchForAlternates,getFieldEditorParent());
 		addField(bfe2);
@@ -27,7 +30,7 @@ public class MiscPage extends UCPrefpage {
 		addField(bfe3);
 		
 		BooleanFieldEditor bfe4 = new BooleanFieldEditor(
-				PI.deleteFilelistsOnExit,"Delete filelists on exit",getFieldEditorParent());
+				PI.deleteFilelistsOnExit,Lang.DeleteFileListsOnExit,getFieldEditorParent());
 		addField(bfe4);
 		
 		

@@ -1,18 +1,18 @@
 package eu.jucy.op.ui;
 
 import eu.jucy.gui.settings.UCPrefpage;
-import eu.jucy.op.PI;
+import eu.jucy.op.OPI;
 
 public class CounterPreferencePage extends UCPrefpage {
 
 
 	public CounterPreferencePage() {
-		super(PI.PLUGIN_ID);
+		super(OPI.PLUGIN_ID);
 	}
 
 	@Override
 	protected void createFieldEditors() {
-		CounterFieldEditor cfe = new CounterFieldEditor("Counters",PI.counters,getFieldEditorParent());
+		CounterFieldEditor cfe = new CounterFieldEditor("Counters",OPI.counters,getFieldEditorParent());
 		addField(cfe);
 	}
 

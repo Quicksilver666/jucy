@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Helpers Plug-in
 Bundle-SymbolicName: eu.jucy.helpers;singleton:=true
-Bundle-Version: 1.84.0.qualifier
+Bundle-Version: 1.83.0.qualifier
 Bundle-Localization: nl/helpers
 Export-Package: helpers,
  uihelpers
@@ -11,4 +11,5 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  lib.com.jcraft.jzlib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Vendor: Quicksilver
 

@@ -39,4 +39,23 @@ public class WrappedTabsUtil {
 		
 		return maxWidth;
 	}
+	
+	
+	public static int calculateNumberOfRows(ToolBar toMeasure,int allowedWidth) {
+		int rows = 1;
+		int currentWidth = 0;
+		ToolItem items[] = toMeasure.getItems();
+		
+		for (int i = 0; i < items.length; i++) {
+			int itemwidth  = items[i].getBounds().width;
+			if (currentWidth + itemwidth > allowedWidth) {
+				rows+=1;
+				currentWidth = 0;
+			}
+			currentWidth+= itemwidth;
+		}
+		
+		return rows;
+	}
+	
 }

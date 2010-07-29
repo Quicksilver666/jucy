@@ -6,7 +6,7 @@
       <opplugin
             class="eu.jucy.op.OperatorPlugin"
             id="eu.jucy.op.basic"
-            name="UC Basic Op plugin">
+            name="jucy  op plugin">
       </opplugin>
    </extension>
    <extension
@@ -19,7 +19,7 @@
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="eu.jucy.op.PI">
+            class="eu.jucy.op.OPI">
       </initializer>
    </extension>
    <extension

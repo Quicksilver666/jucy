@@ -4,25 +4,28 @@ package eu.jucy.gui;
 
 
 
+
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 import eu.jucy.gui.update.CloudPolicy;
+import eu.jucy.gui.update.ProvSDKMessages;
 
 
-
-@SuppressWarnings("restriction")
 public class Activator extends AbstractUIPlugin {
 
 	private static Logger logger = LoggerFactory.make();
@@ -58,30 +61,42 @@ public class Activator extends AbstractUIPlugin {
 	
 	private void registerP2Policy(final BundleContext context)  {	
 		CloudPolicy cp = new CloudPolicy();
-		policyRegistration = context.registerService(Policy.class.getName(), cp , null);
 		
+		policyRegistration = context.registerService(Policy.class.getName(), cp , null);
+
 		if (GUIPI.getBoolean(GUIPI.allowTestRepos)) {
+			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
+			IArtifactRepositoryManager artManager = (IArtifactRepositoryManager) context.getServiceReference(IArtifactRepositoryManager.SERVICE_NAME);
+			
 			try {
-				String nickname = "unstable";
-				URI[] repos = new URI [] {	new URI("http://jucy.eu/p2/test_updates"),
+			//	String nickname = "unstable";
+				URI[] repos = new URI [] {	new URI("http://jucy.eu/p2/test_update"),
 											new URI("http://jucy.eu/p2/test_extensions")};
 				for (URI repo: repos) {
-					ProvisioningUtil.addMetadataRepository(repo, true);
-					ProvisioningUtil.addArtifactRepository(repo, true);
-					ProvisioningUtil.setMetadataRepositoryProperty(repo, 
-							IRepository.PROP_NICKNAME, nickname);
-					ProvisioningUtil.setArtifactRepositoryProperty(repo, 
-							IRepository.PROP_NICKNAME, nickname);
+					
+					manager.addRepository(repo);
+					artManager.addRepository(repo);
+					
+//					ProvisioningUtil.addMetadataRepository(repo, true);
+//					ProvisioningUtil.addArtifactRepository(repo, true);
+//					ProvisioningUtil.setMetadataRepositoryProperty(repo, 
+//							IRepository.PROP_NICKNAME, nickname);
+//					ProvisioningUtil.setArtifactRepositoryProperty(repo, 
+//							IRepository.PROP_NICKNAME, nickname);
 					
 				}
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
-			} catch (ProvisionException e) {
-				e.printStackTrace();
-			}
+			} 
+//			catch (ProvisionException e) {
+//				e.printStackTrace();
+//			}
 		}
 		
 	}
 
+	public static IStatus getNoSelfProfileStatus() {
+		return new Status(IStatus.WARNING, Application.PLUGIN_ID, ProvSDKMessages.ProvSDKUIActivator_NoSelfProfile);
+	}
 	
 }

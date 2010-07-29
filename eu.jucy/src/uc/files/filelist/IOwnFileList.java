@@ -25,8 +25,14 @@ public interface IOwnFileList extends IStartable {
 	 * 
 	 * @param tth - tth of the searched file..
 	 * @return null if nothing found, or the found File.
+	 * may fail if filelist is not ready..
 	 */
 	FileListFile search(HashValue tth);
+	
+	/**
+	 * same as search but will wait for filelist to be ready..
+	 */
+	FileListFile get(HashValue hash);
 
 	/**
 	 * Get a java.io.File from a TTH

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="eu.jucy.feature.smileys"
-      label="Smileys Feature"
-      version="1.1.7.qualifier"
+      label="Smileys"
+      version="1.84.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.ui.smileys">
 
@@ -48,7 +48,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </license>
 
    <url>
-      <update label="jucy UpdateSite" url="http://jucy.eu/p2update/"/>
+      <update label="jucy UpdateSite" url="http://jucy.eu/p2/extensions/"/>
    </url>
 
    <requires>
@@ -64,7 +64,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.ui.smileys"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.84.0.qualifier"
          unpack="false"/>
 
 </feature>

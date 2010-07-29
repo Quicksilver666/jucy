@@ -78,7 +78,8 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 			Compression comp = Compression.parseNMDCString(m.group(2));
 			fti.setCompression(comp);
 			boolean partialList = m.group(1).startsWith("list /");
-			client.setPartialList(partialList);
+			fti.setPartialList(partialList);
+			fti.setBz2Compressed(m.group(1).equals("file files.xml.bz2"));
 			if (partialList) {
 				String path =  AbstractADCCommand.revReplaces(m.group(1).substring(5));
 				fti.setPartialFileList(path,true);

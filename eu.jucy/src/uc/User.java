@@ -182,7 +182,7 @@ public class User implements IUser , IHasUser {
 	 * special field to denote special stuff not every user has..
 	 * only the ones with which we had closer contact..
 	 */
-	private volatile ExtendedInfo extended;
+	private ExtendedInfo extended;
 	
 	
 	
@@ -446,7 +446,7 @@ public class User implements IUser , IHasUser {
 	}
 
 
-	public void removeFromDownloadQueue() {
+	public synchronized void removeFromDownloadQueue() {
 		if (extended != null && extended.dqes != null) { 
 			for (AbstractDownloadQueueEntry dqe: extended.dqes) {
 				dqe.removeUser(this);
@@ -463,7 +463,7 @@ public class User implements IUser , IHasUser {
 	 * 
 	 * @return if the user should be persisted in the database..
 	 */
-	public boolean shouldBeStored(){
+	public synchronized boolean shouldBeStored(){
 		return extended != null && (extended.favUser ||weWantSomethingFromUser()||hasCurrentlyAutogrant());
 	}
 	
@@ -477,7 +477,7 @@ public class User implements IUser , IHasUser {
 	 * too many people are downloading on all files
 	 * 
 	 */
-	private AbstractDownloadQueueEntry getHighestPriorityOfUser() {
+	private synchronized AbstractDownloadQueueEntry getHighestPriorityOfUser() {
 		if (extended == null || extended.dqes == null) { //if there are no entries...
 			return null;
 		}
@@ -507,7 +507,7 @@ public class User implements IUser , IHasUser {
 	 * ask if we need something from this user
 	 * @return true if the user holds at least one DQE..
 	 */
-	public boolean weWantSomethingFromUser(){
+	public synchronized boolean weWantSomethingFromUser(){
 		if (extended == null || extended.dqes == null) {
 			return false;
 		}
@@ -646,15 +646,24 @@ public class User implements IUser , IHasUser {
 	 */
 	public void addDQE(AbstractDownloadQueueEntry dqe) {
 		makeSureExtendedExists();
-		if (extended.dqes == null ) {
-			extended.dqes	=	new CopyOnWriteArraySet<AbstractDownloadQueueEntry>(); 
+		
+		boolean present;
+		synchronized (this) {
+			if (extended.dqes == null ) {
+				extended.dqes =	new CopyOnWriteArraySet<AbstractDownloadQueueEntry>(); 
+			}
+			present = extended.dqes.contains(dqe);
 		}
-		if (!extended.dqes.contains(dqe)) {
-			extended.dqes.add(dqe);
-			if (extended.dqes.size() == 1) {
-				//if first entry .. add user to the database as he might not yet be in there..
-			//	DCClient.get().getDatabase().addUpdateOrDeleteUser(this);
-				notifyUserChanged(UserChange.CHANGED, UserChangeEvent.DOWNLOADQUEUE_ENTRY_PRE_ADD_FIRST);
+		if (!present) {
+			int size;
+			synchronized (this) {
+				extended.dqes.add(dqe);
+				size = extended.dqes.size();
+			
+				if (size == 1) {
+					//if first entry .. add user to the database as he might not yet be in there..
+					notifyUserChanged(UserChange.CHANGED, UserChangeEvent.DOWNLOADQUEUE_ENTRY_PRE_ADD_FIRST);
+				}
 			}
 			//after adding it .. we can set it to the DQE -> 
 			dqe.addUser(this);
@@ -673,7 +682,7 @@ public class User implements IUser , IHasUser {
 	 * 
 	 * @return how many DQEs we have in queue for this user..
 	 */
-	public int nrOfFilesInQueue() {
+	public synchronized int nrOfFilesInQueue() {
 		if (extended == null || extended.dqes == null) {
 			return 0;
 		} else {
@@ -681,7 +690,7 @@ public class User implements IUser , IHasUser {
 		}
 	}
 	
-	public long sizeOfFilesInQueue() {
+	public synchronized long sizeOfFilesInQueue() {
 		if (extended == null || extended.dqes == null) {
 			return 0;
 		} else {
@@ -693,16 +702,29 @@ public class User implements IUser , IHasUser {
 		}
 	}
 	
-	public void removeDQE(AbstractDownloadQueueEntry dqe) {
-		if (extended != null && extended.dqes != null && extended.dqes.contains(dqe)) {
-			extended.dqes.remove(dqe);
+	public  void removeDQE(AbstractDownloadQueueEntry dqe) {
+		boolean dqePresent;
+		synchronized (this) {
+			dqePresent = extended != null && extended.dqes != null && extended.dqes.contains(dqe);
+		}
+		if (dqePresent) {
+			
+			synchronized (this) {
+				extended.dqes.remove(dqe);
+			}
 			dqe.removeUser(this);
 			notifyUserChanged(UserChange.CHANGED,  UserChangeEvent.DOWNLOADQUEUE_ENTRY_REMOVED);
-			if (extended.dqes.isEmpty()) {
-				extended.dqes = null;
-				checkExtendedForDeletion();
-				//if size is empty.. user may be deleted now..
-			//	DCClient.get().getDatabase().addUpdateOrDeleteUser(this);
+			
+			boolean noDQESleft = false;
+			synchronized (this) {
+				if (extended.dqes.isEmpty()) {
+					extended.dqes = null;
+					checkExtendedForDeletion();
+					noDQESleft = true;
+				}
+			}
+			
+			if (noDQESleft) {
 				notifyUserChanged(UserChange.CHANGED,  UserChangeEvent.DOWNLOADQUEUE_ENTRY_POST_REMOVE_LAST);
 			}
 
@@ -906,7 +928,7 @@ public class User implements IUser , IHasUser {
 	/**
 	 * @return the favUser
 	 */
-	public boolean isFavUser() {
+	public synchronized boolean isFavUser() {
 		return extended != null && extended.favUser;
 	}
 
@@ -916,8 +938,11 @@ public class User implements IUser , IHasUser {
 	 */
 	public void setFavUser(boolean favUser) {
 		makeSureExtendedExists();
-		boolean oldFav = extended.favUser;
-		extended.favUser = favUser;
+		boolean oldFav;
+		synchronized(this) {
+			oldFav = extended.favUser;
+			extended.favUser = favUser;
+		}
 		if (!favUser) {
 			setAutograntSlot(NOSLOTGRANTED); 
 		}
@@ -934,13 +959,13 @@ public class User implements IUser , IHasUser {
 
 	}
 
-	private void makeSureExtendedExists() {
+	private synchronized void makeSureExtendedExists() {
 		if (extended == null) {
 			extended = new ExtendedInfo();
 		}
 	}
 	
-	private void checkExtendedForDeletion() {
+	private synchronized void checkExtendedForDeletion() {
 		if (extended.couldBedeleted()) {
 			extended = null;
 		}
@@ -951,11 +976,11 @@ public class User implements IUser , IHasUser {
 	 * @return the autograntSlot 
 	 * only true if the user has a permanent AutoGrant slot
 	 */
-	public boolean isAutograntSlot() {
+	public synchronized boolean isAutograntSlot() {
 		return extended != null &&  extended.autograntSlot == UNTILFOREVER ;
 	}
 
-	public boolean hasCurrentlyAutogrant() {
+	public synchronized boolean hasCurrentlyAutogrant() {
 		return extended != null && extended.autograntSlot > System.currentTimeMillis();
 	}
 
@@ -966,7 +991,12 @@ public class User implements IUser , IHasUser {
 	public void increaseAutograntSlot(long howLongSlotIsGranted) {
 		makeSureExtendedExists();
 		long grantuntil = howLongSlotIsGranted == UNTILFOREVER? UNTILFOREVER: System.currentTimeMillis()+howLongSlotIsGranted;
-		long autograntSlot = Math.max(grantuntil , extended.autograntSlot);
+		long autograntSlot;
+		synchronized (this) {
+			autograntSlot = Math.max(grantuntil , extended.autograntSlot);
+		}
+		
+		
 		setAutograntSlot(autograntSlot);
 		
 	}
@@ -984,7 +1014,10 @@ public class User implements IUser , IHasUser {
 	public void setAutograntSlot(long grantedUntil) {
 		boolean hadAutograntBefore = hasCurrentlyAutogrant();
 		makeSureExtendedExists();
-		extended.autograntSlot = grantedUntil;
+		synchronized (this) {
+			extended.autograntSlot = grantedUntil;
+		}
+		
 		
 		boolean hasNowAutoGrant = hasCurrentlyAutogrant();
 		
@@ -1189,7 +1222,7 @@ public class User implements IUser , IHasUser {
 
 
 
-	public long getAutograntSlot() {
+	public synchronized long getAutograntSlot() {
 		if (extended == null) {
 			return NOSLOTGRANTED;
 		} else {

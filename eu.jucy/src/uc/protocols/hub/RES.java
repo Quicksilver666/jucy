@@ -169,6 +169,10 @@ public class RES extends AbstractADCHubCommand {
 		}
 	}
 	
+	public static String getCRESString(SearchResult sr) {
+		return "CRES "+getPartialRES(sr)+"\n";
+	}
+	
 	private static String getPartialRES(SearchResult sr) {
 		String path=doReplaces(sr.getPath().replace(File.separatorChar, '/'));
 		if (!path.startsWith("/")) {

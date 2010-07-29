@@ -32,8 +32,10 @@ public class NickColourerTextModificator implements ITextModificator {
 	private static Color normalNickCol;
 	private static Font  normalNickFont;
 	
-	private static boolean active;
 	
+	
+	private static boolean active;
+	private static boolean colourJoinParts;
 	
 
 	static {
@@ -41,7 +43,8 @@ public class NickColourerTextModificator implements ITextModificator {
 		
 		new PreferenceChangedAdapter(GUIPI.get(),
 				GUIPI.ownNickCol,GUIPI.ownNickFont,GUIPI.opNickCol,GUIPI.normalNickCol,
-				GUIPI.opNickFont,GUIPI.favNickCol,GUIPI.favNickFont,GUIPI.normalNickFont,GUIPI.IDForTextModificatorEnablement(ID) ) {
+				GUIPI.opNickFont,GUIPI.favNickCol,GUIPI.favNickFont,GUIPI.normalNickFont,
+				GUIPI.IDForTextModificatorEnablement(ID),GUIPI.colourJoinParts ) {
 
 			
 			@Override
@@ -69,6 +72,7 @@ public class NickColourerTextModificator implements ITextModificator {
 		favNickFont = GUIPI.getFont(GUIPI.favNickFont);
 		normalNickFont = GUIPI.getFont(GUIPI.normalNickFont);
 		active = GUIPI.getBoolean(GUIPI.IDForTextModificatorEnablement(ID));
+		colourJoinParts = GUIPI.getBoolean(GUIPI.colourJoinParts);
 	}
 	
 	public NickColourerTextModificator() {
@@ -160,7 +164,7 @@ public class NickColourerTextModificator implements ITextModificator {
 		String message = original.getMessage();
 		IUser usr = original.getUsr();
 		
-		if (usr != null) {
+		if (usr != null && (colourJoinParts || original.type != MessageType.JOINPART)) {
 			int nickstart = message.indexOf(usr.getNick()); 
 			int length = usr.getNick().length();
 			if (nickstart != -1) {

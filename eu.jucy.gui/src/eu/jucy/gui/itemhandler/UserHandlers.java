@@ -41,7 +41,7 @@ import uc.IUser;
 import uc.IHasUser.IMultiUser;
 import uc.crypto.HashValue;
 import uc.files.IDownloadable;
-import uc.files.downloadqueue.AbstractDownloadQueueEntry.IDownloadFinished;
+import uc.files.downloadqueue.AbstractDownloadFinished;
 import uc.protocols.SendContext;
 import uc.protocols.hub.INFField;
 
@@ -133,23 +133,10 @@ public abstract class UserHandlers extends AbstractHandler {
 				final IDownloadable id = getDownloadableForUsr(usr, 
 						HandlerUtil.getCurrentSelection(event));
 				
-				usr.downloadFilelist().addDoAfterDownload(new IDownloadFinished() {
-	
+				usr.downloadFilelist().addDoAfterDownload(new AbstractDownloadFinished() {
 					public void finishedDownload(File f) {
 						FilelistHandler.openFilelist(usr,id,HandlerUtil.getActiveWorkbenchWindow(event));
 					}
-	
-					@Override
-					public boolean equals(Object obj) {
-						if (obj == null) return false;
-						return this.getClass().equals(obj.getClass());
-					}
-	
-					@Override
-					public int hashCode() {
-						return this.getClass().hashCode();
-					}
-					
 				});	
 			}
 		}
@@ -187,20 +174,9 @@ public abstract class UserHandlers extends AbstractHandler {
 		
 		protected void doWithUser(final IUser usr,ExecutionEvent event) {
 			if (usr.getShared() > 0 || usr.getNumberOfSharedFiles() > 0) {
-				usr.downloadFilelist().addDoAfterDownload( new IDownloadFinished() { 
+				usr.downloadFilelist().addDoAfterDownload( new AbstractDownloadFinished() { 
 					public void finishedDownload(File f) { 
 						usr.getFilelistDescriptor().getFilelist().match();
-					}
-					
-					@Override
-					public boolean equals(Object obj) {
-						if (obj == null) return false;
-						return this.getClass().equals(obj.getClass());
-					}
-	
-					@Override
-					public int hashCode() {
-						return this.getClass().hashCode();
 					}
 				}); 
 			}

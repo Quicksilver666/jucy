@@ -5,11 +5,13 @@ import helpers.StatusObject.ChangeType;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
 
 import logger.LoggerFactory;
 import org.apache.log4j.Logger;
+
 
 
 import uc.DCClient;
@@ -58,27 +60,44 @@ public class FileDQE extends AbstractFileDQE {
 		/**
 		 * 
 		 */
-		private List<Block> blocks;
+		private final List<Block> blocks = new ArrayList<Block>();
 		
 		
 		private volatile long blocksize = -1;
+		
+		
+		public void init(FileDQE fdqe,BitSet restoreInfo) {
+			int size = ih.hashValuesSize();
+			try {
+				for (int i = 0; i < size;i++) {
+					//always check last block so if everything is finished the file can be copied..
+					boolean finished = restoreInfo != null && restoreInfo.get(i) && size-1 != i; 
+					blocks.add(new Block(fdqe,i,ih.getHashValue(i),finished));
+				}
+			} catch(Exception e) {
+				logger.error(e,e);
+			}
+		}
 
 		public BlockINFO(InterleaveHashes ih) {
-			super();
 			this.ih = ih;
 		}
+
 	}
 	
 	
 	
-	
-	protected FileDQE(DownloadQueue dq,File target, InterleaveHashes ih, IDownloadableFile file,int priority,Date added) {
+	/**
+	 * 
+	 * @param restoreInfo - null for no restore info present / not applicable
+	 */
+	protected FileDQE(DownloadQueue dq,File target, InterleaveHashes ih, IDownloadableFile file,int priority,Date added,BitSet restoreInfo) {
 		super(dq,TransferType.FILE,target, file, priority,added); 
 
 		logger.debug("restoring file: "+file.getName());
 		
 		if (getTempPath().isFile() || file.getSize() <= MAX_SIZE_NO_INTERLEAVES) {
-			setBlockInfo(ih);
+			setBlockInfo(ih,restoreInfo);
 			logger.debug("set Blockinfo for: "+file.getName());
 		} else {
 			logger.debug("not set Blockinfo for: "+file.getName());
@@ -89,24 +108,29 @@ public class FileDQE extends AbstractFileDQE {
 	private void setBlockInfoIfNotSet() {
 		synchronized (synch) {
 			if (bi == null) {
-				setBlockInfo(getIh());
+				setBlockInfo(getIh(),null);
 			}
 		}
 	}
 	
-	private void setBlockInfo(InterleaveHashes ih) {
-		ArrayList<Block> blocks;
+	private void setBlockInfo(InterleaveHashes ih,BitSet restoreInfo) {
 		synchronized(synch) {
-			try {
 			bi = new BlockINFO(ih);
-			blocks = new ArrayList<Block>();
-			for (int i = 0; i < ih.getInterleaves().size();i++) {
-				blocks.add(new Block(this,i,ih.getHashValue(i)));
-			}
-			bi.blocks = blocks;
-			} catch(Exception e) {
-				logger.warn(e,e);
-				
+			bi.init(this, restoreInfo);
+		}
+	}
+	
+	public void storeRestoreInfo() {
+		synchronized(synch) {
+			if (bi != null) {
+				BitSet bs = new BitSet();
+				for (int i = 0; i < bi.blocks.size();i++) {
+					bs.set(i, bi.blocks.get(i).isFinished()); 
+				}
+				if (bs.length() > 0 ) {
+					logger.info("storing restore info: "+getFileName());
+					dq.getDatabase().addRestoreInfo(getTTHRoot(), bs);
+				}
 			}
 		}
 	}
@@ -119,14 +143,14 @@ public class FileDQE extends AbstractFileDQE {
 		int currentblocks;
 		int totalBlocksToBeDownloaded = 0;
 		synchronized (synch) {
-			for (int i=0;i < bi.blocks.size(); i++) {
+			for (int i = 0 ; i < bi.blocks.size(); i++) {
 				Block b = bi.blocks.get(i);
 				if (b.isWritable()) {
 					int interval = b.getIntervalLengthInBlocks();
 					
 					
 					if (i > 0 && bi.blocks.get(i-1).getState() == BlockState.WRITEINPROGRESS) {
-						currentblocks = interval/ 2;  //halve the interval size if someone writes to this interval
+						currentblocks = interval/ 2;  //intervals in progress count only for half size
 					} else {
 						currentblocks = interval;
 					}
@@ -136,7 +160,6 @@ public class FileDQE extends AbstractFileDQE {
 					
 					if (currentblocks > maxBlocks) {
 						maxBlocks = currentblocks;
-						
 						startofMaxBlocks = i - currentblocks;
 					}
 				}
@@ -251,7 +274,7 @@ public class FileDQE extends AbstractFileDQE {
 	public static AbstractDownloadQueueEntry get(IDownloadableFile idf,File target) {
 		DCClient dcc = DCClient.get();
 		DownloadQueue dq = dcc.getDownloadQueue();
-		if (dcc.getFilelist().search(idf.getTTHRoot()) != null || target.isFile()) {
+		if (dcc.getFilelist().get(idf.getTTHRoot()) != null || target.isFile()) {
 			return null;
 		}
 		
@@ -262,7 +285,7 @@ public class FileDQE extends AbstractFileDQE {
 			//and add to Queue
 			if (idf.getSize() <= MAX_SIZE_NO_INTERLEAVES) { //if it is smaller than 64KiB we won't download interleave hashes 
 				//create FileDQE
-				dqe = new FileDQE(dq,target, new InterleaveHashes(idf.getTTHRoot()), idf,255/2,new Date()); 
+				dqe = new FileDQE(dq,target, new InterleaveHashes(idf.getTTHRoot()), idf,255/2,new Date(),null); 
 			} else {
 				//create TTHLDQE
 				dqe = new TTHLDQE(dq,idf,target,new Date()); 
@@ -295,7 +318,11 @@ public class FileDQE extends AbstractFileDQE {
 				ih = new InterleaveHashes(restoredata.getTTHRoot());
 			}
 			
-			dqe = new FileDQE(dq,restoredata.getTarget(),ih,restoredata,restoredata.getPriority(),restoredata.getAdded()); 
+			dqe = new FileDQE(	dq,restoredata.getTarget()
+								,ih
+								,restoredata,restoredata.getPriority()
+								,restoredata.getAdded()
+								,restoredata.getRestoreInfo()); 
 		} else {
 			dqe = new TTHLDQE(dq,restoredata,restoredata.getTarget(),restoredata.getAdded()); 
 		}

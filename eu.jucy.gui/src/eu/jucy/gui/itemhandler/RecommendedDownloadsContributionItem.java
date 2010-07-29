@@ -44,7 +44,7 @@ public class RecommendedDownloadsContributionItem extends CompoundContributionIt
 			logger.debug("downloadable: "+o.getClass().getName()+"  size: "+iss.size());
 		}
 		
-		if (o instanceof IHasDownloadable && ((IHasDownloadable)o).getDownloadable() != null) {
+		if (o instanceof IHasDownloadable && ((IHasDownloadable)o).getDownloadable() != null && iss.size() == 1) {
 			IDownloadable idf = ((IHasDownloadable)o).getDownloadable();
 			DownloadQueue dq = ApplicationWorkbenchWindowAdvisor.get().getDownloadQueue();
 			for (File target:dq.getPathRecommendation(idf)) {

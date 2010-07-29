@@ -96,8 +96,14 @@ public abstract class DownloadQueueHandlers extends AbstractHandler {
 			if (dqe.size() == 1) {
 				AbstractDownloadQueueEntry single = dqe.get(0);
 				FileDialog fd = new FileDialog(HandlerUtil.getActiveShellChecked(event),SWT.SAVE); 
-				fd.setFileName(single.getFileName());
-				fd.setFilterPath(single.getFolder().getPath());
+			//	fd.setFileName(single.getFileName());
+			
+				File path = single.getTargetPath();
+
+				fd.setFilterPath(path.getParent());
+				fd.setFileName(path.getName());
+				
+				
 				String target = fd.open();
 				if (target != null) {
 					single.setTargetPath(new File(target));
@@ -276,5 +282,27 @@ public abstract class DownloadQueueHandlers extends AbstractHandler {
 			super(false);
 		}
 	}
+	
+	
+//	
+//	public abstract static class ToggleDoAfterHandler extends DownloadQueueHandlers {
+//		public static final String COMMAND_ID= "eu.jucy.gui.dqtoggledoafter";
+//		public static final String PARAM_TOGGLEID  = "TOGGLE_ID";
+//		
+//		
+//		
+//		@Override
+//		protected void run(List<AbstractDownloadQueueEntry> dqes,ExecutionEvent event) throws ExecutionException {
+//			String toggle =  event.getParameter(PARAM_TOGGLEID);
+//			for (AbstractDownloadQueueEntry dqe: dqes) {
+//				for (AbstractDownloadFinished adf:dqe.getDoAfterDownload()) {
+//					if (toggle.equals(adf.getId())) {
+//						adf.setExecute(!adf.isExecute());
+//						HandlerUtil.updateRadioState(event.getCommand(), ""+adf.isExecute());
+//					}
+//				}
+//			}
+//		}
+//	}
 	
 }

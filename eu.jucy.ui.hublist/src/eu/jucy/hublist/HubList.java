@@ -91,9 +91,7 @@ public class HubList {
 		HublistParser hp = new HublistParser();
 		try {
 			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-				
 			saxParser.parse(in,hp);
-		
 
 		} catch(ParserConfigurationException e) {
 			throw new IOException("Parser config Exception: "+e,e);

@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import org.apache.log4j.Logger;
 import uc.DCClient;
 import uc.IUser;
 import uc.User;
+import uc.crypto.BASE32Encoder;
 import uc.crypto.HashValue;
 import uc.crypto.InterleaveHashes;
 import uc.crypto.TigerHashValue;
@@ -91,6 +93,10 @@ public class HSQLDB implements IDatabase {
 			// should also be moved
 		} else {
 			loadLogEntitys();
+		}
+		
+		if (!restoreTableExists()) {
+			createRestoreTable();
 		}
 
 	}
@@ -177,7 +183,7 @@ public class HSQLDB implements IDatabase {
 	private synchronized boolean tableExists() {
 		try {
 			Statement s = c.createStatement();
-			s.execute("SELECT * FROM hashes");
+			s.execute("SELECT 1 FROM hashes");
 		} catch (SQLException e) {
 			return false;
 		}
@@ -187,7 +193,7 @@ public class HSQLDB implements IDatabase {
 	private synchronized boolean logTableExists() {
 		try {
 			Statement s = c.createStatement();
-			s.execute("SELECT * FROM logEntitys");
+			s.execute("SELECT 1 FROM logEntitys");
 		} catch (SQLException e) {
 			return false;
 		}
@@ -304,8 +310,8 @@ public class HSQLDB implements IDatabase {
 			Statement createLogentityTable = c.createStatement();
 			createLogentityTable.execute("CREATE CACHED TABLE logEntitys ("
 
-			+ "entityid CHARACTER(" + TigerHashValue.serializedDigestLength
-					+ "), " + "name VARCHAR(1024),"
+					+ "entityid CHARACTER(" + TigerHashValue.serializedDigestLength+ "), " 
+					+ "name VARCHAR(1024),"
 					+ "PRIMARY KEY ( entityid) " + " )");
 
 			Statement createLogtable = c.createStatement();
@@ -330,6 +336,34 @@ public class HSQLDB implements IDatabase {
 			logger.warn("Couldn't create SQL table " + e.toString(), e);
 		}
 	}
+	
+	private synchronized boolean restoreTableExists() {
+		try {
+			Statement s = c.createStatement();
+			s.execute("SELECT 1 FROM dqrestoreinfo");
+		} catch (SQLException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	private void createRestoreTable() {
+		try {
+			Statement restoreInfo = c.createStatement();
+			restoreInfo.execute("CREATE CACHED TABLE dqrestoreinfo ("
+					+ "tthroot CHARACTER("+ TigerHashValue.serializedDigestLength+ "),"
+					+ "restoreInfo VARCHAR(32767),"
+					+ "PRIMARY KEY ( tthroot ),"
+					+ "FOREIGN KEY ( tthroot ) "
+					+ "REFERENCES downloadqueue (tthroot) ON DELETE CASCADE )"
+			);
+			
+		} catch (SQLException e) {
+			logger.warn("Couldn't create SQL table " + e.toString(), e);
+		}
+	}
+	
+	
 
 	public synchronized void disconnect() {
 		if (c == null) { // no connection -> no disconnect
@@ -375,17 +409,7 @@ public class HSQLDB implements IDatabase {
 
 				updateFile.close();
 
-				if (logger.isDebugEnabled()) {
-					PreparedStatement updateFile2 = c
-							.prepareStatement("SELECT * FROM hashes WHERE tthroot = ? ");
-
-					updateFile2.setString(1, hf.getTTHRoot().toString());
-					ResultSet rs = updateFile2.executeQuery();
-					while (rs.next()) {
-						logger.debug("fount item: " + rs.getString("path")
-								+ "  : " + rs.getLong("date"));
-					}
-				}
+				
 
 				if (count == 0) {
 					PreparedStatement addFile = c
@@ -397,6 +421,19 @@ public class HSQLDB implements IDatabase {
 
 					addFile.execute();
 					addFile.close();
+				}
+				
+				if (logger.isDebugEnabled()) {
+					PreparedStatement updateFile2 = c
+							.prepareStatement("SELECT * FROM hashes WHERE tthroot = ? ");
+
+					updateFile2.setString(1, hf.getTTHRoot().toString());
+					ResultSet rs = updateFile2.executeQuery();
+					while (rs.next()) {
+						File f = new File( rs.getString("path"));
+						logger.debug("found item: " + f
+								+ "  : " + rs.getLong("date")+ "  "+f.equals(hf.getPath()));
+					}
 				}
 
 			} catch (SQLException e) {
@@ -636,6 +673,38 @@ public class HSQLDB implements IDatabase {
 		logger.debug("finished deleting user from dqe: " + usr.getNick());
 		getNrOfEntrysInUserToDQETable();
 	}
+	
+	/**
+	 * 		if (dqe.getRestoreInfo() != null) {
+			String restoreInfo = BASE32Encoder.encode(
+					GH.toBytes(dqe.getRestoreInfo(),dqe.getIh().hashValuesSize()));
+			addRestoreInfo(dqe.getTTHRoot(), restoreInfo);
+		}
+	 * 
+	 * 
+	 * @param hash
+	 * @param restoreInfo
+	 * @param size
+	 */
+	public void addRestoreInfo(HashValue hash,BitSet restoreInfo) {
+		try {
+			ensureConnectionIsOpen();
+			PreparedStatement addRestoreInfo = c
+			.prepareStatement("INSERT INTO dqrestoreinfo (tthroot, restoreInfo)"
+					+ " VALUES ( ? , ? ) ");
+			
+			addRestoreInfo.setString(1, hash.toString());
+			
+			addRestoreInfo.setString(2, BASE32Encoder.encode(
+					GH.toBytes(restoreInfo)));
+			
+			addRestoreInfo.execute();
+			addRestoreInfo.close();
+			
+		} catch (SQLException sqle) {
+			logger.warn(sqle, sqle);
+		}
+	}
 
 	public synchronized void addOrUpdateDQE(DQEDAO dqe, boolean add) {
 		logger.debug("changing dqe: " + dqe);
@@ -649,11 +718,14 @@ public class HSQLDB implements IDatabase {
 			if (dqe.getIh() != null) {
 				addOrUpdateInterleave(dqe.getTTHRoot(), dqe.getIh());
 			}
+			
 
 		} catch (SQLException sqle) {
 			logger.warn(sqle, sqle);
 		}
 	}
+	
+	
 
 	public synchronized void deleteDQE(DQEDAO dqe) {
 		logger.debug("deleting dqe: " + dqe.getName());
@@ -709,9 +781,29 @@ public class HSQLDB implements IDatabase {
 			ignoreUserUpdates = false;
 			logger.debug("in loadDQEsAndUsers() found x Users: " + users.size());
 
+			PreparedStatement dqeRestoreInfo = c.prepareStatement("SELECT * FROM dqrestoreinfo");
+			ResultSet restoreRes = dqeRestoreInfo.executeQuery();
+			HashMap<HashValue,BitSet> restoreInfos = new HashMap<HashValue,BitSet>();
+			
+			while (restoreRes.next()) {
+				HashValue tthRoot = HashValue.createHash(restoreRes
+						.getString("tthroot"));
+				
+				String restoreData = restoreRes.getString("restoreInfo");
+				if (restoreData != null) {
+					byte[] bits = BASE32Encoder.decode(restoreData);
+					BitSet restoreBitSet = GH.toSet(bits);
+					restoreInfos.put(tthRoot, restoreBitSet);
+					logger.info("loaded restoreinfo for: "+tthRoot );
+				}
+			}
+			
+			
+			
 			PreparedStatement dqesstm = c
-					.prepareStatement("SELECT downloadqueue.* , interleaves.interleaves "
-							+ " FROM downloadqueue LEFT OUTER JOIN interleaves ON  downloadqueue.tthroot =  interleaves.tthroot ");
+					.prepareStatement("SELECT downloadqueue.* , interleaves.interleaves  "
+							+ " FROM downloadqueue LEFT OUTER JOIN interleaves ON  downloadqueue.tthroot = interleaves.tthroot "
+								);
 
 			ResultSet rs2 = dqesstm.executeQuery();
 
@@ -728,11 +820,14 @@ public class HSQLDB implements IDatabase {
 				if (!GH.isNullOrEmpty(inter)) {
 					ih = new InterleaveHashes(inter);
 				}
+				
+				
 
 				DQEDAO dqedao = new DQEDAO(tthRoot, added, priority, path, ih,
-						size);
+						size,restoreInfos.get(tthRoot));
 
 				dqes.put(tthRoot, dqedao);
+
 			}
 			logger.debug("in loadDQEsAndUsers() found x DQEs: " + dqes.size());
 			dqesstm.close();
@@ -758,7 +853,7 @@ public class HSQLDB implements IDatabase {
 			}
 
 			mappings.close();
-
+			deleteRestoreInfos();
 		} catch (SQLException e) {
 			logger.warn(e, e);
 		}
@@ -770,7 +865,11 @@ public class HSQLDB implements IDatabase {
 		}
 
 		return new HashSet<DQEDAO>(dqes.values());
-
+	}
+	
+	private void deleteRestoreInfos() throws SQLException {
+		Statement s = c.createStatement();
+		s.execute("DELETE FROM dqrestoreinfo");
 	}
 
 	public synchronized InterleaveHashes getInterleaves(HashValue tthroot) {

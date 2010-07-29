@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %NPBundle_Name
 Bundle-SymbolicName: eu.jucy.notepad;singleton:=true
-Bundle-Version: 1.1.7.qualifier
+Bundle-Version: 1.84.0.qualifier
 Require-Bundle: eu.jucy.gui,
  org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -13,3 +13,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Localization: nl/notepad
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
+Bundle-Vendor: Quicksilver

@@ -197,6 +197,7 @@ public class FavHub implements Comparable<FavHub> {
 	}
 	
 	public static String unifieAddress(String hubaddress) {
+		hubaddress = hubaddress.trim();
 		Matcher m = ADDRESSP.matcher(hubaddress);
 		if (m.matches()) {
 			String address;

@@ -22,9 +22,7 @@ public class OpADLEntry  extends ADLSearchEntry {
 	private boolean breakAfterRaw;
 	private String raw = "";
 	
-	
-//	private boolean regExp = false;
-//	private boolean caseSensitive = true;
+
 	
 	/**
 	 * a black and white list pair
@@ -89,8 +87,6 @@ public class OpADLEntry  extends ADLSearchEntry {
 		oae.incrementBy = Integer.parseInt(data[i+1]);
 		oae.raw = data[i+2];
 		oae.breakAfterRaw = Boolean.parseBoolean(data[i+3]);
-//		oae.regExp = Boolean.parseBoolean(data[i+4]);
-//		oae.caseSensitive = Boolean.parseBoolean(data[i+5]);
 		oae.comment = data[i+4];
 		oae.listName = data[i+5];
 		oae.searchType = SearchType.valueOf(data[i+6]);

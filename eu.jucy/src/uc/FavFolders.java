@@ -203,7 +203,7 @@ public class FavFolders {
 		
 		public SharedDir(String name, File directory,long lastshared){
 			this(name,directory);
-			this.lastShared=lastshared;
+			this.lastShared = lastshared;
 		}
 		
 		public SharedDir(String name, File directory){
@@ -252,15 +252,7 @@ public class FavFolders {
 			}
 		}
 		
-		/*
-		 * 
-		 * @param itemnode - node given by the name of the shared Dir
-		 *
-		protected void storeDir(Preferences itemnode) {
-			itemnode.put(PI.sharedDirsName, name);
-			itemnode.put(PI.sharedDirsdirectory, directory.getPath());
-			itemnode.put(PI.SharedDirslastShared, ""+lastShared);
-		} */
+
 
 		@Override
 		public int hashCode() {
@@ -272,6 +264,9 @@ public class FavFolders {
 			return super.equals(obj);
 		}
 		
+		public boolean isOnline() {
+			return getDirectory().isDirectory();
+		}
 		
 		
 	}

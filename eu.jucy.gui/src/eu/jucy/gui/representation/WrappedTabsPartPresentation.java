@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+
 import org.eclipse.jface.util.Geometry;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -37,6 +38,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -68,6 +70,8 @@ import eu.jucy.gui.representation.UCEditorContributionItem.UCEditorSystemMenu;
 @SuppressWarnings("restriction")
 public class WrappedTabsPartPresentation extends StackPresentation {
 
+//	private static final Logger logger = LoggerFactory.make();
+	
 //	public static final String MENU_ID = "eu.jucy.presentation";
 	private final Map<Image,Image> correctlySizedImage = new HashMap<Image,Image>();
 	private static final int CorrectSize = 22;
@@ -96,6 +100,8 @@ public class WrappedTabsPartPresentation extends StackPresentation {
 	 * ToolBar that will be used to select the active presentable part 
 	 */
 	private ToolBar toolBar;
+	
+//	private CoolBar coolBar;
 	
 	/**
 	 * ToolBar that will contain close, minimize, etc.
@@ -337,6 +343,7 @@ public class WrappedTabsPartPresentation extends StackPresentation {
 		titleIconToolbar.setVisible(!showIconOnTabs);
 		
 		toolBar = new ToolBar(presentationControl, SWT.WRAP | SWT.RIGHT | SWT.FLAT);
+	
 		toolBar.addListener(SWT.MenuDetect, menuListener);
 		toolBar.addMouseListener(mouseListener);
 		//toolBar.setFont(PlatformUI.getWorkbench().getThemeManager().getCurrentTheme().getFontRegistry().get(WrappedTabsThemeConstants.TAB_FONT));
@@ -451,6 +458,7 @@ public class WrappedTabsPartPresentation extends StackPresentation {
 	
 	public IPresentablePart[] getParts() {
 		ToolItem[] items = toolBar.getItems();
+		
 		IPresentablePart[] result = new IPresentablePart[items.length];
 		
 		for (int idx = 0; idx < items.length; idx++) {
@@ -641,10 +649,19 @@ public class WrappedTabsPartPresentation extends StackPresentation {
 		
 		Point toolbarSize = toolBar.computeSize(availableTabWidth, SWT.DEFAULT);
 		/*int minToolbarWidth = */ WrappedTabsUtil.getMaximumItemWidth(toolBar);
-				
+		
+//		int mul = WrappedTabsUtil.calculateNumberOfRows(toolBar, availableTabWidth);
+//		logger.info("calculated Lines: "+mul);
+//		if (Platform.OS_LINUX.equals(Platform.getOS())) {
+//			int mul = WrappedTabsUtil.calculateNumberOfRows(toolBar, availableTabWidth);
+//			logger.info("calculated Lines: "+mul + " original.y:"+toolbarSize.y);
+//			toolbarSize.y =  toolbarSize.y * mul;
+//		}
+		
 		toolBar.setBounds(tabStart,
 				presentationClientArea.y + SPACING_WIDTH, 
 				availableTabWidth, toolbarSize.y);
+	
 		
 		verticalSpaceRequired = Math.max(verticalSpaceRequired, upperRightSize.y);
 		verticalSpaceRequired = Math.max(verticalSpaceRequired, toolbarSize.y);
@@ -653,6 +670,10 @@ public class WrappedTabsPartPresentation extends StackPresentation {
 		
 		contentArea.setBounds(presentationClientArea.x, verticalOffset, 
 				presentationClientArea.width, presentationClientArea.height - verticalOffset);
+		
+//		logger.info("toolbar.y= "+toolbarSize.y);
+//		logger.info("verticalOffset= "+verticalOffset);
+		
 		
 		if (isShowingToolbar()) {
 			contentArea.setTopLeft(contentDescriptionWrapper);
@@ -670,10 +691,14 @@ public class WrappedTabsPartPresentation extends StackPresentation {
 			Point clientAreaStart = presentationControl.getParent().toControl(
 					contentArea.toDisplay(clientRectangle.x, clientRectangle.y));
 			
-			current.setBounds(new Rectangle(clientAreaStart.x, 
+			Rectangle partRect = new Rectangle(clientAreaStart.x, 
 					clientAreaStart.y,
 					clientRectangle.width, 
-					clientRectangle.height));
+					clientRectangle.height);
+			
+			current.setBounds(partRect);
+			
+		//	logger.info("clientareal= "+partRect);
 		}
 		
 	}
@@ -1014,7 +1039,7 @@ public class WrappedTabsPartPresentation extends StackPresentation {
 		return (IPresentablePart)item.getData(PART_DATA);
 	}
 	
-	public StackDropResult dragOver(Control currentControl, Point location) {		
+	public StackDropResult dragOver(Control currentControl, Point location) {
 		Point localCoordinates = toolBar.toControl(location);
 		
 		// Ignore drag operations that aren't on top of the toolbar we're using

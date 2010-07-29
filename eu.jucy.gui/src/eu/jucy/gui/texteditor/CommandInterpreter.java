@@ -277,7 +277,7 @@ public class CommandInterpreter {
 				ApplicationWorkbenchWindowAdvisor.get().setAway(false);
 				break;
 			case FILELISTTEST:
-				byte[] b = ApplicationWorkbenchWindowAdvisor.get().getOwnFileList().writeFileList(GetFirstWord(line).trim(), false);
+				byte[] b = ApplicationWorkbenchWindowAdvisor.get().getOwnFileList().writeFileList(GetFirstWord(line).trim(), false,false);
 				try {
 					logger.info(new String(b,"utf-8"));
 				} catch (UnsupportedEncodingException e) {

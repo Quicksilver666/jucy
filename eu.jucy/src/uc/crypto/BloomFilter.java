@@ -1,6 +1,8 @@
 package uc.crypto;
 
 
+import helpers.GH;
+
 import java.util.BitSet;
 
 
@@ -123,9 +125,8 @@ public class BloomFilter {
 	public BloomFilter(byte[] bytes,int h,int k) {
 		this(bytes.length * 8,h,k);
 		
-		for (int i = 0; i < m; i++) {
-			bits.set(i, getBit(bytes, i));
-		}
+		BitSet bs = GH.toSet(bytes);
+		bits.or(bs);
 	}
 	
 	
@@ -170,7 +171,7 @@ public class BloomFilter {
 	private static long getLong(byte[] source,int startpos,int length) {
 		long ret = 0;
 		for (int i = 0; i < length; i++) {
-			boolean b = getBit(source,startpos+i);
+			boolean b = GH.getBit(source,startpos+i);
 			if (b) {
 				ret +=  1 << i;
 			}
@@ -178,11 +179,7 @@ public class BloomFilter {
 		return ret;
 	}
 	
-	private static boolean getBit(byte[] source,int position) {
-		byte b = source[position /8];
-		int bitpos = 1 << (position % 8);
-		return (bitpos & b)  != 0;
-	}
+
 
 	/**
 	 * fill a byte array with the BloomFilter ... starting with the first bit
@@ -191,19 +188,7 @@ public class BloomFilter {
 	 * @return
 	 */
 	public byte[] getBytes() {
-		byte[] bytes = new byte[m/8];
-		
-		for (int i = 0; i < bytes.length; i++) {
-			int num = 0;
-			for (int j=0; j < 8; j++ ) {
-				if (bits.get(i*8+j)) {
-					num +=  1 << j; 
-				}
-			}
-			bytes[i] = (byte)num;
-		}
-		
-		return bytes;
+		return GH.toBytes(bits,m);
 	}
 	
 	public String toString() {

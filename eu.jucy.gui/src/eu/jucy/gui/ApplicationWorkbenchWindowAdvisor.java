@@ -25,6 +25,10 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuDetectEvent;
+import org.eclipse.swt.events.MenuDetectListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
@@ -63,7 +67,6 @@ import uc.DCClient;
 import uc.FavHub;
 import uc.IHubCreationListener;
 import uc.LanguageKeys;
-import uc.PI;
 import uihelpers.SUIJob;
 
 
@@ -76,6 +79,12 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 	private static DCClient dcc;
 	private static Thread uiThread;
 	private static volatile Job shutdownJob;
+	
+	
+	 private TrayItem trayItem;
+	 private Image trayImage;
+
+
 	
 	public static void waitForShutdownJob() {
 		if (Thread.currentThread() ==  uiThread) {
@@ -175,21 +184,36 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 				} catch(Exception e) {
 					logger.error(e, e);
 				}
+				
 				return Status.OK_STATUS;
 			}
     		
     	}.schedule();
     	
-    	//check for updates..
-    	if (PI.getBoolean(PI.checkForUpdates) && 
-    			System.currentTimeMillis() - PI.getLong(PI.lastCheckForUpdates) > 24 * 3600 * 1000 &&
-    			!Platform.inDevelopmentMode()) {
-    		eu.jucy.gui.update.UpdateHandler.checkForUpdates();
-    		PI.put(PI.lastCheckForUpdates, System.currentTimeMillis());
-    	} 
+//    	//check for updates..
+//    	if (PI.getBoolean(PI.checkForUpdates) && 
+//    			System.currentTimeMillis() - PI.getLong(PI.lastCheckForUpdates) > 24 * 3600 * 1000 &&
+//    			!Platform.inDevelopmentMode()) {
+//    		//eu.jucy.gui.update.UpdateHandler.checkForUpdates(); 
+//    		PI.put(PI.lastCheckForUpdates, System.currentTimeMillis());
+//    	} 
     	
     	UIThreadDeadLockChecker.start();
 
+//    	new SUIJob() {
+//
+//			@Override
+//			public void run() {
+//				Event event = Application.stored;
+//				if (event != null) {
+//					logger.error(event.toString()+"  "+event.data+"  "+event.getClass().getName());
+//					Application.stored = null;
+//				}
+//				schedule(500);
+//			}
+//    		
+//    	}.schedule(1000);
+//    	logger.info(Display.getAppName());
     }
     
     
@@ -215,12 +239,13 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	dcc.getHashEngine().registerHashedListener(GuiAppender.get());
     	
     	hubCreationListener = new IHubCreationListener() {
+    
 			public void hubCreated(final FavHub fh, boolean showInUI,final Semaphore sem) {
 				if (showInUI) {
 					new SUIJob() {
 						public void run() {
-				       		try {	
-				        		window.getActivePage().openEditor(new HubEditorInput(fh), HubEditor.ID);
+				       		try {			      
+				        		window.getActivePage().openEditor(new HubEditorInput(fh), HubEditor.ID,true);
 				        	} catch(PartInitException pie) {
 				        		MessageDialog.openError(window.getShell(), "Error", "Error open hub:" + pie.getMessage());
 				        	}	
@@ -247,16 +272,17 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	window.getPartService().addPartListener(new IPartListener() {
     		
 			public void partActivated(IWorkbenchPart part) {
-				partBroughtToTop(part);
-			}
-			
-			public void partBroughtToTop(IWorkbenchPart part) {
 				if (part instanceof IUCEditor) {
 					IUCEditor editor = (IUCEditor)part;
 					editor.registerTopicChangedListener(listener);
 					editor.fireTopicChangedListeners();
 					editor.partActivated();
 				}	
+				
+			}
+			
+			public void partBroughtToTop(IWorkbenchPart part) {
+				partActivated(part);
 			}
 			
 			public void partClosed(IWorkbenchPart part) {}
@@ -281,34 +307,36 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	RedirectReceivedProvider.init(window);
     }
     
-    private TrayItem trayItem;
-    private Image trayImage;
-    private Listener enlarge = null;
+   
     
     private void hookMinimized(final IWorkbenchWindow window) {
-    	if (enlarge == null) {
-    		enlarge = new Listener() {
-        		public void handleEvent(Event e) {
-        			//using ahead provided window! -> 
-        			//problems in Linux due to not window available when minimized?
-        			IHandlerService ihs = (IHandlerService)window.getService(IHandlerService.class);
-        			try {
-						ihs.executeCommand(EnlargeShellHandler.CommandID, null);
-					} catch (Exception e1) {
-						logger.warn(e1, e1);
-					} 
-        		}
-        	};
-    	}
+    
+    	trayItem.addSelectionListener(new SelectionAdapter() {
+    		long lastUsed;
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				if (System.currentTimeMillis() - lastUsed < 500) { //no accidental multiple activations
+    				return;
+    			}
+    			//using ahead provided window! -> 
+    			//problems in Linux due to not window available when minimized?
+    			IHandlerService ihs = (IHandlerService)window.getService(IHandlerService.class);
+    			try {
+    				ihs.executeCommand(EnlargeShellHandler.CommandID, null);
+    			} catch (Exception e1) {
+    				logger.warn(e1, e1);
+    			} 
+    			lastUsed = System.currentTimeMillis();
+			}
+    		
+		});
+
     	
     	window.getShell().addShellListener(new ShellAdapter(){
     		public void shellIconified(ShellEvent e){
     			mininmize(window);
     		}
     	});
-    	
-    	trayItem.removeListener(SWT.DefaultSelection, enlarge);//prevent from infinite amount of listeners..
-    	trayItem.addListener(SWT.DefaultSelection, enlarge);
     	
     }
     
@@ -368,11 +396,27 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 	    	if( tray == null ) {
 	    		return null;
 	    	}
+	    	tray.addListener(SWT.MouseHover, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					logger.info("Event hover tray: "+event.detail);
+				}
+	    	});
 	    	TrayItem trayItem = new TrayItem(tray,SWT.NONE);
 	    	trayItem.setImage(trayImage);
 	    	trayItem.setToolTipText(DCClient.LONGVERSION+" - Direct Connect Client");
 	    	
 	    	trayItem.setVisible(true);
+	    	
+
+	    	trayItem.addMenuDetectListener(new MenuDetectListener() {
+				
+				@Override
+				public void menuDetected(MenuDetectEvent e) {
+					logger.info("MenuDetectEven: ");
+				}
+			});
+
 
 	    
 	    	return trayItem;

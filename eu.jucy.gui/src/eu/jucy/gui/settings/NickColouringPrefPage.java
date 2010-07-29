@@ -1,6 +1,7 @@
 package eu.jucy.gui.settings;
 
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.FontFieldEditor;
 
@@ -26,6 +27,9 @@ public class NickColouringPrefPage extends UCPrefpage {
 		addEditors(GUIPI.opNickCol,Lang.OperatorNicks, GUIPI.opNickFont, Lang.OperatorNicks );
 		addEditors(GUIPI.favNickCol,Lang.FavouritesNicks, GUIPI.favNickFont, Lang.FavouritesNicks );
 		addEditors(GUIPI.normalNickCol,Lang.NormalNicks,GUIPI.normalNickFont,Lang.NormalNicks);
+		
+		BooleanFieldEditor joinParts = new BooleanFieldEditor(GUIPI.colourJoinParts, Lang.ColourJoinParts, getFieldEditorParent());
+		addField(joinParts);
 	}
 
 	private void addEditors(String colourID,String colourdesc,String fontID,String fontdsc) {

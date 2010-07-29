@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
@@ -232,6 +233,11 @@ public class HashEngine implements IHashEngine {
 				GH.close(rbc);
 				listener.checked(root.equals(block.getHashOfBlock()));
 
+			} catch(IllegalArgumentException iae) {
+				if (Platform.inDevelopmentMode()) {
+					logger.error("Interleaves are null for block: "+block+"  len: "+block.getLength());
+				}
+				throw iae;
 			} catch(IOException ioe) {
 				logger.warn(ioe,ioe);
 			} finally {
@@ -263,7 +269,7 @@ public class HashEngine implements IHashEngine {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
 					try {
-						monitor.beginTask("Hashing "+file.getName(), ((int)(file.length() /65536))+1 );
+						monitor.beginTask("Hashing "+file.getName(), (int)(file.length()/65536)+1 );
 						HashFileJob.this.run(monitor);
 						
 					} finally {
@@ -297,7 +303,7 @@ public class HashEngine implements IHashEngine {
 				
 				
 				InterleaveHashes inter = getHasher().hash( fc , file.length(), monitor);
-				while (inter.byteSize() > 1024*256) { //128 Kib max size -> db does not grow to large 
+				while (inter.byteSize() > 1024*256) { //128 KiB max size -> DB does not allow more...
 					inter = inter.getParentInterleaves();
 				}
 				

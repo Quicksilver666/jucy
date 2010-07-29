@@ -98,26 +98,38 @@ import uc.protocols.hub.Hub;
 
 
 /** 
- -> need viewer for DB content..
-WARN  HSQLDB.java Line:505 		 java.sql.SQLException: integrity constraint violation: foreign key no parent; SYS_FK_58 table: DQETOUSER
-arj: 13 Apr 2010 22:20:58,269 WARN  HSQLDB.java Line:505 		 java.sql.SQLException: integrity constraint violation: foreign key no parent; SYS_FK_58 table: DQETOUSER
-java.sql.SQLException: integrity constraint violation: foreign key no parent; SYS_FK_58 table: DQETOUSER
-	at org.hsqldb.jdbc.Util.sqlException(Unknown Source)
-	at org.hsqldb.jdbc.JDBCPreparedStatement.fetchResult(Unknown Source)
-	at org.hsqldb.jdbc.JDBCPreparedStatement.execute(Unknown Source)
-	at eu.jucy.database.HSQLDB.addUserToDQE(HSQLDB.java:497)
-	at uc.files.downloadqueue.AbstractFileDQE.addUserSuper(AbstractFileDQE.java:94)
-	at uc.files.downloadqueue.AbstractDownloadQueueEntry.addUser(AbstractDownloadQueueEntry.java:194)
-	at uc.files.downloadqueue.DownloadQueue.match(DownloadQueue.java:329)
-	at uc.files.filelist.FileList.match(FileList.java:406)
-	at eu.jucy.gui.itemhandler.UserHandlers$MatchQueueHandler$1.finishedDownload(UserHandlers.java:192)
-	at uc.files.downloadqueue.AbstractDownloadQueueEntry$1.run(AbstractDownloadQueueEntry.java:415)
-	at uc.DCClient$3.run(DCClient.java:206)
+ * 
+28 Jul 2010 08:50:02,732 WARN  UnblockingConnection.java Line:544 		 java.lang.NullPointerException
+java.lang.NullPointerException
+	at uc.DCClient.getOwnFileList(DCClient.java:576)
+	at uc.files.transfer.FileTransferInformation.setFileInterval(FileTransferInformation.java:351)
+	at uc.protocols.client.ClientProtocol.transfer(ClientProtocol.java:654)
+	at uc.protocols.client.ADCGET.handle(ADCGET.java:87)
+	at uc.protocols.ConnectionProtocol.receivedCommand(ConnectionProtocol.java:280)
+	at uc.protocols.client.ClientProtocol.receivedCommand(ClientProtocol.java:296)
+	at uc.protocols.ConnectionProtocol.receivedCommand(ConnectionProtocol.java:239)
+	at uc.protocols.UnblockingConnection.processread(UnblockingConnection.java:538)
+	at uc.protocols.UnblockingConnection.access$10(UnblockingConnection.java:524)
+	at uc.protocols.UnblockingConnection$3.run(UnblockingConnection.java:305)
+	at uc.DCClient$3.run(DCClient.java:250)
 	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
 	at java.lang.Thread.run(Thread.java:619)
  * 
  * TODO NAT traversal : http://dcpp.wordpress.com/2010/06/15/nat-traversal-constraints/
+ * 
+ *  TODO in filelist folders could be coloured like contained file if all files in it are  for ex already downloaded..
+ * 
+eu.jucy.database.HSQLDB.addOrUpdateFile(HSQLDB.java:393) -> synch on hsqldb
+uc.files.filelist.OwnFileList$4.hashedFile(OwnFileList.java:435)
+eu.jucy.hashengine.HashEngine$HashFileJob.run(HashEngine.java:321)
+eu.jucy.hashengine.HashEngine$HashFileJob$1.run(HashEngine.java:273)
+org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)
+
+TODO it seems if a file is added for hashing on startup startup will block...
+
+
+ * 
  * 
  * TODO add setting for auto extending downloads .. http://jucy.eu/forum/read.php?5,151
  * 
@@ -127,8 +139,6 @@ java.sql.SQLException: integrity constraint violation: foreign key no parent; SY
  * 
  * TODO discfree,total uptime .. total download..
  * 
- * TODO file list of user was not eligible for deletion even though should be..
- * downloaded sth from that user  cause?
  * 
  * TODO maybe load file lists to db? and not keep them in ram...?
  * 
@@ -148,7 +158,7 @@ java.sql.SQLException: integrity constraint violation: foreign key no parent; SY
  * TODO identity management (adding identities i.e. a identity includes different FileList / CID / TCP/SSL-Ports / Certificate(KeyPrint) )
  *			
  * TODO discovery UI for installing extensions  https://bugs.eclipse.org/bugs/show_bug.cgi?id=295273
- * http://tasktop.com/blog/eclipse/mylyn-connector-discovery
+ * http://tasktop.com/blog/eclipse/mylyn-connector-discovery -> wait for 3.7
  *
  * TODO Presentation of magnet -> save as button could be added 
  *
@@ -161,7 +171,7 @@ java.sql.SQLException: integrity constraint violation: foreign key no parent; SY
  * 
  * TODO no gui option ..possibly simple commandline steering..
  * 
- * My Personal Bugtracker:
+ *  TODO implement transfer of uncompressed filelists..
  *  
 
 3. when you stuck mouse pointer on jucy icon in systray appears notification like "jucy v. 0.81... etc"
@@ -170,22 +180,15 @@ java.sql.SQLException: integrity constraint violation: foreign key no parent; SY
  in transmission)))
  *  
  * 
- * TODO ugly bug: downloading tons of files to the same file i.e. selecting several files
- * downloading them to one target file as recommended in menu gets us in terribly undefined state
- * -> file not deletable in DownloadQueue
- * ->>partially fixed on next restart will not be loaded.. again still problematic..
  * 
  * TODO potentially Empty interleaves provided bug might show itself when file is already present on disc?
  * 
- * 
- * 
- * TODO plugin management dialog .. i.e. disabling and uninstalling of plugins.. better wait till 3.6 final?
+
  *
  * TODO ... new special user category for tons of settings..
- * may be create not one special user category but rather many categories... make FavUsers one such categorie..
- * 
- * 
+ * may be create not one special user category but rather many categories... make FavUsers one such category..
  * i.e. special treatment for PMs ... and and and..
+ * 
  * 
  * TODO transferred size boxes in statusline could on click change between showing total
  * vs showing only current session upload.. -> store uploaded/downloaded at end of session
@@ -193,10 +196,6 @@ java.sql.SQLException: integrity constraint violation: foreign key no parent; SY
  * -> or may be rather add possibility for a total transferred box..
  * 
  *   
- *   <iakona> In DC++ there's a "Download Whole Directory" search item context menu option. Is that possible with Jucy?
- *   
- * TODO store tested segments in DB... -> no rehashing for everything on start... 
- * could save lots of computing power..
  * 
  * hideshare functionality.. -> TODO better feature would be different filelists
  * on a per hub basis.. hideshare = no filelist..
@@ -208,20 +207,17 @@ java.sql.SQLException: integrity constraint violation: foreign key no parent; SY
  * TODO may be some google wave binding that moves hubchat into a wave...
  * 
  * 
+ * TODO DQ, finished downloads, uploaded , uploadQueue , Filelist -> move to file eu.jucy.gui.file plugin
+ * search possibly in its own plugin ... or also in file plugin..
+ * 
+ * 
+ * TODO show only text instead of flags... country plugin..
+ * 
  * TODO upload folder    folder where people can upload files (maximum size) 
  * and possibly also delete files  (i.e. client behaves like a och  legality?)
  * 
  * TODO  may be some statistics window?? drawing what is currently transferred...
  *
- * TODO translation function : http://code.google.com/p/google-api-translate-java/ might be good
- * 
- * TODO viewing image magnetlink doesn't work if the image is already in share i.e. can't be added for download..
- * 
- * TODO may be add enum to messages for type of message  i.e. PM,MC,JOIN/PART, could help colouring...
- * 
- * TODO preview of files using some mediaplayer...
- * 
- * TODO colouring join parts simpel differently..
  * 
  * TODO test maximise on jucy icon  under kde  3 doubleclicks or 
  * 3 times clicking on Maximise.. needed according to hali -
@@ -232,6 +228,7 @@ java.sql.SQLException: integrity constraint violation: foreign key no parent; SY
  * TODO warning when running out of space.. 
  * -> not possible due to Missing api in 1.5 
  * --> wait for 1.6 as requirement
+ * 
  * TODO LuaJava plugin... -> wait till java 6 mandatory for "kahlua"
  * otherwise use lua java? probably better -> real lua..
  * use with scripting engine...
@@ -593,7 +590,7 @@ public final class DCClient {
      * @return our own filelist..
      */
     public FileList getOwnFileList() {
-    	return fileListSelf.getFilelistDescriptor().getFilelist();
+    	return filelist.getFileList();
     }
     
     /**
@@ -676,7 +673,9 @@ public final class DCClient {
 
     	
     	try { //wait for deferred tasks...
-    		filelistInit.get();
+    		if (PI.getLong(PI.lastFilelistSize) == 0) {
+    			filelistInit.get();
+    		}
     		identity.get();
     	} catch(InterruptedException e) {
     		logger.warn(e,e);
@@ -704,7 +703,7 @@ public final class DCClient {
     	}
     	
     	Security.setProperty("networkaddress.cache.ttl", ""+60); //cache positive results only for 1 minute... because of dyndns..
-
+    	
     	
     }
     
@@ -1152,8 +1151,6 @@ public final class DCClient {
 		return slotManager.getTotalSlots();
 	}
 
-	
-
 
 	public ISlotManager getSlotManager() {
 		return slotManager;
@@ -1162,9 +1159,6 @@ public final class DCClient {
 	public List<IFilelistProcessor> getFilelistProcessors() {
 		return filelistProcessors;
 	}
-
-
-
 
 	public boolean isAway() {
 		synchronized(synchAway) {

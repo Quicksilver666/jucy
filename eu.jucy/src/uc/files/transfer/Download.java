@@ -106,7 +106,7 @@ public class Download extends AbstractFileTransfer {
 		source = cw.getRbc();  //add compression
 		WritableByteChannel target = wfc.getWriteChannel();
 		
-		ByteBuffer bb = ByteBuffer.allocate(1024);
+		ByteBuffer bb = ByteBuffer.allocate(BUFFER_SIZE);
 		bb.clear();
 		try {
 			notifyObservers(TransferChange.STARTED);

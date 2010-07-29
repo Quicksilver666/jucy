@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="eu.jucy.feature.notepad"
-      label="Notepad Feature"
-      version="1.1.7.qualifier"
+      label="Notepad"
+      version="1.84.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.notepad">
 
    <description>
-      Notepad feature. Gives a little Notepad to write down your thoughts
+      Notepad feature: A little notepad to write down your thoughts
 within jucy.
    </description>
 
@@ -63,7 +63,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.notepad"
          download-size="0"
          install-size="0"
-         version="1.1.7.qualifier"
+         version="1.84.0.qualifier"
          unpack="false"/>
 
 </feature>

@@ -183,6 +183,7 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 
 
 	public void update(IObservable<StatusObject> o, StatusObject arg) {
+	//	logger.info(arg);
 	//	logger.debug("addin so: "+arg.getDetail()+"   "+arg	+"\n" +(arg.getDetailObject() != null?arg.getDetailObject().getClass().getSimpleName():"") );
 		switch(arg.getDetail()) {
 		case ConnectionHandler.USER_IDENTIFIED_IN_CONNECTION:

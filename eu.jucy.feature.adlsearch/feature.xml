@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="eu.jucy.feature.adlsearch"
-      label="Adlsearch Feature"
-      version="1.1.8.qualifier"
+      label="ADL search"
+      version="1.84.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.adlsearch">
 
    <description>
-      ADL Search allows one to search through the files and Folders of a downloaded Filelist. And let files that are interesting be sorted out automatically.
-
-This is very helpful for OPs for example by sorting all files that contain &quot;porn&quot; or &quot;xxx&quot; into a folder called suspicious checking filelists becomes easier.
+      ADL search allows one to search through the files and Folders
+of a downloaded Filelist. And let files that are interesting
+be sorted out automatically.
+This is very helpful for OPs for example by sorting all files
+that contain &quot;porn&quot; or &quot;xxx&quot; into a folder called suspicious
+checking file lists becomes easier.
    </description>
 
    <copyright>
@@ -57,7 +60,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.adlsearch"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.84.0.qualifier"
          unpack="false"/>
 
 </feature>

@@ -265,7 +265,7 @@ public abstract class SendingWriteline  {
 					@Override
 					public void run() {
 						pme.appendText("<Psychotherapist> "+ elizaSession.saySomethingToEliza(s),
-								null, true);
+								null, MessageType.CHAT);
 					}
 				}.schedule(GH.nextInt(2000)+1000);
 				

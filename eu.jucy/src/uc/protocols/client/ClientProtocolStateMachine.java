@@ -249,7 +249,7 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 
 		} else {
 			// if we need something send a ctm or rcm
-			logger.debug("StateMachine found item");
+			logger.debug("StateMachine found item: "+user + " dqe: ");
 	
 			if (hub != null && user.isOnline()) {
 				hub.requestConnection(user, token);

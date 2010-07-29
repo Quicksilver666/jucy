@@ -49,7 +49,7 @@ public class StaticReplacement {
 	 */
 	public static Map<String,String> loadReplacements() {
 		List<StaticReplacement> replacements = 
-			ComplexListEditor.parseString(PI.get(PI.staticReplacements), new RepSerializer());
+			ComplexListEditor.parseString(OPI.get(OPI.staticReplacements), new RepSerializer());
 		Map<String,String> staticReplacement = new HashMap<String,String>();
 		for (StaticReplacement sr:replacements) {
 			staticReplacement.put(sr.getName(), sr.getReplacement());
@@ -58,7 +58,7 @@ public class StaticReplacement {
 	}
 	
 	public static List<StaticReplacement> loadReplacement(FavHub fh) {
-		return ComplexListEditor.parseString(fh.get(PI.fh_replacements), new RepSerializer());
+		return ComplexListEditor.parseString(fh.get(OPI.fh_replacements), new RepSerializer());
 	}
 	public static Map<String,String> loadReplacements(FavHub fh) {
 		Map<String,String> staticReplacement = new HashMap<String,String>();
@@ -70,7 +70,7 @@ public class StaticReplacement {
 	
 	public static void storeReplacements(FavHub fh, List<StaticReplacement> replacements) {
 		String s = ComplexListEditor.createList(replacements, new RepSerializer());
-		fh.put(PI.fh_replacements, s);
+		fh.put(OPI.fh_replacements, s);
 	}
 
 	@Override

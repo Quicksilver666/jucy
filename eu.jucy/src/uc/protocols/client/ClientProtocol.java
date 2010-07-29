@@ -108,7 +108,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 */
 	private boolean immediateReconnect = false;
 
-	private boolean newList;
+
 
 	private volatile Slot slot;
 
@@ -518,6 +518,10 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 			}
 		}
 		increaseLoginLevel();
+		
+		if (!nmdc) {
+			addCommand(new GFI(this));
+		}
 	}
 	
 	
@@ -901,15 +905,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		this.token = token;
 	}
 	
-	public boolean isNewList() {
-		return newList;
-	}
 
-
-
-	public void setPartialList(boolean newList) {
-		this.newList = newList;
-	}
 	
 	public String toString() {
 		if (getUser() == null) {

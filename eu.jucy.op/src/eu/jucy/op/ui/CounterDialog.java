@@ -34,7 +34,7 @@ import uihelpers.TableViewerAdministrator;
 import uihelpers.TableViewerAdministrator.ColumnDescriptor;
 
 import eu.jucy.op.CounterFactory;
-import eu.jucy.op.PI;
+import eu.jucy.op.OPI;
 import eu.jucy.op.CounterFactory.CounterAction;
 
 public class CounterDialog extends TrayDialog {
@@ -119,7 +119,7 @@ public class CounterDialog extends TrayDialog {
         TableViewerAdministrator<CounterAction> tva = 
         	new TableViewerAdministrator<CounterAction>(tableViewer,
         			Arrays.asList(new MinColumn(),new MaxColumn(),new RawColumn()),
-        			PI.counterActionsTable,0,false);
+        			OPI.counterActionsTable,0,false);
         
         tva.apply();
         

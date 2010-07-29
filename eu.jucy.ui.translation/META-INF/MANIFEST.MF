@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Translation
+Bundle-SymbolicName: eu.jucy.ui.translation;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-Localization: nl/translation
+Bundle-ClassPath: .
+Require-Bundle: lib.com.google.api.translate,
+ eu.jucy.gui,
+ org.eclipse.ui,
+ eu.jucy,
+ eu.jucy.logging,
+ org.eclipse.core.runtime,
+ eu.jucy.helpers

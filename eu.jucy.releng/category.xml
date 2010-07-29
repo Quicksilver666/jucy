@@ -1,36 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/eu.jucy.feature.countries_1.1.4.jar" id="eu.jucy.feature.countries" version="1.1.4">
-      <category name="eu.jucy.enhancements"/>
-   </feature>
-   <feature url="features/eu.jucy.feature.notepad_1.1.4.jar" id="eu.jucy.feature.notepad" version="1.1.4">
-      <category name="eu.jucy.enhancements"/>
-   </feature>
-   <feature url="features/eu.jucy.feature.searchspy_1.1.4.jar" id="eu.jucy.feature.searchspy" version="1.1.4">
-      <category name="eu.jucy.enhancements"/>
-   </feature>
-   <feature url="features/eu.jucy.feature.smileys_1.1.5.jar" id="eu.jucy.feature.smileys" version="1.1.5">
-      <category name="eu.jucy.enhancements"/>
-   </feature>
-   <feature url="features/eu.jucy.feature.adlsearch_1.1.5.jar" id="eu.jucy.feature.adlsearch" version="1.1.5">
-      <category name="eu.jucy.enhancements"/>
-   </feature>
-   <feature url="features/eu.jucy.feature.connectiondebugger_1.0.0.qualifier.jar" id="eu.jucy.feature.connectiondebugger" version="1.0.0.qualifier">
+   <feature url="features/eu.jucy.feature.connectiondebugger_1.0.2.qualifier.jar" id="eu.jucy.feature.connectiondebugger" version="1.0.2.qualifier">
       <category name="eu.jucy.development"/>
    </feature>
-   <feature url="features/eu.jucy.feature.adlsearch_1.1.6.jar" id="eu.jucy.feature.adlsearch" version="1.1.6">
+   <feature url="features/eu.jucy.feature.adlsearch_1.1.8.qualifier.jar" id="eu.jucy.feature.adlsearch" version="1.1.8.qualifier">
       <category name="eu.jucy.enhancements"/>
    </feature>
-   <feature url="features/eu.jucy.feature.countries_1.1.5.jar" id="eu.jucy.feature.countries" version="1.1.5">
+   <feature url="features/eu.jucy.feature.countries_1.1.7.qualifier.jar" id="eu.jucy.feature.countries" version="1.1.7.qualifier">
       <category name="eu.jucy.enhancements"/>
    </feature>
-   <feature url="features/eu.jucy.feature.notepad_1.1.5.jar" id="eu.jucy.feature.notepad" version="1.1.5">
+   <feature url="features/eu.jucy.feature.notepad_1.1.7.qualifier.jar" id="eu.jucy.feature.notepad" version="1.1.7.qualifier">
       <category name="eu.jucy.enhancements"/>
    </feature>
-   <feature url="features/eu.jucy.feature.searchspy_1.1.5.jar" id="eu.jucy.feature.searchspy" version="1.1.5">
+   <feature url="features/eu.jucy.feature.searchspy_1.1.6.qualifier.jar" id="eu.jucy.feature.searchspy" version="1.1.6.qualifier">
       <category name="eu.jucy.enhancements"/>
    </feature>
-   <feature url="features/eu.jucy.feature.smileys_1.1.6.jar" id="eu.jucy.feature.smileys" version="1.1.6">
+   <feature url="features/eu.jucy.feature.smileys_1.1.7.qualifier.jar" id="eu.jucy.feature.smileys" version="1.1.7.qualifier">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.adlsearch_1.84.0.qualifier.jar" id="eu.jucy.feature.adlsearch" version="1.84.0.qualifier">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.countries_1.84.0.qualifier.jar" id="eu.jucy.feature.countries" version="1.84.0.qualifier">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.notepad_1.84.0.qualifier.jar" id="eu.jucy.feature.notepad" version="1.84.0.qualifier">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.searchspy_1.84.0.qualifier.jar" id="eu.jucy.feature.searchspy" version="1.84.0.qualifier">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.smileys_1.84.0.qualifier.jar" id="eu.jucy.feature.smileys" version="1.84.0.qualifier">
+      <category name="eu.jucy.enhancements"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.connectiondebugger_1.84.0.qualifier.jar" id="eu.jucy.feature.connectiondebugger" version="1.84.0.qualifier">
+      <category name="eu.jucy.development"/>
+   </feature>
+   <feature url="features/eu.jucy.feature.countries_1.84.3.qualifier.jar" id="eu.jucy.feature.countries" version="1.84.3.qualifier">
       <category name="eu.jucy.enhancements"/>
    </feature>
    <category-def name="eu.jucy.enhancements" label="Enhancements">

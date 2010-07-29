@@ -24,7 +24,7 @@ import org.eclipse.ui.PlatformUI;
 import uihelpers.ComboBoxViewer;
 
 import eu.jucy.op.CounterFactory;
-import eu.jucy.op.PI;
+import eu.jucy.op.OPI;
 import eu.jucy.op.CounterFactory.CounterAction;
 
 public class ActionDialog extends TrayDialog {
@@ -148,7 +148,7 @@ public class ActionDialog extends TrayDialog {
         incrementCounterCombo = new Combo(actionGroup, SWT.READ_ONLY);
         incrementCounterCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
         
-        comboViewer = new ComboBoxViewer<CounterFactory>(incrementCounterCombo,PI.getCounterFactories(),true);
+        comboViewer = new ComboBoxViewer<CounterFactory>(incrementCounterCombo,OPI.getCounterFactories(),true);
         
         incrementByWhatSpinner = new Spinner(actionGroup, SWT.BORDER);
         incrementByWhatSpinner.setMinimum(-10000);

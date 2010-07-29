@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:eu.jucy.gui.texteditor?after=eu.jucy.gui.txtseparator1">
+         <command
+               commandId="eu.jucy.ui.translation.translateSelected"
+               icon="icons/translation.16.gif"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="eu.jucy.ui.translation.translateSelected"
+            name="%Translate">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="eu.jucy.ui.translation.TranslateHandler"
+            commandId="eu.jucy.ui.translation.translateSelected">
+         <activeWhen> 
+         <and>
+         <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                      <instanceof
+                           value="java.lang.String">
+                  	</instanceof>
+                  </iterate>
+               </with>
+               <with variable="activeFocusControl">
+               		<instanceof
+                           value="org.eclipse.swt.custom.StyledText">
+                  	</instanceof>
+      
+      		</with>
+      		
+			</and>
+    		</activeWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="eu.jucy.ui.translation.TransPI">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="eu.jucy.gui.Misc"
+            class="eu.jucy.ui.translation.TranslationPrefPage"
+            id="eu.jucy.ui.translation.page1"
+            name="%Translation">
+      </page>
+   </extension>
+   <extension
+         point="eu.jucy.helpers.splashExtension">
+      <splashExtension
+            icon="icons/translation.64.png"
+            id="eu.jucy.ui.translation.splashExtension1">
+      </splashExtension>
+   </extension>
+
+</plugin>

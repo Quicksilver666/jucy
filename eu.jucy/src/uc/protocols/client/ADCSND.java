@@ -6,6 +6,7 @@ import java.io.IOException;
 import uc.crypto.HashValue;
 import uc.files.transfer.FileTransferInformation;
 
+import uc.protocols.AbstractADCCommand;
 import uc.protocols.Compression;
 
 
@@ -75,7 +76,13 @@ public class ADCSND extends AbstractNMDCClientProtocolCommand {
 	 * @param length - how large the FileList is..
 	 */
 	private static void sendADCSNDforFilelist(ClientProtocol client,long length,Compression comp) {
-		client.sendUnmodifiedRaw("$ADCSND "+ (client.isNewList()? "list /":"file files.xml.bz2")+ " 0 " + length +comp.toString() +"|");
+		FileTransferInformation fti = client.getFti();
+		String liststr = fti.isPartialList()? 
+				"list /"+AbstractADCCommand.doReplaces(fti.getFileListSubPath()): 
+				("file files.xml" + (fti.isBz2Compressed()?".bz2":""));
+		
+		
+		client.sendUnmodifiedRaw(String.format("$ADCSND %s 0 %d%s|", liststr,length,comp.toString()));
 	}
 	
 	private static void sendADCSNDforInterleaves(ClientProtocol client,HashValue what,long length,Compression comp) {

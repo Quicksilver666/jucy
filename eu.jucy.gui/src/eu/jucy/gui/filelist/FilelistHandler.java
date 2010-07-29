@@ -86,16 +86,17 @@ public class FilelistHandler extends AbstractHandler {
 		}
 		final IUser usrf = usr;
 		final IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
-		Job job = new Job("Opening file list: "+usrf.getNick()) {
-			
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				openFilelist(usrf,window);
-				return Status.OK_STATUS;
-			}
-		};
-		job.schedule();
-		
+		if (usrf != null) {
+			Job job = new Job("Opening file list: "+usrf.getNick()) {
+				
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					openFilelist(usrf,window);
+					return Status.OK_STATUS;
+				}
+			};
+			job.schedule();
+		}
 		
 		return null;
 	}

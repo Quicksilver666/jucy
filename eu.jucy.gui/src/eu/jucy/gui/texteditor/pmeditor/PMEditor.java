@@ -41,6 +41,7 @@ import eu.jucy.gui.itemhandler.UCContributionItem.UserCommandsContributionItem;
 import eu.jucy.gui.sounds.AePlayWave;
 import eu.jucy.gui.sounds.IAudioKeys;
 import eu.jucy.gui.texteditor.LabelViewer;
+import eu.jucy.gui.texteditor.MessageType;
 import eu.jucy.gui.texteditor.SendingWriteline;
 import eu.jucy.gui.texteditor.StyledTextViewer;
 import eu.jucy.gui.texteditor.UCTextEditor;
@@ -177,7 +178,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 		if (getUser().equals(pm.getFrom())) { //if this PM is for us... show it
 			final String completeMessage =  pm.toString();
 			
-			appendText(completeMessage, pm.getSender(),pm.getTimeReceived(),true);
+			appendText(completeMessage, pm.getSender(),pm.getTimeReceived(),MessageType.CHAT);
 			
 			
 			//show toaster message if wished
@@ -244,8 +245,8 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 	}
 	
 	@Override
-	public void appendText(String text, IUser usr,long received,boolean chatMessage) {
-		super.appendText(text, usr, received,chatMessage);
+	public void appendText(String text, IUser usr,long received,MessageType type) {
+		super.appendText(text, usr, received,type);
 	}
 	
 	@Override
@@ -348,7 +349,7 @@ public class PMEditor extends UCTextEditor implements  IUserChangedListener,IHas
 								HubEditorInput hei = new HubEditorInput(current.getFrom().getHub().getFavHub()); 
 								HubEditor he =  (HubEditor)page.findEditor(hei);
 								if (he != null) {
-									he.appendText(s, current.getSender(),true);
+									he.appendText(s, current.getSender(),MessageType.CHAT);
 								}
 								
 							}

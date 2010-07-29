@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="jucy" id="eu.jucy.product1.product" application="eu.jucy.gui.application" version="0.84.0" useFeatures="true" includeLaunchers="true">
+<product name="Jucy" id="eu.jucy.product1.product" application="eu.jucy.gui.application" version="0.83.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/eu.jucy.product1/icons/sidebar.png"/>
@@ -14,6 +14,7 @@
    </configIni>
 
    <launcherArgs>
+      <programArgs>--launcher.defaultAction openFile</programArgs>
       <programArgsLin>-data @user.home/.UC</programArgsLin>
       <programArgsMac>-data @user.home/.UC</programArgsMac>
       <programArgsSol>-data @user.home/.UC</programArgsSol>
@@ -36,6 +37,7 @@
          <bmp/>
       </win>
    </launcher>
+
 
    <vm>
    </vm>
@@ -116,7 +118,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <plugin id="org.eclipse.equinox.p2.core"/>
       <plugin id="org.eclipse.equinox.p2.director"/>
       <plugin id="org.eclipse.equinox.p2.engine"/>
-      <plugin id="org.eclipse.equinox.p2.exemplarysetup"/>
+      <plugin id="org.eclipse.equinox.p2.exemplarysetup" fragment=""/>
       <plugin id="org.eclipse.equinox.p2.garbagecollector"/>
       <plugin id="org.eclipse.equinox.p2.jarprocessor"/>
       <plugin id="org.eclipse.equinox.p2.metadata"/>
@@ -171,8 +173,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </plugins>
 
    <features>
-      <feature id="eu.jucy.feature.baseclient" version="1.84.0.qualifier"/>
       <feature id="eu.jucy.feature.libraries" version="1.0.4.qualifier"/>
+      <feature id="eu.jucy.feature.baseclient" version="1.83.0.qualifier"/>
    </features>
 
 

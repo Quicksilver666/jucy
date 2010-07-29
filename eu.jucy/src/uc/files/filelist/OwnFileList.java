@@ -21,6 +21,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Set;
@@ -76,6 +79,7 @@ public class OwnFileList implements IOwnFileList  {
 	
 	private static final Logger logger = LoggerFactory.make();
 	
+
 	private static final int REFRESH_CHECK_MINUTES = 5;
 	
 	private final DCClient dcc;
@@ -85,6 +89,11 @@ public class OwnFileList implements IOwnFileList  {
 	private final TextIndexer pdfIndex;
 
 	private ScheduledFuture<?> refresher;
+	
+	private final Lock lock = new ReentrantLock();
+	private final Condition fileListInitialized = lock.newCondition();
+	private boolean initialized = false;
+	
 
 	
 	private final List<TopFolder> topFolders =   new CopyOnWriteArrayList<TopFolder>(); 
@@ -103,8 +112,8 @@ public class OwnFileList implements IOwnFileList  {
 	private volatile FileList fileList;
 	
 	
-//	private final FileList specialHidden;
-	private HiddenTopFolder hiddenTop;
+
+	private TmpSharedTopFolder hiddenTop;
 	
 	private final IDatabase database;
 	private final IHashEngine hashEngine;
@@ -133,7 +142,7 @@ public class OwnFileList implements IOwnFileList  {
 		this.filelistSelf = self;
 		fileList = new FileList(self);
 		//specialHidden = new FileList(self);
-		hiddenTop =  new HiddenTopFolder(fileList);
+		hiddenTop =  new TmpSharedTopFolder(fileList);
 		TextIndexer pdfI = null;
 		try {
 			pdfI = new TextIndexer();
@@ -165,7 +174,10 @@ public class OwnFileList implements IOwnFileList  {
 	private boolean checkSharedDirs() {
 		Map<SharedDir,Boolean> dirs = new HashMap<SharedDir,Boolean>();
 		for (TopFolder dir: topFolders) {
-			dirs.put(dir.getSharedDir(), dir.isOnline());
+			for (SharedDir sd:dir.sharedDirs) {
+				dirs.put(sd, sd.isOnline());
+			}
+			
 		}
 		if (dirs.equals(lastOnlineDirs)) {
 			return false;
@@ -186,9 +198,20 @@ public class OwnFileList implements IOwnFileList  {
 		
 		//add new dirs
 		for (SharedDir dir: loadeddirs ) {
-			TopFolder f = 
-				new TopFolder(fileList, dir);
-			topLevelFolders.add(f);
+			TopFolder present = null;
+			for (TopFolder tf:topLevelFolders) {
+				if (tf.getName().equals(dir.getName())) {
+					present = tf;
+					break;
+				}
+			}
+			if ( present == null) {
+				TopFolder f = 
+					new TopFolder(fileList, dir);
+				topLevelFolders.add(f);
+			} else {
+				present.sharedDirs.add(dir);
+			}
 		}
 	}
 
@@ -229,13 +252,29 @@ public class OwnFileList implements IOwnFileList  {
 		
 		dcc.notifyChangedInfo(InfoChange.Sharesize);
 		
+		lock.lock();
+		try {
+			initialized = true;
+			fileListInitialized.signalAll();
+		} finally {
+			lock.unlock();
+		}
+		
 		if (PI.getBoolean(PI.fullTextSearch)) {
 			pdfIndex.init(this);
 		}
 		pca.reregister();
+		
+
+		
 	}
 	
 	public void stop() {
+		PI.put(PI.lastFilelistSize, getSharesize());
+		PI.put(PI.lastNumberOfFiles, getNumberOfFiles());
+		
+
+		
 		if (pdfIndex != null) {
 			pdfIndex.stop();
 		}
@@ -244,6 +283,9 @@ public class OwnFileList implements IOwnFileList  {
 			refresher.cancel(false);
 		}
 		pca.dispose();
+		
+		
+		
 	}
 	
 	/**
@@ -275,28 +317,23 @@ public class OwnFileList implements IOwnFileList  {
 				
 				//if for example less files are shared this will help that no useless files are hashed
 				hashEngine.clearFileJobs(); 
-				
-				
 				List<TopFolder> topLevelFolders = new ArrayList<TopFolder>();
-				
 				loadSharedDirs(topLevelFolders,newFilelist);
+				
 				
 				monitor.beginTask(LanguageKeys.StartedRefreshingTheFilelist,topLevelFolders.size() +1);
 				
 				ISearchMap<IFileListItem> filelistmap = new InvertedIndex<IFileListItem>(new FileListMapping());
-				
 				buildFilelist(newFilelist,topLevelFolders,filelistmap,monitor);
 				
 				if (monitor.isCanceled()) {
 					return;
 				}
-			
-				this.filelistmap =	filelistmap;
-				replaceFilelist(newFilelist,topLevelFolders);
+				replaceFilelist(newFilelist,topLevelFolders,filelistmap);
 		
 				monitor.worked(1);
 				
-				dcc.logEvent( LanguageKeys.FinishedFilelistRefresh);
+				dcc.logEvent( LanguageKeys.FinishedFilelistRefresh );
 				
 			} finally {
 				monitor.done();
@@ -310,9 +347,10 @@ public class OwnFileList implements IOwnFileList  {
 		}
 	}
 	
-	private void replaceFilelist(FileList currentFilelist,List<TopFolder> topLevelFolders) {	
+	private void replaceFilelist(FileList currentFilelist,List<TopFolder> topLevelFolders,ISearchMap<IFileListItem> filelistmap) {	
+		this.filelistmap = filelistmap;
 		User self = fileList.getUsr();
-		hiddenTop = hiddenTop.copyTo(currentFilelist);
+		hiddenTop = hiddenTop.copyTo(currentFilelist); //the files added by hand won't be in the list.. if they are not copied..
 		
 		self.setFilelistDescriptor(new FileListDescriptor(fileList.getUsr(),currentFilelist));
 		self.setShared(currentFilelist.getSharesize());
@@ -340,23 +378,26 @@ public class OwnFileList implements IOwnFileList  {
 		
 		//recursively go through all shared dirs..
 		for (TopFolder folder : topLevelFolders) {
-			SharedDir dir = folder.getSharedDir();
-			if (dir.getDirectory().isDirectory()) {
-	
-				rekBuildFilelist(dir.getDirectory()
-					, folder
-					, newFilelist
-					, PI.getBoolean(PI.shareHiddenFiles)
-					, hashedFiles,exclude,include,filelistmap);
-		
-		
-				dir.setLastShared( folder.getContainedSize());
+			for (SharedDir dir:folder.getSharedDirs()) {
+				if (dir.getDirectory().isDirectory()) {
+					long contained = rekBuildFilelist(dir.getDirectory()
+						, folder
+						, newFilelist
+						, PI.getBoolean(PI.shareHiddenFiles)
+						, hashedFiles,exclude,include,filelistmap);
+					dir.setLastShared(contained);
+				}
 			}
+//			for (SharedDir dir:folder.getSharedDirs()) {
+//				dir.setLastShared( folder.getContainedSize());
+//			}
+			
 			monitor.worked(1);
 			if (monitor.isCanceled()) {
 				break;
 			}
 		}
+		
 	}
 	
 	/**
@@ -364,40 +405,47 @@ public class OwnFileList implements IOwnFileList  {
 	 * 
 	 * @param folder - a folder on the HDD
 	 * @param listfolder - the corresponding FilelistFolder
+	 * @return contained size
 	 */
-	private void rekBuildFilelist(File file, FileListFolder listfolder, FileList current, boolean shareHidden, 
+	private long rekBuildFilelist(File file, FileListFolder listfolder, FileList current, boolean shareHidden, 
 			Map<File,HashedFile> hashedFiles, Pattern exclude,Pattern include,ISearchMap<IFileListItem> filelistmap) {
 		
 		logger.debug("refreshing folder: "+file);
 
-		
+		long contained = 0;
 		for (File child : GH.getFiles(file, !shareHidden) ) {
 			if (child.isDirectory()) {
 				FileListFolder subfolder = new FileListFolder( listfolder , child.getName());
-				rekBuildFilelist(child, subfolder,current,shareHidden,hashedFiles ,exclude, include,filelistmap);
+				contained += rekBuildFilelist(child, subfolder,current,shareHidden,hashedFiles ,exclude, include,filelistmap);
 			} else if (child.isFile() ) {
 				Matcher inc = include.matcher(child.getName());
 				if (inc.find()) {
 					Matcher exc = exclude.matcher(child.getName());
 					if (!exc.find()) {
-						addFile(child,listfolder, hashedFiles,filelistmap,false);
+						FileListFile ff = addFile(child,listfolder, hashedFiles,filelistmap,false);
+						if (ff != null) {
+							contained+= ff.getSize();
+						}
 					} 
 				}
 			}
 		}
+		return contained;
 	}
 	
+
 	
 	private FileListFile addFile(final File file, final FileListFolder parent, Map<File,HashedFile> hashedFiles,final ISearchMap<IFileListItem> filelistmap,boolean highPriority) {
 		HashedFile hashedFile =  hashedFiles.get(file);
 		
 		if (hashedFile == null || !hashedFile.isValid()) {
-			logger.debug("found file needs hashing: "+file);
+			logger.debug("found file needs hashing: "+(file ==null?"null":file.toString()) );
+			
 			hashEngine.hashFile(file,false, new IHashedFileListener() {
 				public void hashedFile(HashedFile hf, InterleaveHashes ilh) {
 					database.addOrUpdateFile(hf, ilh);
 					addFile(hf.getPath(),parent,Collections.singletonMap(hf.getPath(), hf),filelistmap,false);
-					if (parent.getFilelist() != fileList) {
+					if (!filelistNeedsRefresh && parent.getFilelist() != fileList) {
 						filelistNeedsRefresh = true;  
 					}
 				}
@@ -422,12 +470,25 @@ public class OwnFileList implements IOwnFileList  {
 	 * @param file top Folder o search for this file
 	 * @return matching TopFolder if found.. else null
 	 */
-	private TopFolder getTopFolder(File file) {
+	private SharedDir getTopdir(File file) {
 		String filePath = file.getPath();
 		for (TopFolder dir: topFolders) {
-			String dirPath = dir.getRealPath().getPath()+File.separator;
-			if (filePath.startsWith(dirPath)) {
-				return dir;
+			for (SharedDir sd:dir.sharedDirs) {
+				String dirPath = sd.getDirectory().getPath()+File.separator;
+				if (filePath.startsWith(dirPath)) {
+					return sd;
+				}
+			}
+		}
+		return null;
+	}
+	
+	private TopFolder getTopFolder(SharedDir sda) {
+		for (TopFolder dir: topFolders) {
+			for (SharedDir sd:dir.sharedDirs) {
+				if (sd.equals(sda)) {
+					return dir;
+				}
 			}
 		}
 		return null;
@@ -442,9 +503,11 @@ public class OwnFileList implements IOwnFileList  {
 	//	logger.info("immediately adding file: "+file);
 		
 		HashedFile hf = dcc.getDatabase().getHashedFile(file);
-		TopFolder tf = getTopFolder(file);
-		if ((hf == null || !hf.isValid())) {
-			if (force || tf != null) {
+		SharedDir sd = getTopdir(file);
+		TopFolder tf = getTopFolder(sd);
+		
+		if (hf == null || !hf.isValid()) {
+			if (force || sd != null) {
 				hashEngine.hashFile(file,true, new IHashedFileListener() {
 					public void hashedFile(HashedFile hashedFile, InterleaveHashes ilh) {
 						database.addOrUpdateFile(hashedFile, ilh);
@@ -456,15 +519,17 @@ public class OwnFileList implements IOwnFileList  {
 		}
 		
 		FileListFile addedFile = fileList.search(hf.getTTHRoot());
-		if (addedFile instanceof SpecialFileListFile) {
+		if (addedFile instanceof SpecialFileListFile) { // if already present.. change permission
 			((SpecialFileListFile) addedFile).add(restrictForUser);
 		}
-		if (addedFile == null && tf != null) {
-			String dirPath = tf.getRealPath().getPath() + File.separator;
+		// if not present but matches some top folder..
+		if (addedFile == null && sd != null) {
+			String dirPath = sd.getDirectory().getPath() + File.separator;
 			String parentPath = file.getParentFile().getPath();
+			FileListFolder current = tf;
 			if (parentPath.length() > dirPath.length()) {
 				String[] pathLeft = parentPath.substring(dirPath.length()).split(Pattern.quote(File.separator));
-				FileListFolder current = tf;
+				
 				for (String s:pathLeft) {
 					FileListFolder next = current.getChildPerName(s);
 					if (next == null) {
@@ -472,16 +537,16 @@ public class OwnFileList implements IOwnFileList  {
 					}
 					current = next;
 				}
-				FileListFile present = current.getFilePerName(file.getName()); //due to concurrency could now be present...
-				if (present == null) {
-					addedFile = addFile(file,current,Collections.singletonMap(file, hf),filelistmap,true); 
-				} else {
-					addedFile = present;
-				}
+			}
+			FileListFile present = current.getFilePerName(file.getName()); //due to concurrency could now be present...
+			if (present == null) {
+				addedFile = addFile(file,current,Collections.singletonMap(file, hf),filelistmap,true); 
+			} else {
+				addedFile = present;
 			}
 		}
 		boolean addedOutsideOfShare = false;
-		if (addedFile == null && tf == null && force) {
+		if (addedFile == null && sd == null && force) {
 			addedFile = new SpecialFileListFile(hf, hiddenTop,restrictForUser);
 			addedOutsideOfShare = true;
 		}
@@ -534,6 +599,14 @@ public class OwnFileList implements IOwnFileList  {
 	 * @see uc.files.filelist.IOwnFileList#search(java.util.Set, java.util.Set, long, long, long, java.util.Collection, int, boolean)
 	 */
 	public Set<IFileListItem> search(SearchParameter sp) {
+		lock.lock();
+		try {
+			if (!initialized) {
+				return Collections.<IFileListItem>emptySet();
+			}
+		} finally {
+			lock.unlock();
+		}
 	/*	if (logger.isDebugEnabled()) {
 			String s = "";
 			for (String part:keys) {
@@ -595,18 +668,38 @@ public class OwnFileList implements IOwnFileList  {
 	 * @see uc.files.filelist.IOwnFileList#search(uc.crypto.HashValue)
 	 */
 	public FileListFile search(HashValue tth) {
+		lock.lock();
+		try {
+			if (!initialized) {
+				return null;
+			}
+		} finally {
+			lock.unlock();
+		}
 		FileListFile flf = fileList.search(tth);
 		return flf;
 	}
 	
+	
+	
+	
+	@Override
+	public FileListFile get(HashValue hash) {
+		waitInitialize();
+		FileListFile flf = fileList.search(hash);
+		return flf;
+	}
+
+
+
+
 	/* (non-Javadoc)
 	 * @see uc.files.filelist.IOwnFileList#getFile(uc.crypto.HashValue)
 	 */
 	public File getFile(HashValue tth)  {
-		if (topFolders.isEmpty()) {
-			throw new IllegalStateException("Filelist not ready");
-		}
-		FileListFile f = search(tth);
+		waitInitialize();
+
+		FileListFile f = get(tth);
 		if (f != null) {
 			return getFile(f);
 		} else {
@@ -614,10 +707,22 @@ public class OwnFileList implements IOwnFileList  {
 		}
 	}
 	
+	private void waitInitialize() {
+		lock.lock();
+		try {
+			while (!initialized) {
+				fileListInitialized.awaitUninterruptibly();
+			}
+		} finally {
+			lock.unlock();
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see uc.files.filelist.IOwnFileList#getFile(uc.files.filelist.FileListFile)
 	 */
 	public File getFile(FileListFile file)  {
+		waitInitialize();
 		if (file == null) {
 			throw new IllegalArgumentException("file may not be null");
 		}
@@ -629,7 +734,7 @@ public class OwnFileList implements IOwnFileList  {
 		}
 		
 		if (cur == null) {
-			throw new IllegalStateException("Filelist not ready");
+			throw new IllegalStateException("Invalid FileListFile");
 		}
 		
 		return ((TopFolder)cur).getRealPath(file);
@@ -640,6 +745,14 @@ public class OwnFileList implements IOwnFileList  {
 	 * @see uc.files.filelist.IOwnFileList#getSharesize()
 	 */
 	public long getSharesize() {
+		lock.lock();
+		try {
+			if (!initialized) {
+				return PI.getLong(PI.lastFilelistSize);
+			}
+		} finally {
+			lock.unlock();
+		}
 		return fileList.getSharesize();
 	}
 	
@@ -648,6 +761,14 @@ public class OwnFileList implements IOwnFileList  {
 	 * @see uc.files.filelist.IOwnFileList#getNumberOfFiles()
 	 */
 	public int getNumberOfFiles() {
+		lock.lock();
+		try {
+			if (!initialized) {
+				return PI.getInt(PI.lastNumberOfFiles);
+			}
+		} finally {
+			lock.unlock();
+		}
 		return fileList.getNumberOfFiles();
 	}
 
@@ -677,11 +798,9 @@ public class OwnFileList implements IOwnFileList  {
 			//(before to make space for refresh without enlarging heap
 			//and afterwards to get rid of long lived objects)
 			System.gc(); 
-			try {
-				refresh(monitor);
-			} finally {
-				
-			}
+			
+			refresh(monitor);
+		
 			System.gc(); 
 			return Status.OK_STATUS;
 		}
@@ -689,6 +808,7 @@ public class OwnFileList implements IOwnFileList  {
 
 	
 	public FileList getFileList() {
+		waitInitialize();
 		return fileList;
 	}
 
@@ -698,43 +818,46 @@ public class OwnFileList implements IOwnFileList  {
 	
 	public static class TopFolder extends FileListFolder {
 
-		protected final SharedDir sharedDir;
+		protected final List<SharedDir> sharedDirs = new CopyOnWriteArrayList<SharedDir>();
 
 		public TopFolder(FileList f,SharedDir sd) {
 			super(f.getRoot(), sd.getName());
-			this.sharedDir = sd;
+			this.sharedDirs.add(sd);
 		}
 		
-		public SharedDir getSharedDir() {
-			return sharedDir;
+		public List<SharedDir> getSharedDirs() {
+			return Collections.unmodifiableList(sharedDirs);
 		}
 		
-		public boolean isOnline() {
-			return sharedDir.getDirectory().isDirectory();
-		}
-		
-		public File getRealPath() {
-			return sharedDir.getDirectory();
-		}
+
+//		public File getRealPath() {
+//			return sharedDir.getDirectory();
+//		}
 		
 		public File getRealPath(FileListFile decendant) {
 			String realpath = decendant.getPath();
 			String pathRelativeToLevelone = realpath.substring(realpath.indexOf(File.separatorChar)+1);
+			for (SharedDir sd:sharedDirs) {
+				File f = new File(sd.getDirectory(), pathRelativeToLevelone );
+				if (f.isFile()) {
+					return f;
+				}
+			}
 			
-			return new File(sharedDir.getDirectory(), pathRelativeToLevelone );
+			return null;
 		}
 		
 	}
 	
-	public static class HiddenTopFolder extends TopFolder {
+	public static class TmpSharedTopFolder extends TopFolder {
 
 		private boolean notifyChanges= true;
-		public HiddenTopFolder(FileList f) {
+		public TmpSharedTopFolder(FileList f) {
 			super(f,  new SharedDir("<temporarily shared files>",null));
 		}
 		
-		public HiddenTopFolder copyTo(FileList newFilelist) {
-			HiddenTopFolder newFolder = new HiddenTopFolder(newFilelist);
+		public TmpSharedTopFolder copyTo(FileList newFilelist) {
+			TmpSharedTopFolder newFolder = new TmpSharedTopFolder(newFilelist);
 			newFolder.notifyChanges = false;
 			for (FileListFile file:getFiles()) {
 				SpecialFileListFile sflf = (SpecialFileListFile)file;
@@ -757,20 +880,20 @@ public class OwnFileList implements IOwnFileList  {
 		}
 		
 
-		@Override
-		public SharedDir getSharedDir() {
-			throw new IllegalStateException();
-		}
-
-		@Override
-		public boolean isOnline() {
-			return true;
-		}
-
-		@Override
-		public File getRealPath() {
-			throw new IllegalStateException();
-		}
+//		@Override
+//		public SharedDir getSharedDir() {
+//			throw new IllegalStateException();
+//		}
+//
+//		@Override
+//		public boolean isOnline() {
+//			return true;
+//		}
+//
+//		@Override
+//		public File getRealPath() {
+//			throw new IllegalStateException();
+//		}
 		
 		
 		/**
@@ -797,13 +920,13 @@ public class OwnFileList implements IOwnFileList  {
 		private final HashedFile hf;
 		private Set<IUser> restriction ;
 		
-		public SpecialFileListFile(SpecialFileListFile cc,HiddenTopFolder htf) {
+		public SpecialFileListFile(SpecialFileListFile cc,TmpSharedTopFolder htf) {
 			this(cc.hf,htf,null);
 			synchronized(synchRestriction) {
 				this.restriction = cc.restriction;
 			}
 		}
-		public SpecialFileListFile(HashedFile hf,HiddenTopFolder htf,IUser restriction) {
+		public SpecialFileListFile(HashedFile hf,TmpSharedTopFolder htf,IUser restriction) {
 			super(htf,hf.getPath().getName(),hf.getPath().length(),hf.getTTHRoot());
 			this.hf = hf;
 			synchronized(synchRestriction) {

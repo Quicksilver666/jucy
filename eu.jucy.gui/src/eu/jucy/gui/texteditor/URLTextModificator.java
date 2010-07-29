@@ -67,7 +67,7 @@ import uc.IHub;
 import uc.PI;
 import uc.files.MagnetLink;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
-import uc.files.downloadqueue.AbstractDownloadQueueEntry.IDownloadFinished;
+import uc.files.downloadqueue.AbstractDownloadFinished;
 import uihelpers.SUIJob;
 
 
@@ -477,7 +477,7 @@ public class URLTextModificator implements ITextModificator {
 					} else {
 						AbstractDownloadQueueEntry adqe = magnetLink.download(target);
 						if (adqe != null) {
-							adqe.addDoAfterDownload(new IDownloadFinished() {
+							adqe.addDoAfterDownload(new AbstractDownloadFinished() {
 								public void finishedDownload(final File f) {
 									new SUIJob() {
 										@Override

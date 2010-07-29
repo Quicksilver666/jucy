@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Geoip Maxmind Plug-in
 Bundle-SymbolicName: eu.jucy.geoipmaxmind;singleton:=true
-Bundle-Version: 1.1.7.qualifier
+Bundle-Version: 1.84.2.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: eu.jucy.helpers,
  eu.jucy.logging,
@@ -11,3 +11,4 @@ Require-Bundle: eu.jucy.helpers,
  eu.jucy.gui
 Export-Package: com.maxmind.geoip,
  geoip
+Bundle-Vendor: Quicksilver

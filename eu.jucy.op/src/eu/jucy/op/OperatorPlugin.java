@@ -22,7 +22,7 @@ import uc.HubListenerAdapter;
 import uc.User;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import uc.files.downloadqueue.FileListDQE;
-import uc.files.downloadqueue.AbstractDownloadQueueEntry.IDownloadFinished;
+import uc.files.downloadqueue.AbstractDownloadFinished;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.ConnectionState;
 
@@ -71,7 +71,7 @@ public class OperatorPlugin extends HubListenerAdapter implements
 	}
 
 	private final void update() {
-		protectedUsr = Pattern.compile(PI.get(PI.protectedUsersRegEx));
+		protectedUsr = Pattern.compile(OPI.get(OPI.protectedUsersRegEx));
 	}
 	
 	
@@ -80,8 +80,8 @@ public class OperatorPlugin extends HubListenerAdapter implements
 	 * @see UC.IOperatorPlugin#init(UC.IHub)
 	 */
 	public boolean init(IHub hub) {
-		String check = hub.getFavHub().get(PI.fh_checkUsers);
-		if (Boolean.parseBoolean(check) && PI.getBoolean(PI.checkUsers)) {
+		String check = hub.getFavHub().get(OPI.fh_checkUsers);
+		if (Boolean.parseBoolean(check) && OPI.getBoolean(OPI.checkUsers)) {
 			controlledHubs.add(hub);
 			return true;
 		}
@@ -112,8 +112,8 @@ public class OperatorPlugin extends HubListenerAdapter implements
 		case CONNECTED:
 			if (shouldCheckUsr(changed)) {
 				needsCheck.offer(changed);
-			//	changed.notifyUserChanged();
-				if (inCheck.size() < PI.getInt(PI.parallelChecks)) {
+				
+				if (inCheck.size() < OPI.getInt(OPI.parallelChecks)) {
 					addCheckItem();
 				} 
 			}
@@ -140,15 +140,13 @@ public class OperatorPlugin extends HubListenerAdapter implements
 		if (usr != null) {
 			FileListDQE fdqe = usr.downloadFilelist();
 			inCheck.put(usr,fdqe);
-			fdqe.addDoAfterDownload(new IDownloadFinished() {
+			fdqe.addDoAfterDownload(new AbstractDownloadFinished() {
 				public void finishedDownload(File f) {
 					logger.debug("do after download: "+usr.getNick());  //this is called after the filelist check..
 					inCheck.remove(usr);
 					addCheckItem();
-				//	usr.notifyUserChanged();
 				}
 			});
-			//usr.notifyUserChanged();
 		}
 	}
 	
@@ -167,7 +165,7 @@ public class OperatorPlugin extends HubListenerAdapter implements
 
 	public void checkedUser(User checked) {
 		checkedUser.put(checked, new Object()); //TODO check information object..
-	//	checked.notifyUserChanged();
+		
 	}
 	
 	public CheckState getCheckState(IUser who) {
