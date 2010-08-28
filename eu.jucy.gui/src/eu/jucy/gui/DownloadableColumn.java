@@ -241,7 +241,7 @@ public abstract class DownloadableColumn extends ColumnDescriptor<IDownloadable>
 			if (file.isFile()) {
 				return ((IDownloadableFile)file).getSize();
 			} else if (file instanceof FileListFolder) {
-				return ((FileListFolder)file).getContainedSize();
+				return ((FileListFolder)file).getSize();
 			} else {
 				return 0;
 			}

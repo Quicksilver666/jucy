@@ -15,11 +15,13 @@ import org.apache.log4j.Logger;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 import eu.jucy.gui.update.CloudPolicy;
@@ -65,8 +67,11 @@ public class Activator extends AbstractUIPlugin {
 		policyRegistration = context.registerService(Policy.class.getName(), cp , null);
 
 		if (GUIPI.getBoolean(GUIPI.allowTestRepos)) {
-			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
-			IArtifactRepositoryManager artManager = (IArtifactRepositoryManager) context.getServiceReference(IArtifactRepositoryManager.SERVICE_NAME);
+			ServiceReference sref = context.getServiceReference(IProvisioningAgent.SERVICE_NAME);
+			IProvisioningAgent agent  = (IProvisioningAgent)context.getService(sref);
+			
+			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+			IArtifactRepositoryManager artManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 			
 			try {
 			//	String nickname = "unstable";
@@ -86,7 +91,7 @@ public class Activator extends AbstractUIPlugin {
 					
 				}
 			} catch (URISyntaxException e) {
-				e.printStackTrace();
+				throw new IllegalStateException(e);
 			} 
 //			catch (ProvisionException e) {
 //				e.printStackTrace();

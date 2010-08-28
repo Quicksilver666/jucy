@@ -220,8 +220,8 @@ public class OwnFileList implements IOwnFileList  {
 	 * shared folders are used to get Icons for
 	 * File endings
 	 */
-	public static void loadSharedDirsForIconManager(final FavFolders favs) {
-		DCClient.execute(new Runnable() {
+	public void loadSharedDirsForIconManager(final FavFolders favs) {
+		dcc.executeDir(new Runnable() {
 			public void run() {
 				List<SharedDir> loadeddirs = favs.getSharedDirs();
 				for (SharedDir sd: loadeddirs) {
@@ -313,7 +313,7 @@ public class OwnFileList implements IOwnFileList  {
 			try {
 				FileList newFilelist  = new FileList(filelistSelf);
 				newFilelist.setGenerator(DCClient.LONGVERSION);
-				newFilelist.setCID(filelistSelf.getCID().toString());
+				newFilelist.setCID(filelistSelf.getCID());
 				
 				//if for example less files are shared this will help that no useless files are hashed
 				hashEngine.clearFileJobs(); 
@@ -349,10 +349,10 @@ public class OwnFileList implements IOwnFileList  {
 	
 	private void replaceFilelist(FileList currentFilelist,List<TopFolder> topLevelFolders,ISearchMap<IFileListItem> filelistmap) {	
 		this.filelistmap = filelistmap;
-		User self = fileList.getUsr();
+		User self = (User)fileList.getUsr();
 		hiddenTop = hiddenTop.copyTo(currentFilelist); //the files added by hand won't be in the list.. if they are not copied..
 		
-		self.setFilelistDescriptor(new FileListDescriptor(fileList.getUsr(),currentFilelist));
+		self.setFilelistDescriptor(new FileListDescriptor(self,currentFilelist));
 		self.setShared(currentFilelist.getSharesize());
 		
 		topFolders.clear();
@@ -846,10 +846,11 @@ public class OwnFileList implements IOwnFileList  {
 			
 			return null;
 		}
-		
+
+	
 	}
 	
-	public static class TmpSharedTopFolder extends TopFolder {
+	public class TmpSharedTopFolder extends TopFolder {
 
 		private boolean notifyChanges= true;
 		public TmpSharedTopFolder(FileList f) {
@@ -875,10 +876,14 @@ public class OwnFileList implements IOwnFileList  {
 			}
 			super.addChild(a);
 			if (notifyChanges) {
-				getUser().getDcc().notifyChangedInfo(InfoChange.SHARESIZE_MANUAL);
+				dcc.notifyChangedInfo(InfoChange.SHARESIZE_MANUAL);
 			}
 		}
 		
+		@Override
+		public boolean isOriginal() {
+			return false;
+		}
 
 //		@Override
 //		public SharedDir getSharedDir() {
@@ -966,6 +971,11 @@ public class OwnFileList implements IOwnFileList  {
 			synchronized(synchRestriction) {
 				return restriction == null || restriction.contains(usr);
 			}
+		}
+		
+		@Override
+		public boolean isOriginal() {
+			return false;
 		}
 		
 		@Override

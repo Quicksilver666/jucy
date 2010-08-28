@@ -69,7 +69,7 @@ public class Application implements IApplication {
 				IWorkbenchPreferenceConstants.KEY_CONFIGURATION_ID, keyScheme);
 		
 		
-		
+	
 		
 		setSimpleOS();
 		

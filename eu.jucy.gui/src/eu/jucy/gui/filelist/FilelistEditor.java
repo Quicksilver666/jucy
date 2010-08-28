@@ -482,7 +482,7 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor , IObs
 
 	private void setContained(FileListFolder folder) {
 		containedFiles.setText(""+Lang.Files+": "+folder.getContainedFiles() );
-		containedSize.setText(Lang.Size+": "+SizeEnum.getReadableSize(folder.getContainedSize()));
+		containedSize.setText(Lang.Size+": "+SizeEnum.getReadableSize(folder.getSize()));
 		containedFiles.getParent().layout();
 	}
 

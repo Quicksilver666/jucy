@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Jucy" id="eu.jucy.product1.product" application="eu.jucy.gui.application" version="0.83.0" useFeatures="true" includeLaunchers="true">
+<product name="Jucy" id="eu.jucy.product1.product" application="eu.jucy.gui.application" version="0.85.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/eu.jucy.product1/icons/sidebar.png"/>
@@ -19,7 +19,8 @@
       <programArgsMac>-data @user.home/.UC</programArgsMac>
       <programArgsSol>-data @user.home/.UC</programArgsSol>
       <programArgsWin>-data @user.home/UC</programArgsWin>
-      <vmArgs>-Xmx512m</vmArgs>
+      <vmArgs>-Xmx512m
+-Declipse.p2.unsignedPolicy=allow</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
@@ -37,7 +38,6 @@
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>
@@ -173,8 +173,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </plugins>
 
    <features>
-      <feature id="eu.jucy.feature.libraries" version="1.0.4.qualifier"/>
-      <feature id="eu.jucy.feature.baseclient" version="1.83.0.qualifier"/>
+      <feature id="eu.jucy.feature.baseclient" version="1.84.0.qualifier"/>
    </features>
 
 

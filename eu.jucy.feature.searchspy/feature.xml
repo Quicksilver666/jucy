@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.searchspy"
       label="Search spy"
-      version="1.84.0.qualifier"
+      version="1.85.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.ui.searchspy">
 
@@ -64,7 +64,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.ui.searchspy"
          download-size="0"
          install-size="0"
-         version="1.84.0.qualifier"
+         version="1.85.0.qualifier"
          unpack="false"/>
 
 </feature>

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ADL search
 Bundle-SymbolicName: eu.jucy.adlsearch;singleton:=true
-Bundle-Version: 1.84.0.qualifier
+Bundle-Version: 1.85.0.qualifier
 Bundle-Localization: nl/adl
 Require-Bundle: eu.jucy.helpers,
  eu.jucy,

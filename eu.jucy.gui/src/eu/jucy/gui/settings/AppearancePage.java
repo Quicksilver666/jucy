@@ -2,6 +2,7 @@ package eu.jucy.gui.settings;
 
 import java.text.SimpleDateFormat;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.FontFieldEditor;
@@ -62,10 +63,11 @@ public class AppearancePage extends UCPrefpage {
 		addField(setAwayOnMinimize);
 		
 		
-		
-		BooleanFieldEditor alternativeTabstyle = new BooleanFieldEditor(GUIPI.alternativePresentation,Lang.UseAlternativeTabs,getFieldEditorParent());
-		addField(alternativeTabstyle);
-		
+		if (!Platform.getOS().equals(Platform.OS_LINUX) 
+				|| GUIPI.getBoolean(GUIPI.alternativePresentation)) {
+			BooleanFieldEditor alternativeTabstyle = new BooleanFieldEditor(GUIPI.alternativePresentation,Lang.UseAlternativeTabs,getFieldEditorParent());
+			addField(alternativeTabstyle);
+		}
 		
 		StringFieldEditor timestamps = new StringFieldEditor(GUIPI.timeStampFormat, Lang.TimeStamps,getFieldEditorParent()) {
 			

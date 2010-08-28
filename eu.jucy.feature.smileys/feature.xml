@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.smileys"
       label="Smileys"
-      version="1.84.0.qualifier"
+      version="1.85.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.ui.smileys">
 
@@ -64,7 +64,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.ui.smileys"
          download-size="0"
          install-size="0"
-         version="1.84.0.qualifier"
+         version="1.85.0.qualifier"
          unpack="false"/>
 
 </feature>

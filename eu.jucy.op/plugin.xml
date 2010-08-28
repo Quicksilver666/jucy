@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
-   <extension
+ <!--  <extension
          point="eu.jucy.OpPlugin">
       <opplugin
             class="eu.jucy.op.OperatorPlugin"
@@ -15,7 +15,7 @@
             class="eu.jucy.op.OpADLProcessor"
             id="eu.jucy.op.processor1">
       </processor>
-   </extension>
+   </extension>-->
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
@@ -72,13 +72,58 @@
          point="eu.jucy.helpers.tablevieweradministrator">
       <table
             id="hubWindowUserTable">
-         <table_column_decorator
+         <table_column
                class="eu.jucy.op.ui.CheckedUsersColumnDecorator"
-               columnToDecorate="eu.jucy.gui.UserColumns$Nick"
-               id="eu.jucy.op.NickCheckedUserCol"
-               name="Nick Column - Op Plugin Checked Users Colouring">
-         </table_column_decorator>
+               id="eu.jucy.op.CheckedColumn"
+               name="Check state">
+         </table_column>
       </table>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="eu.jucy.op.checkUser"
+            name="Check User">
+      </command>
+      <command
+            id="eu.jucy.op.addfilelisttodb"
+            name="Load File List to DB">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="eu.jucy.op.ui.CheckUserHandler"
+            commandId="eu.jucy.op.checkUser">
+         <activeWhen>
+            <reference
+                  definitionId="eu.jucy.gui.user.userWithDownloadedFileList">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="eu.jucy.op.ui.LoadFileListToDBHandler"
+            commandId="eu.jucy.op.addfilelisttodb">
+         <activeWhen>
+            <reference
+                  definitionId="eu.jucy.gui.user.atleastOneShareingUser">
+            </reference>
+         </activeWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:eu.jucy.hub?after=additions">
+         <command
+               commandId="eu.jucy.op.addfilelisttodb"
+               style="push">
+         </command>
+         <command
+               commandId="eu.jucy.op.checkUser"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
 
 </plugin>

@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.translation"
       label="Translation"
-      version="1.0.0.qualifier"
+      version="1.85.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.ui.translation">
 
@@ -55,14 +55,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.ui.translation"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.0.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="lib.com.google.api.translate"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="0.92.0"
          unpack="false"/>
 
 </feature>

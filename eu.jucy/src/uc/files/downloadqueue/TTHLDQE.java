@@ -11,7 +11,7 @@ import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 
 
-import uc.DCClient;
+
 import uc.IUser;
 import uc.crypto.InterleaveHashes;
 import uc.files.IDownloadable.IDownloadableFile;
@@ -78,7 +78,7 @@ public class TTHLDQE extends AbstractFileDQE {
 	public synchronized void onDownloadOfInterleaves(final InterleaveHashes ih) {
 		if (! finished) {
 			finished = true;
-			DCClient.execute(new Runnable() {
+			getDCC().executeDir(new Runnable() {
 				public void run() {
 					synchronized (TTHLDQE.this) {
 						FileDQE fdqe = new FileDQE(dq,target,ih,file, 255/2,getAdded(),null);

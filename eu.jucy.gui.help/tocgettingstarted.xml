@@ -6,4 +6,6 @@
 	<topic label="1. How to share something"  href="html/gettingstarted/sharemain.html" />  
 	<topic label="2. Connect to a hub" href="html/gettingstarted/connecttohubmain.html" />
 	<topic label="3. Downloading" href="html/gettingstarted/downloadingmain.html" />
+ <topic href="html/gettingstarted/activemode.html" label="4. Active mode">
+ </topic>
 </toc>

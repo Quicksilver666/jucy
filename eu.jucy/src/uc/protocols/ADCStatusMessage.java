@@ -69,6 +69,10 @@ public class ADCStatusMessage {
 		this(message,severity,type,Collections.<Flag,String>singletonMap(flag, value));
 	}
 	
+	public ADCStatusMessage(String message, int severity, int type,Flag flag,long value) {
+		this(message,severity,type,flag,Long.toString(value));
+	}
+	
 	public ADCStatusMessage(String message, int severity, int type,Map<Flag,String> flags) {
 		if (severity < 0 || severity > 2) {
 			throw new IllegalArgumentException("severity not in {0,1,2}");

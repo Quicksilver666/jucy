@@ -53,14 +53,16 @@ public class ADLFileListProcessor implements IFilelistProcessor {
 	 */
 	public void processFilelist(FileList fileList, boolean onDownload) {
 		synchronized(entrys) {
-			for (FileListFile file :fileList.getRoot()) {
+			for (FileListFile file :fileList.getFileIterable()) {
 				for (ADLSearchEntry entry:entrys) {
 					if (entry.matches(file)) {
 						FileListFolder folder = fileList.getRoot().getChildPerName(entry.getTargetFolder());
+						
+						
 						if (folder == null) {
-							folder = new FileListFolder(fileList.getRoot(),entry.getTargetFolder());
+							folder = new ADLFileListFolder(fileList.getRoot(),entry.getTargetFolder()){}; 
 						}
-						new ADLFileListFile(folder,file.getName(),file.getSize(),file.getTTHRoot(),file);
+						new ADLFileListFile((ADLFileListFolder)folder,file);
 						if (entry.isDownloadMatches() && onDownload) {
 							file.download();
 						}

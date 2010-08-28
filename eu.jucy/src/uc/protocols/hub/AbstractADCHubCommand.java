@@ -119,14 +119,16 @@ public abstract class AbstractADCHubCommand extends AbstractADCCommand implement
 	 * the key without protocol replaces
 	 */
 	public static Map<Flag,String> getFlagMap(String attributes) {
-		String[] splits = space.split(attributes);
 		Map<Flag,String> flagValue = new HashMap<Flag,String>();
-		for (String s: splits) {
-			if (s.length() >= 2) {
-				Flag fls = Flag.parse(s.substring(0, 2));
-				String value = revReplaces(s.substring(2));
-				if (fls != null && fls.verify(value)) {
-					flagValue.put(fls,value);
+		if (!GH.isNullOrEmpty(attributes)) {
+			String[] splits = space.split(attributes);
+			for (String s: splits) {
+				if (s.length() >= 2) {
+					Flag fls = Flag.parse(s.substring(0, 2));
+					String value = revReplaces(s.substring(2));
+					if (fls != null && fls.verify(value)) {
+						flagValue.put(fls,value);
+					}
 				}
 			}
 		}

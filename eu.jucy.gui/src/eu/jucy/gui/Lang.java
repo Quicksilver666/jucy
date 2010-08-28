@@ -153,6 +153,7 @@ public class Lang {
 		,IncludedFiles
 		,IncomingConnectionSettings
 		,InvalidAddress
+		,InvertSelection
 		,LastRequest
 		,LineSpeed
 		,LogFeed

@@ -60,12 +60,10 @@ public class TableTreePersister {
 		pca = new PreferenceChangedAdapter(new InstanceScope().getNode(PLUGIN_ID),columnSizeID,columnOrderID){
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
-				new SUIJob() {
+				new SUIJob(tableOrTree) {
 					@Override
 					public void run() {
-						if (!tableOrTree.isDisposed()) {
-							load();
-						}
+						load();
 					}
 				}.scheduleIfNotRunning(10000,this);
 			}
@@ -112,7 +110,7 @@ public class TableTreePersister {
 		
 		ControlAdapter ca = new ControlAdapter() {
 			public void controlResized(final ControlEvent e) {
-				new SUIJob() {
+				new SUIJob(tableOrTree) {
 					@Override
 					public void run() {
 						store();

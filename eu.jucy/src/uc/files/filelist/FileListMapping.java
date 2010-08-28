@@ -31,15 +31,15 @@ public class FileListMapping implements ISubstringMapping2<IFileListItem> {
 		 * @param minsize  minimum filesize. 0 if not used
 		 * @param maxsize  maximum Filesize . MaxLong if not used
 		 * @param equalsize  equals filesize   -1 if not used
-		 * @param s
+		 * @param endings
 		 * @param folder
 		 */
-		public FileFilter(long minsize, long maxsize , long equalsize,Collection<String> s, boolean folder) {
+		public FileFilter(long minsize, long maxsize , long equalsize,Collection<String> endings, boolean folder) {
 			this.minSize = minsize;
 			this.maxSize = maxsize;
 			
 			this.equalsize = equalsize;
-			this.endings = s;
+			this.endings = endings;
 			this.folder = folder;
 		}
 

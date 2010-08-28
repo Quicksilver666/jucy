@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.adlsearch"
       label="ADL search"
-      version="1.84.0.qualifier"
+      version="1.85.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.adlsearch">
 
@@ -60,7 +60,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.adlsearch"
          download-size="0"
          install-size="0"
-         version="1.84.0.qualifier"
+         version="1.85.0.qualifier"
          unpack="false"/>
 
 </feature>

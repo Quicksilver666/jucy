@@ -3,7 +3,7 @@ package eu.jucy.gui.itemhandler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+
 
 import logger.LoggerFactory;
 
@@ -21,7 +21,6 @@ import org.eclipse.ui.menus.IWorkbenchContribution;
 import org.eclipse.ui.services.IServiceLocator;
 
 import uc.IUser;
-import uc.files.downloadqueue.AbstractDownloadFinished;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.UserColumns;

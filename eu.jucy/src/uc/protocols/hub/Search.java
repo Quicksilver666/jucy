@@ -99,7 +99,7 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 			long maxSize = sizerestricted &&  maxsize ? size : Long.MAX_VALUE; //    (maxsize? size : Long.MAX_VALUE) : Long.MAX_VALUE; 
 			
 			SearchParameter sp = new SearchParameter(keys,Collections.<String>emptySet(),minSize,
-					maxSize,-1,searchType.getEndings(),searchType.equals(SearchType.Folder));
+					maxSize,-1,searchType.getEndings(),searchType.equals(SearchType.FOLDER));
 			
 			hub.searchReceived(sp, passive, searcherUsr,searcherIp,null,null);
 			

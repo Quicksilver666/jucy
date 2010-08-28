@@ -14,6 +14,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import uc.protocols.DCProtocol;
+
 
 
 
@@ -26,6 +28,8 @@ public class UDPEncryption {
 	private static final SecureRandom SRAND = new SecureRandom();
 	private static final Cipher CIPHER;
 	
+	private static final byte[] start;
+	
 	static {
 		Cipher d = null;
 		
@@ -35,6 +39,7 @@ public class UDPEncryption {
 			e.printStackTrace();
 		} 
 		CIPHER = d;
+		start = "URES ".getBytes(DCProtocol.ADC_CHARSET);
 	}
 	
 	public static boolean isUDPEncryptionSupported() {
@@ -120,7 +125,13 @@ public class UDPEncryption {
 		for (byte[] key: keys) {
 			try {
 				byte[] decrypted = decryptMessage(potentialEncrypted, key);
-				return decrypted;
+				boolean matches = true;
+				for (int i = 0; matches && i < start.length ; i++) {
+					matches = decrypted[i] == start[i];
+				}
+				if (matches) {
+					return decrypted;
+				}
 			} catch(GeneralSecurityException gse) {} 
 		}
 		return null;

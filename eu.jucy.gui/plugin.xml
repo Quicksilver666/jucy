@@ -3,6 +3,7 @@
 <plugin>
    <extension-point id="eu.jucy.gui.TextModificator" name="Text Modificator" schema="schema/eu.jucy.gui.TextModificator.exsd"/>
    <extension-point id="eu.jucy.gui.favhub.FavHubAdvanced" name="Advanced FavHub Settings" schema="schema/eu.jucy.gui.favhub.FavHubAdvanced.exsd"/>
+   <extension-point id="eu.jucy.gui.startupcommands" name="Startup Commands" schema="schema/eu.jucy.gui.startupcommands.exsd"/>
 
   
    
@@ -481,8 +482,8 @@
                id="eu.jucy.gui.selfdefinedcommand.user"
                name="UserCommand">
             <commandParameter
-                  id="SEND"
-                  name="SEND"
+                  id="COMMAND"
+                  name="COMMAND"
                   optional="false">
             </commandParameter>
          </command>
@@ -490,8 +491,8 @@
                id="eu.jucy.gui.selfdefinedcommand.downloadable"
                name="UserCommand">
             <commandParameter
-                  id="SEND"
-                  name="SEND"
+                  id="COMMAND"
+                  name="COMMAND"
                   optional="false">
             </commandParameter>
          </command>
@@ -499,8 +500,8 @@
                id="eu.jucy.gui.selfdefinedcommand.hub"
                name="UserCommand">
             <commandParameter
-                  id="SEND"
-                  name="SEND"
+                  id="COMMAND"
+                  name="COMMAND"
                   optional="false">
             </commandParameter>
          </command>
@@ -1624,18 +1625,10 @@
          <handler
                class="eu.jucy.gui.itemhandler.UserHandlers$BrowseFilelistHandler"
                commandId="eu.jucy.gui.browsefilelist">
-            <activeWhen>
-               <with
-                     variable="selection">
-                  <iterate
-                        ifEmpty="false"
-                        operator="and">
-                     <test
-                           property="eu.jucy.properties.user.hasDownloadedFilelist"
-                           value="true">
-                     </test>
-                  </iterate>
-               </with>
+            <activeWhen> 
+               <reference
+                     definitionId="eu.jucy.gui.user.userWithDownloadedFileList">
+               </reference>
             </activeWhen>
          </handler>
          <handler
@@ -2382,6 +2375,19 @@
                      <instanceof
                            value="uc.IHasUser">
                      </instanceof>
+                  </iterate>
+               </with>
+      </definition>
+      <definition id="eu.jucy.gui.user.userWithDownloadedFileList">
+       <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <test
+                           property="eu.jucy.properties.user.hasDownloadedFilelist"
+                           value="true">
+                     </test>
                   </iterate>
                </with>
       </definition>

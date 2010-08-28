@@ -47,7 +47,7 @@ public class PropertyTesterHasDownloadable extends PropertyTester {
 				AbstractDownloadQueueEntry adqe =  ApplicationWorkbenchWindowAdvisor.get()
 								.getDownloadQueue().get(ihd.getTTHRoot());
 				previewable = adqe != null && (adqe.getSize()*0.01d < adqe.getTempPath().length());
-				previewable = previewable && (SearchType.Audio.matches(idf) || SearchType.Video.matches(idf));
+				previewable = previewable && (SearchType.AUDIO.matches(idf) || SearchType.VIDEO.matches(idf));
 			}
 			return expectedValue.equals(previewable);
 		}

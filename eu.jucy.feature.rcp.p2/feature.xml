@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.rcp.p2"
       label="P2"
-      version="1.1.2"
+      version="3.6.0"
       provider-name="Quicksilver">
 
    <description>

@@ -35,13 +35,14 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.xml.sax.SAXException;
 
-import uc.DCClient;
+
 import uihelpers.SUIJob;
 import uihelpers.StandardContentAndLabelProvider;
 import uihelpers.TableColumnSorter;
 
 
 
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.UCEditor;
 import eu.jucy.hublist.Column;
 import eu.jucy.hublist.HubList;
@@ -286,7 +287,7 @@ public class HublistEditor extends UCEditor {
 					}
 				};
 				
-				DCClient.execute(r);
+				ApplicationWorkbenchWindowAdvisor.get().executeDir(r);
 			}
 		} catch(Exception e) {
 			handleErrorOnOpeningHublist(e);

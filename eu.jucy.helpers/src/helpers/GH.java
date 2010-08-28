@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Map.Entry;
 
@@ -569,26 +570,26 @@ public final class GH {
 		return raw;
 	}
 	
-//	/**
-//	 * increments the mapped counter
-//	 * @param <K>  - any value..
-//	 * @param mappedCounter - 
-//	 * @param k - against what this counter is mapped. if not found counter is create with value 0
-//	 * @param increment - value to increment by
-//	 */
-//	public static <K> void incrementMappedCounter(Map<K,Integer> mappedCounters,K k, int increment) {
-//		int i = getValueOfMappedCounter(mappedCounters,k);
-//		i += increment;
-//		mappedCounters.put(k, i);
-//	}
-//	
-//	public static <K> int getValueOfMappedCounter(Map<K,Integer> mappedCounters,K k) {
-//		Integer i = mappedCounters.get(k);
-//		if (i == null) {
-//			i = 0;
-//		}
-//		return i;
-//	}
+	/**
+	 * increments the mapped counter
+	 * @param <K>  - any value..
+	 * @param mappedCounter - 
+	 * @param k - against what this counter is mapped. if not found counter is create with value 0
+	 * @param increment - value to increment by
+	 */
+	public static <K> void incrementMappedCounter(Map<K,Integer> mappedCounters,K k, int increment) {
+		int i = getValueOfMappedCounter(mappedCounters,k);
+		i += increment;
+		mappedCounters.put(k, i);
+	}
+	
+	public static <K> int getValueOfMappedCounter(Map<K,Integer> mappedCounters,K k) {
+		Integer i = mappedCounters.get(k);
+		if (i == null) {
+			i = 0;
+		}
+		return i;
+	}
 	
 	/**
 	 * switches the provided chars against each other in the provided string

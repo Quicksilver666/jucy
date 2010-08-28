@@ -22,9 +22,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
-import uc.DCClient;
-
 import eu.jucy.gui.Application;
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 
 
  
@@ -38,7 +37,7 @@ public class AePlayWave implements Runnable {
 	} */
 	
 	public static void playWav(String audioKey) {
-		DCClient.execute(new AePlayWave(audioKey));
+		ApplicationWorkbenchWindowAdvisor.get().executeDir(new AePlayWave(audioKey));
 	}
 	
 	

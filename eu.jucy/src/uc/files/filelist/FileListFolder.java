@@ -18,7 +18,7 @@ import javax.xml.transform.sax.TransformerHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-import uc.User;
+import uc.IUser;
 import uc.crypto.HashValue;
 import uc.files.AbstractDownloadable.AbstractDownloadableFolder;
 import uc.files.IDownloadable.IDownloadableFolder;
@@ -29,8 +29,7 @@ import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 
 /**
  * a folder in  a FileList
- * containing other FilelistFiles
- *  
+ * containing other FilelistFiles/folders
  * 
  * @author Quicksilver
  *
@@ -39,9 +38,9 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 
 	
 
-	private final FileList fileList; //the filelist this folder belongs to
-	private long containedSize=0;
-	private int containedFiles=0;
+	private final FileList fileList; 
+	private long containedSize	= 0;
+	private int containedFiles 	= 0;
 	private final FileListFolder parent;
 	private final String foldername;
 	private final List<FileListFolder> subfolders = new CopyOnWriteArrayList<FileListFolder>();
@@ -104,6 +103,11 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 		if (parent != null) {
 			parent.addSizeToFolderparent(size,add);
 		}
+	}
+	
+	@Override
+	public boolean isOriginal() {
+		return true;
 	}
 
 	/**
@@ -196,7 +200,7 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 		 * the user for IDownloadable ..
 		 * in this case the filelist owner
 		 */
-		public User getUser() {
+		public IUser getUser() {
 			return fileList.getUsr();
 		}
 		
@@ -333,9 +337,11 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 		/**
 		 * @return the containedSize
 		 */
-		public long getContainedSize() {
+		public long getSize() {
 			return containedSize;
 		}
+		
+		
 
 		
 		@Override
@@ -420,10 +426,44 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 				return false;
 			return true;
 		}
+		
+		
 
-//		-----------------------Start Enumerator .. ..
-		private class FLIterator implements Iterator<FileListFile>{
-			//iterate over a copy to prevent concurrent modification problems..
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result
+					+ ((foldername == null) ? 0 : foldername.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			FileListFolder other = (FileListFolder) obj;
+			if (foldername == null) {
+				if (other.foldername != null)
+					return false;
+			} else if (!foldername.equals(other.foldername))
+				return false;
+			if (parent == null) {
+				if (other.parent != null)
+					return false;
+			} else if (!parent.equals(other.parent))
+				return false;
+			return true;
+		}
+
+
+
+		//		-----------------------Start Enumerator .. ..
+		private class FLIterator implements Iterator<FileListFile> {
 			private Iterator<FileListFolder> e1;
 			private Iterator<FileListFile>   e2; 
 			private Iterator<FileListFile> current;
@@ -491,7 +531,7 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 			
 			public FolderIterator() {
 				if (second.hasNext()) {
-					current= second.next().iterator2();
+					current = second.next().iterator2();
 				}
 			}
 			

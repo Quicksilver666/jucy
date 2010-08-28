@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import uc.LanguageKeys;
 import uc.files.IDownloadable.IDownloadableFile;
 
 
@@ -14,16 +15,44 @@ import uc.files.IDownloadable.IDownloadableFile;
  *
  */
 public enum SearchType {
-	Any( new String[] {} ,1),
-	Audio(new String[] {"mp3", "mp2", "wav", "au", "rm", "mid", "sm","flac","ogg"},2),
-	Compressed(new String[]{"zip", "arj", "rar", "lzh", "gz", "z", "arc", "pak","7z","bz2"},3),
-	Document(new String[]{"doc", "txt", "wri", "pdf", "ps", "tex","odt","chm","nfo"},4),
-	Executable(new String[]{ "pm" , "exe", "bat", "com"},5),
-	Picture(new String[]{"gif", "jpg", "jpeg", "bmp", "pcx", "png", "wmf", "psd"},6),
-	Video(new String[]{"mpg", "mpeg", "avi", "asf", "mov","mkv","wmv","ogm","mp4"},7),
-	Folder(new String[] {},8),
-	TTH(new String[] {},9),
-	VideoOrPicture(Video,Picture);
+	ANY(LanguageKeys.SearchType_ANY,1),
+	AUDIO(LanguageKeys.SearchType_AUDIO,2
+			, "mp3", "mp2", "wav",  "au",  "rm", "mid",  "sm","flac", "ogg"),
+	COMPRESSED(LanguageKeys.SearchType_COMPRESSED,3	
+			, "zip", "arj", "rar", "lzh",  "gz",   "z", "arc", "pak",  "7z", "bz2"),
+	DOCUMENT(LanguageKeys.SearchType_DOCUMENT,4		
+			, "doc", "txt", "wri", "pdf",  "ps", "tex", "odt", "chm", "nfo"),
+	EXECUTABLE(LanguageKeys.SearchType_EXECUTABLE,5
+			,  "pm", "exe", "bat", "com"),
+	PICTURE(LanguageKeys.SearchType_PICTURE,6
+			, "gif", "jpg", "jpeg", "bmp", "pcx", "png", "wmf", "psd"),
+	VIDEO(LanguageKeys.SearchType_VIDEO,7
+			, "mpg", "mpeg", "avi", "asf", "mov", "mkv", "wmv", "ogm", "mp4"),
+	FOLDER(LanguageKeys.SearchType_FOLDER,8),
+	TTH(LanguageKeys.SearchType_TTH,9),
+	VIDEO_OR_PICTURE(LanguageKeys.SearchType_VIDEOorPICTURE,VIDEO,PICTURE);
+	
+	
+	/**
+	 * 
+	 * @param fileendings - the filelendings this type represents
+	 * @param nmdctype - the number corresponding to this in the nmdcprotocol
+	 */
+	SearchType(String translation,int nmdctype,String... fileendings) {
+		endings = new HashSet<String>(Arrays.asList( fileendings ));
+		this.nmdctype = nmdctype; 
+		this.translation = translation;
+	}
+	
+	SearchType(String translation,SearchType... sts) {
+		endings = new HashSet<String>();
+		for (SearchType st: sts) {
+			endings.addAll(st.endings);
+		}
+		this.nmdctype = -1;
+		this.translation = translation;
+	}
+	
 	
 	
 	/**
@@ -49,32 +78,16 @@ public enum SearchType {
 				}
 			} */
 		}
-		return Any;
+		return ANY;
 	}
 
 	
 
 	private final Set<String> endings;
 	private final int nmdctype;
+	private final String translation;
 	
-	/**
-	 * 
-	 * @param fileendings - the filelendings this type represents
-	 * @param nmdctype - the number corresponding to this in the nmdcprotocol
-	 */
-	SearchType(String[] fileendings,int nmdctype) {
-		endings = new HashSet<String>(Arrays.asList( fileendings ));
-		this.nmdctype = nmdctype; 
-	}
-	
-	SearchType(SearchType... sts) {
-		endings = new HashSet<String>();
-		for (SearchType st: sts) {
-			endings.addAll(st.endings);
-		}
-		this.nmdctype = -1;
-	}
-	
+
 	public boolean matches(IDownloadableFile file) {
 		if (endings.isEmpty()) {
 			return true;
@@ -86,7 +99,7 @@ public enum SearchType {
 	
 	
 	public static List<SearchType> getNMDCSearchTypes() {
-		return Arrays.asList(Any,Audio,Compressed,Document,Executable,Picture,Video,Folder,TTH);
+		return Arrays.asList(ANY,AUDIO,COMPRESSED,DOCUMENT,EXECUTABLE,PICTURE,VIDEO,FOLDER,TTH);
 	}
 
 
@@ -106,5 +119,7 @@ public enum SearchType {
 		return nmdctype;
 	}
 
-	
+	public String toString() {
+		return translation;
+	}
 }

@@ -58,7 +58,7 @@ public class OpADLProcessor implements IFilelistProcessor {
 		if (onDownload) {
 			IUser usr = fileList.getUsr();
 			final IHub hub = usr.getHub();
-			if (hub != null && OperatorPlugin.get().isInCheck(usr)) {
+			if (hub != null && Activator.getOPPlugin().isInCheck(usr)) {
 				String check = hub.getFavHub().get(OPI.fh_checkUsers);
 				if (Boolean.parseBoolean(check)) {
 					DCClient.execute(new Runnable() {
@@ -119,7 +119,7 @@ public class OpADLProcessor implements IFilelistProcessor {
 			}
 		}
 		
-		OperatorPlugin.get().checkedUser(filelist.getUsr());
+		Activator.getOPPlugin().checkedUser(filelist.getUsr());
 
 	}
 

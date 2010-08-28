@@ -1,6 +1,7 @@
 package uc.protocols;
 
 import helpers.GH;
+import helpers.LockedRunnable;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -20,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -78,7 +80,9 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	private static final Object inetAddySynch = new Object();
 	private volatile InetSocketAddress inetAddress = null ; 
 
-	private final Object bufferLock = new Object();
+//	private final Object bufferLock = new Object();
+	private final Lock bufferLock = new ReentrantLock();
+	private final Condition bytesChanged = bufferLock.newCondition();
 	
 	private volatile ByteBuffer byteBuffer = ByteBuffer.allocate(1024*2); //in Buffer.. 
 //	private final CharBuffer outcharBuffer = CharBuffer.allocate(1024);
@@ -90,6 +94,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	private final VarByteBuffer varInBuffer = new VarByteBuffer(1024*4);
 
 	private final Semaphore semaphore = new Semaphore(0,false);
+
+
 	
 	private Object target; // socketchannel... or hubaddy in string format
 	
@@ -164,7 +170,9 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	
 	
 	public void send(ByteBuffer toSend) {
-		synchronized (bufferLock) {
+		bufferLock.lock();
+		
+		try {
 			if (encryption) {
 				try {
 					
@@ -187,7 +195,10 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			} else {
 				varOutBuffer.putBytes(toSend);
 			}
+		} finally {
+			bufferLock.unlock();
 		}
+		
 		if (!blocking) {
 			addInterestOp(SelectionKey.OP_WRITE);
 		}
@@ -196,22 +207,32 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	
 	
 	public void write() throws IOException {
-		synchronized (bufferLock) {
+
+			
+		bufferLock.lock();
+		try {
+			int numBytesWritten = 0;
 			if (varOutBuffer.hasRemaining()) {
-				SocketChannel sochan = (SocketChannel)key.channel();
+				SocketChannel sochan = (SocketChannel) key.channel();
 				//outBuffer.flip();
-				int numBytesWritten = varOutBuffer.writeToChannel(sochan);
-				logger.debug("written "+numBytesWritten);
-				
+				numBytesWritten = varOutBuffer.writeToChannel(sochan);
+				logger.debug("written " + numBytesWritten);
+
 				if (numBytesWritten == -1) {
 					GH.close(sochan);
 					onDisconnect();
 				}
-			} else {
-				key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE ));
-				logger.debug("no more write interest");
 			}
+			if (numBytesWritten == 0) {
+				key.interestOps(key.interestOps()
+						& (~SelectionKey.OP_WRITE));
+				//	logger.debug("no more write interest");
+			}
+		} finally {
+			bufferLock.unlock();
 		}
+
+		
 		
 	
 	}
@@ -230,16 +251,14 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			key.cancel();//unregister with selector
 			SocketChannel sochan = (SocketChannel)key.channel();
 			sochan.close();
-			DCClient.execute(new Runnable() {
-				public void run() {
-					Lock wl = cp.writeLock();
-					wl.lock();
+			
+			DCClient.execute(new LockedRunnable(cp.writeLock()) {
+				@Override
+				protected void lockedRun() {
 					try {	
 						cp.onDisconnect();
 					} catch(IOException ioe) {
 						logger.error(ioe,ioe); 
-					} finally {
-						wl.unlock();
 					}
 				}
 			});
@@ -257,12 +276,15 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	public void read() throws IOException {
 	
 		SocketChannel sochan =(SocketChannel)key.channel();
-		
-
-		if (varInBuffer.remaining() > 250 *1024) { 
-			//if there is more than 250kiB of data lying around in the VarInBuffer.. 
-			//-> stop reading -> security (nobody can flood us while we write) + performance gain (Buffer grows too large)
-			return;
+		bufferLock.lock();
+		try {
+			if (varInBuffer.remaining() > 250 * 1024) {
+				//if there is more than 250kiB of data lying around in the VarInBuffer.. 
+				//-> stop reading -> security (nobody can flood us while we write) + performance gain (Buffer grows too large)
+				return;
+			}
+		} finally {
+			bufferLock.unlock();
 		}
 		
 		
@@ -270,8 +292,10 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		
 		
 		if (numBytesRead >= 0) {
-			synchronized(bufferLock) {
-				
+			
+
+			bufferLock.lock();
+			try {
 				if (encryption) {
 					unwrap();
 				} else {
@@ -279,10 +303,11 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 					varInBuffer.putBytes(byteBuffer);
 					byteBuffer.clear();
 				}
-					
 				checkRead();
-				
+			} finally {
+				bufferLock.unlock();
 			}
+
 
 		} else {
 			GH.close(sochan);
@@ -335,11 +360,14 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 					} finally {
 						l.unlock();
 					}
-					
-					
-					synchronized (bufferLock) { //check if VarInBuffer already contains sth..
+	
+					bufferLock.lock();
+					try {
 						checkRead();
+					} finally {
+						bufferLock.unlock();
 					}
+					
 				}
 			});
 		}
@@ -376,8 +404,12 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			});
 			break;
 		case NEED_UNWRAP:
-			synchronized(bufferLock) {
+			
+			bufferLock.lock();
+			try {
 				unwrap();
+			} finally {
+				bufferLock.unlock();
 			}
 			break;
 		}
@@ -455,10 +487,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	 *
 	 */
 	public void connected() {
-	//	disconnectSent = false;
 		disconnectSent.set(false);
-	//	disconnectSentSem.drainPermits();
-	//	disconnectSentSem.release();
 		
 		final SocketChannel sochan =(SocketChannel)key.channel();
 		trySetInetAddy(sochan);
@@ -492,11 +521,6 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 									logger.debug("enabled ciphers: "+GH.toString(engine.getEnabledCipherSuites()));
 								}
 							}
-							//	logger.debug("enabled ciphers: "+GH.toString(engine.getEnabledCipherSuites()));
-							/*	if (!semaphore.tryAcquire()) {//prevent reading of commands..
-									throw new IOException("Acquire failed");
-								} */
-								//semaphore.acquireUninterruptibly();
 						
 							send(ByteBuffer.allocate(0)); //send an empty message to start handshake..
 						} else {
@@ -525,11 +549,15 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		boolean stopp = false;
 		do {
 			byte[] sBa;
-			synchronized (bufferLock) {
-				sBa = varInBuffer.readUntil((byte)cp.getCommandStopByte());
+			
+			bufferLock.lock();
+			try {
+				sBa = varInBuffer.readUntil((byte) cp.getCommandStopByte());
 				if (sBa.length == 0) {
 					return;
 				}
+			} finally {
+				bufferLock.unlock();
 			}
 			
 			Lock l = cp.writeLock();
@@ -546,9 +574,14 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				l.unlock();
 			}
 
-			synchronized(bufferLock) {
+			
+			bufferLock.lock();
+			try {
 				stopp = !varInBuffer.hasRemaining();
+			} finally {
+				bufferLock.unlock();
 			}
+			
 		
 		} while (!stopp);
 	}
@@ -586,55 +619,50 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		
 		
 		if (encryption) {
+			bufferLock.lock();
 			try {
-				synchronized (bufferLock) {
-
-					engine = cryptoManager.createSSLEngine();
-					engine.setUseClientMode(!serverSide);
-
-					if (serverSide) {
-						engine.setNeedClientAuth(true);
-						engine.setWantClientAuth(true);
-						engine.setEnableSessionCreation(true);
-					}
-
-					List<String> enabledCS = Arrays.asList(engine
-							.getSupportedCipherSuites());
-					/*
-					 * disabled: MD5: Old hashfunction and broken. RC4: old
-					 * streamcipher and weak Kerberos: needs server.. probably
-					 * special settings.. nobody will use it SSL: Enforces use
-					 * of TLS
-					 */
-					enabledCS = GH.filter(enabledCS, "MD5", "RC4", "KRB5",
-							"SSL");
-
-					if (!enabledCS.isEmpty()) {
-						engine.setEnabledCipherSuites(enabledCS
-								.toArray(new String[] {}));
-					}
-
-					List<String> enabledProt = Arrays.asList(engine
-							.getSupportedProtocols());
-					enabledProt = GH.filter(enabledProt, "SSL");
-
-					if (!enabledProt.isEmpty()) {
-						engine.setEnabledProtocols(enabledProt
-								.toArray(new String[] {}));
-					}
-
-					SSLSession ssle = engine.getSession();
-					byteBuffer = ByteBuffer
-							.allocate(ssle.getPacketBufferSize());
-					decrypting = ByteBuffer.allocate(ssle
-							.getApplicationBufferSize());
-					encrypting = ByteBuffer
-							.allocate(ssle.getPacketBufferSize());
-
-					logger.debug("encrypted connection created");
+				engine = cryptoManager.createSSLEngine();
+				engine.setUseClientMode(!serverSide);
+				if (serverSide) {
+					engine.setNeedClientAuth(true);
+					engine.setWantClientAuth(true);
+					engine.setEnableSessionCreation(true);
 				}
+				List<String> enabledCS = Arrays.asList(engine
+						.getSupportedCipherSuites());
+				/*
+				 * disabled: MD5: Old hashfunction and broken. RC4: old
+				 * streamcipher and weak Kerberos: needs server.. probably
+				 * special settings.. nobody will use it SSL: Enforces use
+				 * of TLS
+				 */
+				enabledCS = GH.filter(enabledCS, "MD5", "RC4", "KRB5",
+				"SSL");
+				if (!enabledCS.isEmpty()) {
+					engine.setEnabledCipherSuites(enabledCS
+							.toArray(new String[] {}));
+				}
+				List<String> enabledProt = Arrays.asList(engine
+						.getSupportedProtocols());
+				enabledProt = GH.filter(enabledProt, "SSL");
+				if (!enabledProt.isEmpty()) {
+					engine.setEnabledProtocols(enabledProt
+							.toArray(new String[] {}));
+				}
+				SSLSession ssle = engine.getSession();
+				byteBuffer = ByteBuffer.allocate(ssle
+						.getPacketBufferSize());
+				decrypting = ByteBuffer.allocate(ssle
+						.getApplicationBufferSize());
+				encrypting = ByteBuffer.allocate(ssle
+						.getPacketBufferSize());
+				logger.debug("encrypted connection created");
+
+
 			} catch (RuntimeException e) {
 				logger.error(e, e);
+			} finally {
+				bufferLock.unlock();
 			}
 		}
 		
@@ -800,29 +828,25 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		sem.acquireUninterruptibly();
 	}
 	
-	private final Lock blockingChannelLock = new ReentrantLock();
+//	private final Lock blockingChannelLock = new ReentrantLock();
 	
 	public boolean flush(int milliseconds) {
 		if (blocking) {
 			boolean locked = false;
 			try {
-				locked = blockingChannelLock.tryLock(milliseconds,TimeUnit.MILLISECONDS);
+				locked = bufferLock.tryLock(milliseconds,TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e) {
 				Thread.interrupted();
 			}
 			if (locked) {
 				try {
 					((SocketChannel)key.channel()).socket().setSoTimeout(milliseconds);
-					synchronized (bufferLock) {
-						varOutBuffer.writeToChannel((SocketChannel)key.channel());
-					}
+					varOutBuffer.writeToChannel((SocketChannel)key.channel());
 					((SocketChannel)key.channel()).socket().setSoTimeout(cp.getSocketTimeout());
-					
-					
 				} catch(IOException ioe) {
 					logger.debug(ioe + toString(),ioe);
 				} finally {
-					blockingChannelLock.unlock();
+					bufferLock.unlock();
 				}
 				
 			}
@@ -833,17 +857,23 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		} else {
 			
 			long sleepEnd = System.currentTimeMillis() + milliseconds;
-			synchronized(bufferLock) {
+			
+				
+			bufferLock.lock();
+			try {
 				while (varOutBuffer.hasRemaining() && System.currentTimeMillis() < sleepEnd) {
 					try {
-						bufferLock.wait(20);
+						bytesChanged.await(20,TimeUnit.MILLISECONDS);
 					} catch (InterruptedException e) {
 						Thread.interrupted();
 						break;
 					}
 				}
 				return varOutBuffer.hasRemaining();
+			} finally {
+				bufferLock.unlock();
 			}
+			
 		}
 	}
 
@@ -904,7 +934,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	
 	@Override
 	public void setIncomingDecompression(Compression comp) throws IOException {
-		varInBuffer.setDecompression(comp,bufferLock);
+		varInBuffer.setDecompression(comp,bufferLock,bytesChanged);
+	
 	}
 	
 	
@@ -922,40 +953,51 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 
 		public int write(ByteBuffer src) throws IOException {
 			UnblockingConnection.this.send(src);
-			blockingChannelLock.lock();
+			
+			bufferLock.lock();
 			try {
-				synchronized(bufferLock) {
-					int toWrite = varOutBuffer.writeToChannel((SocketChannel)key.channel());
-					return toWrite;
-				}
+				int toWrite = varOutBuffer.writeToChannel((SocketChannel) key.channel());
+				return toWrite;
 			} finally {
-				blockingChannelLock.unlock();
+				bufferLock.unlock();
 			}
+			
 		}
 
 		public int read(ByteBuffer dst) throws IOException {
 			boolean varInBufferHasRemaining;
-			synchronized (bufferLock) {
+			
+			bufferLock.lock();
+			try {
 				varInBufferHasRemaining = varInBuffer.hasRemaining();
+			} finally {
+				bufferLock.unlock();
 			}
+			
 			while (!varInBufferHasRemaining) {
-				blockingChannelLock.lock();
+				
+				UnblockingConnection.this.read();
+				
+				bufferLock.lock();
 				try {
-					UnblockingConnection.this.read();
-				} finally {
-					blockingChannelLock.unlock();
-				}
-				synchronized (bufferLock) {
 					if (!encryption || engine.isInboundDone()) { //without encryption read is always successful... also we need a break if encryption is done..
 						break;
 					}
 					varInBufferHasRemaining = varInBuffer.hasRemaining();
+				} finally {
+					bufferLock.unlock();
 				}
+				
 					
 			} 
-			synchronized (bufferLock) {
+			
+			bufferLock.lock();
+			try {
 				return varInBuffer.getBytes(dst);
+			} finally {
+				bufferLock.unlock();
 			}
+			
 			
 		}
 

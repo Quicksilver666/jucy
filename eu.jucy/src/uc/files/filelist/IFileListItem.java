@@ -11,4 +11,19 @@ public interface IFileListItem  extends IDownloadable {
 	 */
 	FileListFolder getParent();
 	
+	
+	/**
+	 * 
+	 * @return true if this item was originally in the filelist
+	 * and was not added by some processor plugin
+	 */
+	boolean isOriginal();
+	
+	/**
+	 * 
+	 * @return the size of this item
+	 * contained size for folder
+	 */
+	long getSize();
+	
 }

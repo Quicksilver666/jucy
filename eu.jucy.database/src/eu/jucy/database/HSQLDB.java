@@ -1,6 +1,7 @@
 package eu.jucy.database;
 
 import helpers.GH;
+import helpers.LockedRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import logger.LoggerFactory;
 import org.apache.log4j.Logger;
@@ -44,59 +48,69 @@ public class HSQLDB implements IDatabase {
 
 	private static Logger logger = LoggerFactory.make();
 
+	private static final int MAX_INTERLEAVESIZE = 1024*1024; 
+	
 	private final boolean deletelogtables = false; // just for testing
 													// purposes..
 
+	private final ReadWriteLock rwLock = new ReentrantReadWriteLock(false);
+	private final Lock readLock = rwLock.readLock();
+	private final Lock writeLock = rwLock.writeLock();
+	
 	private String url;
 
 	private File storagePath;
 	private volatile Connection c;
 
-	private boolean ignoreUserUpdates = false;
+	private volatile boolean ignoreUserUpdates = false;
 
 	/**
 	 * entity to name .. cached here.. for speed and simplicity reasons..
 	 */
-	private Map<HashValue, String> knownLogEntities = new HashMap<HashValue, String>();
+	private Map<HashValue, String> knownLogEntities = Collections.synchronizedMap(new HashMap<HashValue, String>());
 
 	private DCClient dcc;
 
 	public HSQLDB() {
 	}
 
-	public synchronized void init(File storagepath, DCClient dcc)
-			throws Exception {
-		if (this.dcc != null) {
-			throw new IllegalStateException();
-		}
-		this.dcc = dcc;
-		this.storagePath = storagepath;
-
-		Class.forName("org.hsqldb.jdbcDriver");
-
-		boolean allok = connect();
-
-		if (!allok) {
-			throw new IllegalStateException("initialization not successful");
-		}
-
-		if (!tableExists()) {
-			createTables();
-		}
-		if (deletelogtables) {
-			deleteLogtables();
-		}
-
-		if (!logTableExists()) {
-			createLogTables();
-			// setProperties(); // in same version added as LogTables.. ->
-			// should also be moved
-		} else {
-			loadLogEntitys();
-		}
-		
-		if (!restoreTableExists()) {
-			createRestoreTable();
+	public void init(File storagepath, DCClient dcc) throws Exception {
+		writeLock.lock();
+		try {
+			if (this.dcc != null) {
+				throw new IllegalStateException();
+			}
+			this.dcc = dcc;
+			this.storagePath = storagepath;
+	
+			Class.forName("org.hsqldb.jdbcDriver");
+	
+			boolean allok = connect();
+	
+			if (!allok) {
+				throw new IllegalStateException("initialization not successful");
+			}
+	
+			if (!tableExists()) {
+				createTables();
+			}
+			if (deletelogtables) {
+				deleteLogtables();
+			}
+	
+			if (!logTableExists()) {
+				createLogTables();
+				// setProperties(); // in same version added as LogTables.. ->
+				// should also be moved
+			} else {
+				loadLogEntitys();
+			}
+			
+			if (!restoreTableExists()) {
+				createRestoreTable();
+			}
+		} finally {
+			writeLock.unlock();
 		}
 
 	}
@@ -113,11 +127,11 @@ public class HSQLDB implements IDatabase {
 	// }
 	// }
 
-	public synchronized void shutdown() {
+	public void shutdown() {
 		disconnect();
 	}
 
-	private synchronized boolean connect() throws IOException, SQLException {
+	private boolean connect() throws IOException, SQLException {
 		boolean allok = true;
 		File folder = new File(storagePath, "db");
 
@@ -166,21 +180,21 @@ public class HSQLDB implements IDatabase {
 		return allok;
 	}
 
-	private synchronized void ensureConnectionIsOpen() throws SQLException {
-		if (c == null || c.isClosed()) {
-			try {
-				connect();
-			} catch (IOException ioe) {
-				logger.warn(ioe, ioe);
-				throw new SQLException();
-			}
-		}
-	}
+//	private void ensureConnectionIsOpen() throws SQLException {
+//		if (c == null || c.isClosed()) {
+//			try {
+//				connect();
+//			} catch (IOException ioe) {
+//				logger.warn(ioe, ioe);
+//				throw new SQLException();
+//			}
+//		}
+//	}
 
 	/**
 	 * test if we have to create the tables.. or if they already exist
 	 */
-	private synchronized boolean tableExists() {
+	private boolean tableExists() {
 		try {
 			Statement s = c.createStatement();
 			s.execute("SELECT 1 FROM hashes");
@@ -190,7 +204,7 @@ public class HSQLDB implements IDatabase {
 		return true;
 	}
 
-	private synchronized boolean logTableExists() {
+	private boolean logTableExists() {
 		try {
 			Statement s = c.createStatement();
 			s.execute("SELECT 1 FROM logEntitys");
@@ -200,21 +214,23 @@ public class HSQLDB implements IDatabase {
 		return true;
 	}
 
-	public synchronized void deleteLogtables() {
+	private void deleteLogtables() {
 		String s2 = "DROP TABLE logs IF EXISTS";
 		String s1 = "DROP TABLE logEntitys IF EXISTS";
 
 		try {
 			Statement st1 = c.createStatement();
 			st1.execute(s2);
+			st1.close();
 			Statement st2 = c.createStatement();
 			st2.execute(s1);
+			st2.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private synchronized void loadLogEntitys() {
+	private void loadLogEntitys() {
 		knownLogEntities.clear();
 		try {
 			PreparedStatement loadEntitys = c
@@ -231,7 +247,7 @@ public class HSQLDB implements IDatabase {
 
 		} catch (SQLException e) {
 			logger.warn(e, e);
-		}
+		} 
 	}
 
 	private void createTables() {
@@ -242,26 +258,25 @@ public class HSQLDB implements IDatabase {
 					+ "tthroot CHARACTER("
 					+ TigerHashValue.serializedDigestLength + ") PRIMARY KEY,"
 					+ "interleaves LONGVARCHAR )");
+			createTTHtoIH.close();
 
 			Statement s = c.createStatement();
 
 			// creating table tths
 			s.execute("CREATE CACHED TABLE hashes ("
-					+ "tthroot CHARACTER("
-					+ TigerHashValue.serializedDigestLength
-					+ "), " // the rootTTH
-					// bewares integrity.. so no files without hashes are
-					// stored..
-					+ "date BIGINT, " // the date when the file was hashed
-					+ "path VARCHAR(32767) PRIMARY KEY,  " // artificial upper
-															// limit of path..
-					+ "FOREIGN KEY ( tthroot ) "
+					+ "tthroot CHARACTER("+ TigerHashValue.serializedDigestLength+ ") " 
+					+ " ,date BIGINT " 
+					+ ", path VARCHAR(32767) PRIMARY KEY "
+					+ ", FOREIGN KEY ( tthroot ) "
 					+ "REFERENCES interleaves (tthroot) ON DELETE CASCADE ) ");
 
+			s.close();
 			Statement s2 = c.createStatement();
 			// create an index on tths so we can search there faster..
 			s2.execute("CREATE INDEX tthrootindex ON hashes ( tthroot ) ");
 
+			s2.close();
+			
 			Statement createDQEtable = c.createStatement();
 			createDQEtable.execute("CREATE CACHED TABLE downloadqueue ("
 
@@ -273,6 +288,8 @@ public class HSQLDB implements IDatabase {
 					+ "priority INTEGER, " //
 					+ "size BIGINT" + " )");
 
+			createDQEtable.close();
+			
 			Statement createUserTable = c.createStatement();
 			createUserTable.execute("CREATE CACHED TABLE users (" // subject to
 																	// change
@@ -283,6 +300,8 @@ public class HSQLDB implements IDatabase {
 					+ "nick VARCHAR(1024) ,"
 					+ "favuser BOOLEAN DEFAULT FALSE , "
 					+ "autoGrant BIGINT DEFAULT 0" + " )");
+			
+			createUserTable.close();
 
 			Statement createDQEToUsertable = c.createStatement();
 			createDQEToUsertable.execute("CREATE CACHED TABLE dqeToUser ("
@@ -299,7 +318,7 @@ public class HSQLDB implements IDatabase {
 					+ "FOREIGN KEY ( tthroot ) "
 					+ " REFERENCES downloadqueue (tthroot) ON DELETE CASCADE "
 					+ " )");
-
+			createDQEToUsertable.close();
 		} catch (SQLException e) {
 			logger.warn("Couldn't create SQL table " + e.toString(), e);
 		}
@@ -314,6 +333,8 @@ public class HSQLDB implements IDatabase {
 					+ "name VARCHAR(1024),"
 					+ "PRIMARY KEY ( entityid) " + " )");
 
+			createLogentityTable.close();
+			
 			Statement createLogtable = c.createStatement();
 			createLogtable.execute("CREATE CACHED TABLE logs ("
 
@@ -323,21 +344,25 @@ public class HSQLDB implements IDatabase {
 					+ "FOREIGN KEY ( entityid ) "
 					+ " REFERENCES logEntitys (entityid) ON DELETE CASCADE "
 					+ " )");
+			createLogtable.close();
 
 			Statement index = c.createStatement();
 			// create an index on TimeStamps so we can search there faster..
 			index.execute("CREATE INDEX timestampindex ON logs ( timestamp ) ");
-
+			index.close();
+			
 			Statement index2 = c.createStatement();
 			// create an index on TTHs so we can search there faster..
 			index2.execute("CREATE INDEX entityidindex ON logs ( entityid ) ");
+			
+			index2.close();
 
 		} catch (SQLException e) {
 			logger.warn("Couldn't create SQL table " + e.toString(), e);
 		}
 	}
 	
-	private synchronized boolean restoreTableExists() {
+	private boolean restoreTableExists() {
 		try {
 			Statement s = c.createStatement();
 			s.execute("SELECT 1 FROM dqrestoreinfo");
@@ -365,16 +390,19 @@ public class HSQLDB implements IDatabase {
 	
 	
 
-	public synchronized void disconnect() {
-		if (c == null) { // no connection -> no disconnect
-			return;
-		}
+	public void disconnect() {
+		writeLock.lock();
 		try {
+			if (c == null) { // no connection -> no disconnect
+				return;
+			}
 			Statement sd = c.createStatement();
 			sd.execute("SHUTDOWN");
 			c.close();
 		} catch (SQLException e) {
 			logger.warn("Disconnecting failed " + e.toString(), e);
+		} finally {
+			writeLock.unlock();
 		}
 	}
 
@@ -387,12 +415,13 @@ public class HSQLDB implements IDatabase {
 	 *            the time when it was hashed...
 	 */
 
-	public synchronized void addOrUpdateFile(HashedFile hf,
+	public void addOrUpdateFile(HashedFile hf,
 			InterleaveHashes inter) {
 
 		if (hf.getPath().exists()) {
+			writeLock.lock();
 			try {
-				ensureConnectionIsOpen();
+			//	ensureConnectionIsOpen();
 
 				addOrUpdateInterleave(hf.getTTHRoot(), inter); // first add
 																// interleaves..
@@ -440,6 +469,8 @@ public class HSQLDB implements IDatabase {
 				logger.warn("addOrUpdateFile failed " + e.toString()
 						+ " interleaves length: " + inter.toString().length(),
 						e);
+			} finally {
+				writeLock.unlock();
 			}
 
 		}
@@ -458,11 +489,9 @@ public class HSQLDB implements IDatabase {
 			insertInterleaves.setString(1, tth.toString());
 
 			String s;
-			while ((s = inter.toString()).length() > 1024 * 1024) { // max
-																	// string
-																	// size in
-																	// db...
+			while ((s = inter.toString()).length() > MAX_INTERLEAVESIZE) { 
 				inter = inter.getParentInterleaves();
+				logger.warn("To long interleave provided for DB root: "+tth);
 			}
 			insertInterleaves.setString(2, s);
 
@@ -473,10 +502,10 @@ public class HSQLDB implements IDatabase {
 
 	}
 
-	public synchronized void addUpdateOrDeleteUser(IUser usr) {
+	public void addUpdateOrDeleteUser(IUser usr) {
 		if (!ignoreUserUpdates) {
+			writeLock.lock();
 			try {
-				ensureConnectionIsOpen();
 				if (usr.shouldBeStored()) {
 					logger.debug("adding user " + usr.getNick() + " "
 							+ usr.getAutograntSlot() + " " + usr.isFavUser());
@@ -517,18 +546,20 @@ public class HSQLDB implements IDatabase {
 
 			} catch (SQLException sqle) {
 				logger.warn(sqle, sqle);
+			} finally {
+				writeLock.unlock();
 			}
 		}
 	}
 
-	public synchronized void addUserToDQE(IUser usr, HashValue hash) {
+	public void addUserToDQE(IUser usr, HashValue hash) {
 		HashValue tth = hash;
 		if (tth == null) {
 			throw new IllegalArgumentException("DQE has no TTH");
 		}
 		HashValue userid = usr.getUserid();
+		writeLock.lock();
 		try {
-			ensureConnectionIsOpen();
 			logger.debug("1added user: " + usr.getNick() + " to DQE: " + tth);
 			// getNrOfEntrysInUserToDQETable();
 
@@ -539,6 +570,7 @@ public class HSQLDB implements IDatabase {
 			ResultSet rs = checkExist.executeQuery();
 			logger.debug("2added user: " + usr.getNick() + " to DQE: " + tth);
 			if (!rs.next()) {
+				rs.close();
 				PreparedStatement insertMapping = c
 						.prepareStatement("INSERT INTO dqeToUser (tthroot, userid) VALUES ( ?, ?) ");
 				insertMapping.setString(1, tth.toString());
@@ -553,6 +585,8 @@ public class HSQLDB implements IDatabase {
 
 		} catch (SQLException sqle) {
 			logger.warn(sqle, sqle);
+		} finally {
+			writeLock.unlock();
 		}
 	}
 
@@ -636,6 +670,7 @@ public class HSQLDB implements IDatabase {
 
 	private void getNrOfEntrysInUserToDQETable() {
 		if (logger.isDebugEnabled()) {
+			readLock.lock();
 			try {
 				Statement s = c.createStatement();
 				ResultSet rs = s.executeQuery("SELECT * FROM dqeToUser");
@@ -646,15 +681,17 @@ public class HSQLDB implements IDatabase {
 				logger.debug("currently Found Mappings: " + count);
 			} catch (SQLException sqle) {
 				logger.warn(sqle, sqle);
+			} finally {
+				readLock.unlock();
 			}
 		}
 	}
 
-	public synchronized void deleteUserFromDQE(IUser usr, DQEDAO dqe) {
+	public void deleteUserFromDQE(IUser usr, DQEDAO dqe) {
 		logger.debug("deleting user from dqe: " + usr.getNick());
 		getNrOfEntrysInUserToDQETable();
+		writeLock.lock();
 		try {
-			ensureConnectionIsOpen();
 
 			PreparedStatement deleteUserFromDQE = c
 					.prepareStatement("DELETE FROM dqeToUser WHERE tthroot = ? AND userid = ? ");
@@ -669,6 +706,8 @@ public class HSQLDB implements IDatabase {
 
 		} catch (SQLException sqle) {
 			logger.warn(sqle, sqle);
+		} finally {
+			writeLock.unlock();
 		}
 		logger.debug("finished deleting user from dqe: " + usr.getNick());
 		getNrOfEntrysInUserToDQETable();
@@ -687,11 +726,11 @@ public class HSQLDB implements IDatabase {
 	 * @param size
 	 */
 	public void addRestoreInfo(HashValue hash,BitSet restoreInfo) {
+		writeLock.lock();
 		try {
-			ensureConnectionIsOpen();
 			PreparedStatement addRestoreInfo = c
 			.prepareStatement("INSERT INTO dqrestoreinfo (tthroot, restoreInfo)"
-					+ " VALUES ( ? , ? ) ");
+					+ " VALUES (?,?) ");
 			
 			addRestoreInfo.setString(1, hash.toString());
 			
@@ -703,14 +742,16 @@ public class HSQLDB implements IDatabase {
 			
 		} catch (SQLException sqle) {
 			logger.warn(sqle, sqle);
+		} finally  {
+			writeLock.unlock();
 		}
 	}
 
-	public synchronized void addOrUpdateDQE(DQEDAO dqe, boolean add) {
+	public void addOrUpdateDQE(DQEDAO dqe, boolean add) {
 		logger.debug("changing dqe: " + dqe);
 
+		writeLock.lock();
 		try {
-			ensureConnectionIsOpen();
 
 			addOrUpdateDQE(dqe.getTTHRoot(), dqe.getAdded(), dqe.getTarget(),
 					dqe.getPriority(), dqe.getSize(), add);
@@ -722,26 +763,29 @@ public class HSQLDB implements IDatabase {
 
 		} catch (SQLException sqle) {
 			logger.warn(sqle, sqle);
+		} finally {
+			writeLock.unlock();
 		}
 	}
 	
 	
 
-	public synchronized void deleteDQE(DQEDAO dqe) {
+	public void deleteDQE(DQEDAO dqe) {
 		logger.debug("deleting dqe: " + dqe.getName());
+		writeLock.lock();
 		try {
-			ensureConnectionIsOpen();
 
 			PreparedStatement deleteDQE = c
 					.prepareStatement("DELETE FROM downloadqueue WHERE tthroot = ? ");
 
 			deleteDQE.setString(1, dqe.getTTHRoot().toString());
-
 			deleteDQE.execute();
 			deleteDQE.close();
 
 		} catch (SQLException sqle) {
 			logger.warn(sqle, sqle);
+		} finally {
+			writeLock.unlock();
 		}
 	}
 
@@ -749,13 +793,13 @@ public class HSQLDB implements IDatabase {
 	 * loads the DownloadqueueEntrys persistent data.. as a side effects all
 	 * stored users are loaded..
 	 */
-	public synchronized Set<DQEDAO> loadDQEsAndUsers() {
+	public Set<DQEDAO> loadDQEsAndUsers() {
 
 		logger.debug("in loadDQEsAndUsers()");
 		Map<HashValue, User> users = new HashMap<HashValue, User>();
 
 		Map<HashValue, DQEDAO> dqes = new HashMap<HashValue, DQEDAO>();
-
+		writeLock.lock();
 		try {
 			// load users ..
 			PreparedStatement prepst = c
@@ -794,10 +838,10 @@ public class HSQLDB implements IDatabase {
 					byte[] bits = BASE32Encoder.decode(restoreData);
 					BitSet restoreBitSet = GH.toSet(bits);
 					restoreInfos.put(tthRoot, restoreBitSet);
-					logger.info("loaded restoreinfo for: "+tthRoot );
+					logger.debug("loaded restoreinfo for: "+tthRoot );
 				}
 			}
-			
+			dqeRestoreInfo.close();
 			
 			
 			PreparedStatement dqesstm = c
@@ -853,9 +897,13 @@ public class HSQLDB implements IDatabase {
 			}
 
 			mappings.close();
-			deleteRestoreInfos();
+			Statement deleteRestoreInfo = c.createStatement();
+			deleteRestoreInfo.execute("DELETE FROM dqrestoreinfo");
+			deleteRestoreInfo.close();
 		} catch (SQLException e) {
 			logger.warn(e, e);
+		} finally {
+			writeLock.unlock();
 		}
 
 		ignoreUserUpdates = false;
@@ -867,22 +915,20 @@ public class HSQLDB implements IDatabase {
 		return new HashSet<DQEDAO>(dqes.values());
 	}
 	
-	private void deleteRestoreInfos() throws SQLException {
-		Statement s = c.createStatement();
-		s.execute("DELETE FROM dqrestoreinfo");
-	}
 
-	public synchronized InterleaveHashes getInterleaves(HashValue tthroot) {
+
+	public InterleaveHashes getInterleaves(HashValue tthroot) {
 		if (tthroot == null) {
 			throw new IllegalArgumentException(
 					"tthroot is null in HSQL.getInterleaves()");
 		}
 		InterleaveHashes ih = null;
-
+		
+		readLock.lock();
 		try {
 
 			PreparedStatement prepst = c
-					.prepareStatement("SELECT * FROM interleaves WHERE tthroot = ? ");
+					.prepareStatement("SELECT interleaves FROM interleaves WHERE tthroot = ? ");
 			prepst.setString(1, tthroot.toString());
 
 			ResultSet rs = prepst.executeQuery();
@@ -894,27 +940,33 @@ public class HSQLDB implements IDatabase {
 
 		} catch (SQLException e) {
 			logger.warn(e, e);
+		} finally {
+			readLock.unlock();
 		}
 
 		return ih;
 	}
 
-	public synchronized void deleteAllHashedFiles() {
+	public void deleteAllHashedFiles() {
+		writeLock.lock();
 		try {
 			Statement stm = c.createStatement();
 			stm.execute("DELETE FROM hashes");
 			stm.close();
 		} catch (SQLException e) {
 			logger.warn(e, e);
+		} finally {
+			writeLock.unlock();
 		}
 	}
 
-	public synchronized Map<File, HashedFile> getAllHashedFiles() {
+	public Map<File, HashedFile> getAllHashedFiles() {
 		Map<File, HashedFile> files = new HashMap<File, HashedFile>();
+		Map<File, HashedFile> removeFiles = new HashMap<File, HashedFile>();
+		readLock.lock();
 		try {
-			ensureConnectionIsOpen();
 			PreparedStatement prepst = c
-					.prepareStatement("SELECT * FROM hashes");
+					.prepareStatement("SELECT tthroot ,date ,path FROM hashes");
 			ResultSet rs = prepst.executeQuery();
 
 			while (rs.next()) { // tthroot , date , path
@@ -929,51 +981,70 @@ public class HSQLDB implements IDatabase {
 					// little hack ... will remove files already present..
 					// (fixes problems with changed case on case insensitive
 					// file-system)
-
-					PreparedStatement remove = c
-							.prepareStatement("DELETE FROM hashes WHERE tthroot = ?");
-					remove.setString(1, tthRoot);
-
-					logger.debug("removing File: " + remove.executeUpdate());
-					remove.close();
-					files.remove(h.getPath());
+					removeFiles.put(h.getPath(), h);
+					
 				}
 			}
 			prepst.close();
 
 		} catch (SQLException e) {
 			logger.error(e, e);
+		} finally {
+			readLock.unlock();
+		}
+		if (!removeFiles.isEmpty()) {
+			writeLock.lock();
+			try {
+				for (HashedFile h:removeFiles.values()) {
+					PreparedStatement remove = c
+					.prepareStatement("DELETE FROM hashes WHERE tthroot = ?");
+					remove.setString(1, h.getTTHRoot().toString());
+	
+					logger.debug("removing File: " + remove.executeUpdate());
+					remove.close();
+					files.remove(h.getPath());
+				}
+			} catch (SQLException e) {
+				logger.error(e, e);
+			} finally {
+				writeLock.unlock();
+			}
 		}
 
 		return files;
 	}
 
-	public synchronized HashedFile getHashedFile(File f) {
+	public HashedFile getHashedFile(File f) {
+		readLock.lock();
 		try {
-			ensureConnectionIsOpen();
 			PreparedStatement prepst = c
-					.prepareStatement("SELECT * FROM hashes WHERE path = ? ");
+					.prepareStatement("SELECT date,  tthroot FROM hashes WHERE path = ? ");
 			prepst.setString(1, f.getAbsolutePath());
 			ResultSet rs = prepst.executeQuery();
 
-			while (rs.next()) { // tthroot , date , path
+			while (rs.next()) { 
 				long date = rs.getLong("date");
-				String path = rs.getString("path");
+				String path = f.getAbsolutePath();
 				String tthRoot = rs.getString("tthroot");
 
 				HashedFile h = new HashedFile(new Date(date), HashValue
 						.createHash(tthRoot), new File(path));
+				
+				prepst.close();
 				return h;
 			}
 		} catch (SQLException e) {
 			logger.error(e, e);
+		} finally {
+			readLock.unlock();
 		}
 		return null;
 	}
 
-	public synchronized Map<File, HashedFile> pruneUnusedHashedFiles() {
+	public Map<File, HashedFile> pruneUnusedHashedFiles() {
 		int count = 0;
 		Map<File, HashedFile> files = getAllHashedFiles();
+		
 		try {
 			Iterator<File> it = files.keySet().iterator();
 			while (it.hasNext()) {
@@ -981,39 +1052,16 @@ public class HSQLDB implements IDatabase {
 				if (f.isFile()) {
 					it.remove();
 				} else {
-					PreparedStatement remove = c
-							.prepareStatement("DELETE FROM hashes WHERE path = ? ");
-					remove.setString(1, f.getAbsolutePath());
-					count += remove.executeUpdate();
-					/*
-					 * if (count == 0) {
-					 * 
-					 * PreparedStatement lookdebug =
-					 * c.prepareStatement("Select * FROM hashes WHERE tthroot = ? "
-					 * ); lookdebug.setString(1,
-					 * files.get(f).getTTHRoot().toString());
-					 * 
-					 * ResultSet rs = lookdebug.executeQuery(); while
-					 * (rs.next()) { String path =
-					 * rs.getString("path")+"  date: "+rs.getLong("date");
-					 * logger.info("Path in rs: "+ path); }
-					 * 
-					 * 
-					 * PreparedStatement update = c.prepareStatement(
-					 * "UPDATE hashes SET tthroot = ? , date = ? WHERE path LIKE ? "
-					 * );
-					 * 
-					 * update.setLong(2, 100); update.setString(3,
-					 * f.getAbsolutePath()); *
-					 * 
-					 * logger.info("Updated in total for deletion: ");
-					 * 
-					 * 
-					 * 
-					 * }
-					 */
-					remove.close();
-
+					writeLock.lock();
+					try {
+						PreparedStatement remove = c
+								.prepareStatement("DELETE FROM hashes WHERE path = ? ");
+						remove.setString(1, f.getAbsolutePath());
+						count += remove.executeUpdate();
+						remove.close();
+					} finally {
+						writeLock.unlock();
+					}
 				}
 			}
 			// logger.warn("Totally changed files: "+count);
@@ -1026,51 +1074,56 @@ public class HSQLDB implements IDatabase {
 		return null;
 	}
 
-	public synchronized void addLogEntry(ILogEntry logentry) {
-		try {
-			ensureConnectionIsOpen();
-			if (!knownLogEntities.containsKey(logentry.getEntityID())) {
-				PreparedStatement addLogentity = c
+	public void addLogEntry(final ILogEntry logentry) {
+		
+		dcc.executeDir(new LockedRunnable(writeLock) {
+			public void lockedRun() {
+				try {
+					if (!knownLogEntities.containsKey(logentry.getEntityID())) {
+						PreparedStatement addLogentity = c
 						.prepareStatement("INSERT INTO logEntitys (entityid, name)"
 								+ " VALUES ( ? , ? ) ");
-				addLogentity.setString(1, logentry.getEntityID().toString());
-				addLogentity.setString(2, logentry.getName());
+						addLogentity.setString(1, logentry.getEntityID().toString());
+						addLogentity.setString(2, logentry.getName());
 
-				addLogentity.execute();
-				addLogentity.close();
+						addLogentity.execute();
+						addLogentity.close();
 
-				knownLogEntities
-						.put(logentry.getEntityID(), logentry.getName());
-			}
+						knownLogEntities.put(logentry.getEntityID(), logentry.getName());
+					}
 
-			PreparedStatement addLogentry = c
+					PreparedStatement addLogentry = c
 					.prepareStatement("INSERT INTO logs (entityid, timestamp, message)"
 							+ " VALUES ( ? , ? , ? ) ");
-			addLogentry.setString(1, logentry.getEntityID().toString());
-			addLogentry.setLong(2, logentry.getDate());
-			addLogentry.setString(3, logentry.getMessage());
+					addLogentry.setString(1, logentry.getEntityID().toString());
+					addLogentry.setLong(2, logentry.getDate());
+					addLogentry.setString(3, logentry.getMessage());
 
-			addLogentry.execute();
-			addLogentry.close();
-		} catch (SQLException e) {
-			logger.warn(e, e);
-		}
+					addLogentry.execute();
+					addLogentry.close();
+				} catch (SQLException e) {
+					logger.warn(e, e);
+				} 
+			}
+		});
+		
+	
 	}
 
-	public synchronized List<ILogEntry> getLogentrys(HashValue entityID,
-			int max, int offset) {
+	public List<ILogEntry> getLogentrys(HashValue entityID,int max, int offset) {
 		if (max <= 0) {
 			throw new IllegalArgumentException();
 		}
 		if (offset < 0) {
 			offset = 0;
 		}
-
+		readLock.lock();
 		try {
-			ensureConnectionIsOpen();
 
 			PreparedStatement prepst = c
-					.prepareStatement("SELECT timestamp , message FROM logs WHERE entityid = ? ORDER BY timestamp DESC LIMIT ? OFFSET ?");
+					.prepareStatement("SELECT timestamp , message FROM logs "
+										+ " WHERE entityid = ? " 
+										+ " ORDER BY timestamp DESC LIMIT ? OFFSET ?");
 
 			prepst.setString(1, entityID.toString());
 			prepst.setInt(2, max);
@@ -1093,13 +1146,15 @@ public class HSQLDB implements IDatabase {
 
 		} catch (SQLException e) {
 			logger.warn(e, e);
+		} finally {
+			readLock.unlock();
 		}
 		return Collections.emptyList();
 	}
 
-	public synchronized int countLogentrys(HashValue entityID) {
+	public int countLogentrys(HashValue entityID) {
+		readLock.lock();
 		try {
-			ensureConnectionIsOpen();
 			PreparedStatement prepst;
 			if (entityID != null) {
 				prepst = c
@@ -1121,26 +1176,32 @@ public class HSQLDB implements IDatabase {
 
 		} catch (SQLException e) {
 			logger.warn(e, e);
+		} finally {
+			readLock.unlock();
 		}
 		return 0;
 	}
-
-	public synchronized List<DBLogger> getLogentitys() {
+	
+	@Override
+	public List<DBLogger> getLogentitys() {
 		List<DBLogger> loggers = new ArrayList<DBLogger>();
 
-		for (Entry<HashValue, String> entity : knownLogEntities.entrySet()) {
-			loggers.add(new DBLogger(entity.getValue(), entity.getKey(), this));
+		synchronized (knownLogEntities) {
+			for (Entry<HashValue, String> entity : knownLogEntities.entrySet()) {
+				loggers.add(new DBLogger(entity.getValue(), entity.getKey(), this));
+			}
 		}
 		return loggers;
 	}
 
-	public synchronized void pruneLogentrys(HashValue entityID, Date before) {
+	@Override
+	public  void pruneLogentrys(HashValue entityID, Date before) {
 		if (before == null) {
 			throw new IllegalArgumentException("no date provided");
 		}
 
+		writeLock.lock();
 		try {
-			ensureConnectionIsOpen();
 
 			if (entityID == null) {
 				PreparedStatement stm = c
@@ -1167,6 +1228,8 @@ public class HSQLDB implements IDatabase {
 
 		} catch (SQLException e) {
 			logger.warn(e, e);
+		} finally {
+			writeLock.unlock();
 		}
 	}
 

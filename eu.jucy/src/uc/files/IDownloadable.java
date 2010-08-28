@@ -55,7 +55,7 @@ public interface IDownloadable  extends IMultiUser, IHasDownloadable {
 	/**
 	 * 
 	 * @return true if this IDownloadable represents a file
-	 *  false otherwise..
+	 *  false for a folder /otherwise..
 	 */
 	boolean isFile();
 	
@@ -109,14 +109,14 @@ public interface IDownloadable  extends IMultiUser, IHasDownloadable {
 		 * @return the Length of the file  or -1 if unknown
 		 * 
 		 */
-		public long getSize();
+		long getSize();
 		
 		
 		/**
 		 * 
 		 * @return the file ending without the dot... empty string if can not be determined
 		 */
-		public String getEnding(); 
+		String getEnding(); 
 		
 	}
 	

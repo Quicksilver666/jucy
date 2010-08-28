@@ -9,8 +9,36 @@
 <body>
 <div align="justify">
 <h1>Getting Active</h1>
-TODO configuring nat..
-TODO configuring firewall..
+
+What does it mean to be active?  
+Active means your client is able to take incoming connections.
+Usually any computer on the Internet can do this. 
+
+For security reasons and scarceness of IP addresses, NAT (Network Address Translation) 
+has become common in many places. This means instead of one IP per computer, all computers 
+behind a NAT share a single IP.<p>
+The result is that computers behind a NAT can no longer automatically receive connections. 
+This is because other computers from the outside only know the IP of the NAT, and the NAT 
+does not know to which computer an incoming connection belongs. <p>
+  
+If you are in such a situation you have to configure your NAT (usually your DSL router) 
+to be able to receive incoming connections. <p>
+If you don't do this you will only be able to connect to users that are able to receive 
+incoming connections, in other words you are <i>passive</i>.  
+<p>
+To be able to take incoming connections despite being behind a NAT, you need to reserve a 
+port on the NAT for your PC. This means you tell your NAT if a connection is coming in on 
+port X then its for PC A.<br>
+This is usually called "Port forwarding". To get instructions 
+on how this works with your NAT, simply use a search engine and search for the brand of your 
+router/NAT in combination with "port forwarding".  <p>
+In Jucy -> Preferences -> Connection Settings you then have to enter the forwarded port under 
+TCP and UDP. For encrypted connections you need to forward another port to your PC and 
+enter this port under TCP+TLS. <p>
+Note that most router do this forwarding by transport protocol (UDP/TCP). 
+This means you might have to create an additional forwarding rule for the UDP port even though 
+you already set the NAT to forward the same port number for TCP.  <p>
+
 
 
 </div>

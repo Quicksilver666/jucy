@@ -1,5 +1,7 @@
 package eu.jucy.ui.translation;
 
+import helpers.GH;
+
 import java.io.IOException;
 
 import logger.LoggerFactory;
@@ -17,6 +19,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import uc.DCClient;
 import uihelpers.SUIJob;
 
 
@@ -29,7 +32,7 @@ public class TranslateHandler extends AbstractHandler implements IHandler {
 	private static final Logger logger = LoggerFactory.make();
 	
 	static {
-		Translate.setHttpReferrer("http://jucy.eu");
+		Translate.setHttpReferrer(DCClient.URL);
 	}
 	
 	@Override
@@ -65,12 +68,16 @@ public class TranslateHandler extends AbstractHandler implements IHandler {
 	}
 
 	private static String translate(String text) throws IOException {
-		try {
-			return Translate.execute(text
-					, TransPI.getLang(TransPI.sourceLanguage)
-					, TransPI.getLang(TransPI.targetLanguage));
-		} catch (Exception e) {
-			throw new IOException(e);
+		if (!GH.isEmpty(text.trim())) {
+			try {
+				return Translate.execute(text
+						, TransPI.getLang(TransPI.sourceLanguage)
+						, TransPI.getLang(TransPI.targetLanguage));
+			} catch (Exception e) {
+				throw new IOException(e);
+			}
+		} else {
+			return text;
 		}
 	}
 	

@@ -133,21 +133,35 @@ public class Command  {
 	}
 	
 	public boolean matches(int place,IHub hub) {
-		boolean correctPlace = matches(place);
-		if (correctPlace) {
-			if (hub == null) {
-				return true;
-			}
-			
-			String hubaddy = hub.getFavHub().getHubaddy().toLowerCase();
-			if (this.hub.equals("op")) {
-				return hub.getSelf().isOp();
-			} else {
-				//empty or matching hubaddy
-				return hubaddy.contains(this.hub.toLowerCase());
-			}
+		return matches(place) && matches(hub);
+//		boolean correctPlace = matches(place);
+//		if (correctPlace) {
+//			if (hub == null) {
+//				return true;
+//			}
+//			
+//			String hubaddy = hub.getFavHub().getHubaddy().toLowerCase();
+//			if (this.hub.equals("op")) {
+//				return hub.getSelf().isOp();
+//			} else {
+//				//empty or matching hubaddy
+//				return hubaddy.contains(this.hub.toLowerCase());
+//			}
+//		}
+//		return false; 
+	}
+	
+	public boolean matches(IHub hub) {
+		if (hub == null) {
+			throw new IllegalArgumentException("hub null");
 		}
-		return false; 
+		String hubaddy = hub.getFavHub().getHubaddy().toLowerCase();
+		if (this.hub.equals("op")) {
+			return hub.getSelf().isOp();
+		} else {
+			//empty or matching hubaddy
+			return hubaddy.contains(this.hub.toLowerCase());
+		}
 	}
 
 	/**
@@ -284,6 +298,8 @@ public class Command  {
 			}
 			throw new IllegalArgumentException();
 		}
+		
+		
 	}
 	
 }

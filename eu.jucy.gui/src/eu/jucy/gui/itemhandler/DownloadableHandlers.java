@@ -34,7 +34,9 @@ import eu.jucy.gui.ReplaceLine;
 import eu.jucy.gui.itemhandler.DownloadQueueHandlers.DQRemoveHandler;
 import eu.jucy.gui.search.OpenSearchEditorHandler;
 
+import uc.Command;
 import uc.DCClient;
+import uc.IHub;
 import uc.IUser;
 import uc.PI;
 import uc.files.IDownloadable;
@@ -82,6 +84,10 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 		return null;
 	}
 	
+	protected DCClient getDCC() {
+		return ApplicationWorkbenchWindowAdvisor.get();
+	}
+	
 	
 	protected abstract void run(List<IDownloadable> files,ExecutionEvent event) throws ExecutionException ;
 	
@@ -94,7 +100,7 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 		
 		@Override
 		protected void run(final List<IDownloadable> files,ExecutionEvent event) {
-			DCClient.execute(new Runnable() {
+			getDCC().executeDir(new Runnable() {
 				public void run() {
 					for (IDownloadable f : files) {
 						f.download();
@@ -136,7 +142,7 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 				if (target != null) {
 					final File targetF = new File(target);
 					dq.addPathForRecommendation(targetF.getParentFile());
-					DCClient.execute(new Runnable() {
+					getDCC().executeDir(new Runnable() {
 						public void run() {
 							files.get(0).download(targetF);
 						}
@@ -146,7 +152,7 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 				final File targetdir = getTargetDir();
 				if (targetdir != null) {
 					dq.addPathForRecommendation(targetdir);
-					DCClient.execute(new Runnable() {
+					getDCC().executeDir(new Runnable() {
 						public void run() {
 							for (IDownloadable file:files) {
 								file.download(new File(targetdir,file.getName()));
@@ -170,7 +176,7 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 		protected void run(final List<IDownloadable> files,ExecutionEvent event) {
 			final File target = getTargetDir(event);
 			logger.debug("DownloadTorecpath: "+ target);
-			DCClient.execute(new Runnable() {
+			getDCC().executeDir(new Runnable() {
 				public void run() {
 					for (IDownloadable downloadable:files) {
 						downloadable.download(target);
@@ -190,7 +196,7 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 			
 			final File target = new File(event.getParameter(TargetPath));
 			logger.debug("DownloadTorecdir: "+ target);
-			DCClient.execute(new Runnable() {
+			getDCC().executeDir(new Runnable() {
 				public void run() {
 					for (IDownloadable downloadable:files) {
 						downloadable.download(new File(target,downloadable.getName()));
@@ -286,7 +292,7 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 		
 		@Override
 		protected void run(final List<IDownloadable> files,ExecutionEvent event) {
-			DCClient.execute(new Runnable() {
+			getDCC().executeDir(new Runnable() {
 				public void run() {
 					for (IDownloadable f: files) {
 						AbstractDownloadQueueEntry adqe = f.download();
@@ -392,12 +398,17 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 		
 		@Override
 		protected void run(List<IDownloadable> files,ExecutionEvent event) {
-			String command = event.getParameter(UCContributionItem.SEND); 
+			Command com = Command.createFromString(event.getParameter(UCContributionItem.COMMAND)); 
+			String command = com.getCommand(); 
 			Map<String,String> reps = ReplaceLine.get().replaceLines(command);
 			if (!GH.isNullOrEmpty(command)  && reps != null) {
 				for (IDownloadable f:files) {
 					for (IUser usr:f.getIterable()) {
-						usr.getHub().sendRaw(command, new SendContext(f,usr,reps));
+						for (IHub hub:UserHandlers.getHubFromUser(usr)) {
+							if (com.matches(hub)) {
+								hub.sendRaw(command, new SendContext(f,usr,reps));
+							}
+						}
 					}
 				}
 			}

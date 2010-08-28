@@ -4,9 +4,11 @@ import helpers.GH;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import logger.LoggerFactory;
 
@@ -34,6 +36,7 @@ import eu.jucy.gui.texteditor.pmeditor.PMEditor;
 import eu.jucy.gui.texteditor.pmeditor.PMEditorInput;
 
 
+import uc.Command;
 import uc.DCClient;
 import uc.IHasUser;
 import uc.IHub;
@@ -42,6 +45,7 @@ import uc.IHasUser.IMultiUser;
 import uc.crypto.HashValue;
 import uc.files.IDownloadable;
 import uc.files.downloadqueue.AbstractDownloadFinished;
+import uc.files.downloadqueue.DownloadQueue;
 import uc.protocols.SendContext;
 import uc.protocols.hub.INFField;
 
@@ -72,15 +76,49 @@ public abstract class UserHandlers extends AbstractHandler {
 		return null;
 	}
 	
-	public static List<IHub> filterHubs(ISelection sel) {
-		List<IHub> hubs = new ArrayList<IHub>();
-		for (IUser usr: filter(sel)) {
-			if (usr.getHub() !=null && !hubs.contains(usr.getHub())) {
-				hubs.add(usr.getHub());
-			}
+	/**
+	 * @return all hubs the user is in (at most one except self.. then all)
+	 * if no hub then null is returned (not the empty set)
+	 * if self is in no hub -> empty collection is returned
+	 */
+	public static Collection<? extends IHub> getHubFromUser(IUser usr) {
+		IUser filelistSelf = ApplicationWorkbenchWindowAdvisor.get().getFilelistself();
+		if (filelistSelf.equals(usr)) {
+			return ApplicationWorkbenchWindowAdvisor.get().getHubs().values();
+		} else if (usr.getHub() != null) {
+			return Collections.singleton(usr.getHub());	
+		} else {
+			return null;
 		}
-		return hubs;
+	}
+	
+	public static void filterHubs(ISelection sel,Set<IHub> hubsExist,Set<IHub> hubsAllAreIn) {
 		
+		boolean first = true;
+		
+		for (IUser usr: filter(sel)) {
+			Collection<? extends IHub> hubs = getHubFromUser(usr);
+			if (hubs != null) {
+				hubsExist.addAll(hubs);
+				if (first) {
+					first = false;
+					hubsAllAreIn.addAll(hubs);
+				} else {
+					hubsAllAreIn.retainAll(hubs);
+				}
+			}
+					
+//			if (usr.getHub() != null) {
+//				hubsExist.add(usr.getHub());
+//				hubsAllAreIn.retainAll(Collections.singleton(usr.getHub()));
+//			}
+//			if (filelistSelf.equals(usr)) {
+//				hubs.clear();
+//				hubs.addAll(ApplicationWorkbenchWindowAdvisor.get().getHubs().values());
+//				logger.info("FilelistSelf found");
+//				return hubs;
+//			}
+		}
 	}
 	
 	/**
@@ -174,9 +212,10 @@ public abstract class UserHandlers extends AbstractHandler {
 		
 		protected void doWithUser(final IUser usr,ExecutionEvent event) {
 			if (usr.getShared() > 0 || usr.getNumberOfSharedFiles() > 0) {
+				final DownloadQueue dq = ApplicationWorkbenchWindowAdvisor.get().getDownloadQueue();
 				usr.downloadFilelist().addDoAfterDownload( new AbstractDownloadFinished() { 
 					public void finishedDownload(File f) { 
-						usr.getFilelistDescriptor().getFilelist().match();
+						dq.match(usr.getFilelistDescriptor().getFilelist());
 					}
 				}); 
 			}
@@ -266,11 +305,15 @@ public abstract class UserHandlers extends AbstractHandler {
 
 		@Override
 		protected void doWithUsers(List<IUser> users,ExecutionEvent event) {
-			String command = event.getParameter(UCContributionItem.SEND); 
+			Command com = Command.createFromString(event.getParameter(UCContributionItem.COMMAND)); 
+			String command = com.getCommand();
 			Map<String,String> reps = ReplaceLine.get().replaceLines(command);
 			if (!GH.isNullOrEmpty(command) && reps != null) {
 				for (IUser usr:users) {
-					usr.getHub().sendRaw(command, new SendContext(usr,reps));
+					IHub hub = usr.getHub();
+					if (com.matches(hub)) {
+						hub.sendRaw(command, new SendContext(usr,reps));
+					}
 				}
 			}
 			

@@ -290,17 +290,16 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 		fileTypeCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		fileTypeComboViewer = new ComboBoxViewer<SearchType>(fileTypeCombo,SearchType.getNMDCSearchTypes());
-		fileTypeComboViewer.select(SearchType.Any);
+		fileTypeComboViewer.select(SearchType.ANY);
 		
-		
-		
+
 		final Label distanceholder3 = new Label(sideBarComposite, SWT.NONE);
 		distanceholder3.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
 
 		Group searchOptions = new Group(sideBarComposite,SWT.NONE);
 		final GridLayout gridLayout_options = new GridLayout();
-		gridLayout_options.numColumns = 2;
+		gridLayout_options.numColumns = 1;
 		searchOptions.setLayout(gridLayout_options);
 		searchOptions.setText(Lang.SearchOptions);
 		searchOptions.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
@@ -310,9 +309,15 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 		onlyUsersWithFreeSlotsButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		onlyUsersWithFreeSlotsButton.setText(Lang.OnlyUsersWithFreeSlots);
 		
+
+		onlyWhereIAmOpButton = new Button(searchOptions, SWT.CHECK);
+		onlyWhereIAmOpButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		onlyWhereIAmOpButton.setText(Lang.OnlyWhereIAmOp);
+		
+		
 		invertButton = new Button(searchOptions, SWT.PUSH);
 		invertButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		invertButton.setText("Invert");
+		invertButton.setText(Lang.InvertSelection);
 		invertButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -321,11 +326,6 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 				}
 			}
 		});
-		
-
-		onlyWhereIAmOpButton = new Button(searchOptions, SWT.CHECK);
-		onlyWhereIAmOpButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		onlyWhereIAmOpButton.setText(Lang.OnlyWhereIAmOp);
 
 		Composite comptable= new Composite(sideBarComposite,SWT.NONE);
 		comptable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -496,7 +496,7 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 			searchForText.setText(s);
 			startSearch(s);
 		} else if (alternateInitialSearch() != null) {
-			fileTypeComboViewer.select(SearchType.Any); 
+			fileTypeComboViewer.select(SearchType.ANY); 
 			String s = alternateInitialSearch();
 			searchForText.setText(s);
 			startSearch(s);

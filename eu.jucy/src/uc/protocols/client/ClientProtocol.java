@@ -396,8 +396,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 */
 	private void relogin() {
 		logger.debug("relogin");
-		
-		DCClient.execute(new Runnable() {
+		ch.getDCC().executeDir(new Runnable() {
 			public void run() {
 				WriteLock l = ClientProtocol.this.writeLock();
 				l.lock();
@@ -682,100 +681,21 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	private void getSlotAndDoTransfer() {
 		DCClient dcc = ch.getDCC();
 		if (fti.isDownload() || (slot = ch.getSlotManager().getSlot(fti.getOther(),fti.getType(), fti.getFileListFile())) != null) { //get a slot for the upload
-			ByteChannel source = null;
-			try {
-				if (fti.isUpload()) {
-					//getAwaited = false;
-					
-					logger.debug("transfer() is an upload..now sending ADCSND");
-					if (nmdc) {
-						ADCSND.sendADCSND(this);
-					} else {
-						SND.sendADCSND(this);
-					}
-					dcc.getUpQueue().userRequestedFile(
-							fti.getOther(), fti.getNameOfTransferred(),fti.getHashValue(), true);
-				} 
-
-				fileTransfer = fti.create(this);
-				if (getState().isOpen()) {
-					setState(ConnectionState.TRANSFERSTARTED);
-				} else {
-					if (Platform.inDevelopmentMode()) {
-						logger.warn("Problem transfering: "+getUser()+ "  "+getState());
-					}
-					throw new IOException();	
-				}
-				ch.notifyOfChange(ConnectionHandler.TRANSFER_STARTED,this,fileTransfer);
-				
-				if (fti.isDownload()) { //Register download.. with DQE..
-					fti.getDqe().startedDownload(fileTransfer);
-				}
-				transferCreateTimeOut.cancelScheduled();
-			//	logger.info("Canceling transferCreateTimeOut: tf "+toString());
-				
-				logger.debug("transfer() start transferring data..");
-				source = connection.retrieveChannel();
-				fileTransfer.transferData(source); 
-				logger.debug("transfer() finished transferring data..");
-				immediateReconnect = true; 
-				
-			} catch(IOException ioe) { 
-				logger.debug("transfer broke with ioexception "+ioe);
-			} catch(IllegalStateException ise) {
-				logger.log(Platform.inDevelopmentMode()?Level.WARN:Level.DEBUG, "stupid state exception",ise);
-			} finally {
-				
-				boolean wasDownload = false ;
-
-				if (fileTransfer != null) {
-					wasDownload = fileTransfer.isDownload();
-					dcc.getUpDownQueue(fileTransfer.isUpload()).transferFinished(
-							fti.getFile(),
-							fti.getOther(), 
-							fti.getNameOfTransferred(), 
-							fti.getHashValue(), 
-							fileTransfer.getBytesTransferred(),
-							fileTransfer.getStartTime(),
-							System.currentTimeMillis()-fileTransfer.getStartTime().getTime());
-					
-					ch.notifyOfChange(ConnectionHandler.TRANSFER_FINISHED,this,fileTransfer);
-					if (getState().isOpen()) {
-						setState(ConnectionState.TRANSFERFINISHED);
-					} else	if (Platform.inDevelopmentMode()) {
-						logger.warn("Problem after transfering: "+getUser()+ "  "+getState());
-					}
-					//timerTransferCreateTimeout = 0;
-					fileTransfer = null;
-				}
-
-				boolean returnSuccessful = false;
-				if (source != null) {
-					returnSuccessful = connection.returnChannel(source);
-				}
-				if (debugMessages.size() > 2000) {
-					//check error... too many debug messages..
-					if (Platform.inDevelopmentMode()) {
-						logger.warn("Debug Messages count too large "+debugMessages.size());
-					}
-					connection.close();
-				} else if (slot != null) { //upload
-					ch.getSlotManager().returnSlot(slot,fti.getOther());
-					slot = null;
-		//			logger.info("rescheduling transferCreateTimeOut: up "+toString());
-					transferCreateTimeOut.reschedule(10, TimeUnit.SECONDS);
-//					awaitingADCGet = 10;
-//					getAwaited = true;
-				} else if (wasDownload && returnSuccessful && getState().isOpen()) { // download:
-					logger.debug("relogin");
-		//			logger.info("rescheduling transferCreateTimeOut: down "+toString());
-					transferCreateTimeOut.reschedule(20, TimeUnit.SECONDS);
-					relogin();
-				}
-				
-				logger.debug("transfer() finished was download"+wasDownload+"  return succ:"+returnSuccessful);
-			}
 			
+//			Thread transfer = new Thread(new Runnable() {
+//				public void run() {
+//					WriteLock l = ClientProtocol.this.writeLock();
+//					l.lock();
+//					try {
+//						runTransfer();
+//					} finally {
+//						l.unlock();
+//					}
+//				}
+//			},(fti.isDownload()?"Download: ":"Uupload: ")+fti.getOther().getNick());
+//			transfer.setDaemon(true);
+//			transfer.start();
+			runTransfer();
 		} else {
 			//being here means this is an upload and no slots are free.
 			//send No slots signal
@@ -787,11 +707,103 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 						new ADCStatusMessage(DisconnectReason.NOSLOTS.toString()
 											,ADCStatusMessage.FATAL
 											,ADCStatusMessage.TransferSlotsFull
-											,Flag.QP,""+queuePosition));
+											,Flag.QP, queuePosition));
 				
 				//here ADC no slots.. //STA maxed out..
 			}
 			dcc.getUpQueue().userRequestedFile(fti.getOther(), fti.getNameOfTransferred(),fti.getHashValue(), false);
+		}
+	}
+	
+	private void runTransfer() {
+		DCClient dcc = ch.getDCC();
+		ByteChannel source = null;
+		try {
+			if (fti.isUpload()) {
+				
+				logger.debug("transfer() is an upload..now sending ADCSND");
+				if (nmdc) {
+					ADCSND.sendADCSND(this);
+				} else {
+					SND.sendADCSND(this);
+				}
+				dcc.getUpQueue().userRequestedFile(
+						fti.getOther(), fti.getNameOfTransferred(),fti.getHashValue(), true);
+			} 
+
+			fileTransfer = fti.create(this);
+			if (getState().isOpen()) {
+				setState(ConnectionState.TRANSFERSTARTED);
+			} else {
+				if (Platform.inDevelopmentMode()) {
+					logger.warn("Problem transfering: "+getUser()+ "  "+getState());
+				}
+				throw new IOException();	
+			}
+			ch.notifyOfChange(ConnectionHandler.TRANSFER_STARTED,this,fileTransfer);
+			
+			if (fti.isDownload()) { //Register download.. with DQE..
+				fti.getDqe().startedDownload(fileTransfer);
+			}
+			transferCreateTimeOut.cancelScheduled();
+		//	logger.info("Canceling transferCreateTimeOut: tf "+toString());
+			
+			logger.debug("transfer() start transferring data..");
+			source = connection.retrieveChannel();
+			fileTransfer.transferData(source); 
+			logger.debug("transfer() finished transferring data..");
+			immediateReconnect = true; 
+			
+		} catch(IOException ioe) { 
+			logger.debug("transfer broke with ioexception "+ioe);
+		} catch(IllegalStateException ise) {
+			logger.log(Platform.inDevelopmentMode()?Level.WARN:Level.DEBUG, "stupid state exception",ise);
+		} finally {
+			
+			boolean wasDownload = false ;
+
+			if (fileTransfer != null) {
+				wasDownload = fileTransfer.isDownload();
+				dcc.getUpDownQueue(fileTransfer.isUpload()).transferFinished(
+						fti.getFile(),
+						fti.getOther(), 
+						fti.getNameOfTransferred(), 
+						fti.getHashValue(), 
+						fileTransfer.getBytesTransferred(),
+						fileTransfer.getStartTime(),
+						System.currentTimeMillis()-fileTransfer.getStartTime().getTime());
+				
+				ch.notifyOfChange(ConnectionHandler.TRANSFER_FINISHED,this,fileTransfer);
+				if (getState().isOpen()) {
+					setState(ConnectionState.TRANSFERFINISHED);
+				} else	if (Platform.inDevelopmentMode()) {
+					logger.warn("Problem after transfering: "+getUser()+ "  "+getState());
+				}
+				//timerTransferCreateTimeout = 0;
+				fileTransfer = null;
+			}
+
+			boolean returnSuccessful = false;
+			if (source != null) {
+				returnSuccessful = connection.returnChannel(source);
+			}
+			if (debugMessages.size() > 2000) {
+				//check error... too many debug messages..
+				if (Platform.inDevelopmentMode()) {
+					logger.warn("Debug Messages count too large "+debugMessages.size());
+				}
+				connection.close();
+			} else if (slot != null) { //upload
+				ch.getSlotManager().returnSlot(slot,fti.getOther());
+				slot = null;
+				transferCreateTimeOut.reschedule(10, TimeUnit.SECONDS);
+			} else if (wasDownload && returnSuccessful && getState().isOpen()) { 
+				logger.debug("relogin");
+				transferCreateTimeOut.reschedule(20, TimeUnit.SECONDS);
+				relogin();
+			}
+			
+			logger.debug("transfer() finished was download"+wasDownload+"  return succ:"+returnSuccessful);
 		}
 	}
 	

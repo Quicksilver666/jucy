@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
 
 
 
@@ -241,7 +244,7 @@ public class VarByteBuffer {
 		}
 	}
 	
-	public void setDecompression(Compression comp,final Object readSynchObject) throws IOException {
+	public void setDecompression(Compression comp,final Lock lock,final Condition bytesChanged) throws IOException {
 		if (comp == Compression.NONE) {
 			decompression = null;
 		} else {
@@ -249,20 +252,26 @@ public class VarByteBuffer {
 				@Override
 				public int read() throws IOException {
 					int i = 0;
-					synchronized(readSynchObject) {
+					
+					lock.lock();
+					try {
 						while (!hasRemaining()) {
 							try {
 								i++;
-								readSynchObject.wait(100);
-								logger.debug("wait"+i);
-							} catch (InterruptedException ie){}
+								bytesChanged.await(100, TimeUnit.MILLISECONDS);
+								logger.debug("wait" + i);
+							} catch (InterruptedException ie) {
+							}
 							if (i > 120) { // 2 minutes timeout...
 								logger.warn("timeout");
 								return -1;
 							}
 						}
 						return current[readpos++] & 0xff;
+					} finally {
+						lock.unlock();
 					}
+					
 				}
 			};
 			decompression =  comp.wrapIncoming(is);

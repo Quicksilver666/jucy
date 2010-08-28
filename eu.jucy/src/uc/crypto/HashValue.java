@@ -66,8 +66,18 @@ public abstract class HashValue implements Comparable<HashValue> {
 	
 	
 	public static boolean isHash(String base32Value) {
+		if (base32Value == null) {
+			return false;
+		}
 		return TigerHashValue.isTTH(base32Value) || SHA256HashValue.isSHA256HashValue(base32Value);
 	}
+	
+	public static boolean isHash(byte[] hashBytes) {
+		return 	hashBytes != null 
+				&& (hashBytes.length == TigerHashValue.digestlength 
+					|| hashBytes.length == SHA256HashValue.digestlength);
+	}
+	
 	
 	public static HashValue createHash(byte[] bytes) {
 		if (bytes.length == TigerHashValue.digestlength) {

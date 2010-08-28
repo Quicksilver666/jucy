@@ -111,7 +111,7 @@ public class ClientProtocolStateMachine implements IObserver<StatusObject> ,IHas
 							if (--m.sleepCounter < 0 && m.sleepTask != null) {
 								Runnable r = m.sleepTask;
 								m.sleepTask	= null; 
-								DCClient.execute( r ); 
+								dcc.executeDir( r ); 
 							}
 							
 							if (m.sleepCounter % 10 == 0) {

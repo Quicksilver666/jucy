@@ -199,7 +199,7 @@ public class PI extends AbstractPreferenceInitializer {
 
 		defaults.put(externalIp, "" );
 		
-		defaults.put(defaultIPDetection, "http://jucy.eu/ip.php");
+		defaults.put(defaultIPDetection, DCClient.URL+"/ip.php");
 		List<String> urls =  Arrays.asList(
 				"http://checkip.dyndns.org:8245/"
 				,"http://www.ipchicken.com/"
@@ -246,10 +246,10 @@ public class PI extends AbstractPreferenceInitializer {
 
 		defaults.putBoolean(shareHiddenFiles, false);
 		defaults.put(includeFiles, ".*");
-		defaults.put( excludedFiles, "\\.antifrag$|^__INCOMPLETE___|^download[0-9]{16,18}\\.dat$|" 
-				+"^INCOMPLETE~|\\.dctmp$|part\\.met|\\.bc!$|\\.!ut$|\\.bt!$|"  //newer and older p2p stuff..
-				+"^\\.DS_Store$|^icon\\?$|"			//MAC OS X files..
-				+"\\.mp3\\.exe$|\\.avi\\.exe$"//Viruses
+		defaults.put( excludedFiles, "\\.antifrag$|^__INCOMPLETE___|^download[0-9]{16,18}\\.dat$" 
+				+"|^INCOMPLETE~|\\.dctmp$|part\\.met|\\.bc!$|\\.!ut$|\\.bt!$"  //newer and older p2p stuff..
+				+"|^\\.DS_Store$" //^icon\\?$|"			//MAC OS X files..
+				+"|\\.mp3\\.exe$|\\.avi\\.exe$"//Viruses
 			); 
 		
 		defaults.putBoolean(deleteFilelistsOnExit, true);

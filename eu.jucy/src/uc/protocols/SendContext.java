@@ -399,7 +399,7 @@ public class SendContext {
 					return ""+ ((IDownloadableFile)file).getSize();
 				}
 				if (file instanceof FileListFolder) {
-					return ""+ ((FileListFolder)file).getContainedSize();
+					return ""+ ((FileListFolder)file).getSize();
 				}
 				return "";
 			case fileSIshort:
@@ -407,7 +407,7 @@ public class SendContext {
 					return SizeEnum.getReadableSize(((IDownloadableFile)file).getSize());
 				}
 				if (file instanceof FileListFolder) {
-					return SizeEnum.getReadableSize(((FileListFolder)file).getContainedSize());
+					return SizeEnum.getReadableSize(((FileListFolder)file).getSize());
 				}
 				return "";
 				

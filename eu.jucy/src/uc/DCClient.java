@@ -99,37 +99,22 @@ import uc.protocols.hub.Hub;
 
 /** 
  * 
-28 Jul 2010 08:50:02,732 WARN  UnblockingConnection.java Line:544 		 java.lang.NullPointerException
-java.lang.NullPointerException
-	at uc.DCClient.getOwnFileList(DCClient.java:576)
-	at uc.files.transfer.FileTransferInformation.setFileInterval(FileTransferInformation.java:351)
-	at uc.protocols.client.ClientProtocol.transfer(ClientProtocol.java:654)
-	at uc.protocols.client.ADCGET.handle(ADCGET.java:87)
-	at uc.protocols.ConnectionProtocol.receivedCommand(ConnectionProtocol.java:280)
-	at uc.protocols.client.ClientProtocol.receivedCommand(ClientProtocol.java:296)
-	at uc.protocols.ConnectionProtocol.receivedCommand(ConnectionProtocol.java:239)
-	at uc.protocols.UnblockingConnection.processread(UnblockingConnection.java:538)
-	at uc.protocols.UnblockingConnection.access$10(UnblockingConnection.java:524)
-	at uc.protocols.UnblockingConnection$3.run(UnblockingConnection.java:305)
-	at uc.DCClient$3.run(DCClient.java:250)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
-	at java.lang.Thread.run(Thread.java:619)
+ *  adc://test.flexhub.org:8000
+ *  test zlib
+ *  
+http://mahout.apache.org/ or https://ci-bayes.dev.java.net/ for categorizing files..
+some all data aggregation..
+Fields + client-client Protocol+ file List Contents...
+
+[SE][10:58] <[fussie]fusbar> 
+ what you might want to look at is the TTHs instead
+if a file-list has to many TTHs you have not seen in the past
+
+
  * 
  * TODO NAT traversal : http://dcpp.wordpress.com/2010/06/15/nat-traversal-constraints/
  * 
- *  TODO in filelist folders could be coloured like contained file if all files in it are  for ex already downloaded..
- * 
-eu.jucy.database.HSQLDB.addOrUpdateFile(HSQLDB.java:393) -> synch on hsqldb
-uc.files.filelist.OwnFileList$4.hashedFile(OwnFileList.java:435)
-eu.jucy.hashengine.HashEngine$HashFileJob.run(HashEngine.java:321)
-eu.jucy.hashengine.HashEngine$HashFileJob$1.run(HashEngine.java:273)
-org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)
-
-TODO it seems if a file is added for hashing on startup startup will block...
-
-
- * 
+ * TODO just warning the way it is without explanation for bad KP is not good...
  * 
  * TODO add setting for auto extending downloads .. http://jucy.eu/forum/read.php?5,151
  * 
@@ -137,7 +122,7 @@ TODO it seems if a file is added for hashing on startup startup will block...
  * TODO think about option to place unfinished downloads next into target folder so no moving of files occur
  * after finishing the download..
  * 
- * TODO discfree,total uptime .. total download..
+ * TODO (discfree),total uptime .. total download..
  * 
  * 
  * TODO maybe load file lists to db? and not keep them in ram...?
@@ -204,7 +189,6 @@ TODO it seems if a file is added for hashing on startup startup will block...
  * TODO (un)checkable actions in popup menu for do after download in DownloadQueue (open filelist,open file)
  * - possibly as extension point?
  * 
- * TODO may be some google wave binding that moves hubchat into a wave...
  * 
  * 
  * TODO DQ, finished downloads, uploaded , uploadQueue , Filelist -> move to file eu.jucy.gui.file plugin
@@ -255,21 +239,37 @@ public final class DCClient {
 	
 	private static volatile long debugcount = 0;
 	
-	
+	/*
+	 * 
+	 * @deprecated use scheduled executor
+	 */
 	public static void execute(final Runnable r) {
 		if (++debugcount % 5000 == 0) {
-			logger.debug("Totally submitted tasks "+debugcount);
+			logger.debug("Totally submitted tasks " + debugcount);
 		}
-		exec.execute(
-			new Runnable() {
-				public void run() {
-					try {
-						r.run();
-					} catch(Throwable e) {
-						logger.warn("execution of runnable failed.."+e+" isShutdown:"+exec.isShutdown() , e);
-					}
+		exec.execute(new Runnable() {
+			public void run() {
+				try {
+					r.run();
+				} catch (Exception e) {
+					logger.warn("execution of runnable failed.." + e
+							+ " isShutdown:" + exec.isShutdown(), e);
 				}
-			}); 
+			}
+		});
+	}
+	
+	public void executeDir(final Runnable r) {
+		scheduler.execute(new Runnable() {
+			public void run() {
+				try {
+					r.run();
+				} catch (Exception e) {
+					logger.warn("sexecution of runnable failed.." + e
+							+ " isShutdown:" + scheduler.isShutdown(), e);
+				}
+			}
+		});
 	}
 	
 	/**
@@ -318,15 +318,6 @@ public final class DCClient {
 	
 	private final User fileListSelf; //the self that holds our own FileList
 
-//
-//	
-//	/**
-//	 * check if FileList was initialized ..
-//	 *  fall back mechanism if FileList initializer in the beginning wasn't called
-//	 *  so client still has a legal startup
-//	 */
-//	private Future<?> fileListInitialised;
-//	
 	
 	
 	private final Object synchAway = new Object();
@@ -421,6 +412,8 @@ public final class DCClient {
 	 * longer version string for human readability..
 	 */
 	public static final String LONGVERSION;
+	
+	public static final String URL = "http://jucy.eu";
 	
 	static {
 		String v = " V:" + Version.getVersion()+ (Platform.inDevelopmentMode()?"d":"");
@@ -690,7 +683,7 @@ public final class DCClient {
     	favHubs.openAutoStartHubs();
     	monitor.worked(3);
     	//can take some time.. we usually won't need this from start..-> done in separate thread..
-    	OwnFileList.loadSharedDirsForIconManager(favFolders); 
+    	filelist.loadSharedDirsForIconManager(favFolders); 
     	
 
     	altSearch.start();

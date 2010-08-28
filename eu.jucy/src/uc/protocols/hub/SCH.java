@@ -144,7 +144,7 @@ TRACE Hub.java Line:463
 			sch.append(Long.toString(search.getSize()));
 		}
 		
-		if (search.getSearchType() == SearchType.Folder) {
+		if (search.getSearchType() == SearchType.FOLDER) {
 			appendToSB(sch,Flag.TY,"2");
 		}
 		if (search.getToken() != null) {

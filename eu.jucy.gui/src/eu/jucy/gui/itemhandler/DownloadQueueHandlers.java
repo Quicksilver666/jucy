@@ -17,11 +17,12 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.Priority;
 
 
-import uc.DCClient;
+
 import uc.IUser;
 import uc.crypto.HashValue;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
@@ -114,7 +115,7 @@ public abstract class DownloadQueueHandlers extends AbstractHandler {
 				if (common != null) {
 					final File target = getTargetDir(common,event);
 					if (target != null) {
-						DCClient.execute(new Runnable() {
+						ApplicationWorkbenchWindowAdvisor.get().executeDir(new Runnable() {
 							public void run() {
 								for (AbstractDownloadQueueEntry adqe : dqe) {
 									String oldpath = adqe.getTargetPath()
@@ -148,7 +149,7 @@ public abstract class DownloadQueueHandlers extends AbstractHandler {
 					overrideCommon;
 					
 		final File target = folder.getShownPath();
-		DCClient.execute(new Runnable() {
+		ApplicationWorkbenchWindowAdvisor.get().executeDir(new Runnable() {
 			public void run() {
 				for (AbstractDownloadQueueEntry adqe : dqes) {
 					String oldpath = adqe.getTargetPath()
@@ -182,7 +183,7 @@ public abstract class DownloadQueueHandlers extends AbstractHandler {
 		
 		@Override
 		protected void run(final List<AbstractDownloadQueueEntry> dqe,ExecutionEvent event) {
-			DCClient.execute(new Runnable() {
+			ApplicationWorkbenchWindowAdvisor.get().executeDir(new Runnable() {
 				public void run() {
 					for (AbstractDownloadQueueEntry adqe : dqe) {
 						adqe.remove();

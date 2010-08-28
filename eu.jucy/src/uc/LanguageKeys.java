@@ -72,6 +72,16 @@ public class LanguageKeys {
 		,STA52FilePartNotAvailable
 		,STA53SlotsFull
 		,STA54NoHashSupportOverlapClient
+		,SearchType_ANY
+		,SearchType_AUDIO
+		,SearchType_COMPRESSED
+		,SearchType_DOCUMENT
+		,SearchType_EXECUTABLE
+		,SearchType_FOLDER
+		,SearchType_PICTURE
+		,SearchType_TTH
+		,SearchType_VIDEO
+		,SearchType_VIDEOorPICTURE
 		,SendingPassword
 		,StartedConnectionHandler
 		,StartedEncConnectionHandler

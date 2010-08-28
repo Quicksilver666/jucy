@@ -417,7 +417,7 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	protected void executeDoAfterDownload() {
 		//execute tasks..
 		for (final AbstractDownloadFinished runnable : downloadFinished) {
-			DCClient.execute(new Runnable() {
+			getDCC().executeDir(new Runnable() {
 				public void run() {
 					runnable.finishedDownload(getTargetPath());
 				}

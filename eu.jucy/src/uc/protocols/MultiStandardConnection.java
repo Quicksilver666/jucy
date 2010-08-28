@@ -27,6 +27,7 @@ import logger.LoggerFactory;
 
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Platform;
 
 import uc.DCClient;
 
@@ -67,9 +68,7 @@ public class MultiStandardConnection implements Runnable {
 		logger.debug("in get()");
 		if (msc == null) {
 			msc = new MultiStandardConnection();
-			Thread t = new Thread(msc,"IO-Thread");
-			t.setDaemon(true);
-			t.start();
+			msc.start();
 			try {
 				//wait for selector getting set
 				while (msc.selector == null) {
@@ -85,7 +84,15 @@ public class MultiStandardConnection implements Runnable {
 		return msc;
 	}
 	
+
+	
 	private MultiStandardConnection(){} // only private constructor..
+	
+	private void start() {
+		Thread t = new Thread(this,"IO-Thread");
+		t.setDaemon(true);
+		t.start();
+	}
 	
 	/**
 	 * 
@@ -171,6 +178,12 @@ public class MultiStandardConnection implements Runnable {
 
 
 	public void run() {
+		long timeRunBegin;
+		long timeRunEnd;
+		long timeSelEnd;
+		long diff1 = 0,diff2= 0;
+		
+		long lastPrinted = System.currentTimeMillis();
 		try {
 	        // Create the selector
 			synchronized(this) {
@@ -188,8 +201,10 @@ public class MultiStandardConnection implements Runnable {
 	            } catch (IOException e) {
 	            	logger.error("selector error",e);
 	            }
-	
+	            timeRunBegin = System.nanoTime();
 	            runSubmitted();
+	            timeRunEnd = System.nanoTime();
+	            
 	        //    logger.debug("selection found "+selector.selectedKeys().size());
 	            // Get list of selection keys with pending events
 	            Iterator<SelectionKey> it = selector.selectedKeys().iterator();
@@ -227,12 +242,26 @@ public class MultiStandardConnection implements Runnable {
 	                	//this should not be caught... shows error on beginning connection..
 	                }
 	            }
+	            timeSelEnd =System.nanoTime();
+	            
+	            diff1 += timeRunEnd-timeRunBegin; ;
+	            diff2 += timeSelEnd-timeRunEnd;
+	            
+	            if (lastPrinted + 60000 < System.currentTimeMillis()) {
+	            	double dist = ((double)diff1 / Math.max(1, diff2));
+	            	if ((dist < 0.05d || 0.8d < dist) && Platform.inDevelopmentMode() ) {
+	            		logger.info("current dist: "+ dist );
+	            	}
+	            	lastPrinted = System.currentTimeMillis();
+	            	diff1 = 0;
+	            	diff2 = 0;
+	            }
 	        } 
 	        
 
 	    } catch(Exception e) {
 	    	logger.warn("Selection error, IO-Thread died ... restarting IO-Thread",e);
-	    	new Thread(this,"IO-Thread").start();
+	    	start();
 	    }
 	    
 

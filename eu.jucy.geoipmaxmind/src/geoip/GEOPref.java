@@ -3,6 +3,7 @@ package geoip;
 import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.DefaultScope;
@@ -21,11 +22,13 @@ public class GEOPref extends AbstractPreferenceInitializer {
 	private static final Logger logger = LoggerFactory.make();
 	
 	public static final String countryOnly 	=	"countryOnly";
+	public static final String LAST_VERSION = 	"LastVersion";
 	
 	@Override
 	public void initializeDefaultPreferences() {
 		IEclipsePreferences defaults = new DefaultScope().getNode(PLUGIN_ID);
 		defaults.putBoolean(countryOnly, true);
+		defaults.put(LAST_VERSION, "");
 	}
 	
 	public static boolean getBoolean(String what){
@@ -53,6 +56,16 @@ public class GEOPref extends AbstractPreferenceInitializer {
 		} catch(BackingStoreException bse) {
 			logger.error(bse, bse);
 		}
+	}
+	
+	public static boolean isVersionChanged() {
+		String lastModified = GEOPref.get(GEOPref.LAST_VERSION);
+		String currentVersion = Platform.getBundle(PLUGIN_ID).getVersion().toString();
+		return !lastModified.equals(currentVersion);
+	}
+	
+	public static void setVersion() {
+		put(LAST_VERSION, Platform.getBundle(PLUGIN_ID).getVersion().toString());
 	}
 
 }

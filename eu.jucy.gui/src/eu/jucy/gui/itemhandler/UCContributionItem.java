@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import logger.LoggerFactory;
 
@@ -58,8 +60,8 @@ public abstract class UCContributionItem extends CompoundContributionItem implem
 	public static final String SD_DOWNLOADABLE =SelfDefinedCommandID  +".downloadable";
 	public static final String SD_HUB = SelfDefinedCommandID + ".hub";
 	
-	public static final String SEND = "SEND";
-	
+//	public static final String SEND = "SEND";
+	public static final String COMMAND = "COMMAND";
 	
 	protected final int where;
 	protected final String commandID;
@@ -93,11 +95,15 @@ public abstract class UCContributionItem extends CompoundContributionItem implem
 		} else {
 			sel = new StructuredSelection(allwaysSelected);
 		}
-		List<IHub> hubs = UserHandlers.filterHubs(sel);
+		Set<IHub> hubsExist = new HashSet<IHub>();
+		Set<IHub> hubsAllAreIn = new HashSet<IHub>();
+		UserHandlers.filterHubs(sel,hubsExist,hubsAllAreIn);
 		
-		if (!hubs.isEmpty()) {
+		if (!hubsExist.isEmpty()) {
 			boolean multiusers = UserHandlers.filter(sel).size() > 1;
-			List<Command> userCommands = UserCommands.loadCommandAndAddHubCommnds(hubs,multiusers, where);
+			List<Command> userCommands = UserCommands.loadCommandAndAddHubCommnds(
+					hubsExist,hubsAllAreIn,multiusers, where);
+			
 			return addCommands(userCommands);
 		}
 
@@ -155,7 +161,7 @@ public abstract class UCContributionItem extends CompoundContributionItem implem
 			CommandContributionItemParameter ccip = 
 				new CommandContributionItemParameter(serviceLocator,null,commandID, SWT.PUSH);
 			ccip.label = com.getName();
-			ccip.parameters = Collections.singletonMap(SEND, com.getCommand());
+			ccip.parameters = Collections.singletonMap(COMMAND, com.toStoreString());
 			//TODO user by ID parameter needed here.. 
 			
 			CommandContributionItem cci = new CommandContributionItem(ccip);
@@ -214,7 +220,7 @@ public abstract class UCContributionItem extends CompoundContributionItem implem
 			}
 			if (hub != null) {
 				List<Command> userCommands = UserCommands.loadCommandAndAddHubCommnds(
-						Collections.singletonList(hub),false, where);
+						Collections.singleton(hub),Collections.singleton(hub),false, where);
 				logger.debug("size: "+userCommands.size());
 				return addCommands(userCommands);
 			}
@@ -231,10 +237,14 @@ public abstract class UCContributionItem extends CompoundContributionItem implem
 			IEditorPart part = HandlerUtil.getActiveEditor(event);
 			if (part instanceof UCTextEditor) {
 				IHub hub = ((UCTextEditor)part).getHub();
-				String command = event.getParameter(SEND); 
-				Map<String,String> reps = ReplaceLine.get().replaceLines(command);
-				if (!GH.isNullOrEmpty(command) && reps != null) {
-					hub.sendRaw(command,new SendContext(reps));
+				Command com = Command.createFromString(event.getParameter(COMMAND)); 
+			
+				if (com.matches(hub)) {
+					String command = com.getCommand();
+					Map<String,String> reps = ReplaceLine.get().replaceLines(command);
+					if (!GH.isNullOrEmpty(command) && reps != null) {
+						hub.sendRaw(command,new SendContext(reps));
+					}
 				}
 			}
 			return null;

@@ -1125,6 +1125,10 @@ Hub is also no longer counted in description</en>
 <de>Ungültiger Addresse!</de>
 <en>Invalid address!</en>
 </Trl>
+<Trl id="InvertSelection">
+<de>Auswahl invertieren</de>
+<en>Invert selection</en>
+</Trl>
 <Trl id="LastRequest">
 <de>Letzte Anfrage</de>
 <en>Last request</en>
@@ -2722,6 +2726,46 @@ UPnP могло не сработать из-за программного бр�
 <Trl id="RefreshingFilelist">
 <de>Aktualisiere Dateiliste</de>
 <en>Refreshing Filelist</en>
+</Trl>
+<Trl id="SearchType_ANY">
+<de>Beliebig</de>
+<en>Any</en>
+</Trl>
+<Trl id="SearchType_AUDIO">
+<de>Audio</de>
+<en>Audio</en>
+</Trl>
+<Trl id="SearchType_COMPRESSED">
+<de>Komprimiertes</de>
+<en>Compressed</en>
+</Trl>
+<Trl id="SearchType_DOCUMENT">
+<de>Dokumente</de>
+<en>Document</en>
+</Trl>
+<Trl id="SearchType_EXECUTABLE">
+<de>Ausführbares</de>
+<en>Executable</en>
+</Trl>
+<Trl id="SearchType_PICTURE">
+<de>Bilder</de>
+<en>Picture</en>
+</Trl>
+<Trl id="SearchType_VIDEO">
+<de>Videos</de>
+<en>Video</en>
+</Trl>
+<Trl id="SearchType_FOLDER">
+<de>Ordner</de>
+<en>Folder</en>
+</Trl>
+<Trl id="SearchType_TTH">
+<de>TTH</de>
+<en>TTH</en>
+</Trl>
+<Trl id="SearchType_VIDEOorPICTURE">
+<de>Video oder Bilder</de>
+<en>Video or picture</en>
 </Trl>
 <Trl id="STA11HubFull">
 <de>Hub voll</de>

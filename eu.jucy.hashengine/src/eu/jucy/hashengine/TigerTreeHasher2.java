@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import fr.cryptohash.Digest;
 import fr.cryptohash.Tiger;
 
-import uc.DCClient;
+
 import uc.PI;
 import uc.crypto.HashValue;
 import uc.crypto.InterleaveHashes;
@@ -74,7 +74,7 @@ public class TigerTreeHasher2  implements IHasher {
 		hashRunning = true;
 		
 		for (int i = 0; i < hashThreads; i++) { //may be use min maxthreads na segments..
-			DCClient.execute(new HashThread());
+			new HashThread(i).start();
 		}
 		
 		long last = System.currentTimeMillis()-1000; //first time more lies more than one sec in the past -> no stopping first time  
@@ -233,7 +233,7 @@ public class TigerTreeHasher2  implements IHasher {
 	
 //	private static final CryptixCrypto cr = new CryptixCrypto();
 	
-	class HashThread implements Runnable {
+	class HashThread extends Thread implements Runnable {
 		
 		
 	    private final Digest md;
@@ -241,7 +241,8 @@ public class TigerTreeHasher2  implements IHasher {
 	    
 	    private HashValue[] hashes = new HashValue[PrivateLevels]; //64 KiB -> 1 2 4 8 16 32 64 -> 7 levels 
 	    
-		public HashThread() {
+		public HashThread(int i) {
+			super("Hasher-"+i);
 			md =  new Tiger();
 		}
 		

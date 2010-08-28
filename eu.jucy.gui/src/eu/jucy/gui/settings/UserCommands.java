@@ -3,6 +3,7 @@ package eu.jucy.gui.settings;
 import helpers.GH;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,24 +54,30 @@ public class UserCommands extends UCPrefpage {
 	 * @param where - where argument in Command
 	 * @return all commands that match hub as well as "where"
 	 */
-	public static List<Command> loadCommandAndAddHubCommnds(List<IHub> hubs,boolean multiUsers,int where) {
+	public static List<Command> loadCommandAndAddHubCommnds(Collection<IHub> hubsExist,Collection<IHub> hubsAllAreIn,boolean multiUsers,int where) {
 		List<Command> list = loadCommands();
-		if (hubs.size() == 1) {
-			list.addAll(hubs.get(0).getUserCommands());
+		for (IHub in: hubsAllAreIn) {
+			list.addAll(in.getUserCommands());
 		}
 
 		
 		for (Iterator<Command> it = list.iterator(); it.hasNext();) {
 			Command com = it.next();
-			boolean remove =   !(com.isSeparator() || !multiUsers || com.isAllowMulti())   ;
+			boolean remove = !com.isSeparator() && multiUsers && !com.isAllowMulti();
 			
-			if (hubs.isEmpty()) {
-				remove = remove || com.matches(where);
+			if (hubsExist.isEmpty()) {
+				remove = remove || !com.matches(where);
 				remove = remove || !GH.isEmpty(com.getHub());
 			} else {
-				for (IHub hub : hubs) {
-					remove = remove || !com.matches(where, hub);
+				boolean matches = false;
+				for (IHub hub:hubsAllAreIn) {
+					matches = matches || com.matches(where, hub);
 				}
+				if (!matches) { 
+					for (IHub hub : hubsExist) {
+						remove = remove || !com.matches(where, hub);
+					}
+				} 
 			}
 			
 			if (remove) {

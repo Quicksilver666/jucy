@@ -342,17 +342,12 @@ public class ConnectionHandler extends Observable<StatusObject>
 	public void ctmReceived(IUser self , InetSocketAddress isa,IUser other,CPType protocol,String token) {
 			ClientProtocol ctcp = new ClientProtocol( isa ,this , self,other,
 					protocol,token , protocol.isEncrypted());
-			clientProtocolCreated(ctcp);
+			ctcp.start();
 		
 	}
 	
 	
-	/**
-	 * starts created protocol and registers listener to it..
-	 */
-	private void clientProtocolCreated(ClientProtocol ctcp) {
-		ctcp.start();
-	}
+
 	
 	
 	
@@ -369,7 +364,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 	 */
 	public void onInterestingUserArrived(final IUser usr) {
 		if (usr.weWantSomethingFromUser() && !interesting.containsKey(usr)) {
-			DCClient.execute(new Runnable() { 
+			dcc.executeDir(new Runnable() { 
 				public void run() {
 					new ClientProtocolStateMachine(usr,ConnectionHandler.this);
 				}
@@ -413,7 +408,7 @@ public class ConnectionHandler extends Observable<StatusObject>
 						identity.getConnectionDeterminator().connectionReceived(ssi.encrypted);
 						created.configureBlocking(false);
 						ClientProtocol cp = new ClientProtocol(created,ConnectionHandler.this,ssi.encrypted);
-						clientProtocolCreated(cp);
+						cp.start();
 					} catch(IOException ioe) {
 						logger.error(ioe,ioe);
 					}

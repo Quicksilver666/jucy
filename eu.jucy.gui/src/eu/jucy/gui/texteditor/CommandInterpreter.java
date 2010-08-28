@@ -1,7 +1,9 @@
 package eu.jucy.gui.texteditor;
 
 import helpers.GH;
+import helpers.SizeEnum;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import org.apache.log4j.Logger;
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.GUIPI;
 import eu.jucy.gui.GuiAppender;
+import eu.jucy.gui.GuiHelpers;
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.search.OpenSearchEditorHandler;
 
@@ -96,13 +99,34 @@ public class CommandInterpreter {
 	
 	private static enum Command {
 		
-		AWAY,BACK,UC,JUCY,REFRESH,ME,PM,SEARCH,SLOTS,TOPIC,REBUILD,PRUNEHASHES,JOIN,CLEAR,TS,CLOSE,GETLIST,FAVORITES,FAV,PASS,HELP,SHOWJOINS,SHOWFAVJOINS,SHOWCHATTERJOINS,FILELISTTEST;
+		AWAY,BACK,DF,UC,JUCY,REFRESH,ME,PM,SEARCH,SLOTS,TOPIC,REBUILD,PRUNEHASHES,JOIN,CLEAR,TS,CLOSE,GETLIST,FAVORITES,FAV,PASS,HELP,SHOWJOINS,SHOWFAVJOINS,SHOWCHATTERJOINS,FILELISTTEST;
 		
 	
 		Command() {}
 		
 		public void execute(String line,final Hub hub,final IUser usr, final UCTextEditor editor) {
+			DCClient dcc = ApplicationWorkbenchWindowAdvisor.get();
 			switch(this) {
+			case DF:
+				dcc.executeDir(new Runnable() {
+					public void run() {
+						String df = "Filesystem    -         used    /    available     /  used %  \n";
+						for (File f : File.listRoots()) {
+							long total = f.getTotalSpace();
+							if (total > 0) {
+								long usable = f.getUsableSpace();
+								df += String.format("\n\t%-30s \t - \t %-15s  %15s   %15s"
+										, f.getPath()
+										, SizeEnum.getReadableSize(total-usable)
+										, SizeEnum.getReadableSize(usable)
+										, GuiHelpers.toPercentString(total-usable, total));
+							}
+
+						}
+						editor.statusMessage(df, 0);
+					}
+				});
+				break;
 			case JUCY:
 			case UC:
 				List<String> phrases = Arrays.asList(
@@ -114,14 +138,14 @@ public class CommandInterpreter {
 						"My client loads old PMs from the log \nwhen opening a PM window. \nWhat about yours?",
 						"Downloading the same file from multiple users?\nSure you can do that!\nBut my client does not need 1000 segments for that!",
 						"Jucy is short form for\n\"Jucy-is ultimately certainly yaddayadda-no-dc++-mod-whatsoever\"\nOr something like that!",
-						"Ever started a PM to one user\nand sent it to another?\nNot with jucy!",
+						"Ever started a PM to one user\nand sent it to another?\nNot with Jucy!",
 						"Shakesp...-what? Nope never heard of it..."
 						);
 				
-				//String number = GetFirstWord(line).trim();
-				final String s = "\n"+GH.getRandomElement(phrases)+"\n<"+DCClient.LONGVERSION+"> http://jucy.eu";
+
+				final String s = String.format("\n%s\n<%s> %s",GH.getRandomElement(phrases),DCClient.LONGVERSION,DCClient.URL);
 				if (usr != null) {
-					DCClient.execute(new Runnable() {
+					dcc.executeDir(new Runnable() {
 						public void run() {
 							PMResult pmres = usr.sendPM(s, false, true);
 							if (pmres == PMResult.STORED) {
@@ -145,7 +169,7 @@ public class CommandInterpreter {
 					final String send = line.substring(i+1);
 					if (!GH.isEmpty(send)) {
 						if (usr != null) {
-							DCClient.execute(new Runnable() {
+							dcc.executeDir(new Runnable() {
 								public void run() {
 									PMResult pmres = usr.sendPM(send, true, true);
 									if (pmres == PMResult.STORED) {
@@ -165,18 +189,18 @@ public class CommandInterpreter {
 					if (!usr.isFavUser()) {
 						usr.setFavUser(true);
 					}
-				} else if (!hub.getFavHub().isFavHub(ApplicationWorkbenchWindowAdvisor.get().getFavHubs())) {
+				} else if (!hub.getFavHub().isFavHub(dcc.getFavHubs())) {
 					FavHub fh = hub.getFavHub();
 					fh.setHubname(hub.getHubname());
 					fh.setDescription(hub.getTopic());
-					fh.addToFavHubs(ApplicationWorkbenchWindowAdvisor.get().getFavHubs());
-					hub.statusMessage(Lang.HubAddedToFavorites,0 );
+					fh.addToFavHubs(dcc.getFavHubs());
+					editor.statusMessage(Lang.HubAddedToFavorites,0 );
 				} else {
-					hub.statusMessage(Lang.HubIsAlreadyFavorite,0);
+					editor.statusMessage(Lang.HubIsAlreadyFavorite,0);
 				}
 				break;
 			case GETLIST:
-				String nick = GetFirstWord(line);
+				String nick = getFirstWord(line);
 				
 				IUser user = hub.getUserByNick(nick);
 				if (user != null) {
@@ -185,16 +209,16 @@ public class CommandInterpreter {
 				}
 				break;
 			case JOIN:
-				String addy = GetFirstWord(line);
+				String addy = getFirstWord(line);
 				FavHub fh1 = new FavHub(addy);
 				if (fh1.isValid()) {
-					fh1.connect(ApplicationWorkbenchWindowAdvisor.get());
+					fh1.connect(dcc);
 				} else {
 					logger.log(GuiAppender.GUI,Lang.InvalidAddress); 
 				}
 				break;
 			case PM:
-				String receiverNick = GetFirstWord(line);
+				String receiverNick = getFirstWord(line);
 				
 				IUser usrByNick = hub.getUserByNick(receiverNick);
 				String[] splits = line.split(Pattern.quote(" "),3);
@@ -207,29 +231,28 @@ public class CommandInterpreter {
 				
 				break;
 			case TOPIC:
-				hub.statusMessage(hub.getTopic(),0);
-				//TODO print topic so it can be copied..
+				editor.statusMessage(hub.getTopic(),0);
 				break;
 			case REBUILD:
-				ApplicationWorkbenchWindowAdvisor.get().rebuildFilelist();
+				dcc.rebuildFilelist();
 				break;
 			case PRUNEHASHES:
-				DCClient.execute(new Runnable() {
+				dcc.executeDir(new Runnable() {
 					public void run() {
 						int i = hub.getDcc().pruneHashes();
-						hub.statusMessage(String.format(
+						editor.statusMessage(String.format(
 								Lang.DeletedUnusedHashes, i), 0);
 					}
 				});
 				break;
 			case REFRESH:
-				ApplicationWorkbenchWindowAdvisor.get().refreshFilelist();
+				dcc.refreshFilelist();
 				break;
 			case TS:
 				GUIPI.put(GUIPI.timeStamps,!GUIPI.getBoolean(GUIPI.timeStamps));
 				break;
 			case SLOTS:
-				String number = GetFirstWord(line);
+				String number = getFirstWord(line);
 				if (number.matches("\\d+")) {
 					int num = Integer.parseInt(number);
 					if (num > 0) {
@@ -238,46 +261,46 @@ public class CommandInterpreter {
 				}
 				break;
 			case SEARCH: // /SEARCH <string>
-				String search = GetAllAfterCommand(line).trim();
+				String search = getAllAfterCommand(line).trim();
 				OpenSearchEditorHandler.openSearchEditor(editor.getSite().getWorkbenchWindow(), search);
 				break;
 			case SHOWJOINS:
 				FavHub fh = hub.getFavHub();
 				fh.setShowJoins(!fh.isShowJoins());
-				hub.statusMessage(Lang.ShowJoins+": "+(fh.isShowJoins()? Lang.Yes:Lang.No),0); 
-				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
+				editor.statusMessage(Lang.ShowJoins+": "+(fh.isShowJoins()? Lang.Yes:Lang.No),0); 
+				dcc.getFavHubs().store();
 				break;
 			case SHOWFAVJOINS:
 				FavHub fhs = hub.getFavHub();
 				fhs.setShowFavJoins(!fhs.isShowFavJoins());
-				hub.statusMessage(Lang.ShowFavJoins+": "+(fhs.isShowFavJoins()? Lang.Yes:Lang.No),0);//"Show Favjoins: "+fhs.isShowFavJoins(),0);
-				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
+				editor.statusMessage(Lang.ShowFavJoins+": "+(fhs.isShowFavJoins()? Lang.Yes:Lang.No),0);//"Show Favjoins: "+fhs.isShowFavJoins(),0);
+				dcc.getFavHubs().store();
 				break;
 			case SHOWCHATTERJOINS:
 				FavHub favHub = hub.getFavHub();
 				favHub.setShowRecentChatterJoins(!favHub.isShowRecentChatterJoins());
-				hub.statusMessage(Lang.ShowChatterJoins+": "+ (favHub.isShowRecentChatterJoins()? Lang.Yes:Lang.No),0);//"Show Chatterjoins: "+favHub.isShowRecentChatterJoins(),0);
-				ApplicationWorkbenchWindowAdvisor.get().getFavHubs().store();
+				editor.statusMessage(Lang.ShowChatterJoins+": "+ (favHub.isShowRecentChatterJoins()? Lang.Yes:Lang.No),0);//"Show Chatterjoins: "+favHub.isShowRecentChatterJoins(),0);
+				dcc.getFavHubs().store();
 				break;
 			case PASS:
-				String passwd = GetFirstWord(line).trim();
+				String passwd = getFirstWord(line).trim();
 				if (!GH.isEmpty(passwd)) {
 					hub.sendPassword(passwd);
 				}
 				break;
 			case AWAY:
-				String awaymsg = GetAllAfterCommand(line);
+				String awaymsg = getAllAfterCommand(line);
 				if (GH.isEmpty(awaymsg.trim())) {
-					ApplicationWorkbenchWindowAdvisor.get().setAway(true);
+					dcc.setAway(true);
 				} else {
-					ApplicationWorkbenchWindowAdvisor.get().setAway(awaymsg);
+					dcc.setAway(awaymsg);
 				}
 				break;
 			case BACK:
-				ApplicationWorkbenchWindowAdvisor.get().setAway(false);
+				dcc.setAway(false);
 				break;
 			case FILELISTTEST:
-				byte[] b = ApplicationWorkbenchWindowAdvisor.get().getOwnFileList().writeFileList(GetFirstWord(line).trim(), false,false);
+				byte[] b = dcc.getOwnFileList().writeFileList(getFirstWord(line).trim(), false,false);
 				try {
 					logger.info(new String(b,"utf-8"));
 				} catch (UnsupportedEncodingException e) {
@@ -285,8 +308,11 @@ public class CommandInterpreter {
 				}
 				break;
 			case HELP:
-				hub.statusMessage("/away <msg>, /me <msg>, /back, /refresh, /slots #, /uc, /rebuild, /topic, /pruneHashes, /join <hub-ip>,"
-						+" /clear, /ts, /close, /fav, /pm <user> [message], /getList <user>, /showjoins, /showfavjoins, /showchatterjoins ",0);
+				editor.statusMessage(
+							"/away <msg>, /me <msg>, /back, /refresh, /slots #, /uc, /rebuild" 
+						+	", /topic, /pruneHashes, /join <hub-ip>, /clear, /ts, /close, /fav" 
+						+	", /pm <nick> [message], /getList <nick>, /showjoins, /showfavjoins" 
+						+	", /showchatterjoins, /df",0);
 				break;
 			}
 		}
@@ -296,7 +322,7 @@ public class CommandInterpreter {
 		 * @param command where to SEARCH for
 		 * @return the first word (/command firstWord rest)
 		 */
-		private static String GetFirstWord(String command) {
+		private static String getFirstWord(String command) {
 			String[] splits = command.split(Pattern.quote(" "),3);
 			if (splits.length >=2 ) {
 				return splits[1];
@@ -304,7 +330,7 @@ public class CommandInterpreter {
 			return "";
 		}
 		
-		private static String GetAllAfterCommand(String command) {
+		private static String getAllAfterCommand(String command) {
 			String[] splits = command.split(Pattern.quote(" "),2);
 			if (splits.length == 2) {
 				return splits[1];

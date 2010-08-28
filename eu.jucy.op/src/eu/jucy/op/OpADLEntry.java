@@ -39,7 +39,7 @@ public class OpADLEntry  extends ADLSearchEntry {
 	/**
 	 * further restriction for matches..
 	 */
-	private SearchType searchType = SearchType.Any;
+	private SearchType searchType = SearchType.ANY;
 	
 	//cache variable only active during searching..
 	

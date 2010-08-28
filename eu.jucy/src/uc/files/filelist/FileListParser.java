@@ -52,7 +52,10 @@ public class FileListParser extends DefaultHandler {
 				current = new FileListFolder(current,name);	
 			}
 		} else if("FileListing".equals(qName)) {
-			fileList.setCID(attributes.getValue("CID"));
+			String cid = attributes.getValue("CID");
+			if (HashValue.isHash(cid)) {
+				fileList.setCID(HashValue.createHash(cid));
+			}
 			fileList.setGenerator(attributes.getValue("Generator"));
 		}
 	}

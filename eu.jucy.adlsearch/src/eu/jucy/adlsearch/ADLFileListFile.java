@@ -4,6 +4,7 @@ import uc.crypto.HashValue;
 import uc.files.filelist.FileListFile;
 import uc.files.filelist.FileListFolder;
 
+
 /**
  * used to mark difference between normal FileListFile and 
  * FileListFile added by ADL search
@@ -20,11 +21,20 @@ public class ADLFileListFile extends FileListFile {
 		super(parent, filename, size, tth);
 		this.original = original;
 	}
+	public ADLFileListFile(FileListFolder parent,FileListFile original) {
+		this(parent,original.getName(),original.getSize(),original.getTTHRoot(),original);
+	}
 
 	public String getPath() {
 		return original.getPath();
 	}
 
+	
+	
+	@Override
+	public boolean isOriginal() {
+		return false;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

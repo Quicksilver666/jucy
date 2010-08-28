@@ -61,10 +61,11 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.helpers.AttributesImpl;
 
 
+import uc.IUser;
 import uc.PI;
-import uc.User;
 import uc.crypto.HashValue;
 import uc.crypto.TigerHashValue;
+
 
 
 
@@ -72,12 +73,12 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 
 	private static final Logger logger= LoggerFactory.make();
 		
-	protected String cid 		= "NONE";
+	protected HashValue cid 	= null;
 	protected String generator	= "NONE";
 	protected Exception readProblem;
 	
 	
-	protected final User usr; //the owner
+	protected final IUser usr; //the owner
 	
 	protected volatile boolean completed = false;
 
@@ -91,7 +92,7 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 	 * creates an empty FileList for the specified user..
 	 * @param usr - the user that owns the FileList
 	 */
-	public FileList(User usr){
+	public FileList(IUser usr){
 		this.usr = usr;
 	}
 
@@ -136,6 +137,21 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 			
 		};
 	}
+	
+	public Iterable<FileListFile> getFileIterable() {
+		return root;
+	}
+	
+	public Iterable<FileListFolder> getFolderIterable() {
+		return new Iterable<FileListFolder>() {
+			@Override
+			public Iterator<FileListFolder> iterator() {
+				return root.iterator2();
+			}
+		};
+	}
+	
+	
 	
 	void addedOrRemoved(boolean added,IFileListItem item) {
 		if (item.isFile()) {
@@ -291,7 +307,9 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 			AttributesImpl atts = new AttributesImpl();
 			// USERS tag.
 			atts.addAttribute("", "", "Version", "CDATA", "1");
-			atts.addAttribute("", "", "CID", "CDATA", cid);
+			if (cid != null) {
+				atts.addAttribute("", "", "CID", "CDATA",  cid.toString());
+			}
 			atts.addAttribute("", "", "Base", "CDATA", path);
 			atts.addAttribute("", "", "Generator", "CDATA", generator);
 		
@@ -382,13 +400,13 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 		}
 	}
 	
-	/**
-	 * adds the owner of this FileList to all files
-	 * that are in DownloadQueue as well as in this FileList..
-	 */
-	public void match() {
-		usr.getDcc().getDownloadQueue().match(this);
-	}
+//	/**
+//	 * adds the owner of this FileList to all files
+//	 * that are in DownloadQueue as well as in this FileList..
+//	 */
+//	public void match(DownloadQueue dq) {
+//		dq.match(this);
+//	}
 	
 	/**
 	 * searches for a file by its hashvalue
@@ -432,21 +450,21 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 	/**
 	 * @return the usr
 	 */
-	public User getUsr() {
+	public IUser getUsr() {
 		return usr;
 	}
 
 	/**
 	 * @return the cID
 	 */
-	public String getCID() {
+	public HashValue getCID() {
 		return cid;
 	}
 
 	/**
 	 * @param cid the cID to set
 	 */
-	public void setCID(String cid) {
+	public void setCID(HashValue cid) {
 		this.cid = cid;
 	}
 

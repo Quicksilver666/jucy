@@ -1,10 +1,12 @@
-package eu.jucy.op;
+package eu.jucy.op.category;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import uc.crypto.HashValue;
 import uc.files.IDownloadable.IDownloadableFile;
+import uc.files.search.SearchType;
 
 
 /**
@@ -17,9 +19,19 @@ import uc.files.IDownloadable.IDownloadableFile;
  */
 public class Category {
 
-	private String name = "";
+	/**
+	 * name and identifier for this category
+	 */
+	private String name;
 	
+	/**
+	 * list of words ... that strongly indicate 
+	 * this category
+	 */
+	private List<Indicator> indicatorWords;
 	
+
+	private SearchType restrictedTo = SearchType.ANY;
 	
 	/**
 	 * files that definitely fall into that category (a blacklist)
@@ -89,10 +101,12 @@ public class Category {
 		public String getFilename() {
 			return filename;
 		}
-
-
 		
-		
-		
+	}
+	
+	
+	private static class Indicator {
+		private String word;
+		private int strength;
 	}
 }

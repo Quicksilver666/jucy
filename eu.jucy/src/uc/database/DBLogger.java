@@ -83,11 +83,7 @@ public class DBLogger {
 	public void addLogEntry(String message,long date) {
 		final ILogEntry log = create(  message,date); 
 		if (database != null) {
-			DCClient.execute(new Runnable() {
-				public void run() {
-					database.addLogEntry(log);
-				}
-			});
+			database.addLogEntry(log);
 		}
 	}
 	

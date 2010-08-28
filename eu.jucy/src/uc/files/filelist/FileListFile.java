@@ -8,7 +8,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import uc.IUser;
-import uc.User;
 import uc.crypto.HashValue;
 import uc.files.AbstractDownloadable.AbstractDownloadableFile;
 import uc.files.IDownloadable.IDownloadableFile;
@@ -98,8 +97,19 @@ public class FileListFile extends AbstractDownloadableFile implements IDownloada
 	/**
 	 * @return the fiellist owner
 	 */
-	public User getUser(){
+	public IUser getUser(){
 		return getParent().getFilelist().getUsr();
+	}
+	
+	
+	/**
+	 *  variable to signal what files where originally
+	 *  in the filelist and which were added by something like ADL search
+	 *  or some other processor..
+	 * @return always true for normal filelistFile
+	 */
+	public boolean isOriginal() {
+		return true;
 	}
 
 	@Override

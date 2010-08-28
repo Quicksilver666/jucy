@@ -9,10 +9,6 @@ import eu.jucy.gui.UCEditorInput;
 
 public class FavHubEditorInput extends UCEditorInput {
 
-
-
-	public FavHubEditorInput(){
-	}
 	
 
 	/* (non-Javadoc)

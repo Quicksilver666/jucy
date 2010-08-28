@@ -34,7 +34,7 @@ import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.itemhandler.DownloadableHandlers.RemoveDownloadableFromQueueHandler;
 
 
-import uc.DCClient;
+
 import uc.PI;
 import uc.database.DBLogger;
 import uc.database.IDatabase;
@@ -72,7 +72,7 @@ public abstract class LogViewerHandlers extends AbstractHandler {
 			final LogViewerEditor part =(LogViewerEditor)HandlerUtil.getActiveEditor(event);
 			part.setFilter(entity);
 			
-			DCClient.execute(new Runnable() {
+			ApplicationWorkbenchWindowAdvisor.get().executeDir(new Runnable() {
 				public void run() {
 					logger.debug("running delete");
 					entity.deleteEntity();

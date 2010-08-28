@@ -180,10 +180,11 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					dcc.start(monitor); //start FileList refresh and client in general 
+					dcc.start(monitor); 
 				} catch(Exception e) {
 					logger.error(e, e);
 				}
+				
 				
 				return Status.OK_STATUS;
 			}

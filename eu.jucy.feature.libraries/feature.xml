@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.libraries"
       label="Libraries"
-      version="1.0.4.qualifier"
+      version="1.0.5.qualifier"
       provider-name="Various Third Parties">
 
    <description>
@@ -93,8 +93,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          download-size="0"
          install-size="0"
          version="1.0.2"/>
-
-
 
    <plugin
          id="lib.org.hsqldb"

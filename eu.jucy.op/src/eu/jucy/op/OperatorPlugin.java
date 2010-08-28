@@ -19,7 +19,6 @@ import uc.IHub;
 import uc.IOperatorPlugin;
 import uc.IUser;
 import uc.HubListenerAdapter;
-import uc.User;
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 import uc.files.downloadqueue.FileListDQE;
 import uc.files.downloadqueue.AbstractDownloadFinished;
@@ -34,20 +33,22 @@ public class OperatorPlugin extends HubListenerAdapter implements
 	
 	
 	
-	private static OperatorPlugin  singleton;
-	
-	public static OperatorPlugin get() {
-		if (singleton == null) {
-			throw new IllegalStateException("OP plugin Not yet created");
-		}
-		return singleton;
-	}
+//	private static OperatorPlugin  singleton;
+//	
+//	public static OperatorPlugin get() {
+//		if (singleton == null) {
+//			throw new IllegalStateException("OP plugin Not yet created");
+//		}
+//		return singleton;
+//	}
 	
 	
 	private Pattern protectedUsr;
 	
 
 	private final Set<IHub> controlledHubs = new HashSet<IHub>();
+	
+	
 
 	/**
 	 * map checked user to resultObjects..
@@ -64,10 +65,10 @@ public class OperatorPlugin extends HubListenerAdapter implements
 	
 	public OperatorPlugin() {
 		update();
-		if (singleton != null) {
-			throw new IllegalStateException("Op plugin already initialized");
-		}
-		singleton = this;
+//		if (singleton != null) {
+//			throw new IllegalStateException("Op plugin already initialized");
+//		}
+//		singleton = this;
 	}
 
 	private final void update() {
@@ -163,7 +164,7 @@ public class OperatorPlugin extends HubListenerAdapter implements
 	
 
 
-	public void checkedUser(User checked) {
+	public void checkedUser(IUser checked) {
 		checkedUser.put(checked, new Object()); //TODO check information object..
 		
 	}
@@ -180,7 +181,6 @@ public class OperatorPlugin extends HubListenerAdapter implements
 			if (checkedUser.containsKey(who)) {
 				return CheckState.CHECKED;
 			}
-		
 		}
 		
 		return CheckState.UNCHECKED;

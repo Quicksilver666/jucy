@@ -2,6 +2,7 @@ package uc.protocols.client;
 
 import java.io.IOException;
 import java.net.ProtocolException;
+import java.util.Map;
 
 import logger.LoggerFactory;
 
@@ -9,6 +10,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import uc.protocols.ADCStatusMessage;
+import uc.protocols.hub.AbstractADCHubCommand;
+import uc.protocols.hub.Flag;
 
 public class STA extends AbstractADCClientProtocolCommand {
 
@@ -27,9 +30,19 @@ public class STA extends AbstractADCClientProtocolCommand {
 		int errorCode = Integer.valueOf(matcher.group(2));
 		String message = revReplaces(matcher.group(3));
 		
+		Map<Flag,String> flagMap = AbstractADCHubCommand.getFlagMap(matcher.group(4));
+		
+		
 		ADCStatusMessage sm  = new ADCStatusMessage(message,severity,errorCode); 
 		switch(errorCode) {
 		case 53:
+			if ("Slots full".equals(message)) {
+				message = "";
+			}
+			if (flagMap.containsKey(Flag.QP)) {
+				message += flagMap.get(Flag.QP);
+			}
+			
 			client.noSlotsAvailable(message);
 			break;
 		}

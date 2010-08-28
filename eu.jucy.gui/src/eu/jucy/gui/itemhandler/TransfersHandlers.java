@@ -7,7 +7,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import uc.DCClient;
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 
 
 import uc.protocols.client.ClientProtocol;
@@ -42,10 +42,9 @@ public abstract class TransfersHandlers extends AbstractHandler {
 	public static class CloseConnection extends TransfersHandlers {
 		
 		
-
 		@Override
 		protected void run(final ClientProtocol cp,ExecutionEvent event) {
-			DCClient.execute(new Runnable() {
+			ApplicationWorkbenchWindowAdvisor.get().executeDir(new Runnable() {
 				public void run() {
 					cp.disconnect(DisconnectReason.CLOSEDBYUSER);
 				}

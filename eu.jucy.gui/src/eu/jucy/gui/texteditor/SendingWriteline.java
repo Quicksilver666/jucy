@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Text;
 
 
 import eu.jucy.eliza.ElizaSession;
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.texteditor.hub.HubEditor;
 import eu.jucy.gui.texteditor.pmeditor.PMEditor;
 
@@ -50,6 +51,7 @@ public abstract class SendingWriteline  {
 	public static boolean lastKeyWasEnter;
 	public static long lastKeyPressed;
 	
+	
 	/**
 	 * 
 	 * @param timedifmillis  how much difference should be at least between typing and opening a popup..
@@ -66,6 +68,7 @@ public abstract class SendingWriteline  {
 	
 	protected final Text writeline;
 	
+	protected final DCClient dcc;
 
 	/**
 	 * sent messages stuff .. 
@@ -100,6 +103,7 @@ public abstract class SendingWriteline  {
 	public SendingWriteline(Text line,SortedMap<String,IUser> users, CommandInterpreter inter) {
 		this.writeline = line;
 		this.interpreter = inter;
+		this.dcc = ApplicationWorkbenchWindowAdvisor.get();
 		
 		UserNameCompleter unc = new UserNameCompleter(users);
 		
@@ -227,7 +231,7 @@ public abstract class SendingWriteline  {
 
 		@Override
 		public void send(final String s) {
-			DCClient.execute(new Runnable() {
+			dcc.executeDir(new Runnable() {
 				public void run() {
 					hub.sendMM(s, false);
 				}
@@ -251,7 +255,7 @@ public abstract class SendingWriteline  {
 		@Override
 		public void send(final String s) {
 			if (elizaSession == null) {
-				DCClient.execute(new Runnable() {
+				dcc.executeDir(new Runnable() {
 					public void run() {
 						PMResult pmres = usr.sendPM(s, false, true);
 						if (pmres == PMResult.STORED) {

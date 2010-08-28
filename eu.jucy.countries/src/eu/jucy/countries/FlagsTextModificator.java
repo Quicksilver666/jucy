@@ -15,11 +15,12 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Image;
 
-import uc.DCClient;
+
 import uc.IHub;
 import uc.IUser;
 
 
+import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 import eu.jucy.gui.texteditor.ITextModificator;
 import eu.jucy.gui.texteditor.SendingWriteline;
 import eu.jucy.gui.texteditor.StyledTextViewer;
@@ -39,7 +40,7 @@ public class FlagsTextModificator implements ITextModificator {
 
 
 	public void init(StyledText st,StyledTextViewer viewer, IHub hub) {
-		DCClient.execute(new Runnable() {
+		ApplicationWorkbenchWindowAdvisor.get().executeDir(new Runnable() {
 			public void run() {
 				GEOIP.get(); //force initialization
 			}
@@ -73,7 +74,7 @@ public class FlagsTextModificator implements ITextModificator {
 					&& user.getShared() != 0 ) {
 				
 				askingForIP.add(user);
-				DCClient.execute(new Runnable() {
+				ApplicationWorkbenchWindowAdvisor.get().executeDir(new Runnable() {
 					public void run() {
 						IHub hub = user.getHub();
 						logger.debug("asking for user: " + user + "  "+ hub.getName()+"  "+hub.supportsUserIP());

@@ -112,7 +112,7 @@ public class SearchResult extends AbstractDownloadableFile implements ISearchRes
 	 * @param totalslots
 	 */
 	public SearchResult(FileListFolder folder,User self,int availabelslots,int totalslots,String token) {
-		this(folder.getPath(),null,self, folder.getContainedSize(),availabelslots,totalslots,false,token);
+		this(folder.getPath(),null,self, folder.getSize(),availabelslots,totalslots,false,token);
 	}
 	
 	

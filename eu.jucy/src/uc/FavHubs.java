@@ -191,7 +191,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 	 */
 	@Override
 	public void openAutoStartHubs() {
-		DCClient.execute(new Runnable() {
+		dcc.executeDir(new Runnable() {
 			public void run() {
 				for (int i=0; i < favHubs.size(); i++) {
 					FavHub favHub = favHubs.get(i);
