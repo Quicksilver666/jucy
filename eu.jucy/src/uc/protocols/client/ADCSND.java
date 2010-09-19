@@ -18,8 +18,7 @@ public class ADCSND extends AbstractNMDCClientProtocolCommand {
 	 * @param client
 	 * @param expectedfile
 	 */
-	public ADCSND(ClientProtocol client,HashValue expectedfile, long startpos,long length) {
-		super(client);
+	public ADCSND(HashValue expectedfile, long startpos,long length) {
 		setPattern(prefix + " file TTH/"
 				+expectedfile+" "
 				+startpos
@@ -33,8 +32,7 @@ public class ADCSND extends AbstractNMDCClientProtocolCommand {
 	 * @param client
 	 * @param expectedfile
 	 */
-	public ADCSND(ClientProtocol client,HashValue expectedinterleaves) {
-		super(client);
+	public ADCSND(HashValue expectedinterleaves) {
 		setPattern(prefix + " tthl TTH/"+expectedinterleaves+" 0 ("+FILESIZE+")("+COMPRESSION+")",false);
 	}
 	
@@ -43,13 +41,12 @@ public class ADCSND extends AbstractNMDCClientProtocolCommand {
 	 * 
 	 * @param client
 	 */
-	public ADCSND(ClientProtocol client) {
-		super(client);
+	public ADCSND() {
 		setPattern(prefix + " file files\\.xml\\.bz2 0 ("+FILESIZE+")("+COMPRESSION+")",true);
 	}
 	
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(ClientProtocol client,String command) throws IOException {
 		client.getFti().setLength(Long.parseLong(matcher.group(1)));
 		client.getFti().setCompression(Compression.parseNMDCString(matcher.group(2)));
 

@@ -20,16 +20,14 @@ public class OpList extends AbstractNMDCHubProtocolCommand {
 
 	private static Logger logger = LoggerFactory.make();
 	
-	public OpList(Hub hub) {
-		super(hub);
-	}
+
 
 	/**
 	 * parses a oplist..
 	 * $OpList nick $$ nick2 $$ nick3 | ..usw
 	 */
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		String[] b = command.split(" ", 2)[1].split(Pattern.quote("$$"));//cut away prefix.. and separate to nicks
 		if (b.length > Hub.MAX_USERS) {
 			logger.warn("oplist too long: "+b.length);

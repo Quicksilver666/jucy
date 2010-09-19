@@ -14,7 +14,7 @@ import uc.protocols.IProtocolCommand;
  * @author quicksilver
  *
  */
-public abstract class AbstractNMDCHubProtocolCommand extends AbstractNMDCProtocolCommand implements IProtocolCommand {
+public abstract class AbstractNMDCHubProtocolCommand extends AbstractNMDCProtocolCommand implements IProtocolCommand<Hub> {
 
 
 	
@@ -37,21 +37,20 @@ public abstract class AbstractNMDCHubProtocolCommand extends AbstractNMDCProtoco
 		
 	} */
 	
-	protected final Hub hub;
+//	protected final Hub hub;
 	
 
 	
 
-	public AbstractNMDCHubProtocolCommand(Hub hub) {
-		this.hub = hub;
-
+	public AbstractNMDCHubProtocolCommand() {
+//		this.hub = hub;
 	}
 	
 
 
 	
 
-	public abstract void handle(String command) throws IOException;
+	public abstract void handle(Hub hub,String command) throws IOException;
 	
 	
 

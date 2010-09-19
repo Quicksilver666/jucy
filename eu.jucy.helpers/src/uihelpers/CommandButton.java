@@ -34,6 +34,7 @@ public class CommandButton {
 				if (setTooltip) {
 					button.setToolTipText(ce.getAttribute("description"));
 				}
+				break;
 			}
 		}
 		

@@ -5,12 +5,10 @@ import java.io.IOException;
 public class LogedIn extends AbstractNMDCHubProtocolCommand {
 
 	
-	public LogedIn(Hub hub) {
-		super(hub);
-	}
+
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		hub.getSelf().setOp(true);
 	}
 

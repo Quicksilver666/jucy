@@ -10,13 +10,12 @@ import uc.files.downloadqueue.AbstractDownloadQueueEntry;
 
 public class Error extends AbstractNMDCClientProtocolCommand {
 
-	public Error(ClientProtocol client) {
-		super(client);
+	public Error() {
 		setPattern(prefix+" ([^|]*)",true);
 	}
 
 	@Override
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(ClientProtocol client,String command) throws ProtocolException, IOException {
 		String reason = matcher.group(1);
 		client.otherSentError(reason);
 		if (reason.equals("File Not Available")) {

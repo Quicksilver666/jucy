@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -551,7 +552,8 @@ public class URLTextModificator implements ITextModificator {
 				URLTextModificator mod) {
 			FavHub fh = new FavHub(uri);
 			fh.addToFavHubs(ApplicationWorkbenchWindowAdvisor.get().getFavHubs());
-			GuiHelpers.executeCommand(FavHubEditor.OPEN_FAVHUBS_COMMAND_ID);
+			GuiHelpers.executeCommand(FavHubEditor.OPEN_FAVHUBS_COMMAND_ID,
+					Collections.<String,String>emptyMap());
 		}
 
 		@Override

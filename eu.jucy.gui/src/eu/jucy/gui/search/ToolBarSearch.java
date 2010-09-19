@@ -36,12 +36,15 @@ public class ToolBarSearch extends WorkbenchWindowControlContribution {
 		GridLayout gl = new GridLayout();
 		gl.marginHeight = 2;
 		gl.marginWidth = 2;
+		
 //		gl.verticalSpacing = 0;
 //		gl.horizontalSpacing = 0;
 		comp.setLayout(gl);
 		
 		final Text searchText = new Text(comp, SWT.SEARCH|SWT.ICON_SEARCH);
-		searchText.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, true));
+		GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
+		gd.minimumWidth = 120;
+		searchText.setLayoutData(gd);
 		searchText.setMessage(String.format("%-25s", Lang.EnterSearch));
 		searchText.addKeyListener(new KeyAdapter() {
 			public void keyPressed(final KeyEvent e) {

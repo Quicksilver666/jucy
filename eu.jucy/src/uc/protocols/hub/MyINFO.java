@@ -68,12 +68,10 @@ public class MyINFO extends AbstractNMDCHubProtocolCommand {
 	
 	private static Map<Hub,String> lastSent = Collections.synchronizedMap(new WeakHashMap<Hub,String>());  
 	
-	public MyINFO(Hub hub) {
-		super(hub);
-	}
+
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		//logger.debug("foundMyINFO: "+command+"  "+hub.getHubname());
 		boolean connected = false;
 		User current;

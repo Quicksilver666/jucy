@@ -18,13 +18,13 @@ public class STA extends AbstractADCClientProtocolCommand {
 	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
 
 	
-	public STA(ClientProtocol client) {
-		super(client);
+	public STA() {
+		super();
 		setPattern(prefix+" ([012])(\\d{2}) ("+ADCTEXT+")(?: (.*))?",true);
 	}
 
 
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(ClientProtocol client,String command) throws ProtocolException, IOException {
 		logger.debug(command);
 		int severity = Integer.valueOf(matcher.group(1));
 		int errorCode = Integer.valueOf(matcher.group(2));

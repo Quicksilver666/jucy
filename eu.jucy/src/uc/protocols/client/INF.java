@@ -13,13 +13,12 @@ import uc.protocols.hub.INFField;
 
 public class INF extends AbstractADCClientProtocolCommand {
 
-	public INF(ClientProtocol client) {
-		super(client);
+	public INF() {
 		setPattern(prefix +" (.*)",true);
 	}
 
 	
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(ClientProtocol client,String command) throws ProtocolException, IOException {
 		Map<INFField,String> fields = INFMap(matcher.group(1));
 
 		HashValue cid = null; 
@@ -60,14 +59,14 @@ public class INF extends AbstractADCClientProtocolCommand {
 		client.otherIdentified(other);
 		
 		if (!client.isIncoming()) {
-			sendINFOutgoing();	
+			sendINFOutgoing(client);	
 		} 
 		
 		client.setDownload(false);
 		client.onLogIn();
 	}
 	
-	private void sendINFOutgoing() {
+	private void sendINFOutgoing(ClientProtocol client) {
 		String inf = "CINF ID"+client.getSelf().getCID()+" TO"+doReplaces(client.getToken()) ;
 		client.sendUnmodifiedRaw(inf+"\n");
 	}

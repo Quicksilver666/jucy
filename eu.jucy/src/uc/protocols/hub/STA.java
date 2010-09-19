@@ -60,13 +60,12 @@ x0 	Same as 00, but categorized according to the rough structure set below
  */
 public class STA extends AbstractADCHubCommand {
 
-	public STA(Hub hub) {
-		super(hub);
+	public STA() {
 		setPattern(getHeader()+" ([012])(\\d{2}) ("+ADCTEXT+") ?(.*)",true);
 	}
 
 
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
 		logger.debug("STA received: "+command);
 		if (GH.isEmpty(getOtherSID())) { //STA from a hub
 			int severity = Integer.valueOf(matcher.group(HeaderCapt+1));

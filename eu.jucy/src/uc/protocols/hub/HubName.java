@@ -7,12 +7,11 @@ import uc.protocols.DCProtocol;
 public class HubName extends AbstractNMDCHubProtocolCommand {
 
 	private static final String SEPARATOR = " - ";
-	public HubName(Hub hub) {
-		super(hub);
+	public HubName() {
 	}
 
 	@Override
-	public void handle(String com) throws IOException {
+	public void handle(Hub hub,String com) throws IOException {
 		String command = com.substring(com.indexOf(' '));
 		command = DCProtocol.reverseReplaces(command);
 		int i = command.indexOf(SEPARATOR);

@@ -29,14 +29,13 @@ public class SUP extends AbstractADCClientProtocolCommand {
 	
 	private boolean first = true;
 	
-	public SUP(ClientProtocol client) {
-		super(client);
+	public SUP() {
 		setPattern(prefix +" (.*)",true);
 	}
 
 	
 
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(ClientProtocol client,String command) throws ProtocolException, IOException {
 		client.setProtocolNMDC(false);
 		Set<String> supports = client.getOthersSupports();
 		for (String sup: space.split(matcher.group(1))) {
@@ -59,7 +58,7 @@ public class SUP extends AbstractADCClientProtocolCommand {
 	}
 	
 	public static void sendSUP(ClientProtocol client) {
-		client.addCommand(new INF(client));
+		client.addCommand(new INF());
 	
 		client.sendUnmodifiedRaw(SUPPORTS);
 		

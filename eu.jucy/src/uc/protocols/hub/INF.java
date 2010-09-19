@@ -33,13 +33,12 @@ public class INF extends AbstractADCHubCommand {
 	private static final Map<FavHub,Map<INFField,String>> LAST_INF =  
 				new HashMap<FavHub,Map<INFField,String>>();
 	
-	public INF(Hub hub) {
-		super(hub);
+	public INF() {
 		setPattern(getHeader()+" (.*)",true);
 	}
 
 
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
 		logger.debug("Received inf: "+command);
 		String sids = getOtherSID(); // matcher.group(1);
 		Map<INFField,String> attribs = INFMap(matcher.group(HeaderCapt+1)) ;

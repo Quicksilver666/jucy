@@ -5,11 +5,127 @@
    <extension-point id="eu.jucy.IDatabase" name="Database" schema="schema/eu.jucy.IDatabase.exsd"/>
    <extension-point id="eu.jucy.files.filelist.processor" name="Filelist processor" schema="schema/eu.jucy.files.filelist.processor.exsd"/>
    <extension-point id="eu.jucy.OpPlugin" name="Operator Plugin" schema="schema/eu.jucy.OpPlugin.exsd"/>
-   <extension-point id="eu.jucy.HubProtocol" name="jucy Protocol" schema="schema/eu.jucy.Protocol.exsd"/>
+   <extension-point id="eu.jucy.protocol" name="Jucy Protocol" schema="schema/eu.jucy.protocol.exsd"/>
+   <extension-point id="eu.jucy.pmfilter" name="Private Message Filter" schema="schema/eu.jucy.pmfilter.exsd"/>
 
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer class="uc.PI"/>
+   </extension>
+   <extension
+         point="eu.jucy.protocol">
+      <protocol
+            nmdc="true"
+            active_after_login="false"
+            active_during_login="true"
+            target="uc.protocols.hub.Hub">
+         <command
+              
+               commandClass="uc.protocols.hub.Lock">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.HubName">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.Supports">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.Hello">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.LogedIn">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.GetPass">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.HubIsFull">
+         </command>
+         <command
+           commandClass="uc.protocols.hub.ValidateDenide">
+         </command>
+         <command
+           commandClass="uc.protocols.hub.ForceMove">
+         </command>
+      </protocol>
+      <protocol
+            active_after_login="false"
+            active_during_login="true"
+            nmdc="true"
+            target="uc.protocols.hub.Hub">
+         <command
+               commandClass="uc.protocols.hub.Feed">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.HubTopic">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.MyINFO">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.OpList">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.Quit">
+         </command>
+           <command
+               commandClass="uc.protocols.hub.SR">
+         </command>
+           <command
+               commandClass="uc.protocols.hub.To">
+         </command>
+           <command
+               commandClass="uc.protocols.hub.UserIP">
+         </command>
+           <command
+               commandClass="uc.protocols.hub.UserCommand">
+         </command>
+             <command
+               commandClass="uc.protocols.hub.NickList">
+         </command>
+      </protocol>
+      <protocol
+            active_after_login="false"
+            active_during_login="true"
+            nmdc="false"
+            target="uc.protocols.hub.Hub">
+         <command
+               commandClass="uc.protocols.hub.SUP">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.SID">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.INF">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.MSG">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.STA">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.GPA">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.CMD">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.GET">
+         </command>
+      </protocol>
+      <protocol
+            active_after_login="false"
+            active_during_login="true"
+            nmdc="false"
+            target="uc.protocols.hub.Hub">
+         <command
+               commandClass="uc.protocols.hub.QUI">
+         </command>
+         <command
+               commandClass="uc.protocols.hub.RES">
+         </command>
+      </protocol>
    </extension>
 
   

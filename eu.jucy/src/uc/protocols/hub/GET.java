@@ -22,12 +22,11 @@ public class GET extends AbstractADCHubCommand {
 
 	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
 
-	public GET(Hub hub) {
-		super(hub);
+	public GET() {
 		setPattern(prefix +" blom / 0 ("+FILESIZE+")("+COMPRESSION+") ?(.*)",true);
 	}
 
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
 		//"BK" and h in the flag "BH".
 		int m = Integer.parseInt(matcher.group(1)) *8;
 		Compression comp = Compression.parseNMDCString(matcher.group(2));

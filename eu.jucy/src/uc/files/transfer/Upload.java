@@ -142,10 +142,8 @@ public class Upload extends AbstractFileTransfer {
 			}
 
 		} finally {
-		//	runningUploads.remove(this);
 			GH.close(source); //target is no longer closed.. but must be flushed somehow..
 			notifyObservers(TransferChange.FINISHED);
-			
 			fw.finnish();			//flush ..
 			
 			

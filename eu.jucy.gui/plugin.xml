@@ -349,6 +349,11 @@
                description="tries to enlarge the shell"
                id="eu.jucy.gui.maximizeGUI"
                name="%Restore">
+            <commandParameter
+                  id="eu.jucy.gui.maximize"
+                  name="Maximize"
+                  optional="false">
+            </commandParameter>
          </command>
          <command
                defaultHandler="eu.jucy.gui.update.UpdateHandler"
@@ -1109,6 +1114,10 @@
                locationURI="popup:eu.jucy.gui.TrayMenu?after=additions">
             <command
                   commandId="eu.jucy.gui.maximizeGUI">
+               <parameter
+                     name="eu.jucy.gui.maximize"
+                     value="true">
+               </parameter>
             </command>
             <command
                   commandId="eu.jucy.gui.OpenSearchEditor"

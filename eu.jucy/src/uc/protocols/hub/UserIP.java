@@ -19,12 +19,10 @@ public class UserIP extends AbstractNMDCHubProtocolCommand {
 	private static Logger logger = LoggerFactory.make();
 	
 	
-	public UserIP(Hub hub) {
-		super(hub);
-	}
+	
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		logger.debug("USERIP: "+command);
 		String[] b = command.split(" ", 2)[1].split(Pattern.quote("$$"));
 		for (String userIPString : b) {

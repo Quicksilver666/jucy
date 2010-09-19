@@ -15,14 +15,13 @@ public class MaxedOut extends AbstractNMDCClientProtocolCommand {
 		logger.setLevel(Level.INFO);
 	}
 	
-	public MaxedOut(ClientProtocol client) {
-		super(client);
+	public MaxedOut() {
 		setPattern(prefix+"(.*)",true); //just use the prefix as pattern -> prevents check for the space.
 		//.* is for some special clients that might send some number afterwards ? $MaxedOut 3| ??
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(ClientProtocol client,String command) throws IOException {
 		logger.debug("received maxedOut "+command);
 		client.noSlotsAvailable( matcher.group(1).trim());
 	}	

@@ -5,6 +5,7 @@ package eu.jucy.gui;
 
 
 
+import java.util.Collections;
 import java.util.concurrent.Semaphore;
 
 import logger.LoggerFactory;
@@ -25,8 +26,6 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MenuDetectEvent;
-import org.eclipse.swt.events.MenuDetectListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
@@ -54,7 +53,7 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
-import org.eclipse.ui.handlers.IHandlerService;
+
 import org.eclipse.ui.menus.IMenuService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -166,7 +165,10 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     		hookMenu(trayItem,window);
     	}
     	if (GUIPI.getBoolean(GUIPI.minimizeOnStart)) {
-    		mininmize(window);
+    		GuiHelpers.executeCommand(window, 
+					EnlargeShellHandler.COMMAND_ID, 
+					Collections.singletonMap(EnlargeShellHandler.PARAM_MAXIMIZE
+							,Boolean.FALSE.toString()));
     	}
     	
 		Dialog.setDefaultImage(trayImage);
@@ -314,62 +316,67 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     
     	trayItem.addSelectionListener(new SelectionAdapter() {
     		long lastUsed;
+    		
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				widgetDefaultSelected(e);
+			}
+
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				if (System.currentTimeMillis() - lastUsed < 500) { //no accidental multiple activations
     				return;
     			}
-    			//using ahead provided window! -> 
+				//using ahead provided window! -> 
     			//problems in Linux due to not window available when minimized?
-    			IHandlerService ihs = (IHandlerService)window.getService(IHandlerService.class);
-    			try {
-    				ihs.executeCommand(EnlargeShellHandler.CommandID, null);
-    			} catch (Exception e1) {
-    				logger.warn(e1, e1);
-    			} 
+				Boolean maximize = window.getShell().getMinimized();
+				GuiHelpers.executeCommand(window, 
+						EnlargeShellHandler.COMMAND_ID, 
+						Collections.singletonMap(EnlargeShellHandler.PARAM_MAXIMIZE,maximize.toString()));
+				
+//    			//using ahead provided window! -> 
+//    			//problems in Linux due to not window available when minimized?
+//				if (window.getShell().getMinimized()) {
+//					IHandlerService ihs = (IHandlerService)window.getService(IHandlerService.class);
+//					
+//	    			try {
+//	    				ihs.executeCommand(EnlargeShellHandler.COMMAND_ID, null);
+//	    			} catch (Exception e1) {
+//	    				logger.warn(e1, e1);
+//	    			} 
+//				} else {
+//					EnlargeShellHandler.mininmize(window);
+//				}
     			lastUsed = System.currentTimeMillis();
 			}
     		
 		});
 
     	
-    	window.getShell().addShellListener(new ShellAdapter(){
+    	window.getShell().addShellListener(new ShellAdapter() {
     		public void shellIconified(ShellEvent e){
-    			mininmize(window);
+    			GuiHelpers.executeCommand(window, 
+						EnlargeShellHandler.COMMAND_ID, 
+						Collections.singletonMap(EnlargeShellHandler.PARAM_MAXIMIZE
+								,Boolean.FALSE.toString()));
     		}
     	});
     	
     }
     
-    private void mininmize(IWorkbenchWindow window) {
-    	
-    	Shell shell = window.getShell();
-    	if (!shell.getMinimized()) {
-    		shell.setMinimized(true);
-    	}
-    	if (GUIPI.getBoolean(GUIPI.minimizeToTray) && shell.isVisible()) {
-			shell.setVisible(false);
-		}
-		if (!dcc.isAway() && GUIPI.getBoolean(GUIPI.setAwayOnMinimize)) {
-			dcc.setAway(true);
-		}
-    }
+
     
     private void hookMenu(TrayItem trayItem,IWorkbenchWindow window) {
-    	Shell shell = new Shell(Display.getCurrent());
+    	Shell shell =  new Shell(Display.getCurrent());
     	
     	MenuManager manager = new MenuManager("TrayMenu",TrayMenuID);
     	manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-    	
     
     	IMenuService service = (IMenuService)window.getService(IMenuService.class);
     	service.populateContributionManager(manager, "popup:"+TrayMenuID);
     	
-    
-
-    	
     	final Menu menu = manager.createContextMenu(shell);
-    	
     	//final Menu menu = new Menu(shell, SWT.POP_UP);
     	trayItem.addListener(SWT.MenuDetect, new Listener() {
     		public void handleEvent(Event event) {
@@ -378,15 +385,13 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
     	});
     }
     
-    
-    
-    
-    
+
     
     private TrayItem initTaskItem(IWorkbenchWindow window){
-    	trayImage = AbstractUIPlugin.imageDescriptorFromPlugin(Application.PLUGIN_ID, IImageKeys.TRAYICON).createImage();
+    	trayImage = AbstractUIPlugin.imageDescriptorFromPlugin(
+    			Application.PLUGIN_ID, IImageKeys.TRAYICON).createImage();
     	
-    	if (Platform.OS_MACOSX.equals(Platform.getOS())) { //MacOsX uses grey tray icons..
+    	if (Platform.OS_MACOSX.equals(Platform.getOS())) { //MacOsX uses gray tray icons..
     		Image img = new Image(null,trayImage,SWT.IMAGE_GRAY);
     		trayImage.dispose();
     		trayImage = img;
@@ -397,26 +402,27 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 	    	if( tray == null ) {
 	    		return null;
 	    	}
-	    	tray.addListener(SWT.MouseHover, new Listener() {
-				@Override
-				public void handleEvent(Event event) {
-					logger.info("Event hover tray: "+event.detail);
-				}
-	    	});
+//	    	tray.addListener(SWT.MouseHover, new Listener() {
+//				@Override
+//				public void handleEvent(Event event) {
+//					logger.info("Event hover tray: "+event.detail);
+//				}
+//	    	});
 	    	TrayItem trayItem = new TrayItem(tray,SWT.NONE);
 	    	trayItem.setImage(trayImage);
 	    	trayItem.setToolTipText(DCClient.LONGVERSION+" - Direct Connect Client");
 	    	
 	    	trayItem.setVisible(true);
 	    	
-
-	    	trayItem.addMenuDetectListener(new MenuDetectListener() {
-				
-				@Override
-				public void menuDetected(MenuDetectEvent e) {
-					logger.info("MenuDetectEven: ");
-				}
-			});
+//	    	trayItem.addMenuDetectListener(new MenuDetectListener() {
+//				
+//				@Override
+//				public void menuDetected(MenuDetectEvent e) {
+//					String data = new SimpleDateFormat().format(new Date());
+//					logger.info("MenuDetectEven: "+data);
+//					trayItem.setToolTipText("time: "+data);
+//				}
+//			});
 
 
 	    

@@ -21,13 +21,12 @@ public class Direction extends AbstractNMDCClientProtocolCommand {
 //				+ client.getMyNumber() + "|"); 
 	}
 	
-	public Direction(ClientProtocol client) {
-		super(client);
+	public Direction() {
 		setPattern(prefix+" ((?:"+DOWNLOAD+")|(?:"+UPLOAD+")) ("+SHORT+")",true);
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(ClientProtocol client,String command) throws IOException {
 		client.setOthersNumber( Integer.parseInt(matcher.group(2)));	
 		client.setDownload(matcher.group(1).equals(DOWNLOAD));
 		

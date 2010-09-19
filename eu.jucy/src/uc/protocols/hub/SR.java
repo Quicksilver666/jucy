@@ -54,7 +54,7 @@ import uc.protocols.DCProtocol;
 	    */
 public class SR extends AbstractNMDCHubProtocolCommand {
 
-	private static Logger 			logger 	= LoggerFactory.make();
+	private static Logger logger = LoggerFactory.make();
 	
 	private static final Pattern pipesplit = Pattern.compile(Pattern.quote("|"));
 	
@@ -62,7 +62,7 @@ public class SR extends AbstractNMDCHubProtocolCommand {
 	 * used in search results as separator
 	 * this is the RegExp string for detection
 	 */
-	private static final String 	CHARFIVE = "\\x05";
+	private static final String CHARFIVE = "\\x05";
 	
 	/**
 	 * the same as char for sending 
@@ -71,8 +71,10 @@ public class SR extends AbstractNMDCHubProtocolCommand {
 
 	/*
 	 * 
-	 * DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]coldshouldermulder G:_\Documentaries\BBC.Horizon.2008.How.Much.Is.Your.Dead.Body.Worth.DVBc.XviD.MP3.MVGroup.org.avi669853684 2/4TTH:FNY6UH5AOERHL4GEJQBLEY7WXBNLNJFCYA2UBWI (81.16.174.204:7777)
-DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]coldshouldermulder G:_\Documentaries\BBC.Horizon.2008.How.to.Kill.a.Human.Being.DVBC.XviD.MP3.MVGroup.org.avi669845702 2/4TTH:UI36H4BSPDUZ4PNVJU4ZHQGRZQCVRVDI6AS4FZQ (81.16.174.204:7777)
+	 * DEBUG ConnectionProtocol.java Line:159 		 
+	 * Malformed Command received: $SR [daiz]coldshouldermulder G:_\Documentaries\BBC.Horizon.2008.How.Much.Is.Your.Dead.Body.Worth.DVBc.XviD.MP3.MVGroup.org.avi669853684 2/4TTH:FNY6UH5AOERHL4GEJQBLEY7WXBNLNJFCYA2UBWI (81.16.174.204:7777)
+DEBUG ConnectionProtocol.java Line:159 		 
+Malformed Command received: $SR [daiz]coldshouldermulder G:_\Documentaries\BBC.Horizon.2008.How.to.Kill.a.Human.Being.DVBC.XviD.MP3.MVGroup.org.avi669845702 2/4TTH:UI36H4BSPDUZ4PNVJU4ZHQGRZQCVRVDI6AS4FZQ (81.16.174.204:7777)
 	 */
 	/**
 	 * pattern that matches a SR that represents a directory
@@ -94,8 +96,7 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 		fileSR = Pattern.compile(prefix +" ("+NMDCNICK+") ("+filename+")"+CHARFIVE+"("+FILESIZE+")"+" "+slots+CHARFIVE+"TTH:("+TTH+") \\("+IPv4+":"+PORT+"\\)");
 	}
 	
-	public SR(Hub hub) {
-		super(hub);
+	public SR() {
 		String filename = "(?:.{1,255})";
 		String result =  filename+"(?:"+CHARFIVE+FILESIZE+")?";
 		String hubname = "(?:TTH\\:"+TTH+"|(?:.*))";
@@ -142,7 +143,7 @@ DEBUG ConnectionProtocol.java Line:159 		 Malformed Command received: $SR [daiz]
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		receivedSR(hub,command);
 	}
 	

@@ -3,7 +3,7 @@ package uc.protocols;
 
 
 
-public abstract class AbstractNMDCProtocolCommand extends AbstractDCProtocolCommand implements IProtocolCommand {
+public abstract class AbstractNMDCProtocolCommand extends AbstractDCProtocolCommand  {
 
 
 	/**

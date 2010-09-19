@@ -28,13 +28,12 @@ import uc.protocols.SendContext;
  */
 public class ConnectToMe extends AbstractNMDCHubProtocolCommand {
 
-	public ConnectToMe(Hub hub) {
-		super(hub);
+	public ConnectToMe() {
 		setPattern(prefix+" "+NMDCNICK+"(?: "+NMDCNICK+")?"+" ("+IPv4+":?"+PORT+"?)(\\D?)",true); //may be non digit is after port for specifying encryption..
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		InetSocketAddress isa = ConnectionProtocol.inetFromString(matcher.group(1),412);
 		boolean encryption = "S".equals(matcher.group(2));
 		hub.ctmReceived(isa,null,encryption?CPType.NMDCS:CPType.NMDC,null);

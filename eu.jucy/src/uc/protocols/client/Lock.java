@@ -14,12 +14,9 @@ public class Lock extends AbstractNMDCClientProtocolCommand {
 	private static final Logger logger = LoggerFactory.make();
 	
 	
-	public Lock(ClientProtocol client) {
-		super(client);
-	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(ClientProtocol client,String command) throws IOException {
 		logger.debug(command + "  "+ client.isIncoming());
 		
 		int i;

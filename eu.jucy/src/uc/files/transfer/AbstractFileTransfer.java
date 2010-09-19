@@ -261,7 +261,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 		public synchronized void update(IObservable<TransferChange> fileTransfer, TransferChange change) {
 			switch(change) {
 			case STARTED:
-				logger.debug("started has fired.."+getOther()+"  "+AbstractFileTransfer.this.cp.getState());
+		//		logger.info("started has fired.."+getOther()+"  "+AbstractFileTransfer.this.cp.getState());
 				sf = dcc.getSchedulerDir().scheduleAtFixedRate(update, 500, 500, TimeUnit.MILLISECONDS);
 				starttime = new Date();
 				active.addIfAbsent(AbstractFileTransfer.this);
@@ -273,7 +273,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 
 				measured.add(current);
 				while (measured.size() > 30) { 
-					measured.remove();
+					measured.removeFirst();
 				}
 				TimePositionTuple old = measured.getFirst();
 				currentSpeed = old.calcSpeed(current);
@@ -288,6 +288,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 						timesSpeedIsZero = 0;
 
 						if (AbstractFileTransfer.this.cp.getState() == ConnectionState.DESTROYED) {
+							logger.debug("Speed zero "+getOther()+"  "+AbstractFileTransfer.this.cp.getState());
 							update(AbstractFileTransfer.this,TransferChange.FINISHED);
 							logger.debug("unnormal finished called "+getOther());
 						} else {
@@ -301,7 +302,7 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 				ch.notifyTransferObservers(new StatusObject(AbstractFileTransfer.this, ChangeType.CHANGED));
 				break;
 			case FINISHED:
-				logger.debug("finished has fired: "+getOther()+"  "+AbstractFileTransfer.this.cp.getState());
+				logger.debug("finished has fired: "+getOther()+"  "+AbstractFileTransfer.this.cp.getState()+"  "+timesSpeedIsZero);
 				fti.getOther().deleteConnection(AbstractFileTransfer.this.cp); 
 				sf.cancel(false);
 				currentSpeed = 0;

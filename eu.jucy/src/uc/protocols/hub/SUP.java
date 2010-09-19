@@ -11,12 +11,10 @@ public class SUP extends AbstractADCHubCommand {
 	
 	public static final String SUPPORTS = "HSUP ADBASE ADTIGR ADUCMD ADBLOM"+(Hub.ZLIF?" ADZLIF":"")+ "\n";  //ADUCM0  for usercommands  ADADCS
 	
-	public SUP(Hub hub) {
-		super(hub);
-	}
 
 
-	public void handle(String command) throws ProtocolException, IOException {
+
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
 		Set<String> supps = hub.getOthersSupports();
 		
 		String[] com = space.split(command);

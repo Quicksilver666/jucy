@@ -11,13 +11,12 @@ public class Supports  extends AbstractNMDCClientProtocolCommand  {
 	
 //	private static final Logger logger = LoggerFactory.make(Level.DEBUG);
 	
-	public Supports(ClientProtocol client) {
-		super(client);
+	public Supports() {
 		setPattern(prefix+"(.*)",true);
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(ClientProtocol client,String command) throws IOException {
 		
 		//just grab rest of the support string.. and trim it..
 		Set<String> supps = client.getOthersSupports(); 

@@ -86,18 +86,21 @@ public class RES extends AbstractADCHubCommand {
 
 	
 	
-	private static RES UDPRES = new RES(null);
+	private static RES UDPRES = new RES(true);
 	
 	
 	
-	public RES(Hub hub) {
-		super(hub);  
+	public RES() {
+		this(false);
+	}
+	
+	private RES(boolean udp) {
 		String passive = getHeader();
 		String active = "URES ("+CID+")";
-		setPattern((hub != null?passive:active) +" (.*)",true);
+		setPattern((udp?active:passive) +" (.*)",true);
 	}
 
-	private void handle(String command,DCClient dcc) throws ProtocolException, IOException {
+	private void handle(Hub hub,String command,DCClient dcc) throws ProtocolException, IOException {
 		List<IUser> users;
 
 		Map<Flag,String> flags;
@@ -145,8 +148,8 @@ public class RES extends AbstractADCHubCommand {
 		}
 	}
 
-	public void handle(String command) throws ProtocolException, IOException {
-		handle(command,hub.getDcc());
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
+		handle(hub,command,hub.getDcc());
 	}
 	
 	public static String getUDPRESString(SearchResult sr, Hub hub) {
@@ -200,7 +203,7 @@ public class RES extends AbstractADCHubCommand {
 			cur = cur.substring(index+1);
 			if (UDPRES.matches(command)) {
 				try {
-					UDPRES.handle(command,dcc);
+					UDPRES.handle(null,command,dcc);
 				} catch (IOException ioe) {
 					logger.log(Platform.inDevelopmentMode()?Level.WARN:Level.DEBUG, ioe,ioe);
 				} catch(RuntimeException re) {

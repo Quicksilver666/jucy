@@ -38,8 +38,8 @@ public class ConnectionDebugger extends Observable<StatusObject> implements ICon
 	private final List<SentCommand> lastCommands = 
 		Collections.synchronizedList(new LinkedList<SentCommand>());
 	
-	private final Map<IProtocolCommand,CommandStat> commandCounter = 
-		new HashMap<IProtocolCommand,CommandStat>();
+	private final Map<IProtocolCommand<?>,CommandStat> commandCounter = 
+		new HashMap<IProtocolCommand<?>,CommandStat>();
 	
 	private long trafficTotal;
 	
@@ -76,7 +76,8 @@ public class ConnectionDebugger extends Observable<StatusObject> implements ICon
 		}
 	}
 
-	public void receivedCommand(IProtocolCommand commandHandler,
+	@Override
+	public void receivedCommand(IProtocolCommand<?> commandHandler,
 			boolean wellFormed, String command) {
 		
 		ReceivedCommand rc = new ReceivedCommand(commandHandler, command, wellFormed);
@@ -173,7 +174,7 @@ public class ConnectionDebugger extends Observable<StatusObject> implements ICon
 		private String lastCommand = "";
 		private long trafficCommand;
 		
-		public CommandStat(IProtocolCommand com) {
+		public CommandStat(IProtocolCommand<?> com) {
 			commandName = com.getClass().getSimpleName();
 		}
 		

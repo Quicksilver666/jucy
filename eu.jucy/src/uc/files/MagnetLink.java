@@ -1,7 +1,12 @@
 package uc.files;
 
 
+
+
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
@@ -34,6 +39,8 @@ public class MagnetLink extends AbstractDownloadableFile implements IDownloadabl
 	public static final String MagnetURI = "magnet:\\?xt\\=urn:tree:tiger:("+TigerHashValue.TTHREGEX+")" +
 	"&xl\\=("+IProtocolCommand.FILESIZE +")"
 	+"&dn\\=("+IProtocolCommand.TEXT_NONEWLINE_NOSPACE+")";
+	
+	
 
 	public static final Pattern MagnetPat = Pattern.compile(MagnetURI);
 	/**
@@ -41,15 +48,24 @@ public class MagnetLink extends AbstractDownloadableFile implements IDownloadabl
 	 * @param s
 	 * @return a magnet link from the given string.. null if not a valid magnet link
 	 */
-	public static MagnetLink parse(String magnetURL) {
-		Matcher magnet = MagnetPat.matcher(magnetURL);
+	public static MagnetLink parse(String magnetURI) {
+
+		Matcher magnet = MagnetPat.matcher(magnetURI);
 		if (magnet.matches()) {
 			HashValue hash = HashValue.createHash(magnet.group(1));
 			long size = Long.parseLong(magnet.group(2));
-			String name = magnet.group(3).replace('+', ' ').trim();
+			String name = magnet.group(3);
+			try {
+				name = URLDecoder.decode(name, "utf-8");
+			} catch (UnsupportedEncodingException e) {
+				throw new IllegalStateException(e);
+			}
+			name = name.trim();
+		
 			
 			return new MagnetLink(hash,size,name);
 		}
+
 		return null;
 	}
 	
@@ -73,8 +89,13 @@ public class MagnetLink extends AbstractDownloadableFile implements IDownloadabl
 	
 	
 	public String toString() {
-		return String.format("magnet:?xt=urn:tree:%s:%s&xl=%d&dn=%s", 
-				hash.magnetString(),hash,filesize,filename.replace(' ', '+'));
+		try {
+			return String.format("magnet:?xt=urn:tree:%s:%s&xl=%d&dn=%s", 
+					hash.magnetString(),hash,filesize,URLEncoder.encode(filename, "utf-8"));
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException(e);
+		}
+		
 	}
 	
 	@Override

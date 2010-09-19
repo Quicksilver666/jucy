@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import uc.crypto.TigerHashValue;
 
-public interface IProtocolCommand {
+public interface IProtocolCommand<T extends ConnectionProtocol> {
 
 	/**
 	 * pattern describing a nick..
@@ -85,7 +85,7 @@ public interface IProtocolCommand {
 	 * @param command - the string representing the command
 	 * @throws IOException - if some exception occurs.
 	 */
-	void handle(String command) throws ProtocolException , IOException;
+	<K extends T> void handle(K k,String command) throws ProtocolException , IOException;
 	
 	/**
 	 * 

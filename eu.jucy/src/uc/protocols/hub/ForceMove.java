@@ -23,13 +23,12 @@ public class ForceMove extends AbstractNMDCHubProtocolCommand {
 
 	
 	
-	public ForceMove(Hub hub) {
-		super(hub);
+	public ForceMove() {
 		setPattern(prefix+" ("+TEXT_NOSPACE+").*",true);
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(final Hub hub,String command) throws IOException {
 		final FavHub address = new FavHub(matcher.group(1));
 		//schedule this ... so later coming reasons can be received..
 		hub.getDcc().getSchedulerDir().schedule(

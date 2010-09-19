@@ -28,13 +28,12 @@ public class SCH extends AbstractADCHubCommand {
 	 * DEBUG ConnectionProtocol.java Line:160 		 Malformed Command received: BSCH 4I3EXFV5JCIHE TRNSUDFZ3BPWD6YBMTKE5IXVR34CZKTZG5XNTZHDQ
 TRACE Hub.java Line:463 		 
 	 */
-	public SCH(Hub hub) {
-		super(hub);
+	public SCH() {
 		setPattern(getHeader()+" (.*)",true); 
 	}
 
-	public void handle(String command) throws ProtocolException, IOException {
-		User usr = getOther();
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
+		User usr = getOther(hub);
 		if (usr == null || usr.equals(hub.getSelf())) {
 			return;
 		}

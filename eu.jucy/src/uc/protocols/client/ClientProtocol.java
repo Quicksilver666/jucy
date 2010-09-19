@@ -253,31 +253,35 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		//state = connecting;
 		disconnectReason = null;
 		if (getNMDC() == null) {
-			addCommand(new MyNick(this),new Lock(this),new Error(this),new NMDCGet(this),new UGetBlock(this));
-			addCommand(new SUP(this),new STA(this));
+			addCommand(new MyNick());
+			addCommand(new Lock());
+			addCommand(new Error());
+			addCommand(new NMDCGet());
+			addCommand(new UGetBlock());
+			addCommand(new SUP());
+			addCommand(new STA());
 		} else if (isNMDC()) {
-			addCommand(new MyNick(this),new Lock(this),new Error(this),new NMDCGet(this));
+			addCommand(new MyNick());
+			addCommand(new Lock());
+			addCommand(new Error());
+			addCommand(new NMDCGet());
 		} else {
-			addCommand(new SUP(this),new STA(this));
+			addCommand(new SUP());
+			addCommand(new STA());
 		}
 	}
 
 	public void onConnect() throws IOException {
 		logger.debug("called OnConnect");
-		InetSocketAddress isa = null;
-		
-		isa = connection.getInetSocketAddress();
+		InetSocketAddress isa = connection.getInetSocketAddress();
 		if (isa == null) {
-			throw new IOException("Socketaddress not set");
+			throw new IOException("SocketAddress not set");
 		}
 		super.onConnect();
 		
 		otherip = isa.getAddress();
 		
 		Assert.isNotNull(otherip);
-		
-		//ch.addCons(this);
-		
 		
 		if (!incoming) {
 			if (nmdc) { //outgoing therefore the protocol is already set..
@@ -511,15 +515,15 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		if (fti.isUpload()) {//if this is an upload we will accept ADCGET commands..
 		//	getAwaited = true;
 			if (nmdc) {
-				addCommand(new ADCGET(this)); 	
+				addCommand(new ADCGET()); 	
 			} else {
-				addCommand(new GET(this));
+				addCommand(new GET());
 			}
 		}
 		increaseLoginLevel();
 		
 		if (!nmdc) {
-			addCommand(new GFI(this));
+			addCommand(new GFI());
 		}
 	}
 	

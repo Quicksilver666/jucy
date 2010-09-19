@@ -14,9 +14,7 @@ public class SND extends AbstractADCClientProtocolCommand {
 	 * @param client
 	 * @param expectedfile
 	 */
-	public SND(ClientProtocol client,HashValue expectedfile, long startpos,long length) {
-		super(client);
-		
+	public SND(HashValue expectedfile, long startpos,long length) {
 		setPattern( prefix + " file TTH/"+expectedfile+" "+startpos
 				+" ("+(length == -1?FILESIZE:""+length)+")("+COMPRESSION +")",false);
 	}
@@ -27,8 +25,7 @@ public class SND extends AbstractADCClientProtocolCommand {
 	 * @param client
 	 * @param expectedfile
 	 */
-	public SND(ClientProtocol client,HashValue expectedinterleaves) {
-		super(client);
+	public SND(HashValue expectedinterleaves) {
 		setPattern(prefix + " tthl TTH/"+expectedinterleaves+" 0 ("+FILESIZE+")("+COMPRESSION+")",false);
 	}
 	
@@ -37,8 +34,7 @@ public class SND extends AbstractADCClientProtocolCommand {
 	 * 
 	 * @param client
 	 */
-	public SND(ClientProtocol client) {
-		super(client);
+	public SND() {
 		String filelista = "file files\\.xml\\.bz2";
 		String filelistb = "list /"+TEXT_NOSPACE;
 		String filelists = "(?:(?:"+filelista+")|(?:"+filelistb+"))";
@@ -47,7 +43,7 @@ public class SND extends AbstractADCClientProtocolCommand {
 	}
 	
 
-	public void handle(String command) throws IOException {
+	public void handle(ClientProtocol client,String command) throws IOException {
 		client.getFti().setLength(Long.parseLong(matcher.group(1)));
 		client.getFti().setCompression(Compression.parseNMDCString(matcher.group(2)));
 		client.removeCommand(this);

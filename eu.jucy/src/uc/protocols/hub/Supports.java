@@ -18,13 +18,9 @@ public class Supports extends AbstractNMDCHubProtocolCommand {
 	
 	
 
-	
-	public Supports(Hub hub) {
-		super(hub);
-	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		Set<String> supports = hub.getOthersSupports();		
 		
 		String[] com = command.split(" ");

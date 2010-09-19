@@ -5,9 +5,6 @@ import java.net.ProtocolException;
 
 public class NMDCGet extends AbstractNMDCClientProtocolCommand {
 
-	public NMDCGet(ClientProtocol client) {
-		super(client);
-	}
 
 	/**
 	 * Syntax
@@ -31,7 +28,7 @@ public class NMDCGet extends AbstractNMDCClientProtocolCommand {
 		obsolete because of GetZBlock .. which is obsolete because of ADCGet ..
 	 */
 	@Override
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(ClientProtocol client,String command) throws ProtocolException, IOException {
 		client.disconnect(DisconnectReason.CLIENTTOOOLD);
 	}
 

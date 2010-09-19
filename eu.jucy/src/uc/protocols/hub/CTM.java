@@ -21,14 +21,14 @@ public class CTM extends AbstractADCHubCommand {
 	 */
 	public static final List<String> SUPP = Arrays.asList(CPType.ADC.toString(),CPType.ADCS.toString());
 	
-	public CTM(Hub hub) {
-		super(hub);              //   protocol    port       token
+	public CTM() {
+           //   protocol    port       token
 		setPattern(getHeader()+" ("+ADCTEXT+") ("+PORT+") ("+ADCTEXT+")",true);
 	}
 
 	//DCTM UVTR WU5G ADCS/0.10 54892 2046781604
-	public void handle(String command) throws ProtocolException, IOException {
-		IUser other = getOther();
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
+		IUser other = getOther(hub);
 		if (other == null) {
 			return;
 		}

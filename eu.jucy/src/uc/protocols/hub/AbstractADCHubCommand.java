@@ -17,7 +17,7 @@ import uc.User;
 import uc.protocols.AbstractADCCommand;
 import uc.protocols.IProtocolCommand;
 
-public abstract class AbstractADCHubCommand extends AbstractADCCommand implements IProtocolCommand {
+public abstract class AbstractADCHubCommand extends AbstractADCCommand implements IProtocolCommand<Hub> {
 
 	
 	/**
@@ -33,7 +33,7 @@ public abstract class AbstractADCHubCommand extends AbstractADCCommand implement
 	protected final String prefix = "^[BCDEFHIU]"+getPrefix(); 
 	
 	
-	protected final Hub hub;
+//	protected final Hub hub;
 	
 
 	/**
@@ -70,7 +70,7 @@ public abstract class AbstractADCHubCommand extends AbstractADCCommand implement
 		return null;
 	}
 	
-	public User getOther() {
+	public User getOther(Hub hub) {
 		String sid = getOtherSID();
 		if (GH.isEmpty(sid)) {
 			return null;
@@ -79,8 +79,7 @@ public abstract class AbstractADCHubCommand extends AbstractADCCommand implement
 		}
 	}
 	
-	public AbstractADCHubCommand(Hub hub) {
-		this.hub = hub;
+	public AbstractADCHubCommand() {
 	}
 	
 

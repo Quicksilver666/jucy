@@ -13,12 +13,11 @@ public class CMD extends AbstractADCHubCommand {
 
 	
 	
-	public CMD(Hub hub) {  // ICMD Status\\Do\snot\sdisturb CT1 TTBINF\s%[mySID]\sAW2\n
-		super(hub);									//command name   //flags  
+	public CMD() {  // ICMD Status\\Do\snot\sdisturb CT1 TTBINF\s%[mySID]\sAW2\n
 		setPattern(getHeader()+" ("+ADCTEXT+") (.*)",true);
 	}
 
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
 		
 		String name = revReplaces(matcher.group(HeaderCapt+1));
 		name = GH.switchChars(name, '/', '\\');

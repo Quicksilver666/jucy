@@ -6,16 +6,13 @@ import uc.protocols.DCProtocol;
 
 public class GetPass extends AbstractNMDCHubProtocolCommand {
 
-	public GetPass(Hub hub) {
-		super(hub);
+	public GetPass() {
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		hub.passwordRequested();
-		
-		hub.addCommand(new BadPass(hub));
-
+		hub.addCommand(new BadPass());
 	}
 	
 

@@ -16,20 +16,19 @@ public class MyNick extends AbstractNMDCClientProtocolCommand {
 
 	private static final Logger logger = LoggerFactory.make();
 	
-	public MyNick(ClientProtocol client) {
-		super(client);
+	public MyNick() {
 		setPattern(prefix+" ("+NMDCNICK+")",true);
 	}
 
 	
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(ClientProtocol client,String command) throws IOException {
 		client.setProtocolNMDC(true);
 		String othersnick = matcher.group(1);
 		IUser other = null;
 		if (client.isIncoming()) {
 			
-			other = getCH().getUserExpectedToConnect(othersnick,client.getOtherip());
+			other = client.getCh().getUserExpectedToConnect(othersnick,client.getOtherip());
 			if (other != null) {
 				client.otherIdentified(other);
 				sendMyNickAndLock(client);
@@ -56,9 +55,9 @@ public class MyNick extends AbstractNMDCClientProtocolCommand {
 	 * otherwise we send it after receiving MyNick
 	 */
 	public static void sendMyNickAndLock(ClientProtocol client) {
-		client.addCommand(new Key(client));
-		client.addCommand(new Direction(client));
-		client.addCommand(new Supports(client));
+		client.addCommand(new Key());
+		client.addCommand(new Direction());
+		client.addCommand(new Supports());
 		
 		String myNickAndLock="$MyNick " + client.getSelf().getNick()
 		+ "|$Lock EXTENDEDPROTOCOLABCABCABCABCABCABC Pk="

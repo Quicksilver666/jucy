@@ -35,10 +35,15 @@ import java.nio.channels.UnresolvedAddressException;
 import java.nio.charset.Charset;
 
 
+
+
 import logger.LoggerFactory;
 
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 
 
@@ -243,6 +248,7 @@ public class Hub extends DCProtocol implements IHub {
 	
 	private List<IOperatorPlugin> opPlugins = null;
 
+	private final List<IPMFilter> pmFilters = new ArrayList<IPMFilter>();
 	
 	/**
 	 *all usercomamnds
@@ -293,7 +299,7 @@ public class Hub extends DCProtocol implements IHub {
 		ProtocolPrefix p = favHub.getProtocolPrefix();
 		setProtocolNMDC(p.nmdc);
 		if (p.nmdc) {
-			this.defaultCommand = new MC(this);
+			this.defaultCommand = new MC();
 		} else {
 			this.defaultCommand = null;
 		}
@@ -320,6 +326,7 @@ public class Hub extends DCProtocol implements IHub {
 				}
 			}
 		}, dcc.getSchedulerDir());
+		loadPMFilters();
 		
 		timeOutTask = new SchedulableTask(new Runnable() {
 			@Override
@@ -356,7 +363,10 @@ public class Hub extends DCProtocol implements IHub {
 		if (!favHub.isChatOnly()) {
 			registerCTMListener(identity.getConnectionHandler());
 		}
+		
 	}
+	
+
 	
 	
 	private String getNickSelf() {
@@ -499,12 +509,12 @@ public class Hub extends DCProtocol implements IHub {
 			
 			@Override
 			public int getUdpPort() {
-				return dcc.getUdphandler().getPort();
+				return dcc.getUDPhandler().getPort();
 			}
 
 			@Override
 			public int getUDP6Port() {
-				return dcc.getUdphandler().getPort();
+				return dcc.getUDPhandler().getPort();
 			}
 
 			@Override
@@ -641,17 +651,31 @@ public class Hub extends DCProtocol implements IHub {
 		timeOutTask.reschedule(40, TimeUnit.SECONDS);
 		userCommands.clear();
 		
+		
 		super.beforeConnect();
-		clearCommands();
+		
 		if (nmdc) {
-			addCommand(new Lock(this)); 
+//			addCommand(
+//				// new Lock(),	
+//				//	new HubName(),
+//				//	new Supports(),
+//				//	new Hello(),
+//				//	new LogedIn(), 
+//					new GetPass(),
+//					new HubIsFull(),
+//					new ValidateDenide(),
+//					new ForceMove());
+			
+			
 		} else {
-			addCommand(new SUP(this),new SID(this),new INF(this),
-					new MSG(this),new STA(this),new GPA(this),
-					new CMD(this),new GET(this));
-			if (Hub.ZLIF) {
-				addCommand(new ZON(this));
-			}
+//			addCommand(new SUP(),new SID()
+//					,new INF(),new MSG()
+//					,new STA(),new GPA()
+//					,new CMD(),new GET());
+		}
+		
+		if (Hub.ZLIF) {
+			addCommand(nmdc?new ZOn():new ZON());
 		}
 	
 		
@@ -663,9 +687,6 @@ public class Hub extends DCProtocol implements IHub {
 		logger.debug("onConnect()");
 		super.onConnect();
 	//	statusMessage(LanguageKeys.Connected,0);
-		
-		
-		
 		
 		
 		if (!nmdc) { //in ADC clients sends the first command not the hub
@@ -815,12 +836,38 @@ public class Hub extends DCProtocol implements IHub {
 			}, 60, 10, TimeUnit.SECONDS);
 		}
 		
-		if (!nmdc) {
-			addCommand(new QUI(this),new RES(this));
+		if (nmdc) { //TODO clean up
+			//hub.clearCommands(); //TODO possibly this clear needs to vanish
+			//add commands needed while protocol is running
+//			addCommand(	//new LogedIn(),
+					//		new Feed(), 
+					//		new HubName(),
+					//		new HubTopic(),
+					//		new MyINFO(),
+					//		new OpList(),
+					//		new Quit(),
+//							new SR(),
+//							new To(),
+//							new UserIP(),
+//							new UserCommand(),
+//							new ForceMove(),
+//							new NickList()); 
+			
+			if (!getFavHub().isChatOnly()) {
+				addCommand(new ConnectToMe());
+				addCommand(new RevConnectToMe());
+				addCommand(new Search());
+			}
+		} else {
+//			addCommand(new QUI());
+//			addCommand(new RES());
 			if (!favHub.isChatOnly()) {
-				addCommand(new CTM(this),new RCM(this),new SCH(this));
+				addCommand(new CTM());
+				addCommand(new RCM());
+				addCommand(new SCH());
 			}
 		}
+		
 	}
 	
 	/**
@@ -968,20 +1015,27 @@ public class Hub extends DCProtocol implements IHub {
 	 * for chat rooms  
 	 * @param message - what was typed..
 	 */
-	void pmReceived(PrivateMessage pm /*  User from, User sender,String message*/) {
-		for(IHubListener listener: hubl ) {
-			listener.pmReceived(pm);
+	void pmReceived(PrivateMessage pm) {
+		boolean veto = false;
+		for (IPMFilter filter : pmFilters) {
+			veto = filter.vetoPM(this,pm) | veto;
 		}
-
-		// if the other is either chatroom or bot afk message is not needed
-		if (dcc.isAway() &&  pm.fromEqualsSender() && !pm.getFrom().isBot()) { 
-			Date sent = lastAwaySent.get(pm.getFrom());
-			if (sent == null || sent.before(new Date(System.currentTimeMillis()-60 *60 *1000))) {
-				lastAwaySent.put(pm.getFrom(), new Date());
-				sendPM(pm.getFrom(), dcc.getAwayMessage(),false);
+		
+		if (!veto) {
+			for (IHubListener listener: hubl) {
+				listener.pmReceived(pm);
 			}
+	
+			// if the other is either chatroom or bot afk message is not needed
+			if (dcc.isAway() &&  pm.fromEqualsSender() && !pm.getFrom().isBot()) { 
+				Date sent = lastAwaySent.get(pm.getFrom());
+				if (sent == null || sent.before(new Date(System.currentTimeMillis()-60 *60 *1000))) {
+					lastAwaySent.put(pm.getFrom(), new Date());
+					sendPM(pm.getFrom(), dcc.getAwayMessage(),false);
+				}
+			}
+			logPMMessage(pm);
 		}
-		logPMMessage(pm);
 	}
 	
 	/**
@@ -1254,7 +1308,7 @@ public class Hub extends DCProtocol implements IHub {
     					logger.warn("sending encrypted packet to: "+target+" in:"+favHub.getSimpleHubaddy());
     				}
     			}
-    			dcc.getUdphandler().sendPacket(ByteBuffer.wrap(packet), searcherIp);
+    			dcc.getUDPhandler().sendPacket(ByteBuffer.wrap(packet), searcherIp);
     		}
     	} catch (UnsupportedEncodingException cee) {
     		throw new IllegalStateException();
@@ -1636,7 +1690,6 @@ public class Hub extends DCProtocol implements IHub {
 	void setTopic(String topic) {
 		if (!topic.equals(this.topic)) {
 			this.topic = topic;
-	
 			for (IHubListener ihcl: hubl) {
 				ihcl.hubnameChanged(hubname,topic);
 			}
@@ -1681,6 +1734,22 @@ public class Hub extends DCProtocol implements IHub {
 					registerUserChangedListener(iop);
 				}
 			}
+		}
+	}
+	
+	private void loadPMFilters() {
+		IExtensionRegistry reg = Platform.getExtensionRegistry();
+    	
+		IConfigurationElement[] configElements = reg
+		.getConfigurationElementsFor(IPMFilter.POINT_ID);
+		
+		for (IConfigurationElement element : configElements) {
+			try {
+				IPMFilter pmf = (IPMFilter) element.createExecutableExtension("filter");
+				pmFilters.add(pmf);
+			} catch (CoreException e) {
+				logger.error("Can't load the filter extension: "+element.getAttribute("id"),e);
+			} 
 		}
 	}
 

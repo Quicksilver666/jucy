@@ -19,12 +19,10 @@ public class NickList extends AbstractNMDCHubProtocolCommand {
 	private static Logger logger = LoggerFactory.make();
 	
 	
-	public NickList(Hub hub) {
-		super(hub);
-	}
+
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		String[] b = command.split(" ", 2)[1].split(Pattern.quote("$$"));//cut away prefix.. and separate to nicks
 		
 		boolean sendGetinfo = !hub.getOthersSupports().contains("NoGetINFO");

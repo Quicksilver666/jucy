@@ -28,6 +28,7 @@ import org.eclipse.ui.handlers.IHandlerService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -114,8 +115,13 @@ public final class GuiHelpers {
 	 * 
 	 * @param commandID
 	 */
-	public static void executeCommand(String commandId) {
+	public static void executeCommand(String commandId,Map<String,String> parameters) {
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		executeCommand(window,commandId, parameters);
+	}
+	
+	public static void executeCommand(IWorkbenchWindow window,
+			String commandId,Map<String,String> parameters) {
 		
 		ICommandService cmdService = (ICommandService) window.getService(
 			    ICommandService.class);
@@ -123,7 +129,7 @@ public final class GuiHelpers {
 		
 		Command com = cmdService.getCommand(commandId);
 		
-		ParameterizedCommand paCom= new ParameterizedCommand(com,null);
+		ParameterizedCommand paCom = ParameterizedCommand.generateCommand(com, parameters);	
 		
 		ExecutionEvent e = handlerService.createExecutionEvent(paCom, null);
 		
@@ -133,6 +139,7 @@ public final class GuiHelpers {
 			logger.warn(exc, exc);
 		}
 	}
+	
 
 	/**
 	 * 

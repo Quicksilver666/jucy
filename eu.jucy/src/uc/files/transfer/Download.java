@@ -134,6 +134,7 @@ public class Download extends AbstractFileTransfer {
 		
 		} finally {
 			GH.close(target); //source is not closed..
+			
 			notifyObservers(TransferChange.FINISHED);
 			logger.debug("end transferData()");
 		}

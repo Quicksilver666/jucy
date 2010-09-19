@@ -317,7 +317,7 @@ public class Block implements IBlock {
 	 */
 	private void verify() { 
 		setState(BlockState.UNVERIFIED);
-		dqe.getDCC().getHashEngine().checkBlock(this, new VerifyListener(){
+		dqe.getDCC().getHashEngine().checkBlock(this, new VerifyListener() {
 			public void checked(boolean verified) {
 				setState(verified?BlockState.FINISHED:BlockState.EMPTY );
 			}

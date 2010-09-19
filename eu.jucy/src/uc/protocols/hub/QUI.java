@@ -48,13 +48,13 @@ public class QUI extends AbstractADCHubCommand {
 		logger.setLevel( Level.INFO);
 	}
 	
-	public QUI(Hub hub) {
-		super(hub);
+	public QUI() {
+
 		setPattern(prefix+" ("+SID+") ?(.*)",true);
 	}
 
 
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
 		logger.debug("QUI: "+command);
 		
 		int sid =  SIDToInt(matcher.group(1)); // getOthersSID();

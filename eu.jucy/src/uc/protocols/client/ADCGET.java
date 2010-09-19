@@ -27,10 +27,7 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 	private Pattern interleaves;
 	private Pattern filelist;
 	
-	public ADCGET(ClientProtocol client) {
-		super(client);
-		
-		
+	public ADCGET() {
 		file = Pattern.compile(prefix + " file TTH/("+TTH+") ("+FILESIZE+") ("+FILESIZE+"|-1)("+COMPRESSION+")");
 		interleaves = Pattern.compile(prefix + " tthl TTH/("+TTH+") 0 -1("+COMPRESSION+")");
 		
@@ -42,7 +39,7 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 	}
 
 	@Override
-	public void handle(String command) throws IOException  {
+	public void handle(ClientProtocol client,String command) throws IOException  {
 		//client.removeCommand(this);
 		Matcher m = null;
 		FileTransferInformation fti = client.getFti();
@@ -102,17 +99,17 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 		FileTransferInformation fti = client.getFti();
 		if (fti.isValidForGet()) {
 			logger.debug("valid fti for get");
-			client.addCommand(new MaxedOut(client)); //TODO maxedOut received should trigger warning if received on FileList or tthl
+			client.addCommand(new MaxedOut()); //TODO maxedOut received should trigger warning if received on FileList or tthl
 			switch(fti.getType()) {
 			case FILE:
-				client.addCommand(new ADCSND(client,fti.getHashValue(),fti.getStartposition(),fti.getLength()));
+				client.addCommand(new ADCSND(fti.getHashValue(),fti.getStartposition(),fti.getLength()));
 				break;
 			case FILELIST:
-				client.addCommand(new ADCSND(client));
+				client.addCommand(new ADCSND());
 				break;
 			case TTHL:
 				if (client.getOthersSupports().contains("TTHL")) {
-					client.addCommand(new ADCSND(client,fti.getHashValue()));
+					client.addCommand(new ADCSND(fti.getHashValue()));
 				} else {
 					client.disconnect(DisconnectReason.CLIENTTOOOLD);
 					return;
@@ -151,29 +148,28 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 		}
 	}
 	
-	public static void main(String[] args) {
-		String adcget = "$ADCGET file TTH/4CLZLU7TCB6C4YTHN7JNOIA7F7VQVJV5762AYJA 0 457864 ZL1" ;
-		String adcget2 = "$ADCGET file files.xml.bz2 0 -1 ZL1";
-		
-		ADCGET a = new ADCGET(null);
-		
-		Matcher m = a.file.matcher(adcget);
-		boolean matches = m.matches();
-		
-		System.out.println(matches);
-		if (matches) {
-			for (int i=0 ; i <= 4;i++) {
-				System.out.println(m.group(i));
-			}
-		}
-		Matcher m2 = a.filelist.matcher(adcget2);
-		boolean matches2 = m2.matches();
-		System.out.println(matches2);
-		if (matches) {
-			System.out.println(m2.group(1));
-		}
-		
-		
-	}
+//	public static void main(String[] args) {
+//		String adcget = "$ADCGET file TTH/4CLZLU7TCB6C4YTHN7JNOIA7F7VQVJV5762AYJA 0 457864 ZL1" ;
+//		String adcget2 = "$ADCGET file files.xml.bz2 0 -1 ZL1";
+//		
+//		ADCGET a = new ADCGET();
+//		
+//		Matcher m = a.file.matcher(adcget);
+//		boolean matches = m.matches();
+//		
+//		System.out.println(matches);
+//		if (matches) {
+//			for (int i=0 ; i <= 4;i++) {
+//				System.out.println(m.group(i));
+//			}
+//		}
+//		Matcher m2 = a.filelist.matcher(adcget2);
+//		boolean matches2 = m2.matches();
+//		System.out.println(matches2);
+//		if (matches) {
+//			System.out.println(m2.group(1));
+//		}
+//		
+//	}
 
 }

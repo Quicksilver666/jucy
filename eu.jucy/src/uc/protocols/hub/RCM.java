@@ -16,16 +16,16 @@ public class RCM extends AbstractADCHubCommand {
 	 * 
 	 * @param hub
 	 */
-	public RCM(Hub hub) {
-		super(hub);		//         protocol      token
+	public RCM() {
+						//         protocol      token
 		setPattern(getHeader()+" ("+ADCTEXT+") ("+ADCTEXT+")",true);
 	}
 
 
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
 		//DSTA for bad RCM with unsupported protocol
 		// otherwise RCM ..
-		IUser sender =  getOther();
+		IUser sender =  getOther(hub);
 		String protocol = revReplaces(matcher.group(HeaderCapt+1));
 		String token = revReplaces(matcher.group(HeaderCapt+2));
 		

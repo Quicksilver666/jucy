@@ -13,7 +13,7 @@ public interface IConnectionDebugger extends IProtocolStatusChangedListener {
 	 * @param wellformed - false if the command had correct prefix but was not parseable
 	 * @param command - string representation of the whole command..
 	 */
-	void receivedCommand(IProtocolCommand commandHandler,boolean wellFormed,String command);
+	void receivedCommand(IProtocolCommand<?> commandHandler,boolean wellFormed,String command);
 	
 	void sentCommand(String sent);
 	

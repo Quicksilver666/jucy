@@ -7,12 +7,11 @@ import uc.protocols.DCProtocol;
 
 public class Feed extends AbstractNMDCHubProtocolCommand {
 
-	public Feed(Hub hub) {
-		super(hub);
+	public Feed() {
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		String[] mes = command.split(" ",3);
 		if (mes.length == 3) {
 			FeedType f = FeedType.fromString(mes[1]);

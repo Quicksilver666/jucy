@@ -44,8 +44,7 @@ public class Search extends AbstractNMDCHubProtocolCommand {
 	private final Pattern normalSearch;
 	
 	
-	public Search(Hub hub) {
-		super(hub);
+	public Search() {
 		String filesearchending	= "(?:([1-8])\\?(.*))";	//capture for the search term
 		String tthending 		= "(?:(9)\\?TTH:("+TTH+"))";		//capture for TTH
 		
@@ -70,7 +69,7 @@ public class Search extends AbstractNMDCHubProtocolCommand {
     * @param command - the search command
     */
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		logger.debug("searchreceived("+command+")");
 		Matcher m = null;
 		boolean passive;

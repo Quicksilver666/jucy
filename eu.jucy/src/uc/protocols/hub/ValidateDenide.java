@@ -9,12 +9,10 @@ import uc.LanguageKeys;
 
 public class ValidateDenide extends AbstractNMDCHubProtocolCommand {
 
-	public ValidateDenide(Hub hub) {
-		super(hub);
-	}
+
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		
 		hub.statusMessage(LanguageKeys.STA22NickTaken+": "+command.split(" ",2)[1].trim(),0 );
 				

@@ -12,13 +12,25 @@ import uc.protocols.hub.Hub;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import java.net.ProtocolException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import logger.LoggerFactory;
+
+import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Platform;
+
 public abstract class DCProtocol extends ConnectionProtocol {
 
+	private static Logger logger = LoggerFactory.make(); 
+	
+	public static final String PROTOCOL_EXTENSIONPOINT = "eu.jucy.protocol";
 
 	public static final String NMDC_CHARENCODING = "windows-1252";
 	
@@ -147,11 +159,14 @@ public abstract class DCProtocol extends ConnectionProtocol {
 	// --------------------------------------------------------
 	// ------------------------------------------------------------------------------
 	// Mysterious method to Compute a Key String from a Lock String
-	public static byte[] generateKey(String lockstr,Charset cs) throws UnsupportedEncodingException { 
+	public static byte[] generateKey(String lockstr,Charset cs) throws UnsupportedEncodingException ,ProtocolException{ 
 		int firstpos = lockstr.indexOf(' ');
 		int lastpos = lockstr.indexOf(" Pk=");
 		if (lastpos < 0) {
 			lastpos = lockstr.indexOf(' ', firstpos+1);
+		}
+		if (firstpos < 0 || lastpos < 0 || firstpos >= lastpos) {
+			throw new ProtocolException("Invalid Lock received: "+lockstr);
 		}
 		
 		byte[] lock = lockstr.substring(firstpos+1, lastpos).getBytes(cs.name()); 
@@ -224,11 +239,61 @@ public abstract class DCProtocol extends ConnectionProtocol {
 	// --------------------------------------------------------
 	// ------------------------------------------------------------------------------
 
+	
+	
 	public void onLogIn() throws IOException {
 		super.onLogIn();
+		loadCommands(false);
 	}
 
-	public static String doReplaces(String toReplace) { // Replaces Dc protocoll
+	@Override
+	public void beforeConnect() {
+		super.beforeConnect();
+		loadCommands(true);
+	}
+	
+	
+	/**
+	 * 
+	 * @param connect true for on connect
+	 *   false for login
+	 */
+	private void loadCommands(boolean connect) {
+		IExtensionRegistry reg = Platform.getExtensionRegistry();
+
+		IConfigurationElement[] configElements = reg
+				.getConfigurationElementsFor(PROTOCOL_EXTENSIONPOINT);
+
+		for (IConfigurationElement element : configElements) {
+			if (getClass().getName().equals(element.getAttribute("target"))
+					&& Boolean.valueOf(element.getAttribute("nmdc")).equals(nmdc)
+					&& Boolean.parseBoolean(element
+							.getAttribute(connect ? "active_during_login"
+									: "active_after_login"))) {
+
+				IConfigurationElement[] commands = element
+						.getChildren("command");
+				for (IConfigurationElement command : commands) {
+
+					try {
+						@SuppressWarnings("unchecked")
+						IProtocolCommand<? extends ConnectionProtocol> prot = 
+							(IProtocolCommand<? extends ConnectionProtocol>) command
+								.createExecutableExtension("commandClass");
+
+						addCommand(prot);
+					} catch (CoreException e) {
+						logger.error(e, e);
+					}
+
+				}
+
+			}
+		}
+	}
+	
+	
+	public static String doReplaces(String toReplace) { // Replaces DC protocol
 														// relevant chars
 		return toReplace.replace("&#", "&amp;#").replace("$", "&#36;").replace(
 				"|", "&#124;");

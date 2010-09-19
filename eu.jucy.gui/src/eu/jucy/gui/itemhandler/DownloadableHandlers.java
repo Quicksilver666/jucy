@@ -428,12 +428,17 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 				MessageDialog.openInformation(HandlerUtil.getActiveShellChecked(event)
 						, "Information", "Path for preview util not set: Preferences -> Misc");
 			} else if (adqe != null) {
+				List<String> commands = new ArrayList<String>();
+				commands.add(playerpath);
+				// vlc will ask for indexing unfinished therefore damaged avi -> deny
+				if (GH.containsIgnoreCase(playerpath,"vlc")) { 
+					String vlcNoIndexRebuild = "--avi-index=2";
+					commands.add(vlcNoIndexRebuild);
+				}
+				commands.add( adqe.getTempPath().toString());
+				
 				try {
-					Runtime.getRuntime().exec(new String[] {
-							PI.get(PI.previewPlayerPath)
-							,adqe.getTempPath().toString()
-							});
-					
+					Runtime.getRuntime().exec(commands.toArray(new String[]{}));
 				} catch (IOException e) {
 					MessageDialog.openError(HandlerUtil.getActiveShellChecked(event)
 							, "error", "Problem executing preview: "+e);

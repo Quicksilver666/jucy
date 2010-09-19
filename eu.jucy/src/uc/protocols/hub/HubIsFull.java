@@ -8,12 +8,10 @@ import uc.LanguageKeys;
 
 public class HubIsFull extends AbstractNMDCHubProtocolCommand {
 
-	public HubIsFull(Hub hub) {
-		super(hub);
-	}
+	public HubIsFull() {}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		hub.statusMessage(LanguageKeys.STA11HubFull,0 );
 	}
 

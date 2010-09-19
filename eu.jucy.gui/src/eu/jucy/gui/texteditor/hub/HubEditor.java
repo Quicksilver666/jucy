@@ -591,8 +591,10 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 		SUIJob job = new SUIJob(hubText) {
 			public void run() {
 				//notify because of nick found
-				if (!hub.getSelf().equals(usr) && text.contains(hub.getSelf().getNick())
-						&& usr != null && !(usr.isOp() && usr.getShared() == 0)) { //here check if it is not is a bot..
+				if ( usr != null 
+						&& !hub.getSelf().equals(usr)
+						&& !usr.isBot()
+						&& text.contains(hub.getSelf().getNick())) { 
 					
 					if (!isActiveEditor()) {
 						nickWasCalled = true;
@@ -605,7 +607,7 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 					}
 				}
 				if ( !isActiveEditor() && !logInRecent() 
-						&& !messagesWaiting && (usr == null || !usr.isBot() ) ) {
+						&& !messagesWaiting && (usr == null || !usr.isBot()) ) {
 					
 					messagesWaiting = true;
 					setTitleImage();

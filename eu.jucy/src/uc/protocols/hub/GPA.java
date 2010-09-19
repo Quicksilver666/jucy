@@ -23,12 +23,11 @@ public class GPA extends AbstractADCHubCommand {
 	
 	private static Map<FavHub,String> randoms = new HashMap<FavHub,String>();
 	
-	public GPA(Hub hub) {
-		super(hub);
+	public GPA() {
 		setPattern("IGPA ("+BASE32CHAR+"{10,})",true);
 	}
 
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
 		randoms.put(hub.getFavHub(), matcher.group(1));
 		hub.passwordRequested();
 	}

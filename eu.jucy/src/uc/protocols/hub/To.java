@@ -24,17 +24,16 @@ public class To extends AbstractNMDCHubProtocolCommand {
 	
 	private MC mc = null;
 	
-	public To(Hub hub) {
-		super(hub);
+	public To() {
 		normalPM = Pattern.compile( prefix +" "+NMDCNICK+" From: ("+NMDCNICK+") \\$(?:<("+NMDCNICK+")> )?("+TEXT+")");
 		hubMM = Pattern.compile(prefix +" "+NMDCNICK+" From: Hub \\$("+TEXT+")");
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
-		//first check is to be sure its a really old hub
+	public void handle(Hub hub,String command) throws IOException {
+		//old hubs handle PMs differently
 		if (hub.getOthersSupports().isEmpty() && (matcher = hubMM.matcher(command)).matches() ) {
-			getMC().handle(matcher.group(1));
+			getMC().handle(hub,matcher.group(1));
 		} else if ((matcher = normalPM.matcher(command)).matches()) {
 			User from = hub.getUserByNick(matcher.group(1));
 			String senderNick = matcher.group(2);
@@ -50,7 +49,7 @@ public class To extends AbstractNMDCHubProtocolCommand {
 	
 	private MC getMC() {
 		if (mc == null) {
-			mc = new MC(hub);
+			mc = new MC();
 		}
 		return mc;
 	}

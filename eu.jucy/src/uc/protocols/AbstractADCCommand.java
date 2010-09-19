@@ -18,12 +18,12 @@ import org.apache.log4j.Logger;
 import uc.protocols.hub.Flag;
 import uc.protocols.hub.INFField;
 
-public abstract class AbstractADCCommand extends AbstractDCProtocolCommand implements IProtocolCommand {
+public abstract class AbstractADCCommand extends AbstractDCProtocolCommand  {
 	
 	private static Logger logger = LoggerFactory.make(); 
 	
 	public static Map<INFField,String> INFMap(String attributes) {
-		String[] splits = space.split(attributes);
+		String[] splits = IProtocolCommand.space.split(attributes);
 		Map<INFField,String> flagValue = new HashMap<INFField,String>();
 		for (String s: splits) {
 			if (s.length() >= 2) {

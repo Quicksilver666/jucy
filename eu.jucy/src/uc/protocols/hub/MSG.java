@@ -16,14 +16,13 @@ import uc.User;
  */
 public class MSG extends AbstractADCHubCommand {
 
-	public MSG(Hub hub) {
-		super(hub);
+	public MSG() {
 		setPattern(getHeader()+" ("+ADCTEXT+") ?(.*)",true);
 	}
 
 
-	public void handle(String command) throws ProtocolException, IOException {
-		User other = getOther();
+	public void handle(Hub hub,String command) throws ProtocolException, IOException {
+		User other = getOther(hub);
 		String text = revReplaces(matcher.group(HeaderCapt+1));
 		Map<Flag,String> attr = getFlagMap(matcher.group(HeaderCapt+2));
 		

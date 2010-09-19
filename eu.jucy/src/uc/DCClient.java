@@ -99,24 +99,23 @@ import uc.protocols.hub.Hub;
 
 /** 
  * 
+ * https://adc.svn.sourceforge.net/svnroot/adc/trunk/ADC-EXT.txt
+ * 
  *  adc://test.flexhub.org:8000
  *  test zlib
  *  
-http://mahout.apache.org/ or https://ci-bayes.dev.java.net/ for categorizing files..
-some all data aggregation..
-Fields + client-client Protocol+ file List Contents...
-
-[SE][10:58] <[fussie]fusbar> 
- what you might want to look at is the TTHs instead
-if a file-list has to many TTHs you have not seen in the past
-
-
  * 
- * TODO NAT traversal : http://dcpp.wordpress.com/2010/06/15/nat-traversal-constraints/
+ * The dn unescaping seems to not handle the %xx form (like %20 = space). 
+ * Again, I don't know if this is expected. Since other clients appear to 
+ * get the filename from the TTH search results, unescaping may not actually matter in those clients. 
+ * 
+ * 
+ * JXTA possibly ... as cooperation tool for ops..? or better via pm..
+ * JXTA for cooperation of ops between different hubs viable.. not for normal work
+ * 
  * 
  * TODO just warning the way it is without explanation for bad KP is not good...
  * 
- * TODO add setting for auto extending downloads .. http://jucy.eu/forum/read.php?5,151
  * 
  * 
  * TODO think about option to place unfinished downloads next into target folder so no moving of files occur
@@ -140,6 +139,12 @@ if a file-list has to many TTHs you have not seen in the past
  * 
  * TODO animated smileys
  *  
+ *  
+ *  TODO upload/download logs to db .. not keeping in ram..
+ * TODO
+ * 1) It would be helpful if a users ip was in the finished uploads list, next to the nick field (or as an optional field that can be added/removed.) 
+ * 
+ * 
  * TODO identity management (adding identities i.e. a identity includes different FileList / CID / TCP/SSL-Ports / Certificate(KeyPrint) )
  *			
  * TODO discovery UI for installing extensions  https://bugs.eclipse.org/bugs/show_bug.cgi?id=295273
@@ -1120,7 +1125,7 @@ public final class DCClient {
 		return filelist;
 	}
 
-	public IUDPHandler getUdphandler() {
+	public IUDPHandler getUDPhandler() {
 		return udphandler;
 	}
 
@@ -1343,7 +1348,6 @@ public final class DCClient {
 			
 			for (IConfigurationElement element : configElements) {
 				try {
-					
 					IFilelistProcessor fp = (IFilelistProcessor) element.createExecutableExtension("class");
 					processor.add(fp);
 				} catch (CoreException e) {

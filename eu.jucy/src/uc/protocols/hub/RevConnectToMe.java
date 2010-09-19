@@ -11,12 +11,11 @@ import uc.protocols.SendContext;
 
 public class RevConnectToMe extends AbstractNMDCHubProtocolCommand {
 
-	public RevConnectToMe(Hub hub) {
-		super(hub);
+	public RevConnectToMe() {
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
   		String[] a = command.split(" ");
 		if (a.length >= 2 ) {
 			User other = hub.getUserByNick(a[1]);

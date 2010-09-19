@@ -46,15 +46,14 @@ public class UserCommand extends AbstractNMDCHubProtocolCommand {
 	
 	private final Pattern separator;
 
-	public UserCommand(Hub hub) {
-		super(hub);
+	public UserCommand() {
 		normalCommand = Pattern.compile( prefix +" ([12]) ("+SHORT+") ("+TEXT_NODOLLAR+")\\$([^|]*?)"+ESCAPED_PIPE+"?");
 		delete = Pattern.compile(prefix + " 255 ("+SHORT+").*");
 		separator = Pattern.compile(prefix +" 0 ("+SHORT+")("+TEXT+")");
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		logger.debug("usercommand received: "+command);
 		Matcher m = null;
 		
@@ -84,26 +83,26 @@ public class UserCommand extends AbstractNMDCHubProtocolCommand {
 	}
 	
 
-	/**
-	 * test for the pattern of UserCommand
-	 */
-	public static void main(String[] args) {
-		
-		String pm = "$UserCommand 1 3 • Tv-Geek • \\Week listning\\List shows in database$<%[mynick]> +sl&#124";//"$UserCommand 1 2 Misc\\ Drop user $$To: °^Goose^° From: %[mynick] $<%[mynick]> #drop %[nick]&#124;";
-		String x = "$UserCommand 255 3" ;
-		UserCommand uc = new UserCommand(null);
-		Matcher m = uc.normalCommand.matcher(pm);
-		Matcher m2 = uc.delete.matcher(x);
-		boolean matches = m.matches(), matches2 = m2.matches();
-		
-		System.out.println(matches+" "+matches2);
-		if (matches) {
-			System.out.println(m.group(1));
-			System.out.println(m.group(2));
-			System.out.println(m.group(3));
-			System.out.println(m.group(4));
-		}
-	}
+//	/**
+//	 * test for the pattern of UserCommand
+//	 */
+//	public static void main(String[] args) {
+//		
+//		String pm = "$UserCommand 1 3 • Tv-Geek • \\Week listning\\List shows in database$<%[mynick]> +sl&#124";//"$UserCommand 1 2 Misc\\ Drop user $$To: °^Goose^° From: %[mynick] $<%[mynick]> #drop %[nick]&#124;";
+//		String x = "$UserCommand 255 3" ;
+//		UserCommand uc = new UserCommand();
+//		Matcher m = uc.normalCommand.matcher(pm);
+//		Matcher m2 = uc.delete.matcher(x);
+//		boolean matches = m.matches(), matches2 = m2.matches();
+//		
+//		System.out.println(matches+" "+matches2);
+//		if (matches) {
+//			System.out.println(m.group(1));
+//			System.out.println(m.group(2));
+//			System.out.println(m.group(3));
+//			System.out.println(m.group(4));
+//		}
+//	}
 	
 
 }

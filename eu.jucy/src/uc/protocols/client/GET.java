@@ -35,8 +35,7 @@ Requests that a certain file or binary data be transmitted. <start_pos> counts 0
 Note that GET can also be used by extensions for binary transfers between hub and client.
 	 */
 	
-	public GET(ClientProtocol client) {
-		super(client);
+	public GET() {
 		file = Pattern.compile(prefix + " file TTH/("+TTH+") ("+FILESIZE+") ("+FILESIZE+"|-1)("+COMPRESSION+")");
 		interleaves = Pattern.compile(prefix + " tthl TTH/("+TTH+") 0 -1("+COMPRESSION+")");
 		
@@ -47,7 +46,7 @@ Note that GET can also be used by extensions for binary transfers between hub an
 		filelist = Pattern.compile(prefix + " ("+filelists+") 0 -1("+COMPRESSION+") ?(.*)");
 	}
 
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(ClientProtocol client,String command) throws ProtocolException, IOException {
 		Matcher m = null;
 		FileTransferInformation fti = client.getFti();
 		if ((m = file.matcher(command)).matches()) {
@@ -101,14 +100,14 @@ Note that GET can also be used by extensions for binary transfers between hub an
 			logger.debug("valid fti for get");
 			switch(fti.getType()) {
 			case FILE:
-				client.addCommand(new SND(client,fti.getHashValue(),fti.getStartposition(),fti.getLength()));
+				client.addCommand(new SND(fti.getHashValue(),fti.getStartposition(),fti.getLength()));
 				break;
 			case FILELIST:
-				client.addCommand(new SND(client));
+				client.addCommand(new SND());
 				break;
 			case TTHL:
 				if (client.getOthersSupports().contains("TIGR")) {
-					client.addCommand(new SND(client,fti.getHashValue()));
+					client.addCommand(new SND(fti.getHashValue()));
 				} else {
 					client.disconnect(DisconnectReason.CLIENTTOOOLD); //TODO should be replaced by sending STA
 					return;

@@ -34,6 +34,7 @@ import javax.swing.filechooser.FileSystemView;
 
 
 
+
 /**
  * Global Helpers that are useful for everyone..
  * 
@@ -670,5 +671,12 @@ public final class GH {
 		return toBytes(bits, ammountBits + (ammountBits%8 == 0 ?0:1));
 	}
 	
+	
+	public static boolean containsIgnoreCase(String s,String contains) {
+		return s.toLowerCase().contains(contains.toLowerCase());
+	}
+	
+	
+
 	
 }

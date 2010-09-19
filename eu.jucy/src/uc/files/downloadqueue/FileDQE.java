@@ -382,7 +382,6 @@ public class FileDQE extends AbstractFileDQE {
 				dq.getDcc().getFilelist().immediatelyAddFile(getTargetPath());
 			}
 			logger.debug("in FileDQE.blockValidated() and end of finishing");
-		
 		}
 	}
 	

@@ -17,13 +17,12 @@ public class MC extends AbstractNMDCHubProtocolCommand {
 
 	private static final Pattern USER = Pattern.compile("<?("+NMDCNICK+")>? ("+TEXT+")");
 	
-	public MC(Hub hub) {
-		super(hub);
+	public MC() {
 		setPattern(TEXT,true);
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		matcher = USER.matcher(command);
 		if (matcher.matches()) {
 			User usr = hub.getUserByNick( matcher.group(1) );

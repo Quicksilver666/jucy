@@ -51,8 +51,6 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 
 	private static Logger logger = LoggerFactory.make(); 
 	
-	
-//	private static final ProtocolTimer mt = new ProtocolTimer();
 	private final ReentrantReadWriteLock rwLock;
 	
 
@@ -89,12 +87,12 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	/**
 	 * maps prefixes of the commands to the commands
 	 */
-	protected Map<String,IProtocolCommand> commands =
-				new HashMap<String,IProtocolCommand>();
+	protected Map<String,IProtocolCommand<? extends ConnectionProtocol>> commands =
+				new HashMap<String,IProtocolCommand<? extends ConnectionProtocol>>();
 	/**
  	* default command used when no prefix can be determined..
  	*/
-	protected IProtocolCommand defaultCommand; 
+	protected IProtocolCommand<? extends ConnectionProtocol> defaultCommand; 
 
 	/**
 	 * a pattern that has the prefix of a command as first capture
@@ -158,20 +156,16 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 		//mt.registerCP(this);
 	}
 	
-//	/**
-//	 * 
-//	 * @return true if is registered with timer...
-//	 * and will register it again if not as sideeffect
-//	 */
-//	public boolean debugIsRegistered() {
-//		return !mt.registerCP(this);
-//	}
+
 	
 	public void beforeConnect() {
+		clearCommands();
 		stringbuffer.delete(0, stringbuffer.length()); //clear
 		loginDone = false;
-		setState(ConnectionState.CONNECTING);
+		setState(ConnectionState.CONNECTING);	
 	}
+	
+	
 	
 	
 	/**
@@ -254,13 +248,14 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	 * @throws ProtocolException -
 	 *  
 	 */
+	@SuppressWarnings("unchecked")
 	public void receivedCommand(String command) throws IOException, ProtocolException {
 		
 		Matcher m = prefix.matcher(command);
-		IProtocolCommand com = null;
+		IProtocolCommand<? extends ConnectionProtocol> com = null;
 		if (m.matches()) {
 			String prefix = m.group(1);
-			com = commands.get(prefix);
+			com =   commands.get(prefix);
 		} else if (defaultCommand != null){
 			com = defaultCommand;
 		}
@@ -277,7 +272,7 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 		if (com != null) {
 		//	logger.debug("command found "+com.getPrefix());
 			if (matches) {
-				com.handle(command);
+				((IProtocolCommand<ConnectionProtocol>)com).handle(this,command);
 			} else {
 				onMalformedCommandReceived(command);
 			}
@@ -453,13 +448,15 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 		commands.clear();
 	}
 	
-	public void addCommand(IProtocolCommand... command) {
-		for (IProtocolCommand com: command ) {
+
+	
+	public void addCommand(IProtocolCommand<? extends ConnectionProtocol> com) {
+	//	for (IProtocolCommand<? extends ConnectionProtocol> com: command ) {
 			commands.put(com.getPrefix(), com);
-		}
+	//	}
 	}
 	
-	public void removeCommand(IProtocolCommand command) {
+	public void removeCommand(IProtocolCommand<?> command) {
 		commands.remove(command.getPrefix());
 	}
 

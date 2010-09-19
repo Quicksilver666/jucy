@@ -12,12 +12,9 @@ public class Key extends AbstractNMDCClientProtocolCommand {
 
 	private static final Logger logger = LoggerFactory.make();
 	
-	public Key(ClientProtocol client) {
-		super(client);
-	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(ClientProtocol client,String command) throws IOException {
 		logger.debug(command);
 		//client.onLogIn();
 		client.increaseLoginLevel();

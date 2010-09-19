@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class AbstractDCProtocolCommand implements IProtocolCommand {
+public abstract class AbstractDCProtocolCommand {
 
 	protected static final Map<String,Pattern> staticPattern = 
 		Collections.synchronizedMap(new HashMap<String, Pattern>());

@@ -14,15 +14,15 @@ public class GFI extends AbstractADCClientProtocolCommand {
 
 
 	
-	public GFI(ClientProtocol client) {
-		super(client);
+	public GFI() {
+
 		setPattern( prefix + " file TTH/("+TTH+") ?(.*)" , true);
 
 		
 	}
 
 	@Override
-	public void handle(String command) throws ProtocolException, IOException {
+	public void handle(ClientProtocol client,String command) throws ProtocolException, IOException {
 			HashValue what = HashValue.createHash(matcher.group(1));
 			FileListFile ff= client.getDcc().getFilelist().get(what);
 			if (ff != null) {

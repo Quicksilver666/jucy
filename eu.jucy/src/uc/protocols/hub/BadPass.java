@@ -8,12 +8,12 @@ import uc.LanguageKeys;
 
 public class BadPass extends AbstractNMDCHubProtocolCommand {
 
-	public BadPass(Hub hub) {
-		super(hub);
+	public BadPass() {
+		super();
 	}
 
 	@Override
-	public void handle(String command) throws IOException {
+	public void handle(Hub hub,String command) throws IOException {
 		hub.reconnect(-1); //no reconnect..
 		hub.statusMessage(LanguageKeys.STA23InvalidPassword,0);
 	}
