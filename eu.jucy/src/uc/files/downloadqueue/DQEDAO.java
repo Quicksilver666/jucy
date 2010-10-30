@@ -8,11 +8,11 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import uc.IUser;
-import uc.User;
 import uc.crypto.HashValue;
 import uc.crypto.InterleaveHashes;
 import uc.files.AbstractDownloadable.AbstractDownloadableFile;
 import uc.files.IDownloadable.IDownloadableFile;
+import uc.user.User;
 
 
 

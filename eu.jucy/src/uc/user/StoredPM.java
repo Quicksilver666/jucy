@@ -1,4 +1,4 @@
-package uc;
+package uc.user;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,6 +10,10 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
+
+import uc.IUser;
+import uc.IUserChangedListener;
+import uc.PI;
 import uc.IStoppable.IStartable;
 import uc.crypto.HashValue;
 import uihelpers.ComplexListEditor;
@@ -146,7 +150,6 @@ public class StoredPM implements IUserChangedListener ,IStartable {
 				userToMessages.containsKey(uce.getChanged().getUserid())) {
 			List<Message> messageList = userToMessages.remove(uce.getChanged().getUserid());
 			if (messageList != null) {
-				
 				for (Message mes:messageList) {
 					mes.send(uce.getChanged());
 				}

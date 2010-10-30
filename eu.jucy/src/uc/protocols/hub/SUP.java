@@ -1,18 +1,22 @@
 package uc.protocols.hub;
 
+import helpers.GH;
+
 import java.io.IOException;
 import java.net.ProtocolException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import uc.protocols.ADCStatusMessage;
 
 public class SUP extends AbstractADCHubCommand {	
 	
+	//"+(Hub.ZLIF?" ADZLIF":"")+ "
+	//public static final String SUPPORTS = "HSUP ADBASE ADTIGR ADUCMD ADBLOM\n";  // ADUCM0  for usercommands  ADADCS
 	
-	public static final String SUPPORTS = "HSUP ADBASE ADTIGR ADUCMD ADBLOM"+(Hub.ZLIF?" ADZLIF":"")+ "\n";  //ADUCM0  for usercommands  ADADCS
-	
-
-
+	private static final String[] SUPPORTS = new String[] {"TIGR","BLOM"};
 
 	public void handle(Hub hub,String command) throws ProtocolException, IOException {
 		Set<String> supps = hub.getOthersSupports();
@@ -31,8 +35,10 @@ public class SUP extends AbstractADCHubCommand {
 	}
 	
 	public static void sendSupports(Hub hub) {
-		hub.sendUnmodifiedRaw(SUPPORTS);  
-		
+		List<String> supports = hub.getSupports(true);
+		supports.addAll(Arrays.asList(SUPPORTS));
+		Collections.sort(supports);
+		hub.sendUnmodifiedRaw(String.format("HSUP AD%s\n",GH.concat(supports, " AD")));  
 	}
 
 }

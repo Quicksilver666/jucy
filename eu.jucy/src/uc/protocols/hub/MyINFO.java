@@ -13,7 +13,6 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 
-import uc.User;
 import uc.IUser.AwayMode;
 import uc.IUser.Mode;
 import uc.IUserChangedListener.UserChange;
@@ -21,6 +20,7 @@ import uc.IUserChangedListener.UserChangeEvent;
 import uc.crypto.HashValue;
 import uc.protocols.DCProtocol;
 import uc.protocols.SendContext;
+import uc.user.User;
 
 /**
  * $MyINFO $ALL -[`°v».......((Op-Chat)).......«v°`] •Operator & Admin Chat•$ $$$$ 

@@ -16,13 +16,13 @@ import org.apache.log4j.Logger;
 
 
 import uc.IUser;
-import uc.User;
 import uc.crypto.HashValue;
 import uc.files.filelist.OwnFileList.SearchParameter;
 import uc.files.search.FileSearch;
 import uc.files.search.SearchType;
 import uc.protocols.ConnectionProtocol;
 import uc.protocols.DCProtocol;
+import uc.user.User;
 
 public class Search extends AbstractNMDCHubProtocolCommand {
 
@@ -70,6 +70,9 @@ public class Search extends AbstractNMDCHubProtocolCommand {
     */
 	@Override
 	public void handle(Hub hub,String command) throws IOException {
+		if (hub.getFavHub().isChatOnly()) {
+			return;
+		}
 		logger.debug("searchreceived("+command+")");
 		Matcher m = null;
 		boolean passive;

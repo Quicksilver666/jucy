@@ -5,7 +5,7 @@ import java.net.ProtocolException;
 import java.util.Map;
 
 import uc.IUser;
-import uc.User;
+import uc.user.User;
 
 
 /**

@@ -6,12 +6,12 @@ package uc.files.search;
 import org.eclipse.core.runtime.Assert;
 
 import uc.IUser;
-import uc.User;
 import uc.crypto.HashValue;
 import uc.files.AbstractDownloadable.AbstractDownloadableFile;
 import uc.files.IDownloadable.IDownloadableFile;
 import uc.files.filelist.FileListFile;
 import uc.files.filelist.FileListFolder;
+import uc.user.User;
 
 
 

@@ -2,7 +2,7 @@ package uc.protocols.hub;
 
 import java.io.IOException;
 
-import uc.User;
+import uc.user.User;
 
 public class Quit extends AbstractNMDCHubProtocolCommand {
 

@@ -61,7 +61,6 @@ import uc.Identity;
 import uc.InfoChange;
 import uc.LanguageKeys;
 import uc.PI;
-import uc.User;
 import uc.IUserChangedListener.UserChangeEvent;
 import uc.crypto.HashValue;
 import uc.crypto.UDPEncryption;
@@ -87,6 +86,7 @@ import uc.protocols.UnblockingConnection;
 
 import uc.protocols.DCProtocol;
 import uc.protocols.hub.ZOn.ZON;
+import uc.user.User;
 
 
 public class Hub extends DCProtocol implements IHub {
@@ -179,12 +179,12 @@ public class Hub extends DCProtocol implements IHub {
 	 */
 	private String version = "";
 	
-	/**
-	 * summed share over all users in the hub..
-	 * this is manipulated by user.setShared();
-	 * never directly..
-	 */
-	private volatile long totalshare = 0;
+//	/**
+//	 * summed share over all users in the hub..
+//	 * this is manipulated by user.setShared();
+//	 * never directly..
+//	 */
+//	private volatile long totalshare = 0;
 
 
 	/**
@@ -476,7 +476,7 @@ public class Hub extends DCProtocol implements IHub {
 
 			@Override
 			public String getSupports() {
-				List<String> sup = new ArrayList<String>();
+				List<String> sup = Hub.this.getSupports(false);
 			
 				if (identity.isIPv4Used() && identity.isActive()) {
 					sup.add(User.TCP4);
@@ -496,8 +496,9 @@ public class Hub extends DCProtocol implements IHub {
 				if (UDPEncryption.isUDPEncryptionSupported() && connection.usesEncryption()) {
 					sup.add(User.ADCS_UDP);
 				}
+				
 
-				return GH.concat(sup, ",", "");
+				return GH.concat(sup, ",");
 			}
 
 			@Override
@@ -775,13 +776,13 @@ public class Hub extends DCProtocol implements IHub {
 	
 	
 	public void increaseSharesize(long difference) {
-		WriteLock lock = writeLock();
-		lock.lock();
-		try {
-			totalshare	+= difference;
-		} finally {
-			lock.unlock();
-		}
+//		WriteLock lock = writeLock();
+//		lock.lock();
+//		try {
+//			totalshare	+= difference;
+//		} finally {
+//			lock.unlock();
+//		}
 	}
 	
 	public void onLogIn() throws IOException {
@@ -796,7 +797,7 @@ public class Hub extends DCProtocol implements IHub {
 		new Runnable() {
 			public void run() {
 				logger.debug("requesting userip1");
-				if (!userIPReceived && identity.isActive() && getState()== ConnectionState.LOGGEDIN) {
+				if (!userIPReceived && identity.isActive() && getState() == ConnectionState.LOGGEDIN) {
 					logger.debug("requesting userip2");
 					requestUserIP();
 				}
@@ -836,37 +837,6 @@ public class Hub extends DCProtocol implements IHub {
 			}, 60, 10, TimeUnit.SECONDS);
 		}
 		
-		if (nmdc) { //TODO clean up
-			//hub.clearCommands(); //TODO possibly this clear needs to vanish
-			//add commands needed while protocol is running
-//			addCommand(	//new LogedIn(),
-					//		new Feed(), 
-					//		new HubName(),
-					//		new HubTopic(),
-					//		new MyINFO(),
-					//		new OpList(),
-					//		new Quit(),
-//							new SR(),
-//							new To(),
-//							new UserIP(),
-//							new UserCommand(),
-//							new ForceMove(),
-//							new NickList()); 
-			
-			if (!getFavHub().isChatOnly()) {
-				addCommand(new ConnectToMe());
-				addCommand(new RevConnectToMe());
-				addCommand(new Search());
-			}
-		} else {
-//			addCommand(new QUI());
-//			addCommand(new RES());
-			if (!favHub.isChatOnly()) {
-				addCommand(new CTM());
-				addCommand(new RCM());
-				addCommand(new SCH());
-			}
-		}
 		
 	}
 	
@@ -988,7 +958,7 @@ public class Hub extends DCProtocol implements IHub {
 				userBySid.put(user.getSid()  , user);
 			}
 			userPrefix.put(GetPrefix(user), user);
-			if (user.getHub() != this) { //increase ShareSize if needed.. (potential problem user came from another hub we are in? -> need to create unique ID independent of CID)
+			if (user.getHub() != this) {
 				increaseSharesize(user.getShared());
 			}
 			user.userConnected(this);
@@ -1334,7 +1304,7 @@ public class Hub extends DCProtocol implements IHub {
 		for (User usr : new ArrayList<User>(users.values())) {
 			finalizeUser(usr,false);
 		}
-		totalshare = 0;
+	//	totalshare = 0;
 	}
 
 	private void finalizeUser(User usr,boolean quit) {
@@ -1650,7 +1620,19 @@ public class Hub extends DCProtocol implements IHub {
 	 * @return the totalshare
 	 */
 	public long getTotalshare() {
-		return totalshare;
+//		long retShare =  totalshare - getSelf().getShared();
+//		if (Platform.inDevelopmentMode()) {
+		long totalShare = 0;
+		for (IUser usr:users.values()) {
+			totalShare+= usr.getShared();
+		}
+		return totalShare;
+//			if (measuredShare != retShare) {
+//				long dif = retShare - measuredShare; //TODO retshare fails when hashing is happening..
+//				logger.info("Difference measured: "+dif+" "+getName()+"  "+getSelf().getShared());
+//			}
+//		}
+//		return retShare;
 	}
 
 

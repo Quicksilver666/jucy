@@ -372,7 +372,7 @@ public abstract class DownloadableHandlers extends AbstractHandler {
 				allMagnets.add(new MagnetLink(idf));
 			}
 			
-			GuiHelpers.copyTextToClipboard(GH.concat(allMagnets, "\n", ""));
+			GuiHelpers.copyTextToClipboard(GH.concat(allMagnets, "\n"));
 		}
 	}
 	

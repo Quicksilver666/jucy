@@ -13,7 +13,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -157,7 +156,7 @@ public class HubList {
 	public static void main(String[] args) throws Exception {
 		if (args.length == 0) {
 			System.out.println("Please provide an URL to a hublist as parameter. Otherwise jucy's default hublists will be used..");
-			args = HublistPI.defaultHublists.split(Pattern.quote(";"));
+			args = HublistPI.defaultHublists;
 		}
 		
 		for (String url : args) {

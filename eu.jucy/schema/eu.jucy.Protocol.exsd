@@ -18,8 +18,7 @@
       </annotation>
       <complexType>
          <sequence>
-            <element ref="protocol" minOccurs="0" maxOccurs="unbounded"/>
-            <element ref="support_extension" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="protocol_extension" minOccurs="0" maxOccurs="unbounded"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -63,29 +62,11 @@
                </appInfo>
             </annotation>
          </attribute>
-         <attribute name="nmdc" type="boolean" use="required">
+         <attribute name="active_from_start" type="boolean" use="required">
             <annotation>
                <documentation>
-                  true if the command is to appear in NMDC
-
-false for ADC
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="active_after_login" type="boolean" use="required">
-            <annotation>
-               <documentation>
-                  If the command should be active after Login ...
-
-
-set Active InLogin and this to true if the command should allways be active...
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="active_during_login" type="boolean" use="required">
-            <annotation>
-               <documentation>
-                  If the Command should be automatically loaded in the LoginPhase
+                  true when command should be allways laoded ..
+false for loading in login
                </documentation>
             </annotation>
          </attribute>
@@ -107,7 +88,7 @@ set Active InLogin and this to true if the command should allways be active...
       </complexType>
    </element>
 
-   <element name="support_extension">
+   <element name="protocol_extension">
       <annotation>
          <documentation>
             This element is there for adding Support changes to the protocol ..
@@ -118,6 +99,9 @@ client support for supports sent in INF..
          </documentation>
       </annotation>
       <complexType>
+         <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="protocol"/>
+         </sequence>
          <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
@@ -130,16 +114,6 @@ client support for supports sent in INF..
                <documentation>
                   
                </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="target" type="string" use="required">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-               <appInfo>
-                  <meta.attribute kind="java" basedOn="uc.protocols.DCProtocol:"/>
-               </appInfo>
             </annotation>
          </attribute>
          <attribute name="hub_support" type="string">

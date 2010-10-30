@@ -34,10 +34,11 @@ public class ConnectToMe extends AbstractNMDCHubProtocolCommand {
 
 	@Override
 	public void handle(Hub hub,String command) throws IOException {
-		InetSocketAddress isa = ConnectionProtocol.inetFromString(matcher.group(1),412);
-		boolean encryption = "S".equals(matcher.group(2));
-		hub.ctmReceived(isa,null,encryption?CPType.NMDCS:CPType.NMDC,null);
-		
+		if (!hub.getFavHub().isChatOnly()) {
+			InetSocketAddress isa = ConnectionProtocol.inetFromString(matcher.group(1),412);
+			boolean encryption = "S".equals(matcher.group(2));
+			hub.ctmReceived(isa,null,encryption?CPType.NMDCS:CPType.NMDC,null);
+		}
 	}
 
 	

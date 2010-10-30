@@ -28,6 +28,9 @@ public class CTM extends AbstractADCHubCommand {
 
 	//DCTM UVTR WU5G ADCS/0.10 54892 2046781604
 	public void handle(Hub hub,String command) throws ProtocolException, IOException {
+		if (hub.getFavHub().isChatOnly()) {
+			return;
+		}
 		IUser other = getOther(hub);
 		if (other == null) {
 			return;

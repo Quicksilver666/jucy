@@ -153,7 +153,7 @@ public abstract class DownloadQueueColumns extends ColumnDescriptor<AbstractDown
 			for (IUser usr:dqe.getUsers()) {
 				s.add(usr.getNick());
 			}
-			return GH.concat(s, ";", "");
+			return GH.concat(s, ";");
 		}
 		
 	}

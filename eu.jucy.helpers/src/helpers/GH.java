@@ -425,6 +425,15 @@ public final class GH {
 		return compareTo(a & 0xff , b & 0xff);
 	}
 	
+	
+	/**
+	 * 
+	 * same as concat with empty string for an empty iterable
+	 */
+	public static String concat(Iterable<?> terms,String between) {
+		return concat(terms,between,"");
+	}
+	
 	/**
 	 * concatenates  each term in collection using .toString()
 	 * and puts between each string "between" 

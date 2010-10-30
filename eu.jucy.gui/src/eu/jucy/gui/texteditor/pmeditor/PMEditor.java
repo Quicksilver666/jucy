@@ -58,9 +58,9 @@ import uc.IHub;
 import uc.IUser;
 import uc.IUserChangedListener;
 import uc.LanguageKeys;
-import uc.Population;
 import uc.protocols.hub.Hub;
 import uc.protocols.hub.PrivateMessage;
+import uc.user.Population;
 import uihelpers.SUIJob;
 import uihelpers.ToasterUtil;
 

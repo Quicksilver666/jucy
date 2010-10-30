@@ -14,7 +14,7 @@ import org.eclipse.swt.graphics.Image;
 
 import eu.jucy.gui.Lang;
 import uc.IUser;
-import uc.User;
+import uc.user.User;
 import uihelpers.SUIJob;
 import uihelpers.TableViewerAdministrator.ColumnDescriptor;
 

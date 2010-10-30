@@ -6,7 +6,7 @@ import java.lang.ref.WeakReference;
 
 
 import uc.DCClient;
-import uc.User;
+import uc.user.User;
 
 public class FileListDescriptor {
 

@@ -59,7 +59,7 @@ public class HublistHub implements Iterable<String> {
 	}
 	
 	public String toString() {
-		String s = GH.concat(attribs.values(), ";", "");
+		String s = GH.concat(attribs.values(), ";");
 		if (!GH.isEmpty(s)) {
 			s+=";";
 		}

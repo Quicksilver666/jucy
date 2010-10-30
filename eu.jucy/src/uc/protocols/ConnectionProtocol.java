@@ -211,7 +211,7 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 				if (Platform.inDevelopmentMode() && ConnectionState.DESTROYED != state) {
 					logger.warn("Bad state: "+state+"  "+toString(),new Throwable());
 				}
-				return;
+				throw new IOException("can not login when not in connected state: "+state);
 			}
 		
 			loginDone = true;

@@ -11,7 +11,6 @@ import java.util.Set;
 
 
 import uc.Identity;
-import uc.User;
 import uc.crypto.BASE32Encoder;
 import uc.crypto.HashValue;
 import uc.crypto.TigerHashValue;
@@ -19,6 +18,7 @@ import uc.crypto.UDPEncryption;
 import uc.files.filelist.OwnFileList.SearchParameter;
 import uc.files.search.FileSearch;
 import uc.files.search.SearchType;
+import uc.user.User;
 
 public class SCH extends AbstractADCHubCommand {
 
@@ -33,6 +33,9 @@ TRACE Hub.java Line:463
 	}
 
 	public void handle(Hub hub,String command) throws ProtocolException, IOException {
+		if (hub.getFavHub().isChatOnly()) {
+			return;
+		}
 		User usr = getOther(hub);
 		if (usr == null || usr.equals(hub.getSelf())) {
 			return;

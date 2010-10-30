@@ -4,7 +4,8 @@ Bundle-Name: Helpers Plug-in
 Bundle-SymbolicName: eu.jucy.helpers;singleton:=true
 Bundle-Version: 1.85.0.qualifier
 Bundle-Localization: nl/helpers
-Export-Package: helpers,
+Export-Package: annotations,
+ helpers,
  uihelpers
 Require-Bundle: org.eclipse.ui,
  eu.jucy.logging,
@@ -12,4 +13,5 @@ Require-Bundle: org.eclipse.ui,
  lib.com.jcraft.jzlib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Quicksilver
+Bundle-ClassPath: .
 

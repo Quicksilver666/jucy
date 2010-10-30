@@ -14,10 +14,13 @@
    </extension>
    <extension
          point="eu.jucy.protocol">
+         
+         <protocol_extension
+               id="nmdc.base"
+               nmdc="true">
+         
       <protocol
-            nmdc="true"
-            active_after_login="false"
-            active_during_login="true"
+           active_from_start="true"
             target="uc.protocols.hub.Hub">
          <command
               
@@ -49,13 +52,8 @@
          </command>
       </protocol>
       <protocol
-            active_after_login="false"
-            active_during_login="true"
-            nmdc="true"
+            active_from_start="false"
             target="uc.protocols.hub.Hub">
-         <command
-               commandClass="uc.protocols.hub.Feed">
-         </command>
          <command
                commandClass="uc.protocols.hub.HubTopic">
          </command>
@@ -74,20 +72,49 @@
            <command
                commandClass="uc.protocols.hub.To">
          </command>
-           <command
-               commandClass="uc.protocols.hub.UserIP">
-         </command>
-           <command
-               commandClass="uc.protocols.hub.UserCommand">
-         </command>
              <command
                commandClass="uc.protocols.hub.NickList">
          </command>
+          <command
+               commandClass="uc.protocols.hub.ConnectToMe">
+         </command>
+          <command
+               commandClass="uc.protocols.hub.RevConnectToMe">
+         </command>
+          <command
+               commandClass="uc.protocols.hub.Search">
+         </command>
+         
       </protocol>
       <protocol
-            active_after_login="false"
-            active_during_login="true"
-            nmdc="false"
+            active_from_start="true"
+            target="uc.protocols.client.ClientProtocol">
+         <command
+               commandClass="uc.protocols.client.MyNick">
+         </command>
+         <command
+               commandClass="uc.protocols.client.Lock">
+         </command>
+         <command
+               commandClass="uc.protocols.client.Error">
+         </command>
+         <command
+               commandClass="uc.protocols.client.NMDCGet">
+         </command>
+         <command
+               commandClass="uc.protocols.client.UGetBlock">
+         </command>
+      </protocol>
+      
+      </protocol_extension>
+      
+       <protocol_extension
+             hub_support="BASE"
+             id="adc.base"
+             nmdc="false">
+       
+      <protocol
+            active_from_start="true"
             target="uc.protocols.hub.Hub">
          <command
                commandClass="uc.protocols.hub.SUP">
@@ -108,16 +135,11 @@
                commandClass="uc.protocols.hub.GPA">
          </command>
          <command
-               commandClass="uc.protocols.hub.CMD">
-         </command>
-         <command
                commandClass="uc.protocols.hub.GET">
          </command>
       </protocol>
       <protocol
-            active_after_login="false"
-            active_during_login="true"
-            nmdc="false"
+            active_from_start="false"
             target="uc.protocols.hub.Hub">
          <command
                commandClass="uc.protocols.hub.QUI">
@@ -125,7 +147,76 @@
          <command
                commandClass="uc.protocols.hub.RES">
          </command>
+          <command
+               commandClass="uc.protocols.hub.CTM">
+         </command>
+          <command
+               commandClass="uc.protocols.hub.RCM">
+         </command>
+          <command
+               commandClass="uc.protocols.hub.SCH">
+         </command>
       </protocol>
+      <protocol
+            active_from_start="true"
+            target="uc.protocols.client.ClientProtocol">
+         <command
+               commandClass="uc.protocols.client.SUP">
+         </command>
+         <command commandClass="uc.protocols.client.STA">
+         
+         </command>
+      </protocol>
+      
+       </protocol_extension>
+       <protocol_extension
+             hub_support="UCMD"
+             id="adc.ucmd"
+             nmdc="false">
+          <protocol
+                active_from_start="true"
+                target="uc.protocols.hub.Hub">
+             <command
+                   commandClass="uc.protocols.hub.CMD">
+             </command>
+          </protocol>
+       </protocol_extension>
+       <protocol_extension
+             hub_support="UserCommand"
+             id="nmdc.ucmd"
+             nmdc="true">
+          <protocol
+                active_from_start="false"
+                target="uc.protocols.hub.Hub">
+             <command
+                   commandClass="uc.protocols.hub.UserCommand">
+             </command>
+          </protocol>
+       </protocol_extension>
+       <protocol_extension
+             hub_support="Feed"
+             id="nmdc.feed"
+             nmdc="true">
+          <protocol
+                active_from_start="false"
+                target="uc.protocols.hub.Hub">
+             <command
+                   commandClass="uc.protocols.hub.Feed">
+             </command>
+          </protocol>
+       </protocol_extension>
+       <protocol_extension
+             hub_support="UserIP2"
+             id="nmdc.userip"
+             nmdc="true">
+          <protocol
+                active_from_start="false"
+                target="uc.protocols.hub.Hub">
+             <command
+                   commandClass="uc.protocols.hub.UserIP">
+             </command>
+          </protocol>
+       </protocol_extension>
    </extension>
 
   

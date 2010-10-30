@@ -209,7 +209,7 @@ public class PI extends AbstractPreferenceInitializer {
 				,"http://ipswift.com/"
 		);
 		
-		defaults.put(failOverDetection, GH.concat(urls, ";", ""));
+		defaults.put(failOverDetection, GH.concat(urls, ";"));
 		
 		
 

@@ -57,7 +57,6 @@ import uc.IUser;
 import uc.InfoChange;
 import uc.LanguageKeys;
 import uc.PI;
-import uc.User;
 import uc.FavFolders.SharedDir;
 import uc.crypto.HashValue;
 import uc.crypto.IHashEngine;
@@ -66,6 +65,7 @@ import uc.crypto.IHashEngine.IHashedFileListener;
 import uc.database.HashedFile;
 import uc.database.IDatabase;
 import uc.files.filelist.FileListMapping.FileFilter;
+import uc.user.User;
 import uihelpers.IconManager;
 
 

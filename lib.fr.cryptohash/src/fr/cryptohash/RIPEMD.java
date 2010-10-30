@@ -42,9 +42,7 @@ package fr.cryptohash;
 
 public class RIPEMD extends MDHelper {
 
-	/*
-	 * TODO: merge some of this code with that of RIPEMD128.
-	 */
+
 
 	/**
 	 * Build the object.

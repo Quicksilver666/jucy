@@ -4,15 +4,16 @@ import helpers.GH;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 
 import uc.IUser;
-import uc.User;
 import uc.IUserChangedListener.UserChange;
 import uc.IUserChangedListener.UserChangeEvent;
+import uc.user.User;
 
 public class UserIP extends AbstractNMDCHubProtocolCommand {
 
@@ -53,7 +54,8 @@ public class UserIP extends AbstractNMDCHubProtocolCommand {
 	}
 	
 	public static boolean supportsUserIp(Hub hub) {
-		return hub.getOthersSupports().contains("UserIP") || hub.getOthersSupports().contains("UserIP2");
+		Set<String> osup = hub.getOthersSupports();
+		return osup.contains("UserIP") || osup.contains("UserIP2");
 	}
 
 }

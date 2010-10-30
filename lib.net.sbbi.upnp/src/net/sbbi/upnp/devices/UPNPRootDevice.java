@@ -338,7 +338,7 @@ public class UPNPRootDevice extends UPNPDevice {
       
       Pointer servicePtr = serviceListCtx.getPointer( "service["+i+"]" );
       JXPathContext serviceCtx = serviceListCtx.getRelativeContext( servicePtr );
-      // TODO possibility of bugs if deviceDefLoc contains a file name
+
       URL base = URLBase != null ? URLBase : deviceDefLoc;
       UPNPService service = new UPNPService( serviceCtx, base, this );
       device.services.add( service );

@@ -32,7 +32,6 @@ import org.apache.log4j.Logger;
 
 import uc.DCClient;
 import uc.IUser;
-import uc.User;
 import uc.crypto.BASE32Encoder;
 import uc.crypto.HashValue;
 import uc.crypto.InterleaveHashes;
@@ -43,6 +42,7 @@ import uc.database.IDatabase;
 import uc.database.ILogEntry;
 import uc.database.LogEntry;
 import uc.files.downloadqueue.DQEDAO;
+import uc.user.User;
 
 public class HSQLDB implements IDatabase {
 
@@ -510,7 +510,10 @@ public class HSQLDB implements IDatabase {
 					logger.debug("adding user " + usr.getNick() + " "
 							+ usr.getAutograntSlot() + " " + usr.isFavUser());
 					PreparedStatement updateUsr = c
-							.prepareStatement("UPDATE users SET  nick = ? , favuser = ? , autoGrant = ? WHERE userid = ?");
+							.prepareStatement("UPDATE users "
+									+ " SET  nick = ? , favuser = ? , autoGrant = ? "
+									+ " WHERE userid = ?");
+					
 					updateUsr.setString(1, usr.getNick()); // Set
 					updateUsr.setBoolean(2, usr.isFavUser());
 					updateUsr.setLong(3, usr.getAutograntSlot());
@@ -522,7 +525,9 @@ public class HSQLDB implements IDatabase {
 
 					if (count == 0) { // user not found --> insert
 						PreparedStatement addUser = c
-								.prepareStatement("INSERT INTO users (userid, nick,favuser,autoGrant) VALUES (?,?,?,?) ");
+								.prepareStatement("INSERT INTO users "
+												+ "(userid, nick,favuser,autoGrant) "
+												+ " VALUES (?,?,?,?) ");
 
 						addUser.setString(1, usr.getUserid().toString()); // Insert
 						addUser.setString(2, usr.getNick());

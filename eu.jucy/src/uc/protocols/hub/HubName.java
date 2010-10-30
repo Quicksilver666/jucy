@@ -7,8 +7,7 @@ import uc.protocols.DCProtocol;
 public class HubName extends AbstractNMDCHubProtocolCommand {
 
 	private static final String SEPARATOR = " - ";
-	public HubName() {
-	}
+
 
 	@Override
 	public void handle(Hub hub,String com) throws IOException {

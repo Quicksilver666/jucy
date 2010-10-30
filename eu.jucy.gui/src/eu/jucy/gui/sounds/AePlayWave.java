@@ -76,7 +76,9 @@ public class AePlayWave implements Runnable {
 
 			DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
 
-
+			if (!AudioSystem.isLineSupported(info)) {
+				return;
+			}
 			auline = (SourceDataLine) AudioSystem.getLine(info);
 			auline.open(format);
 

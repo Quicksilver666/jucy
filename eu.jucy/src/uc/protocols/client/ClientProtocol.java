@@ -252,23 +252,24 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		super.beforeConnect();
 		//state = connecting;
 		disconnectReason = null;
-		if (getNMDC() == null) {
-			addCommand(new MyNick());
-			addCommand(new Lock());
-			addCommand(new Error());
-			addCommand(new NMDCGet());
-			addCommand(new UGetBlock());
-			addCommand(new SUP());
-			addCommand(new STA());
-		} else if (isNMDC()) {
-			addCommand(new MyNick());
-			addCommand(new Lock());
-			addCommand(new Error());
-			addCommand(new NMDCGet());
-		} else {
-			addCommand(new SUP());
-			addCommand(new STA());
-		}
+//		if (getNMDC() == null) {
+//			addCommand(new MyNick());
+//			addCommand(new Lock());
+//			addCommand(new Error());
+//			addCommand(new NMDCGet());
+//			addCommand(new UGetBlock());
+//			addCommand(new SUP());
+//			addCommand(new STA());
+//		} else if (isNMDC()) {
+//			addCommand(new MyNick());
+//			addCommand(new Lock());
+//			addCommand(new Error());
+//			addCommand(new NMDCGet());
+//			addCommand(new UGetBlock());
+//		} else {
+//			addCommand(new SUP());
+//			addCommand(new STA());
+//		}
 	}
 
 	public void onConnect() throws IOException {
@@ -312,10 +313,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	public void onLogIn() throws IOException {
 		logger.debug("called OnLogIn ");
 
-		if (getState() != ConnectionState.CONNECTED) {
-			logger.debug("current state: "+getState()); //no login -> we already disconnected..TODO -> move into superclass..
-			throw new IOException("Illegal state for login");
-		}
+
 		super.onLogIn();
 		loginTimeOut.cancelScheduled();
 	//	logger.info("scheduling transferCreateTimeOut: li "+toString());
@@ -510,21 +508,14 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		} else {
 			ClientProtocolStateMachine cpsm = getCh().getStateMachine(fti.getOther());
 			fti.setDownload(cpsm != null && cpsm.getToken().equals(token));
-		}
-		
-		if (fti.isUpload()) {//if this is an upload we will accept ADCGET commands..
-		//	getAwaited = true;
-			if (nmdc) {
-				addCommand(new ADCGET()); 	
-			} else {
-				addCommand(new GET());
-			}
-		}
-		increaseLoginLevel();
-		
-		if (!nmdc) {
 			addCommand(new GFI());
 		}
+		
+		if (fti.isUpload()) {
+			addCommand(nmdc?new ADCGET():new GET()); 	
+		}
+		increaseLoginLevel();
+	
 	}
 	
 	

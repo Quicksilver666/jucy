@@ -5,9 +5,9 @@ import java.util.Collections;
 
 
 import uc.IUser;
-import uc.User;
 import uc.protocols.CPType;
 import uc.protocols.SendContext;
+import uc.user.User;
 
 public class RevConnectToMe extends AbstractNMDCHubProtocolCommand {
 
@@ -16,13 +16,15 @@ public class RevConnectToMe extends AbstractNMDCHubProtocolCommand {
 
 	@Override
 	public void handle(Hub hub,String command) throws IOException {
-  		String[] a = command.split(" ");
-		if (a.length >= 2 ) {
-			User other = hub.getUserByNick(a[1]);
-			if (other != null &&  hub.getIdentity().isActive()) {
-				hub.sendCTM(other,CPType.NMDC,null);
+		if (!hub.getFavHub().isChatOnly()) {
+	  		String[] a = command.split(" ");
+			if (a.length >= 2 ) {
+				User other = hub.getUserByNick(a[1]);
+				if (other != null &&  hub.getIdentity().isActive()) {
+					hub.sendCTM(other,CPType.NMDC,null);
+				}
 			}
-		}	
+		}
 	}
 
 	

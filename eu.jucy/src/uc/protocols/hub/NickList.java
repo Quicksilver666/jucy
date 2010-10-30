@@ -9,9 +9,9 @@ import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 
 
-import uc.User;
 import uc.crypto.HashValue;
 import uc.protocols.DCProtocol;
+import uc.user.User;
 
 public class NickList extends AbstractNMDCHubProtocolCommand {
 

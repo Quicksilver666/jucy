@@ -288,7 +288,7 @@ public class FileDQE extends AbstractFileDQE {
 				dqe = new FileDQE(dq,target, new InterleaveHashes(idf.getTTHRoot()), idf,255/2,new Date(),null); 
 			} else {
 				//create TTHLDQE
-				dqe = new TTHLDQE(dq,idf,target,new Date()); 
+				dqe = new TTHLDQE(dq,idf,255/2,target,new Date()); 
 			}
 			//persist  
 			dcc.getDatabase().addOrUpdateDQE(DQEDAO.get(dqe),true); //add the DQE item to the persistent storage..
@@ -320,11 +320,16 @@ public class FileDQE extends AbstractFileDQE {
 			
 			dqe = new FileDQE(	dq,restoredata.getTarget()
 								,ih
-								,restoredata,restoredata.getPriority()
+								,restoredata
+								,restoredata.getPriority()
 								,restoredata.getAdded()
 								,restoredata.getRestoreInfo()); 
 		} else {
-			dqe = new TTHLDQE(dq,restoredata,restoredata.getTarget(),restoredata.getAdded()); 
+			dqe = new TTHLDQE(dq
+					,restoredata
+					,restoredata.getPriority()
+					,restoredata.getTarget()
+					,restoredata.getAdded()); 
 		}
 		
 		dq.addDownloadQueueEntry(dqe);

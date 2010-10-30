@@ -15,10 +15,7 @@ public class GFI extends AbstractADCClientProtocolCommand {
 
 	
 	public GFI() {
-
 		setPattern( prefix + " file TTH/("+TTH+") ?(.*)" , true);
-
-		
 	}
 
 	@Override

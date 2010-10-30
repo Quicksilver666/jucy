@@ -6,7 +6,6 @@ import helpers.GH;
 
 
 import java.util.List;
-import java.util.ListIterator;
 import java.util.SortedMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -77,10 +76,15 @@ public abstract class SendingWriteline  {
 	 */
 	private final List<String> sentMessages = new CopyOnWriteArrayList<String>();
 	
-	private ListIterator<String> ctrlUpPosition;
-	//if thats tool ong ago -> reset ctrlUpPosition
-	private long recentCTRLUpPressedTime = System.currentTimeMillis(); 
-	private String savedText; //save text that was currently in the writeline before up and down were pressed..
+	public List<String> getSentMessages() {
+		return sentMessages;
+	}
+
+
+//	private ListIterator<String> ctrlUpPosition;
+//	//if thats tool ong ago -> reset ctrlUpPosition
+//	private long recentCTRLUpPressedTime = System.currentTimeMillis(); 
+//	private String savedText; //save text that was currently in the writeline before up and down were pressed..
 
 	/**
 	 * com-variable to determine if text can be sent to hub
@@ -113,9 +117,8 @@ public abstract class SendingWriteline  {
 		cpa.setPopupSize(new Point(300,200));
 
 		//disables sending while proposal pop-up is open
-		cpa.addContentProposalListener(new IContentProposalListener2() {
+		IContentProposalListener2 cpl= new IContentProposalListener2() {
 
-	
 			public void proposalPopupClosed(ContentProposalAdapter adapter) {
 				new SUIJob() { //done in UIjob so it is postponed until the key listener is called (Enter Key that was used for closing the proposal)
 					@Override
@@ -130,7 +133,16 @@ public abstract class SendingWriteline  {
 				proposalClosed = false;
 				logger.debug("proposal popup opened");
 			}
-		});
+		};
+		cpa.addContentProposalListener(cpl);
+		
+		WrittenTextContentProposal wtcp = new WrittenTextContentProposal(this);
+		ContentProposalAdapter cpb = new ContentProposalAdapter(
+				writeline,wtcp,wtcp, 
+				KeyStroke.getInstance(SWT.CTRL,SWT.ARROW_UP ),null); 
+		cpb.setPopupSize(new Point(500,200));
+		cpb.addContentProposalListener(cpl);
+		
 		writeline.addKeyListener(new KeyAdapter() {
 			
 			public void keyPressed(final KeyEvent e) {
@@ -141,12 +153,12 @@ public abstract class SendingWriteline  {
 					ctrlPressed = true;
 				}
 				//logger.info("ctrl up or down pressed "+e.keyCode+ "  "+SWT.ARROW_UP);
-				if (proposalClosed && ctrlPressed && (e.keyCode == SWT.ARROW_UP|| e.keyCode == SWT.ARROW_DOWN)) {
-					ctrlAndUpOrDownPressed(e.keyCode == SWT.ARROW_UP );
-					//logger.info("ctrl up or down pressed");
-					e.doit = false;
-					return;
-				}
+//				if (proposalClosed && ctrlPressed && (e.keyCode == SWT.ARROW_UP|| e.keyCode == SWT.ARROW_DOWN)) {
+//					ctrlAndUpOrDownPressed(e.keyCode == SWT.ARROW_UP );
+//					//logger.info("ctrl up or down pressed");
+//					e.doit = false;
+//					return;
+//				}
 				
 				if (proposalClosed && !ctrlPressed
 					&& (e.keyCode == SWT.KEYPAD_CR || e.keyCode == SWT.CR)) {
@@ -191,25 +203,25 @@ public abstract class SendingWriteline  {
 	}
 	
 
-	/**
-	 * moves to the next sentMessage ..
-	 * if nothing is pressed for more than 10 secs  we forget where we were..
-	 * @param up -  if true move up else down..
-	 */
-	private void ctrlAndUpOrDownPressed(boolean up) {
-		if (ctrlUpPosition == null || System.currentTimeMillis()-recentCTRLUpPressedTime > 10000) {
-			ctrlUpPosition = sentMessages.listIterator();
-			savedText = writeline.getText();
-		}
-		
-		if (up?ctrlUpPosition.hasNext(): ctrlUpPosition.hasPrevious()) {
-			writeline.setText(up ? ctrlUpPosition.next(): ctrlUpPosition.previous());
-		} else if (!up) {  //if its down and has no previous -> set original text
-			writeline.setText(savedText);
-		}
-		
-		recentCTRLUpPressedTime  = System.currentTimeMillis();
-	}
+//	/**
+//	 * moves to the next sentMessage ..
+//	 * if nothing is pressed for more than 10 secs  we forget where we were..
+//	 * @param up -  if true move up else down..
+//	 */
+//	private void ctrlAndUpOrDownPressed(boolean up) {
+//		if (ctrlUpPosition == null || System.currentTimeMillis()-recentCTRLUpPressedTime > 10000) {
+//			ctrlUpPosition = sentMessages.listIterator();
+//			savedText = writeline.getText();
+//		}
+//		
+//		if (up?ctrlUpPosition.hasNext(): ctrlUpPosition.hasPrevious()) {
+//			writeline.setText(up ? ctrlUpPosition.next(): ctrlUpPosition.previous());
+//		} else if (!up) {  //if its down and has no previous -> set original text
+//			writeline.setText(savedText);
+//		}
+//		
+//		recentCTRLUpPressedTime  = System.currentTimeMillis();
+//	}
 	
 	
 	public abstract void send(String s);

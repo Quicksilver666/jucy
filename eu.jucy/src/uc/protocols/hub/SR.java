@@ -17,11 +17,11 @@ import org.apache.log4j.Logger;
 
 
 import uc.DCClient;
-import uc.User;
 import uc.crypto.HashValue;
 import uc.files.search.ISearchResult;
 import uc.files.search.SearchResult;
 import uc.protocols.DCProtocol;
+import uc.user.User;
 
 /**	    * @ sr - a string containing (from dcppWiki):
 	    * $SR <source_nick> <result> <free_slots>/<total_slots><0x05><hub_name> (<hub_ip:listening_port>)   //[<0x05><target_nick>] last part stripped away from hub

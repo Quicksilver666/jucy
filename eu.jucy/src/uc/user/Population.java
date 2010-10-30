@@ -1,4 +1,4 @@
-package uc;
+package uc.user;
 
 
 import java.io.File;
@@ -22,6 +22,9 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 
+import uc.DCClient;
+import uc.IUser;
+import uc.IUserChangedListener;
 import uc.IUserChangedListener.UserChange;
 import uc.IUserChangedListener.UserChangeEvent;
 import uc.crypto.HashValue;
@@ -77,7 +80,7 @@ public final class Population {
 	
 	private final DCClient dcc;
 	
-	Population(DCClient dcc) {
+	public Population(DCClient dcc) {
 		this.dcc = dcc;
 	}
 	

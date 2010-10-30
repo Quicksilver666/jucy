@@ -67,10 +67,7 @@ public class Application implements IApplication {
 		String keyScheme = Platform.getOS().equals(Platform.OS_MACOSX)?MAC_KEY_SCHEME:DEFAULT_KEY_SCHEME;
 		PlatformUI.getPreferenceStore().setDefault(
 				IWorkbenchPreferenceConstants.KEY_CONFIGURATION_ID, keyScheme);
-		
-		
-	
-		
+
 		setSimpleOS();
 		
 		Display display = PlatformUI.createDisplay();

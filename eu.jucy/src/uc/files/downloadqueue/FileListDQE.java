@@ -6,7 +6,6 @@ import java.io.File;
 import java.util.Date;
 
 import uc.PI;
-import uc.User;
 import uc.crypto.HashValue;
 import uc.files.IDownloadable.IDownloadableFile;
 import uc.files.filelist.FileListDescriptor;
@@ -14,6 +13,7 @@ import uc.files.transfer.AbstractWritableFileInterval;
 import uc.files.transfer.FileTransferInformation;
 import uc.files.transfer.AbstractWritableFileInterval.FileListWriteInterval;
 import uc.protocols.TransferType;
+import uc.user.User;
 
 public class FileListDQE extends AbstractDownloadQueueEntry {
 	

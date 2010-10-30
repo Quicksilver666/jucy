@@ -1,4 +1,4 @@
-package uc;
+package uc.user;
 
 
 import helpers.GH;
@@ -15,6 +15,10 @@ import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.Platform;
 
+import uc.DCClient;
+import uc.IHasUser;
+import uc.IUser;
+import uc.Identity;
 import uc.IUserChangedListener.UserChange;
 import uc.IUserChangedListener.UserChangeEvent;
 import uc.crypto.HashValue;
@@ -659,20 +663,13 @@ public class User implements IUser , IHasUser {
 			synchronized (this) {
 				extended.dqes.add(dqe);
 				size = extended.dqes.size();
-			
-				if (size == 1) {
-					//if first entry .. add user to the database as he might not yet be in there..
-					notifyUserChanged(UserChange.CHANGED, UserChangeEvent.DOWNLOADQUEUE_ENTRY_PRE_ADD_FIRST);
-				}
 			}
-			//after adding it .. we can set it to the DQE -> 
+			if (size == 1) { //notify + locking on user -> deadlock
+				//if first entry .. allow adding user to the database as he might not yet be in there..
+				notifyUserChanged(UserChange.CHANGED, UserChangeEvent.DOWNLOADQUEUE_ENTRY_PRE_ADD_FIRST);
+			}
+			
 			dqe.addUser(this);
-/*			if (extended.dqes.size() == 1) {
-				//if this is the first DQE.. tell the ConnectionHandler that this user became interesting
-				DCClient.get().getCh().onInterestingUserArrived(this);
-				logger.debug("user "+getNick()+" became interesting");
-
-			} */
 			notifyUserChanged(UserChange.CHANGED, UserChangeEvent.DOWNLOADQUEUE_ENTRY_ADDED);
 		}
 
@@ -1406,7 +1403,7 @@ public class User implements IUser , IHasUser {
 		private boolean favUser;
 		private volatile long autograntSlot; // until when an slot is granted
 		private volatile CopyOnWriteArraySet<AbstractDownloadQueueEntry>  dqes	= null;
-		private Set<ClientProtocol> transfers			= null;
+		private Set<ClientProtocol> transfers = null;
 		private FileListDescriptor fileListDescriptor = null;
 		
 		private boolean couldBedeleted() {
@@ -1414,7 +1411,11 @@ public class User implements IUser , IHasUser {
 				&& dqes == null && transfers == null && fileListDescriptor == null;
 		}
 		
+		
+		
 	}
+	
+	
 	
 	
 	

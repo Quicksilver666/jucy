@@ -3,8 +3,8 @@ package uc.protocols.hub;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import uc.User;
 import uc.protocols.DCProtocol;
+import uc.user.User;
 
 
 /**

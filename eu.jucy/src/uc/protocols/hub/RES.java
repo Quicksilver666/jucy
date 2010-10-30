@@ -15,10 +15,10 @@ import org.eclipse.core.runtime.Platform;
 
 import uc.DCClient;
 import uc.IUser;
-import uc.User;
 import uc.crypto.HashValue;
 import uc.files.search.ISearchResult;
 import uc.files.search.SearchResult;
+import uc.user.User;
 
 
 /**

@@ -1,21 +1,33 @@
 package uc.protocols.hub;
 
+import helpers.GH;
+
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.runtime.Platform;
 
 
 public class Supports extends AbstractNMDCHubProtocolCommand {
 
-	public static final boolean useZLIB = Platform.inDevelopmentMode() && false;
 	
-	/**
-	 * supports string for the NMDC protocol
-	 */
-	public static final String HUBSUPPORTS 
-		= "$Supports UserCommand NoGetINFO NoHello UserIP2 TTHSearch Feed "+(useZLIB?"ZPipe0 ":"")+"|"; //(Platform.inDevelopmentMode()?"ZPipe0 ":"")
+//	/**
+//	 * supports string for the NMDC protocol
+//	 */
+//	public static final String HUBSUPPORTS 
+//		= "$Supports UserCommand NoGetINFO NoHello UserIP2 TTHSearch Feed |"; //(Platform.inDevelopmentMode()?"ZPipe0 ":"")
+//	
 	
+	private static final String[] SUPPORTS = new String[] {
+		//	"UserCommand"
+			"NoGetINFO"
+			,"NoHello"
+		//	,"UserIP2"
+			,"TTHSearch"
+		//	,"Feed"
+	};
 	
 
 
@@ -31,7 +43,10 @@ public class Supports extends AbstractNMDCHubProtocolCommand {
 	}
 
 	
-	public static void sendSupports(Hub hub) { 
-		hub.sendUnmodifiedRaw(HUBSUPPORTS);
+	public static String getSupports(Hub hub) { 
+		List<String> supports = hub.getSupports(true);
+		supports.addAll(Arrays.asList(SUPPORTS));
+		Collections.sort(supports);
+		return String.format("$Supports %s |", GH.concat(supports, " "));
 	}
 }

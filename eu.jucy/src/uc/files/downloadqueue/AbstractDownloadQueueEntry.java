@@ -62,8 +62,6 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	protected final List<IFileTransfer> runningFileTransfers = 
 		new CopyOnWriteArrayList<IFileTransfer>();
 	
-		//Collections.synchronizedList(new ArrayList<AbstractFileTransfer>());
-	
 	
 	/**
 	 * users that are associated with this DownloadQueuEntry
@@ -524,13 +522,12 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		if (i != 0) {
 			return i;
 		} 
-		i =  Integer.valueOf(priority).compareTo(Integer.valueOf(arg0.priority));
+		i =  GH.compareTo(priority, arg0.priority);
 	
 		if (i != 0) {
 			return i;
 		}
-		return Long.valueOf(getDownloadedBytes()).compareTo(Long.valueOf(arg0.getDownloadedBytes()));
-		
+		return GH.compareTo(getDownloadedBytes(), arg0.getDownloadedBytes());
 	}
 
 	public TransferType getType() {

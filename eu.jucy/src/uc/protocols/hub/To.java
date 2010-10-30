@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 import uc.IUser;
-import uc.User;
 import uc.protocols.DCProtocol;
+import uc.user.User;
 
 /**
  * 

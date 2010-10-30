@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="build">
+
+    <target name="clean">
+        <delete dir="buildannot"/>
+        <delete file="annotjar/argsannot.jar"/>
+    </target>
+
+    <target name="build" depends="clean">
+    
+        <mkdir dir="buildannot/classes"/>
+        <javac srcdir="src/annotations" destdir="buildannot/classes"/>
+        <copy  file="annotjar/javax.annotation.processing.Processor" todir="buildannot/classes/META-INF/services"/>
+        <mkdir dir="buildannot/jar"/>
+        <jar destfile="buildannot/jar/argsannot.jar" basedir="buildannot/classes">
+            <manifest>
+            </manifest>
+        </jar>
+        <move file="buildannot/jar/argsannot.jar" todir="annotjar"/>
+        <delete dir="buildannot"/>
+    </target>
+
+
+</project>

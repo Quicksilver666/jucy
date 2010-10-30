@@ -94,6 +94,9 @@ import uc.files.transfer.SlotManager;
 import uc.protocols.ConnectionState;
 
 import uc.protocols.hub.Hub;
+import uc.user.Population;
+import uc.user.StoredPM;
+import uc.user.User;
 
 
 
@@ -104,24 +107,24 @@ import uc.protocols.hub.Hub;
  *  adc://test.flexhub.org:8000
  *  test zlib
  *  
- * 
- * The dn unescaping seems to not handle the %xx form (like %20 = space). 
- * Again, I don't know if this is expected. Since other clients appear to 
- * get the filename from the TTH search results, unescaping may not actually matter in those clients. 
+ *  
+
  * 
  * 
  * JXTA possibly ... as cooperation tool for ops..? or better via pm..
  * JXTA for cooperation of ops between different hubs viable.. not for normal work
  * 
  * 
- * TODO just warning the way it is without explanation for bad KP is not good...
  * 
+ * TODO just warning the way it is without explanation for bad KP is not good...
+ * TODO fix fontsize issue on MACOsX!
  * 
  * 
  * TODO think about option to place unfinished downloads next into target folder so no moving of files occur
  * after finishing the download..
  * 
  * TODO (discfree),total uptime .. total download..
+ * TODO stats counter online time, total up+downloaded, average speed up/down
  * 
  * 
  * TODO maybe load file lists to db? and not keep them in ram...?
@@ -140,6 +143,8 @@ import uc.protocols.hub.Hub;
  * TODO animated smileys
  *  
  *  
+ *  
+
  *  TODO upload/download logs to db .. not keeping in ram..
  * TODO
  * 1) It would be helpful if a users ip was in the finished uploads list, next to the nick field (or as an optional field that can be added/removed.) 
@@ -161,19 +166,16 @@ import uc.protocols.hub.Hub;
  * 
  * TODO no gui option ..possibly simple commandline steering..
  * 
- *  TODO implement transfer of uncompressed filelists..
+ * TODO implement transfer of uncompressed filelists..
  *  
-
-3. when you stuck mouse pointer on jucy icon in systray appears notification like "jucy v. 0.81... etc"
- (win). it'll be better to give more useful information here. for example current upload/download 
- speed. (mac os version must have colored UP/DW digits on dock icon (i extremely love this feature 
- in transmission)))
  *  
  * 
  * 
  * TODO potentially Empty interleaves provided bug might show itself when file is already present on disc?
  * 
 
+ TODO theoretical optimization of segment size by using Golden ration  instead of cutting in half!
+ 
  *
  * TODO ... new special user category for tons of settings..
  * may be create not one special user category but rather many categories... make FavUsers one such category..
@@ -230,7 +232,7 @@ import uc.protocols.hub.Hub;
  */
 public final class DCClient {
  
-	public  static final Logger logger = LoggerFactory.make();
+	public static final Logger logger = LoggerFactory.make();
 	
 	private static Initializer init = new Initializer();
 	

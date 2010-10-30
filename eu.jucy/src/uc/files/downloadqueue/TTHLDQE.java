@@ -35,8 +35,8 @@ public class TTHLDQE extends AbstractFileDQE {
 
 	private volatile boolean finished = false;
 	
-	TTHLDQE(DownloadQueue dq,IDownloadableFile file, File target,Date added) {
-		super(dq,TransferType.TTHL,target, file,255,added);
+	TTHLDQE(DownloadQueue dq,IDownloadableFile file,int priority, File target,Date added) {
+		super(dq,TransferType.TTHL,target, file,priority,added);
 	}
 
 	@Override

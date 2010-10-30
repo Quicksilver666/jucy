@@ -17,9 +17,6 @@ public class Lock extends AbstractNMDCHubProtocolCommand {
 	
 
 	
-	public Lock() {
-	}
-	
 	@Override
 	public void handle(Hub hub,String command) throws IOException {
 		logger.debug("Lock received: "+command);
@@ -44,7 +41,7 @@ public class Lock extends AbstractNMDCHubProtocolCommand {
 		byte[] send = GH.concatenate(key,validateNick.getBytes(hub.getCharset().name()));
 		
 		if (command.contains("EXTENDEDPROTOCOL")) {
-			send = GH.concatenate(Supports.HUBSUPPORTS.getBytes(hub.getCharset().name()),send);
+			send = GH.concatenate(Supports.getSupports(hub).getBytes(hub.getCharset().name()),send);
 			
 	//		hub.sendUnmodifiedRaw(GH.concatenate(
 	//				Supports.HUBSUPPORTS.getBytes(hub.getCharset().name()),

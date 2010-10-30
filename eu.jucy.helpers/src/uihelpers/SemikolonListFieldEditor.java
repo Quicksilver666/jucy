@@ -21,7 +21,7 @@ public class SemikolonListFieldEditor extends ListEditor {
 	
 	@Override
 	protected String createList(String[] items) {
-		return GH.concat(Arrays.asList(items), ";", "");
+		return GH.concat(Arrays.asList(items), ";");
 	}
 
 	@Override

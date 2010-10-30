@@ -23,6 +23,9 @@ public class RCM extends AbstractADCHubCommand {
 
 
 	public void handle(Hub hub,String command) throws ProtocolException, IOException {
+		if (hub.getFavHub().isChatOnly()) {
+			return;
+		}
 		//DSTA for bad RCM with unsupported protocol
 		// otherwise RCM ..
 		IUser sender =  getOther(hub);

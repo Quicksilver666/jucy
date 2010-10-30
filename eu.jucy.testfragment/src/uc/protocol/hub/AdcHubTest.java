@@ -56,7 +56,6 @@ import uc.protocols.IConnection;
 import uc.protocols.hub.FeedType;
 import uc.protocols.hub.Hub;
 import uc.protocols.hub.PrivateMessage;
-import uc.protocols.hub.SUP;
 import uc.protocols.hub.Hub.ConnectionInjector;
 
 public class AdcHubTest {
@@ -174,7 +173,7 @@ public class AdcHubTest {
 		try {
 			//on connect we Send supports
 			String hsup = thc.pollNextMessage(false);
-			assertEquals(SUP.SUPPORTS, hsup);
+			assertTrue(hsup.startsWith("HSUP "));
 			
 			/* Example messages from start...
 			ISUP ADBASE ADTIGR ADUCM0 ADPING

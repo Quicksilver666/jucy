@@ -333,6 +333,8 @@ public interface IUser  {
 	 */
 	HashValue getKeyPrint();
 	
+
+	
 	
 	public static enum Mode {
 		// A for active P for passive   5 for Socks

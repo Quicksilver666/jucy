@@ -208,8 +208,26 @@ public abstract class DownloadableColumn extends ColumnDescriptor<IDownloadable>
 
 		@Override
 		String getFolderText(IDownloadableFolder folder) {
-			return "";
+			return "Directory";
 		}
+
+		@Override
+		public Comparator<IDownloadable> getComparator() {
+			return new Comparator<IDownloadable>() {
+
+				@Override
+				public int compare(IDownloadable o1, IDownloadable o2) {
+					int i = getText(o1).compareTo(getText(o2));
+					if (i == 0) {
+						i = o1.getName().compareTo(o2.getName());
+					}
+					return i;
+				}
+				
+			};
+		}
+		
+		
 	}
 	
 	public static class Size extends DownloadableColumn {

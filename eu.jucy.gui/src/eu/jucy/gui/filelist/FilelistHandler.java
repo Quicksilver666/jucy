@@ -20,9 +20,9 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import uc.DCClient;
 import uc.IUser;
-import uc.Population;
 import uc.files.IDownloadable;
 import uc.files.filelist.FileList;
+import uc.user.Population;
 import uihelpers.SUIJob;
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
 

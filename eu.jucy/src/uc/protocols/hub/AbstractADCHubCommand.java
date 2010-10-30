@@ -13,9 +13,9 @@ import logger.LoggerFactory;
 import org.apache.log4j.Logger;
 
 
-import uc.User;
 import uc.protocols.AbstractADCCommand;
 import uc.protocols.IProtocolCommand;
+import uc.user.User;
 
 public abstract class AbstractADCHubCommand extends AbstractADCCommand implements IProtocolCommand<Hub> {
 

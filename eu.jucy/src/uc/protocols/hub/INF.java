@@ -17,13 +17,13 @@ import java.util.Map.Entry;
 
 import uc.FavHub;
 import uc.Identity;
-import uc.User;
 import uc.IUserChangedListener.UserChange;
 import uc.IUserChangedListener.UserChangeEvent;
 import uc.crypto.HashValue;
 import uc.protocols.ADCStatusMessage;
 import uc.protocols.ConnectionState;
 import uc.protocols.DCProtocol;
+import uc.user.User;
 
 
 public class INF extends AbstractADCHubCommand {
@@ -78,7 +78,7 @@ public class INF extends AbstractADCHubCommand {
 					return;
 				}
 			} else {
-				attribs.remove(INFField.ID); //ignore IDS of present users...
+				attribs.remove(INFField.ID); //ignore CIDs of already present users...
 			}
 			
 			for (Entry<INFField,String> attr : attribs.entrySet()) {

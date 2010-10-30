@@ -264,32 +264,59 @@ public abstract class DCProtocol extends ConnectionProtocol {
 		IConfigurationElement[] configElements = reg
 				.getConfigurationElementsFor(PROTOCOL_EXTENSIONPOINT);
 
-		for (IConfigurationElement element : configElements) {
-			if (getClass().getName().equals(element.getAttribute("target"))
-					&& Boolean.valueOf(element.getAttribute("nmdc")).equals(nmdc)
-					&& Boolean.parseBoolean(element
-							.getAttribute(connect ? "active_during_login"
-									: "active_after_login"))) {
+		for (IConfigurationElement protocolExtension:configElements) {
+			if (nmdc == null || nmdc.equals(Boolean.valueOf(protocolExtension.getAttribute("nmdc")))) {
+				IConfigurationElement[] protocols = protocolExtension.getChildren("protocol");
+				for (IConfigurationElement protocol:protocols) {
+					if (getClass().getName().equals(protocol.getAttribute("target"))
+							&& Boolean.parseBoolean(protocol.getAttribute("active_from_start")) == connect) {
 
-				IConfigurationElement[] commands = element
+						IConfigurationElement[] commands = protocol
 						.getChildren("command");
-				for (IConfigurationElement command : commands) {
+						for (IConfigurationElement command : commands) {
 
-					try {
-						@SuppressWarnings("unchecked")
-						IProtocolCommand<? extends ConnectionProtocol> prot = 
-							(IProtocolCommand<? extends ConnectionProtocol>) command
-								.createExecutableExtension("commandClass");
+							try {
+								@SuppressWarnings("unchecked")
+								IProtocolCommand<? extends ConnectionProtocol> prot = 
+									(IProtocolCommand<? extends ConnectionProtocol>) command
+									.createExecutableExtension("commandClass");
 
-						addCommand(prot);
-					} catch (CoreException e) {
-						logger.error(e, e);
+								addCommand(prot);
+							} catch (CoreException e) {
+								logger.error(e, e);
+							}
+
+						}
+
 					}
-
 				}
 
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 * @param hub - if true hub supports are loaded.. otherwise inf extension
+	 * 
+	 * @return all protocols contributed..
+	 */
+	public List<String> getSupports(boolean hub) {
+		List<String> supports = new ArrayList<String>();
+		IExtensionRegistry reg = Platform.getExtensionRegistry();
+
+		IConfigurationElement[] configElements = reg
+				.getConfigurationElementsFor(PROTOCOL_EXTENSIONPOINT);
+
+		for (IConfigurationElement protocolExtension:configElements) {
+			if (nmdc.equals(Boolean.valueOf(protocolExtension.getAttribute("nmdc")))) {
+				String ext = protocolExtension.getAttribute(hub?"hub_support":"inf_support");
+				if (ext != null) {
+					supports.add(ext);
+				}
+			}
+		}
+		return supports;
 	}
 	
 	

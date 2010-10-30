@@ -11,7 +11,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import uc.FavHub;
-import uc.User;
+import uc.user.User;
 
 
 /**
