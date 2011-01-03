@@ -332,7 +332,7 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 		comptable.setLayout(new FillLayout());
 		
 		
-		hubsToSearch = new Table(comptable, SWT.BORDER | SWT.CHECK);
+		hubsToSearch = new Table(comptable, SWT.V_SCROLL | SWT.BORDER | SWT.CHECK);
 		TableColumn tc = new TableColumn(hubsToSearch,SWT.NONE);
 
 		Map<FavHub,Hub> hubs = ApplicationWorkbenchWindowAdvisor.get().getHubs();
@@ -413,7 +413,7 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 		
 	
 		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		sashForm.setWeights(new int[] {130, 430 });
+		sashForm.setWeights(new int[] {150, 350 });
 
 		final Composite composite = new Composite(parent, SWT.BORDER);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));

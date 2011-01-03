@@ -3,14 +3,18 @@ package uc.files;
 
 
 
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 
 
@@ -35,14 +39,38 @@ import uc.protocols.IProtocolCommand;
 public class MagnetLink extends AbstractDownloadableFile implements IDownloadableFile {
 
 
+	private static final Map<String,String> pattern = new HashMap<String,String>();
 	
-	public static final String MagnetURI = "magnet:\\?xt\\=urn:tree:tiger:("+TigerHashValue.TTHREGEX+")" +
-	"&xl\\=("+IProtocolCommand.FILESIZE +")"
-	+"&dn\\=("+IProtocolCommand.TEXT_NONEWLINE_NOSPACE+")";
+	public static String KEYWORD_TOPIC = "kt";
+	
+	private static final String TEXT = "(?:[^\\x20\\x0C\\x0A&]*)";
+	
+	static {
+		pattern.put("xt", "urn:tree:tiger:("+TigerHashValue.TTHREGEX+")" );
+		pattern.put("xl", "("+IProtocolCommand.FILESIZE +")");
+	}
+	
+//	private static final String // XT = "(?:xt\\=urn:tree:tiger:("+TigerHashValue.TTHREGEX+"))"
+//							//	,XL = "(?:xl\\=("+IProtocolCommand.FILESIZE +"))"
+//							//	,DN =  "(?:dn\\=("+IProtocolCommand.TEXT_NONEWLINE_NOSPACE+"))"
+//							//	,KT = "(?:kt\\=("+IProtocolCommand.TEXT_NONEWLINE_NOSPACE+"))"
+//								,OTHER = "(?:(..)(?:\\.\\d+)?\\=("+IProtocolCommand.TEXT_NONEWLINE_NOSPACE+"))";
+	
+	
+	private static final String PARM = "(?:(\\w{2})(?:\\.\\d+)?\\=("+TEXT+"))"; //"(?:"+XT+"|"+XL+"|"+OTHER+")";
+	
+	
+	public static final String MagnetURI = "magnet:\\?"+PARM+"(?:&"+PARM+")*";
+	
+//			"" +
+//			"(?:xt\\=urn:tree:tiger:("+TigerHashValue.TTHREGEX+"))?" +
+//	"&?(?:xl\\=("+IProtocolCommand.FILESIZE +"))?"
+//	+"&?(?:dn\\=("+IProtocolCommand.TEXT_NONEWLINE_NOSPACE+"))?";
 	
 	
 
-	public static final Pattern MagnetPat = Pattern.compile(MagnetURI);
+	public static final Pattern MAGNET_PAT = Pattern.compile(MagnetURI);
+	
 	/**
 	 * 
 	 * @param s
@@ -50,25 +78,57 @@ public class MagnetLink extends AbstractDownloadableFile implements IDownloadabl
 	 */
 	public static MagnetLink parse(String magnetURI) {
 
-		Matcher magnet = MagnetPat.matcher(magnetURI);
+		Matcher magnet = MAGNET_PAT.matcher(magnetURI);
 		if (magnet.matches()) {
-			HashValue hash = HashValue.createHash(magnet.group(1));
-			long size = Long.parseLong(magnet.group(2));
-			String name = magnet.group(3);
-			try {
-				name = URLDecoder.decode(name, "utf-8");
-			} catch (UnsupportedEncodingException e) {
-				throw new IllegalStateException(e);
+			Map<String,String> allInfo = new HashMap<String,String>();
+			for (int i = 1; i <= magnet.groupCount(); i+=2) {
+				String key = magnet.group(i);
+				String value = magnet.group(i+1);
+				String mod = pattern.get(key);
+				if (value != null && key != null) {
+					if (mod != null) {
+						Matcher m = Pattern.compile(mod).matcher(value);
+						if (m.matches()) {
+							value = m.group(1);
+						} else {
+							value = null;
+						}
+					} else {
+						try {
+							value = URLDecoder.decode(value, "utf-8");
+						} catch (UnsupportedEncodingException e) {
+							throw new IllegalStateException(e);
+						} catch (NullPointerException npe) {
+							throw new IllegalStateException("Causedby: "+magnetURI+" "+i,npe);
+						}
+					}
+				}
+				if (value != null) {
+					allInfo.put(key, value);
+				}
 			}
-			name = name.trim();
-		
 			
-			return new MagnetLink(hash,size,name);
+			HashValue hash = null;
+			if (allInfo.containsKey("xt")) {
+				hash = HashValue.createHash(allInfo.get("xt"));
+			}
+			long size = -1;
+			if (allInfo.containsKey("xl")) {
+				size = Long.parseLong(allInfo.get("xl"));
+			}
+			String name = allInfo.get("dn");
+	
+			//boolean complete = hash != null && size != -1 && name != null;
+
+		
+			return new MagnetLink(magnetURI,hash,size,name,allInfo);
 		}
 
 		return null;
 	}
+	private final String fullString;
 	
+	private final Map<String,String> other = new HashMap<String,String>();
 	private final HashValue hash;
 	private final long filesize;
 	private final String filename;
@@ -76,19 +136,26 @@ public class MagnetLink extends AbstractDownloadableFile implements IDownloadabl
 	
 	
 	
+
+
 	public MagnetLink(IDownloadableFile idf) {
-		this(idf.getTTHRoot(),idf.getSize(),idf.getName());
+		this(null,idf.getTTHRoot(),idf.getSize(),idf.getName(),Collections.<String,String>emptyMap());
 	}
 	
-	public MagnetLink(HashValue hash, long filesize, String filename) {
+	public MagnetLink(String fullString,HashValue hash, long filesize, String filename,Map<String,String> allInfo) {
 		super();
+		this.fullString = fullString;
 		this.hash = hash;
 		this.filesize = filesize;
 		this.filename = filename;
+		other.putAll(allInfo);
 	}
 	
 	
 	public String toString() {
+		if (fullString != null) {
+			return fullString;
+		}
 		try {
 			return String.format("magnet:?xt=urn:tree:%s:%s&xl=%d&dn=%s", 
 					hash.magnetString(),hash,filesize,URLEncoder.encode(filename, "utf-8"));
@@ -103,6 +170,10 @@ public class MagnetLink extends AbstractDownloadableFile implements IDownloadabl
 		AbstractDownloadQueueEntry adqe = super.download(target);
 		DCClient.get().search( new FileSearch(hash)); //always search for alternatives..
 		return adqe;
+	}
+	
+	public boolean isComplete() {
+		return hash != null && filesize != -1 && filename != null;
 	}
 	
 	
@@ -133,6 +204,18 @@ public class MagnetLink extends AbstractDownloadableFile implements IDownloadabl
 		return Collections.emptyList();
 	}
 
+	public String getName() {
+		if (filename == null) {
+			return null;
+		} else {
+			return super.getName();
+		}
+	}
+	
+	public String get(String parm) {
+		return other.get(parm);
+	}
+	
 	@Override
 	public int nrOfUsers() {
 		return 0;

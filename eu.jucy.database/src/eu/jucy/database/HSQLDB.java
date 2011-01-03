@@ -180,16 +180,17 @@ public class HSQLDB implements IDatabase {
 		return allok;
 	}
 
-//	private void ensureConnectionIsOpen() throws SQLException {
-//		if (c == null || c.isClosed()) {
-//			try {
-//				connect();
-//			} catch (IOException ioe) {
-//				logger.warn(ioe, ioe);
-//				throw new SQLException();
-//			}
-//		}
-//	}
+	private void ensureConnectionIsOpen() throws SQLException {
+		
+		if (c == null || c.isClosed()) {
+			try {
+				connect();
+			} catch (IOException ioe) {
+				logger.warn(ioe, ioe);
+				throw new SQLException();
+			}
+		}
+	}
 
 	/**
 	 * test if we have to create the tables.. or if they already exist
@@ -421,7 +422,7 @@ public class HSQLDB implements IDatabase {
 		if (hf.getPath().exists()) {
 			writeLock.lock();
 			try {
-			//	ensureConnectionIsOpen();
+				ensureConnectionIsOpen();
 
 				addOrUpdateInterleave(hf.getTTHRoot(), inter); // first add
 																// interleaves..
@@ -506,6 +507,7 @@ public class HSQLDB implements IDatabase {
 		if (!ignoreUserUpdates) {
 			writeLock.lock();
 			try {
+				ensureConnectionIsOpen();
 				if (usr.shouldBeStored()) {
 					logger.debug("adding user " + usr.getNick() + " "
 							+ usr.getAutograntSlot() + " " + usr.isFavUser());
@@ -565,6 +567,7 @@ public class HSQLDB implements IDatabase {
 		HashValue userid = usr.getUserid();
 		writeLock.lock();
 		try {
+			ensureConnectionIsOpen();
 			logger.debug("1added user: " + usr.getNick() + " to DQE: " + tth);
 			// getNrOfEntrysInUserToDQETable();
 
@@ -697,7 +700,7 @@ public class HSQLDB implements IDatabase {
 		getNrOfEntrysInUserToDQETable();
 		writeLock.lock();
 		try {
-
+			ensureConnectionIsOpen();
 			PreparedStatement deleteUserFromDQE = c
 					.prepareStatement("DELETE FROM dqeToUser WHERE tthroot = ? AND userid = ? ");
 			deleteUserFromDQE.setString(1, dqe.getTTHRoot().toString());
@@ -733,6 +736,7 @@ public class HSQLDB implements IDatabase {
 	public void addRestoreInfo(HashValue hash,BitSet restoreInfo) {
 		writeLock.lock();
 		try {
+			ensureConnectionIsOpen();
 			PreparedStatement addRestoreInfo = c
 			.prepareStatement("INSERT INTO dqrestoreinfo (tthroot, restoreInfo)"
 					+ " VALUES (?,?) ");
@@ -757,7 +761,7 @@ public class HSQLDB implements IDatabase {
 
 		writeLock.lock();
 		try {
-
+			ensureConnectionIsOpen();
 			addOrUpdateDQE(dqe.getTTHRoot(), dqe.getAdded(), dqe.getTarget(),
 					dqe.getPriority(), dqe.getSize(), add);
 
@@ -779,7 +783,7 @@ public class HSQLDB implements IDatabase {
 		logger.debug("deleting dqe: " + dqe.getName());
 		writeLock.lock();
 		try {
-
+			ensureConnectionIsOpen();
 			PreparedStatement deleteDQE = c
 					.prepareStatement("DELETE FROM downloadqueue WHERE tthroot = ? ");
 

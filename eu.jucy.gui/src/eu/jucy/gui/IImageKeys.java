@@ -61,8 +61,8 @@ public class IImageKeys {
 								DECRYPTED			=	"icons/decrypted.16.gif",
 								UPLOAD_ICON			=	"icons/upload.gif" ,
 								DOWNLOAD_ICON		=	"icons/download.gif" ,
-								SCREENSHOT_ICON		=	"icons/camera.16.gif"
-			
+								SCREENSHOT_ICON		=	"icons/camera.16.gif",
+								SEARCH_16			=	"icons/search.16.gif"
 									;
 								
 								

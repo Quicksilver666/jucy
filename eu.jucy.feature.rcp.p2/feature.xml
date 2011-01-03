@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.rcp.p2"
       label="P2"
-      version="3.6.0"
+      version="3.6.1"
       provider-name="Quicksilver">
 
    <description>
@@ -25,14 +25,14 @@
          id="org.eclipse.equinox.p2.director"
          download-size="0"
          install-size="0"
-         version="2.0.0.v20100525"
+         version="2.0.2.R36x_v20100823"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.p2.core"
          download-size="0"
          install-size="0"
-         version="2.0.0.v20100510"
+         version="2.0.2.R36x_v20100804"
          unpack="false"/>
 
    <plugin
@@ -67,14 +67,14 @@
          id="org.eclipse.equinox.p2.artifact.repository"
          download-size="0"
          install-size="0"
-         version="1.1.0.v20100513"
+         version="1.1.1.R36x_v20100901"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.p2.touchpoint.eclipse"
          download-size="0"
          install-size="0"
-         version="2.0.0.v20100513"
+         version="2.0.2.R36x_v20100823"
          unpack="false"/>
 
    <plugin
@@ -109,7 +109,7 @@
          id="org.eclipse.equinox.p2.updatechecker"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20100503a"
+         version="1.1.101.R36x_v20100823"
          unpack="false"/>
 
    <plugin
@@ -123,7 +123,7 @@
          id="org.eclipse.equinox.p2.directorywatcher"
          download-size="0"
          install-size="0"
-         version="1.0.200.v20100601"
+         version="1.0.202.R36x_v20100727"
          unpack="false"/>
 
    <plugin
@@ -144,7 +144,7 @@
          id="org.eclipse.equinox.p2.updatesite"
          download-size="0"
          install-size="0"
-         version="1.0.200.v20100503"
+         version="1.0.201.R36x_v20100823"
          unpack="false"/>
 
    <plugin
@@ -186,28 +186,28 @@
          id="org.eclipse.equinox.p2.director.app"
          download-size="0"
          install-size="0"
-         version="1.0.200.v20100527"
+         version="1.0.201.R36x_v20100823"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.p2.publisher"
          download-size="0"
          install-size="0"
-         version="1.1.0.v20100513"
+         version="1.1.2.v20100824-2220"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.p2.repository.tools"
          download-size="0"
          install-size="0"
-         version="2.0.0.v20100520"
+         version="2.0.1.R36x_v20100823"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.p2.repository"
          download-size="0"
          install-size="0"
-         version="2.0.0.v20100519"
+         version="2.0.1.R36x_v20100823"
          unpack="false"/>
 
    <plugin
@@ -315,7 +315,7 @@
          id="org.eclipse.equinox.ds"
          download-size="0"
          install-size="0"
-         version="1.2.0.v20100507"
+         version="1.2.1.R36x_v20100803"
          unpack="false"/>
 
    <plugin

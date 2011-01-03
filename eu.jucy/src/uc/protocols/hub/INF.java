@@ -42,7 +42,7 @@ public class INF extends AbstractADCHubCommand {
 		logger.debug("Received inf: "+command);
 		String sids = getOtherSID(); // matcher.group(1);
 		Map<INFField,String> attribs = INFMap(matcher.group(HeaderCapt+1)) ;
-		if (!GH.isEmpty(sids)) { 
+		if (!GH.isEmpty(sids)) {
 			logger.debug("Received inf2 " );
 			int sid = SIDToInt(sids);
 			boolean self = hub.getSelf().getSid() == sid ;
@@ -130,10 +130,18 @@ public class INF extends AbstractADCHubCommand {
 			
 
 			Identity id = hub.getIdentity();
-			if (id.isActive()) {
-				fields.add(INFField.U4);
-			}  else {
-				checkAdd(next,last,INFField.U4,"");
+			if (hub.isIPv4()) {
+				if (id.isActive()) {
+					fields.add(INFField.U4);
+				}  else {
+					checkAdd(next,last,INFField.U4,"");
+				}
+			} else if (hub.isIPv6()) {
+				if (id.isIPv6Used()) {
+					fields.add(INFField.U6);
+				} else {
+					checkAdd(next,last,INFField.U6,"");
+				}
 			}
 			
 			if (self.getKeyPrint() != null) {
@@ -141,20 +149,14 @@ public class INF extends AbstractADCHubCommand {
 			} else {
 				checkAdd(next,last,INFField.KP,"");
 			}
-			if (id.isIPv6Used()) {
-				fields.add(INFField.I6);
-				fields.add(INFField.U6);
-			} else {
-				checkAdd(next,last,INFField.I6,"");
-				checkAdd(next,last,INFField.U6,"");
-			}
+
 
 			for (INFField f: fields ) { //  currently
 				String prop = f.getProperty(self);
 				checkAdd(next,last,f,prop);
 			}
 			
-			if (forcenew && id.isActive() && id.isIPv4Used()) { //on first connect we also add I4 so we get our IP set from hub if active
+			if (forcenew && id.isActive() && id.isIPv4Used() && hub.isIPv4()) { //on first connect we also add I4 so we get our IP set from hub if active
 				String address;
 				if (id.getConnectionDeterminator().isExternalIPSetByHand()) {
 					address = id.getConnectionDeterminator().getPublicIP().getHostAddress();
@@ -162,7 +164,9 @@ public class INF extends AbstractADCHubCommand {
 					address =  "0.0.0.0"; //:"::0";
 				}
 				next.put(INFField.I4, address );
-				
+			}
+			if (forcenew && id.isIPv6Used() && hub.isIPv6()) {
+				next.put(INFField.I6, "::");
 			}
 			
 			

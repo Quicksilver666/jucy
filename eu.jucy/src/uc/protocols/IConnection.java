@@ -55,7 +55,7 @@ public interface IConnection extends Closeable {
 
 	/**
 	 * 
-	 * @return the address to witch this Connection is bound..
+	 * @return the address to which this Connection is bound..
 	 */
 	InetSocketAddress getInetSocketAddress();
 

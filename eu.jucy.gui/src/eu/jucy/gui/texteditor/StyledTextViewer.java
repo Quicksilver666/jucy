@@ -179,14 +179,14 @@ public class StyledTextViewer {
 	    				Control c = ((Control)p.obj);
 	    	            int x = event.x; // + ObjectPoint.MARGIN;
 	    	            int y = event.y + event.ascent - style.metrics.ascent;
-	    	            if (x >= 0 && y >= 0) {
+	    	            if (x >= -10 && y >= -15) {
 	    	            	c.setLocation(x, y);
 	    	            	if (!c.isVisible()) {
 	    	            		c.setVisible(true); 
 	    	            	}
 	    	            } else {
-	    	            	c.setLocation(0, 0);
 	    	            	if (c.isVisible()) {
+	    	            		c.setLocation(-100, -100);
 	    	            		c.setVisible(false);
 	    	            	}
 	    	            }

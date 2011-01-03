@@ -41,6 +41,7 @@ public enum INFField {
 	HN,HR,HO, //Hubs  norm/Reg/Op 
 	TO, //TOKEN in  (in client client connection)
 	CT, // client type .. user , OP , Bot..
+	HI, // 1 if hidden -> now signaled by CT64
 	AW, //1=Away, 2=Extended away, not interested in hub chat (hubs may skip sending broadcast type MSG commands to clients with this flag) 
 	SU, //Supports  	 Comma-separated list of feature FOURCC's. This notifies other clients of extended capabilities of the connecting client. 
 	RF,  // URL of referrer (hub in case of redirect, web page) 
@@ -111,6 +112,8 @@ public enum INFField {
 			return ""+usr.getOpHubs();
 		case CT:
 			return ""+usr.getCt();
+		case HI:
+			return usr.testCT(IUser.CT_HIDDEN)?"1" :"";
 		case AW: //Away mode
 			return ""+usr.getAwayMode().getValue();
 		case SU:
@@ -155,6 +158,7 @@ public enum INFField {
 		case SL: return value.matches(IProtocolCommand.SHORT);
 		case AM:
 		case CT: return value.matches(IProtocolCommand.BYTE);
+		case HI: return value.matches("[01]");
 		case AS:
 		case SF: return value.matches(IProtocolCommand.INT);
 		case U4:

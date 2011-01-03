@@ -28,7 +28,7 @@ import uihelpers.ComplexListEditor.IPrefSerializer;
  */
 public class FavHub implements Comparable<FavHub> {
 	
-	public static final String ADDRESS = "(?:(dchubs?|nmdcs?|adcs?)://)?([^/:\\s]+):?("+
+	public static final String ADDRESS = "(?:(dchubs?|nmdcs?|adcs?)://)?([^/\\s]+?):?("+
 					IProtocolCommand.PORT+")?/?(?:\\?kp=SHA256/(.+))?";
 	
 	public static final Pattern ADDRESSP = Pattern.compile(ADDRESS);

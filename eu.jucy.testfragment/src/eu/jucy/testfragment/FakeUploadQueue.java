@@ -4,6 +4,7 @@ import helpers.StatusObject;
 import helpers.Observable.IObserver;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.Date;
 import java.util.List;
 
@@ -51,12 +52,6 @@ public class FakeUploadQueue implements IUploadQueue {
 		throw new IllegalStateException("Method in fake FakeUploadQueue called");
 	}
 
-	public void transferFinished(File file, IUser usr,
-			String nameOfTransferred, HashValue hashOfTransferred,
-			long bytesServedToUser, Date startTime, long timeNeeded) {
-		throw new IllegalStateException("Method in fake FakeUploadQueue called");
-
-	}
 
 	public void userRequestedFile(IUser usr, String nameOfTransferred,
 			HashValue hash, boolean gotASlot) {
@@ -71,6 +66,15 @@ public class FakeUploadQueue implements IUploadQueue {
 
 	public void deleteObserver(IObserver<StatusObject> o) {
 		throw new IllegalStateException("Method in fake FakeUploadQueue called");
+	}
+
+	@Override
+	public void transferFinished(File file, IUser usr,
+			String nameOfTransferred, HashValue hashOfTransferred,
+			long bytesServedToUser, Date startTime, long timeNeeded,
+			InetAddress targetIP) {
+		throw new IllegalStateException("Method in fake FakeUploadQueue called");
+		
 	}
 
 }

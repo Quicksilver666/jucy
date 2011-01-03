@@ -57,8 +57,7 @@ public class User implements IUser , IHasUser {
 	public static final int FLAG_ENC = 0x10;  //flagbit for encryption in NMDC
 	public static final int LASTSEEN_UNKNOWN = 0;
 	
-	public static final byte ct_BOT = 1, ct_RGISTERED = 2, ct_OPERATOR = 4, 
-	ct_SUPERUSER = 8, ct_OWNER = 16,ct_HUB = 32;
+
 	
 
 	private final DCClient dcc;
@@ -273,6 +272,13 @@ public class User implements IUser , IHasUser {
 				break;
 			case CT:
 				ct = Byte.parseByte(val);
+				break;
+			case HI:
+				if ("1".equals(val)) {
+					ct = (byte) (ct | CT_HIDDEN);
+				} else {
+					ct = (byte) (ct & ~CT_HIDDEN);
+				}
 				break;
 			case AW: //Away mode
 				awayMode = AwayMode.parse(val);
@@ -783,7 +789,7 @@ public class User implements IUser , IHasUser {
 	 * @return the op
 	 */
 	public boolean isOp() {
-		return ct >= 4; 
+		return ct % 64  >= 4; 
 	}
 	
 	
@@ -791,10 +797,16 @@ public class User implements IUser , IHasUser {
 	@Override
 	public boolean isBot() {
 		if (isADCUser()) {
-			return (ct & ct_BOT ) != 0;
+			return testCT(CT_BOT);
 		} else {
 			return isOp() && getShared() == 0 && getSlots() == 0;
 		}
+	}
+
+	
+	@Override
+	public boolean testCT(byte test) {
+		return (ct & test) != 0 ;
 	}
 
 
@@ -803,7 +815,7 @@ public class User implements IUser , IHasUser {
 	 */
 	public final void setOp(boolean op) {
 		if (op) {
-			setProperty(INFField.CT, ""+ct_OPERATOR);
+			setProperty(INFField.CT, ""+CT_OPERATOR);
 		} else {
 			setProperty(INFField.CT,"");
 		}
@@ -1261,6 +1273,8 @@ public class User implements IUser , IHasUser {
 	public byte getCt() {
 		return ct;
 	}
+	
+
 
 	public AwayMode getAwayMode() {
 		return awayMode;
@@ -1279,13 +1293,15 @@ public class User implements IUser , IHasUser {
 		return (testFor & flag) != 0;
 	}
 	
+	public boolean isHidden() {
+		return testFlag(CT_HIDDEN);
+	}
+	
 	public String getSupports() {
 		return supports;
 	}
 
-/*	public void setSupports(String supports) {
-		this.supports = supports;
-	} */
+
 	
 	/**
 	 * checks whether the user has support for encryption

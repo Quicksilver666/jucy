@@ -1,6 +1,7 @@
 package eu.jucy.gui.sounds;
 
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
@@ -69,7 +70,7 @@ public class AePlayWave implements Runnable {
 		AudioInputStream audioInputStream = null;
 		SourceDataLine auline = null;
 		try {
-			audioInputStream = AudioSystem.getAudioInputStream(url.openStream());
+			audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(url.openStream()));
 
 
 			AudioFormat format = audioInputStream.getFormat();

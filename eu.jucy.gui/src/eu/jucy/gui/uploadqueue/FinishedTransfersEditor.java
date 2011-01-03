@@ -39,6 +39,7 @@ import eu.jucy.gui.itemhandler.CommandDoubleClickListener;
 import eu.jucy.gui.itemhandler.OpenDirectoryHandler;
 import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.DurationCol;
 import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.FinishedCol;
+import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.IPCol;
 import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.NameTransfCol;
 import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.PathTransfCol;
 import eu.jucy.gui.uploadqueue.FinishedTransfersColumn.SizeCol;
@@ -49,9 +50,7 @@ public class FinishedTransfersEditor extends UCEditor implements IObserver<Statu
 
 	public static final String ID = "eu.jucy.gui.FinishedUploads";
 	public static final String ID2 = "eu.jucy.gui.FinishedDownloads";
-	public static final String PopupID = "eu.jucy.gui.FinishedTransfers";
-
-	
+	public static final String POPUP_ID = "eu.jucy.gui.FinishedTransfers";
 
 	
 	private Label averageSpeed;
@@ -79,15 +78,14 @@ public class FinishedTransfersEditor extends UCEditor implements IObserver<Statu
 		table = tableViewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 4, 1));
-		
-		
 	
 		tva = new TableViewerAdministrator<TransferRecord>(tableViewer,
-				Arrays.asList(NameUserCol.<TransferRecord>get() ,new NameTransfCol(),new SizeCol(),
-						new DurationCol(), new SpeedCol(),new StartedCol(),new FinishedCol(),new PathTransfCol()),
+				Arrays.asList(NameUserCol.<TransferRecord>get()
+				,new NameTransfCol(),new SizeCol(),new DurationCol()
+				, new SpeedCol(),new IPCol(),new StartedCol()
+				,new FinishedCol(),new PathTransfCol()),
 				GUIPI.finishedTransfersTable,5);
 		tva.apply();
-		//tableViewer.setComparator(new StartedCol().getComparator(false));
 
 		final Label label = new Label(arg0, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
@@ -95,49 +93,22 @@ public class FinishedTransfersEditor extends UCEditor implements IObserver<Statu
 		totalElements = new Label(arg0, SWT.BORDER);
 		totalElements.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
 	
-
 		totalSize = new Label(arg0, SWT.BORDER);
 		totalSize.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
-	
 
 		averageSpeed = new Label(arg0, SWT.BORDER);
 		averageSpeed.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
-	
 		
 		tableViewer.setContentProvider(new FinishedTransfersProvider());
 		transfers.addObserver(this);
 		tableViewer.setInput(transfers);
 		updateLabels();
-		//makeActions();
 		getSite().setSelectionProvider(tableViewer);
-		createContextPopup(PopupID, tableViewer);
+		createContextPopup(POPUP_ID, tableViewer);
 		tableViewer.addDoubleClickListener(new CommandDoubleClickListener(OpenDirectoryHandler.ID));
 		
 		setControlsForFontAndColour(tableViewer.getTable());
 	}
-	
-//	private void makeActions() {
-//		final IWorkbenchWindow window = getSite().getWorkbenchWindow();
-//		PathMenuManager menuManager = new PathMenuManager();
-//		actions.addAll(UserActions.createUserActions(tableViewer, window, menuManager,false));
-//		
-//		Menu menu = menuManager.createContextMenu(tableViewer.getControl());
-//    	tableViewer.getControl().setMenu(menu);
-//    	
-//    	
-//    	
-//    	final OpenDirectoryAction oda = new OpenDirectoryAction(tableViewer);
-//    	actions.add(oda);
-//    	tableViewer.addDoubleClickListener(new IDoubleClickListener() {
-//			public void doubleClick(DoubleClickEvent event) {
-//				if (oda.isEnabled()) {
-//					oda.run();
-//				}
-//			}
-//    		
-//    	});
-//	}
-	
 	
 	
 	@Override

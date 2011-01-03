@@ -1,5 +1,6 @@
 package eu.jucy.gui.texteditor;
 
+import helpers.GH;
 import helpers.SizeEnum;
 
 import java.io.File;
@@ -56,6 +57,7 @@ import eu.jucy.gui.GuiHelpers;
 import eu.jucy.gui.IImageKeys;
 import eu.jucy.gui.Lang;
 import eu.jucy.gui.favhub.FavHubEditor;
+import eu.jucy.gui.search.OpenSearchEditorHandler;
 import eu.jucy.gui.texteditor.StyledTextViewer.ControlReplacement;
 import eu.jucy.gui.texteditor.StyledTextViewer.Message;
 import eu.jucy.gui.texteditor.StyledTextViewer.TextReplacement;
@@ -78,7 +80,8 @@ public class URLTextModificator implements ITextModificator {
 
 //	private static final char URL_CHAR = '\uFFFC';
 	
-	private static Image IMAGE_URL_ICON;
+	private static Image IMAGE_URL_ICON,IMAGE_SEARCH_ICON;
+	
 	
 	private static char[] 	OPENING_DELIMTER = new char[]{'\"','<','(','{','[','\''},
 							CLOSING_DELIMITER = new char[]{'\"','>',')','}',']','\''};
@@ -89,6 +92,14 @@ public class URLTextModificator implements ITextModificator {
 					Application.PLUGIN_ID, IImageKeys.VIEWIMAGEICON).createImage();
 		}
 		return IMAGE_URL_ICON;
+	}
+	
+	private static Image getImageSearchIcon() {
+		if (IMAGE_SEARCH_ICON == null) {
+			IMAGE_SEARCH_ICON = AbstractUIPlugin.imageDescriptorFromPlugin(
+					Application.PLUGIN_ID, IImageKeys.SEARCH_16).createImage();
+		}
+		return IMAGE_SEARCH_ICON;
 	}
 	
 	
@@ -183,7 +194,7 @@ public class URLTextModificator implements ITextModificator {
 					link.setBackground( GUIPI.getColor(GUIPI.urlModCol));
 					link.setFont(GUIPI.getFont(GUIPI.urlModFont));
 					link.setData(this.replacedText);
-					link.setToolTipText(this.replacedText);
+					link.setToolTipText(GuiHelpers.escapeMnemonics(this.replacedText));
 					link.setText("<a>"+linkText+"</a>");
 					ascent[0]= 0.8f;
 					
@@ -451,10 +462,24 @@ public class URLTextModificator implements ITextModificator {
 
 		@Override
 		public void execute(String matched) {
-			MagnetLink magnetLink; 
-			if ((magnetLink = MagnetLink.parse(matched)) != null) {	
-				magnetLink.download();
-				logger.log(GuiAppender.GUI,String.format(Lang.AddedFileViaMagnet,magnetLink.getName()));
+			MagnetLink magnetLink = MagnetLink.parse(matched);
+			if (magnetLink != null) {
+				if (magnetLink.isComplete()) {	
+					magnetLink.download();
+					logger.log(GuiAppender.GUI,String.format(Lang.AddedFileViaMagnet,magnetLink.getName()));
+				} else {
+					String search = null;
+					if (magnetLink.getTTHRoot() != null) {
+						search = magnetLink.getTTHRoot().toString();
+					} else if (magnetLink.get(MagnetLink.KEYWORD_TOPIC) != null) {
+						search = magnetLink.get(MagnetLink.KEYWORD_TOPIC);
+					}
+					if (!GH.isNullOrEmpty(search)) {
+						OpenSearchEditorHandler.openSearchEditor(
+								PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+								, search);
+					}
+				}
 			}
 		}
 
@@ -463,35 +488,39 @@ public class URLTextModificator implements ITextModificator {
 		@Override
 		public void executeImageClick(final String uri,
 				final ObjectPoint<Control> point,final URLTextModificator mod) {
-			MagnetLink magnetLink; 
+			MagnetLink magnetLink = MagnetLink.parse(uri); 
 			
-			if ((magnetLink = MagnetLink.parse(uri)) != null) {	
-				point.obj.setEnabled(false);
-				DCClient dcc = ApplicationWorkbenchWindowAdvisor.get();
-				File target = dcc.getFilelist().getFile(magnetLink.getTTHRoot());
-				if (target != null && target.isFile()) {
-					openFile(target,uri,point,mod);
-				} else {
-					target = new File(PI.getTempPath(),magnetLink.getName());
-					if (target.isFile()) {
-						 openFile(target,uri,point,mod);
+			if (magnetLink != null) {
+				if (magnetLink.isComplete()) {
+					point.obj.setEnabled(false);
+					DCClient dcc = ApplicationWorkbenchWindowAdvisor.get();
+					File target = dcc.getFilelist().getFile(magnetLink.getTTHRoot());
+					if (target != null && target.isFile()) {
+						openFile(target,uri,point,mod);
 					} else {
-						AbstractDownloadQueueEntry adqe = magnetLink.download(target);
-						if (adqe != null) {
-							adqe.addDoAfterDownload(new AbstractDownloadFinished() {
-								public void finishedDownload(final File f) {
-									new SUIJob() {
-										@Override
-										public void run() {
-											openFile(f,uri,point,mod);
-											f.deleteOnExit();
-										}
-									}.schedule();
-								}
-							});
-							logger.log(GuiAppender.GUI,String.format(Lang.AddedFileViaMagnet,magnetLink.getName()));
+						target = new File(PI.getTempPath(),magnetLink.getName());
+						if (target.isFile()) {
+							openFile(target,uri,point,mod);
+						} else {
+							AbstractDownloadQueueEntry adqe = magnetLink.download(target);
+							if (adqe != null) {
+								adqe.addDoAfterDownload(new AbstractDownloadFinished() {
+									public void finishedDownload(final File f) {
+										new SUIJob() {
+											@Override
+											public void run() {
+												openFile(f,uri,point,mod);
+												f.deleteOnExit();
+											}
+										}.schedule();
+									}
+								});
+								logger.log(GuiAppender.GUI,String.format(Lang.AddedFileViaMagnet,magnetLink.getName()));
+							}
 						}
 					}
+				} else if (magnetLink.get(MagnetLink.KEYWORD_TOPIC) != null) {
+					execute(uri);
 				}
 			}
 		}
@@ -508,14 +537,18 @@ public class URLTextModificator implements ITextModificator {
 
 		@Override
 		public Image getImageAfterURI(String uri) {
-			MagnetLink magnetLink; 
-			if ((magnetLink = MagnetLink.parse(uri)) != null) {	
-				String end = "."+magnetLink.getEnding();
-				logger.debug("found ending: "+end);
-				for (String ending: IMAGE_ENDINGS) {
-					if (end.equalsIgnoreCase(ending)) {
-						return getImageURLIcon();
+			MagnetLink magnetLink = MagnetLink.parse(uri); 
+			if (magnetLink != null) {
+				if (magnetLink.isComplete()) {	
+					String end = "."+magnetLink.getEnding();
+					logger.debug("found ending: "+end);
+					for (String ending: IMAGE_ENDINGS) {
+						if (end.equalsIgnoreCase(ending)) {
+							return getImageURLIcon();
+						}
 					}
+				} else if (magnetLink.get(MagnetLink.KEYWORD_TOPIC) != null) {
+					return getImageSearchIcon();
 				}
 			}
 			return null;
@@ -526,7 +559,13 @@ public class URLTextModificator implements ITextModificator {
 		@Override
 		public String getTextReplacement(String matched) {
 			MagnetLink ml = MagnetLink.parse(matched);
-			return String.format("%s (%s)",ml.getName(),SizeEnum.getReadableSize(ml.getSize()));
+			if (ml.isComplete()) {
+				return String.format("%s (%s)",ml.getName(),SizeEnum.getReadableSize(ml.getSize()));
+			} else if (ml.get(MagnetLink.KEYWORD_TOPIC) != null) {
+				return String.format("%s ",ml.getName() == null?ml.get(MagnetLink.KEYWORD_TOPIC):ml.getName());
+			} else {
+				return matched;
+			}
 		}
 		
 		

@@ -102,14 +102,22 @@ import uc.user.User;
 
 /** 
  * 
+ * TODO extensions  SEGA + Grouping of file extensions in SCH
+ * PFSR - Partial file sharing
+ * 
+ BLOW - Encrypting chat messages with blowfish
+
+This is protection in private hubs to encrypt messages from users until a correct password term is given to decrypt so that conversations remains private even if the hub is penetrated by unwanted users
+The idea is that a client connects to the private hub supplies a pass for the chat thats encrypted unless the pass word requierment is meet the chat remains encrypted forcing the unwanted user not to see any messages posted in the chat.
+ * 
  * https://adc.svn.sourceforge.net/svnroot/adc/trunk/ADC-EXT.txt
  * 
  *  adc://test.flexhub.org:8000
  *  test zlib
  *  
- *  
+ *  http://adc.sourceforge.net/versions/ADC-EXT-1.0.6.html#_version_1_0_6  todo SEGA extension
 
- * 
+ * TODO translater could be used for translating messages for sending too..
  * 
  * JXTA possibly ... as cooperation tool for ops..? or better via pm..
  * JXTA for cooperation of ops between different hubs viable.. not for normal work
@@ -127,28 +135,23 @@ import uc.user.User;
  * TODO stats counter online time, total up+downloaded, average speed up/down
  * 
  * 
- * TODO maybe load file lists to db? and not keep them in ram...?
  * 
  * TODO triggers for external programs / or try grow plugin
+ * 
  * 
  * TODO max upload limit per slot/User 
  *  - additional semaphore / value based on usercategory settings?
  *  - uploadlimit max = Min(limiting,slots*normlimit);
  *  
- * TODO add mechanism that write deadlock detections to file and deletes on normal close..
- * only bring up on next start..
  * 
  * TODO Option in settings to auto open desired tabs after application start (like download queue, upload queue, finished downloads, finished uploads etc.)
  * 
  * TODO animated smileys
  *  
+ * TODO CT64 = hidden -> for hiding users
  *  
  *  
-
  *  TODO upload/download logs to db .. not keeping in ram..
- * TODO
- * 1) It would be helpful if a users ip was in the finished uploads list, next to the nick field (or as an optional field that can be added/removed.) 
- * 
  * 
  * TODO identity management (adding identities i.e. a identity includes different FileList / CID / TCP/SSL-Ports / Certificate(KeyPrint) )
  *			
@@ -158,6 +161,7 @@ import uc.user.User;
  * TODO Presentation of magnet -> save as button could be added 
  *
  * TODO comments on favUsers.. 
+ * 
  * 
  * TODO CO-OP plugin  cooperative OP work .. tagging user so other ops can read it and setting timecounters 
  * for them having something done.. i.e. distributed remember me function

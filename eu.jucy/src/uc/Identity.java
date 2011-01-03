@@ -34,7 +34,7 @@ import uc.protocols.Socks;
 public abstract class Identity extends Observable<ChangedAttribute>  {
 	
 	private static final String[] IDENTITY_SETTINGS = 
-		new String[]{PI.allowIPV6,PI.allowTLS,PI.allowUPnP,PI.bindAddress,
+		new String[] {PI.allowTLS,PI.allowUPnP,PI.bindAddress,
 		PI.externalIp,PI.inPort,PI.tlsPort,PI.passive,PI.uUID,
 		
 		PI.socksProxyEnabled,PI.socksProxyHost,PI.socksProxyPassword,

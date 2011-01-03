@@ -30,7 +30,7 @@ public interface IProtocolCommand<T extends ConnectionProtocol> {
 	public static final String IPv4 	=  "(?:(?:"+BYTE+"\\.){3}"+BYTE+")";
 	public static final String TWOHEXBYTES =  "(?:[a-fA-F0-9]{0,4})";
 	public static final String IPv6		= 
-		"(?:"+TWOHEXBYTES+"(?::"+TWOHEXBYTES+"){0,5}(?(?::"+TWOHEXBYTES+"){2}|(?::"+IPv4+")))"; //simple IPv6 with embedded IPv4
+		"(?:"+TWOHEXBYTES+"(?::"+TWOHEXBYTES+"){0,5}(?:(?::"+TWOHEXBYTES+"){2}|(?::"+IPv4+")))"; //simple IPv6 with embedded IPv4
 	
 		
 	   

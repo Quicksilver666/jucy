@@ -19,7 +19,6 @@ import java.nio.channels.SocketChannel;
 
 
 import java.util.Enumeration;
-import java.util.regex.Pattern;
 
 
 
@@ -61,12 +60,12 @@ public abstract class AbstractConnection implements Closeable, IConnection {
 	}
 	
 	protected InetSocketAddress addytransformation(String addy){    //transforms an url string to ip/dns and port
-		String[] a = addy.split(Pattern.quote(":"));
-		if (a.length == 1) {
-			a = new String[]{a[0], ""+cp.defaultPort};
+		int pos = addy.lastIndexOf(':');
+		if (pos == -1) {
+			return new InetSocketAddress(addy, cp.defaultPort);
+		} else {
+			return new InetSocketAddress(addy.substring(0, pos), Integer.parseInt(addy.substring(pos+1)) ); 
 		}
-		return new InetSocketAddress(a[0], new Integer(a[1])  ); 
-		
 	}
 	
 	

@@ -7,6 +7,7 @@ import helpers.StatusObject.ChangeType;
 
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -119,7 +120,7 @@ public class UploadQueue extends Observable<StatusObject> implements IUploadQueu
 	/* (non-Javadoc)
 	 * @see uc.files.IUploadQueue#transferFinished(java.io.File, uc.IUser, java.lang.String, uc.crypto.HashValue, long, java.util.Date, long)
 	 */
-	public void transferFinished(File file,IUser usr,String nameOfTransferred,HashValue hashOfTransferred,long bytesServedToUser,Date startTime,long timeNeeded) {
+	public void transferFinished(File file,IUser usr,String nameOfTransferred,HashValue hashOfTransferred,long bytesServedToUser,Date startTime,long timeNeeded,InetAddress targetIP) {
 		UploadInfo present = null;
 		synchronized(requestedFiles) {
 			present = requestedFiles.get(usr);
@@ -146,7 +147,7 @@ public class UploadQueue extends Observable<StatusObject> implements IUploadQueu
 			}
 		}
 		if (up == null) {
-			up = new TransferRecord(file,nameOfTransferred,hashOfTransferred,bytesServedToUser,startTime,timeNeeded,usr);
+			up = new TransferRecord(file,nameOfTransferred,hashOfTransferred,bytesServedToUser,startTime,timeNeeded,targetIP,usr);
 			if (record == null) {
 				record = new UserInfo();
 				recordsPerUser.put(usr, record);
@@ -428,6 +429,11 @@ public class UploadQueue extends Observable<StatusObject> implements IUploadQueu
 
 		private volatile long timeNeeded;
 
+		private final InetAddress targetIP;
+		
+		public InetAddress getTargetIP() {
+			return targetIP;
+		}
 
 		/**
 		 * to whom we uploaded
@@ -442,12 +448,13 @@ public class UploadQueue extends Observable<StatusObject> implements IUploadQueu
 
 	
 
-		public TransferRecord(File file,String name,HashValue what, long size,Date starttime,long timeNeeded, IUser target) {
+		public TransferRecord(File file,String name,HashValue what, long size,Date starttime,long timeNeeded,InetAddress targetIP, IUser target) {
 			this.file = file;
 			this.name = name;
 			this.root = what;
 			this.size = size;
 			this.timeNeeded=timeNeeded;
+			this.targetIP = targetIP;
 			this.user = target;
 			this.starttime = new Date(starttime.getTime());
 			this.endTime = new Date(starttime.getTime()+timeNeeded);

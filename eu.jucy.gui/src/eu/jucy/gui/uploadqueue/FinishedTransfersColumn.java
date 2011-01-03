@@ -122,6 +122,19 @@ public abstract class FinishedTransfersColumn extends ColumnDescriptor<TransferR
 		}
 	}
 	
+	public static class IPCol  extends  FinishedTransfersColumn {
+
+		public IPCol() {
+			super(90, Lang.IP);
+		}
+
+		@Override
+		public String getText(TransferRecord x) {
+			return x.getTargetIP().getHostAddress();
+		}
+		
+	}
+	
 	public static class StartedCol  extends  FinishedTransfersColumn {
 
 		public StartedCol() {

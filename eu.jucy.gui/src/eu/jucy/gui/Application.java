@@ -1,16 +1,21 @@
 package eu.jucy.gui;
 
 
+import helpers.GH;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -24,6 +29,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferenceConstants;
 import org.eclipse.ui.PlatformUI;
 
+import uc.DCClient;
 import uc.PI;
 
 
@@ -63,42 +69,53 @@ public class Application implements IApplication {
 		if (!checkSanity()) {
 			return EXIT_OK; 
 		}
-		renameSettingFiles(false);
+//		renameSettingFiles(false);
 		String keyScheme = Platform.getOS().equals(Platform.OS_MACOSX)?MAC_KEY_SCHEME:DEFAULT_KEY_SCHEME;
 		PlatformUI.getPreferenceStore().setDefault(
 				IWorkbenchPreferenceConstants.KEY_CONFIGURATION_ID, keyScheme);
 
 		setSimpleOS();
-		
-		Display display = PlatformUI.createDisplay();
-		
-
-//    	display.addListener(SWT.OpenDocument, new Listener() {
-//			@Override
-//			public void handleEvent(Event event) {
-//				stored = event;
-//				
-//			}
-//    	});
-		
-		try {
-			
-			int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
-			if (returnCode == PlatformUI.RETURN_RESTART) {
-				return EXIT_RESTART;
+		List<String> args = Arrays.asList(Platform.getApplicationArgs());
+		System.out.println(GH.concat(args, ";"));
+		if (args.contains("-nogui")) {
+			DCClient dcc = new DCClient();
+			dcc.start(new NullProgressMonitor() {
+				@Override
+				public void subTask(String name) {
+					System.out.println(name);
+				}
+				
+			});
+			GH.sleep(60000);
+			System.out.println("started");
+			while (!dcc.getHubs().isEmpty()) {
+				GH.sleep(500);
 			}
-			
+			dcc.stop(true);
 			return EXIT_OK;
 			
-		} catch (Throwable t) {
-			File f = new File(uc.PI.getStoragePath(),"error.log");
-			PrintStream ps = new PrintStream(new FileOutputStream(f,true));
-			t.printStackTrace(ps);
-			ps.flush();
-			ps.close();
-			return EXIT_OK;
-		} finally {
-			display.dispose();
+		} else {
+			Display display = PlatformUI.createDisplay();
+			
+			try {
+				
+				int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
+				if (returnCode == PlatformUI.RETURN_RESTART) {
+					return EXIT_RESTART;
+				}
+				
+				return EXIT_OK;
+				
+			} catch (Throwable t) {
+				File f = new File(uc.PI.getStoragePath(),"error.log");
+				PrintStream ps = new PrintStream(new FileOutputStream(f,true));
+				t.printStackTrace(ps);
+				ps.flush();
+				ps.close();
+				return EXIT_OK;
+			} finally {
+				display.dispose();
+			}
 		}
 	}
 	
@@ -110,12 +127,9 @@ public class Application implements IApplication {
 		String simpleos= Platform.getOS();
 		System.setProperty(SIMPLE_OS, simpleos);
 	}
-	
 
 
-	
 	private boolean checkLock() {
-
 		File f = new File(PI.getStoragePath(),".lock");
 		try {
 			if (!f.isFile()) {
@@ -151,32 +165,30 @@ public class Application implements IApplication {
 			return false;
 		}
 
-		
 		return true;
 	}
 	
-	/**
-	 * renames old plugin name settings to newer ones..
-	 * @param simulate - false for doing the work .. true for just printing the renames..
-	 */
-	private static void renameSettingFiles(boolean simulate) {
-		File f = PI.getStoragePath();
-		File path = new File(new File(new File(f,".metadata"),".plugins"),"org.eclipse.core.runtime");
-		path = new File(path,".settings");
-		
-		if (path.isDirectory()) {
-			for (File file: path.listFiles()) {
-				if (file.isFile() && file.getName().matches("d[eu]\\.du_hub\\.uc\\..*")) {
-					File targetFile = new File(path,file.getName().replaceFirst("d[eu]\\.du_hub\\.uc", "eu.jucy"));
-					if (simulate) {
-						System.out.println("renameing: "+file+"  to: "+targetFile);
-					} else {
-						file.renameTo(targetFile);
-					}
-				}
-			}
-		}
-		
-	}
+//	/**
+//	 * renames old plugin name settings to newer ones..
+//	 * @param simulate - false for doing the work .. true for just printing the renames..
+//	 */
+//	private static void renameSettingFiles(boolean simulate) {
+//		File f = PI.getStoragePath();
+//		File path = new File(new File(new File(f,".metadata"),".plugins"),"org.eclipse.core.runtime");
+//		path = new File(path,".settings");
+//		
+//		if (path.isDirectory()) {
+//			for (File file: path.listFiles()) {
+//				if (file.isFile() && file.getName().matches("d[eu]\\.du_hub\\.uc\\..*")) {
+//					File targetFile = new File(path,file.getName().replaceFirst("d[eu]\\.du_hub\\.uc", "eu.jucy"));
+//					if (simulate) {
+//						System.out.println("renameing: "+file+"  to: "+targetFile);
+//					} else {
+//						file.renameTo(targetFile);
+//					}
+//				}
+//			}
+//		}
+//	}
 
 }

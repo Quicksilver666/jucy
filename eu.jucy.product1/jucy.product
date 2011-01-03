@@ -21,7 +21,7 @@
       <programArgsWin>-data @user.home/UC</programArgsWin>
       <vmArgs>-Xmx512m
 -Declipse.p2.unsignedPolicy=allow</vmArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+      <vmArgsMac>-XstartOnFirstThread</vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="/eu.jucy.product1/icons/icon_16.gif" i32="/eu.jucy.product1/icons/icon_32.gif" i48="/eu.jucy.product1/icons/icon_48.gif" i64="/eu.jucy.product1/icons/icon_64.gif" i128="/eu.jucy.product1/icons/icon_128.gif"/>
@@ -173,7 +173,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </plugins>
 
    <features>
-      <feature id="eu.jucy.feature.baseclient" version="1.84.0.qualifier"/>
+      <feature id="eu.jucy.feature.baseclient" version="1.85.0.qualifier"/>
    </features>
 
 

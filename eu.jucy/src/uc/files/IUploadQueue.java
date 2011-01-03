@@ -4,6 +4,7 @@ import helpers.IObservable;
 import helpers.StatusObject;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.Date;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public interface IUploadQueue  extends IObservable<StatusObject>, IStartable {
 	 */
 	void transferFinished(File file, IUser usr, String nameOfTransferred,
 			HashValue hashOfTransferred, long bytesServedToUser,
-			Date startTime, long timeNeeded);
+			Date startTime, long timeNeeded,InetAddress targetIP);
 
 	List<TransferRecord> getTransferRecords();
 

@@ -26,6 +26,9 @@ public interface IUser  {
 	public static final long 	UNTILFOREVER = Long.MAX_VALUE,
 	  							NOSLOTGRANTED = 0;
 	
+	public static final byte CT_BOT = 1, CT_RGISTERED = 2, CT_OPERATOR = 4, 
+	CT_SUPERUSER = 8, CT_OWNER = 16,ct_HUB = 32,CT_HIDDEN = 64;
+	
 	/**
 	 * 
 	 * @return nickname of the user
@@ -171,6 +174,15 @@ public interface IUser  {
 	int getOpHubs();
 	
 	byte getCt();
+	
+	boolean testCT(byte test);
+	
+	/**
+	 * 
+	 * some users get a hidden status... i.e. the hub does not want them to be displayed to the user
+	 * also could in future be used to test for if ignored users should be taken out of sight..
+	 */
+	boolean isHidden();
 	
 	AwayMode getAwayMode();
 	

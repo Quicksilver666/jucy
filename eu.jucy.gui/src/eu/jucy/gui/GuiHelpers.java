@@ -193,6 +193,9 @@ public final class GuiHelpers {
 		
 	}
 	
+	public static String escapeMnemonics(String toEscape) {
+		return toEscape.replace("&", "&&");
+	}
 	
 	
 }

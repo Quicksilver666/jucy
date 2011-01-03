@@ -7,7 +7,7 @@
       plugin="eu.jucy.connectiondebugger">
 
    <description>
-      Allows a user to see exactly what is going on oin a connection.
+      Allows a user to see exactly what is going on in a connection.
 Very helpful if a conenction is encrypted and using wireshark
 becomes non-trivial.
    </description>

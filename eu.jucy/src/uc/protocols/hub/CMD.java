@@ -18,7 +18,9 @@ public class CMD extends AbstractADCHubCommand {
 	}
 
 	public void handle(Hub hub,String command) throws ProtocolException, IOException {
-		
+		if (command.charAt(0) != 'I') {
+			return;//Ignore if its not from hub..
+		}
 		String name = revReplaces(matcher.group(HeaderCapt+1));
 		name = GH.switchChars(name, '/', '\\');
 

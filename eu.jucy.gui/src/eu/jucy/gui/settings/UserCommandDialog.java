@@ -120,7 +120,7 @@ public class UserCommandDialog extends TrayDialog {
         final Label commandLabel = new Label(parameterGroup, SWT.NONE);
         commandLabel.setText(Lang.Command);
 
-        commandText = new Text(parameterGroup, SWT.BORDER);
+        commandText = new Text(parameterGroup, SWT.BORDER |SWT.MULTI);
         commandText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
         final Label hubLabel = new Label(parameterGroup, SWT.NONE);

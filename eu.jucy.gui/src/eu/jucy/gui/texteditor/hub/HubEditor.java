@@ -7,6 +7,7 @@ package eu.jucy.gui.texteditor.hub;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import helpers.GH;
 import helpers.SizeEnum;
@@ -198,6 +199,9 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 	private SashForm sashForm;
 	
 
+	private ViewerFilter subStringFilter;
+	
+
 	
 	public HubEditor() {}
 	
@@ -259,7 +263,7 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 		
 		sashForm.setWeights(getInput().weights());
 		
-		final Composite composite_1 = new Composite(parent, SWT.BORDER);
+		final Composite composite_1 = new Composite(parent, SWT.NONE);
 		final GridLayout gridLayout = new GridLayout();
 		gridLayout.verticalSpacing = 2;
 		gridLayout.marginWidth = 2;
@@ -279,7 +283,13 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 		filterText = new Text(composite_1, SWT.BORDER | SWT.SEARCH| SWT.ICON_SEARCH);
 		filterText.addModifyListener(new ModifyListener() {
 			public void modifyText(final ModifyEvent e) {
-				setFilter(filterText.getText());
+				new SUIJob(filterText) {
+					@Override
+					public void run() {
+						setFilter(filterText.getText());
+					}
+				}.scheduleIfNotRunning(500, filterText);
+				
 			}
 		});
 		filterText.setMessage("<"+Lang.FilterUserlist+">"); 
@@ -399,6 +409,15 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 			}
 		};
 		
+		tableViewer.addFilter(new ViewerFilter() {
+			@Override
+			public boolean select(Viewer viewer, Object parentElement,Object element) {
+				IUser u = (IUser)element;
+				return !u.isHidden();
+			}
+			
+		});
+		
 		
 		hub.registerHubListener(this);//register the listeners..
 		tableViewer.setInput(getHub());
@@ -484,22 +503,32 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 	}
 	
 
-
-
+	
+	
 	private void setFilter(final String filter) {
-		tableViewer.resetFilters();
+		if (subStringFilter != null) {
+			tableViewer.removeFilter(subStringFilter);
+			subStringFilter = null;
+		}
 		if (filter != null  && filter.length() >= 3) {
-			final String filterString = filter.toLowerCase();
-			tableViewer.addFilter(new ViewerFilter(){
+		//	final String filterString = filter.toLowerCase();
+			subStringFilter = new ViewerFilter() {
+				Pattern p = Pattern.compile(Pattern.quote(filter), Pattern.CASE_INSENSITIVE);
 				public boolean select(Viewer viewer, Object parentElement, Object element) {
 					IUser u = (IUser)element;
-					return 	u.getNick().toLowerCase().contains(filterString) 			||
-					 		u.getDescription().toLowerCase().contains(filterString) 	||
-					 		u.getEMail().toLowerCase().contains(filterString)			||
-					 		u.getTag().toLowerCase().contains(filterString);
+					return p.matcher(u.getNick()).find() ||
+					p.matcher(u.getDescription()).find() ||
+					p.matcher(u.getEMail()).find() ||
+					p.matcher(u.getTag()).find() ;
+					
+//					return 	u.getNick().toLowerCase().contains(filterString) 			||
+//					 		u.getDescription().toLowerCase().contains(filterString) 	||
+//					 		u.getEMail().toLowerCase().contains(filterString)			||
+//					 		u.getTag().toLowerCase().contains(filterString);
 				}
-			});
-			tableViewer.refresh();
+			};
+			tableViewer.addFilter(subStringFilter);
+			//tableViewer.refresh();
 		}
 	}
 	

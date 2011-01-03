@@ -73,22 +73,18 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	private static final Logger logger = LoggerFactory.make(); 
 
 
-//	private volatile int timerLogintimeout = 0;
-	private final SchedulableTask loginTimeOut;
-	
 
-//	private volatile int timerTransferCreateTimeout = 0;
+	private final SchedulableTask loginTimeOut;
 	private final SchedulableTask transferCreateTimeOut;
 	
+//	private volatile int timerLogintimeout = 0;
+//	private volatile int timerTransferCreateTimeout = 0;	
 //	private volatile int awaitingADCGet = 0;
-//	
 //	private volatile boolean getAwaited = false;
 	
 	private final ConnectionHandler ch;
 
 	private final boolean incoming;
-
-	//private UnblockingConnection normal;
 
 	private volatile String disconnectReason = null;
 	
@@ -250,26 +246,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	public void beforeConnect() {
 		logger.debug("called beforeConnect");
 		super.beforeConnect();
-		//state = connecting;
 		disconnectReason = null;
-//		if (getNMDC() == null) {
-//			addCommand(new MyNick());
-//			addCommand(new Lock());
-//			addCommand(new Error());
-//			addCommand(new NMDCGet());
-//			addCommand(new UGetBlock());
-//			addCommand(new SUP());
-//			addCommand(new STA());
-//		} else if (isNMDC()) {
-//			addCommand(new MyNick());
-//			addCommand(new Lock());
-//			addCommand(new Error());
-//			addCommand(new NMDCGet());
-//			addCommand(new UGetBlock());
-//		} else {
-//			addCommand(new SUP());
-//			addCommand(new STA());
-//		}
 	}
 
 	public void onConnect() throws IOException {
@@ -375,8 +352,6 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 				immediateReconnect = true;
 				disconnect(DisconnectReason.ILLEGALSTATEERROR);
 			}
-			
-			
 		} else {
 		//	super.onLogIn();
 			cpsm = null;
@@ -388,8 +363,6 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 				l.unlock();
 			}
 		}
-		
-
 	}
 	
 	/**
@@ -488,8 +461,6 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	protected void onMalformedCommandReceived(String command) {
 		logger.debug("Malformed comamnd: "+command+"  "+ getUser() != null? getUser():"");
 	}
-
-
 
 	/**
 	 * @param otherwantsToDownload if the other requests to download -(does not matter for ADC)
@@ -766,7 +737,8 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 						fti.getHashValue(), 
 						fileTransfer.getBytesTransferred(),
 						fileTransfer.getStartTime(),
-						System.currentTimeMillis()-fileTransfer.getStartTime().getTime());
+						System.currentTimeMillis()-fileTransfer.getStartTime().getTime(),
+						getOtherip());
 				
 				ch.notifyOfChange(ConnectionHandler.TRANSFER_FINISHED,this,fileTransfer);
 				if (getState().isOpen()) {
@@ -951,6 +923,6 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		this.hubaddy = hubaddy;
 	}
 	
-	
+
 
 }

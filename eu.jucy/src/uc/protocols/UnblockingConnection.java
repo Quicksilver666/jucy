@@ -717,8 +717,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			
 		} catch (UnresolvedAddressException uae) {
 			logger.debug(uae);
-		} catch(IOException e){ //here send message
-			logger.warn(e, e);
+		} catch(IOException e){ 
+			logger.warn(e + " addy: "+addy, e);
 		}
 			
 	}

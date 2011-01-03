@@ -209,9 +209,9 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 				logger.debug(ioe,ioe);
 			}
 		}
-		if (identity.getBoolean(PI.allowIPV6)) {
-			determineIPv6Working();
-		}
+	//	if (identity.getBoolean(PI.allowIPV6)) {
+		determineIPv6Working();
+	//	}
 		
 		notifyObservers();
 		

@@ -20,6 +20,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
@@ -208,7 +210,7 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 		synchronized(csSynch) {
 			//because sometimes the connection gets closed during login -> check
 			if (state != ConnectionState.CONNECTED) { 
-				if (Platform.inDevelopmentMode() && ConnectionState.DESTROYED != state) {
+				if (Platform.inDevelopmentMode() && ConnectionState.DESTROYED != state && ConnectionState.CLOSED != state) {
 					logger.warn("Bad state: "+state+"  "+toString(),new Throwable());
 				}
 				throw new IOException("can not login when not in connected state: "+state);
@@ -539,7 +541,13 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	}
 	
 	
+	public boolean isIPv6() {
+		return connection.getInetSocketAddress().getAddress() instanceof Inet6Address;
+	}
 	
+	public boolean isIPv4() {
+		return connection.getInetSocketAddress().getAddress() instanceof Inet4Address;
+	}
 	
 }
 

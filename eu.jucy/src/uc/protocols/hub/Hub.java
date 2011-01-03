@@ -30,6 +30,7 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetSocketAddress;
 import java.net.ProtocolException;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.charset.Charset;
@@ -87,6 +88,7 @@ import uc.protocols.UnblockingConnection;
 import uc.protocols.DCProtocol;
 import uc.protocols.hub.ZOn.ZON;
 import uc.user.User;
+
 
 
 public class Hub extends DCProtocol implements IHub {
@@ -385,7 +387,7 @@ public class Hub extends DCProtocol implements IHub {
 		
 		String nickname = getNickSelf();
 		return new User(dcc,nickname,nmdc?nickToUserID(nickname,this ): CIDToUserID(identity.getCID(), favHub) ){
-
+			private Inet6Address i6address;
 			@Override
 			public HashValue getCID() { 
 				return identity.getCID();
@@ -416,7 +418,7 @@ public class Hub extends DCProtocol implements IHub {
 			
 			@Override
 			public synchronized Inet6Address getI6() {
-				return identity.getConnectionDeterminator().getIp6FoundandWorking();
+				return i6address;
 			}
 
 			@Override
@@ -478,11 +480,11 @@ public class Hub extends DCProtocol implements IHub {
 			public String getSupports() {
 				List<String> sup = Hub.this.getSupports(false);
 			
-				if (identity.isIPv4Used() && identity.isActive()) {
+				if (isIPv4() && identity.isActive()) {
 					sup.add(User.TCP4);
 					sup.add(User.UDP4);
 				} 
-				if (identity.isIPv6Used()) {
+				if (isIPv6()) {
 					sup.add(User.TCP6);
 					sup.add(User.UDP6);
 				}
@@ -561,6 +563,15 @@ public class Hub extends DCProtocol implements IHub {
 				case I4: 
 					logger.debug("getting IP set by hub: "+favHub.getHubaddy(),new Throwable());
 					identity.getConnectionDeterminator().userIPReceived(super.getIp(), favHub); //super call important -> otherwise it gets the IP from COnnection determinator..
+					userIPReceived = true;
+					break;
+				case I6:
+					logger.debug("getting IPv6 set by hub: "+favHub.getHubaddy(),new Throwable());
+					try {
+						i6address = (Inet6Address)Inet6Address.getByName(val);
+					} catch (UnknownHostException e) {
+						logger.warn("Error parsing ipv6: "+e, e);
+					}
 					userIPReceived = true;
 					break;
 				}
@@ -853,7 +864,7 @@ public class Hub extends DCProtocol implements IHub {
 	 * 
 	 * @param context - information to fill out %[attribs]
 	 */
-	public  void sendRaw(String message,SendContext context) {
+	public void sendRaw(String message,SendContext context) {
 		WriteLock lock = writeLock();
 		lock.lock();
 		try {
@@ -1183,8 +1194,12 @@ public class Hub extends DCProtocol implements IHub {
 		 * 
 		 * Though Ref field is better.. to punish hubs... -> therefore no blocking of ips..
 		 */
-		for (ICTMListener ctmr: ctmrl) {
-			ctmr.ctmReceived(getSelf(), isa,other,protocol,token);
+		if (isa.getPort() > 0) {
+			for (ICTMListener ctmr: ctmrl) {
+				ctmr.ctmReceived(getSelf(), isa,other,protocol,token);
+			}
+		} else {
+			logger.debug("IP with port 0 received: "+isa);
 		}
 	}
 

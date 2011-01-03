@@ -77,15 +77,15 @@ TRACE Hub.java Line:463
 			onlyDirectories = flags.get(Flag.TY).equals("2");  //only files is currently ignored..
 		}
 		
-		Identity id = hub.getIdentity();
+		
 		
 		boolean active = usr.isUDPActive();
 		
 		InetSocketAddress ias  = null;
 		if (active) {
-			if (id.isIPv6Used() && usr.getSupports().contains(User.UDP6)) {
+			if (hub.isIPv6() && usr.getSupports().contains(User.UDP6)) {
 				ias = new InetSocketAddress(usr.getI6(),usr.getUDP6Port());
-			} else if (id.isIPv4Used() && usr.getSupports().contains(User.UDP4)) {
+			} else if (hub.isIPv4() && usr.getSupports().contains(User.UDP4)) {
 				ias = new InetSocketAddress(usr.getIp(),usr.getUdpPort());
 			} else {
 				throw new IllegalStateException();
