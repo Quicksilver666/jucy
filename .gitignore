@@ -1,11 +1,12 @@
 .metadata
+/plugins/*/bin
+/featuress/*/bin
 /*/bin
- 
 
-/eu.jucy.product1/schema/splashExtension.exsd
-/eu.jucy.product1/icons/af.png
-/eu.jucy.product1/icons/embedded.png
-/eu.jucy.product1/icons/enterprise.png
-/eu.jucy.product1/icons/languages.png
-/eu.jucy.product1/icons/rcp.png
-/*/compile.eu.jucy.feature.*.xml
+/plugins/eu.jucy.product1/schema/splashExtension.exsd
+/plugins/eu.jucy.product1/icons/af.png
+/plugins/eu.jucy.product1/icons/embedded.png
+/plugins/eu.jucy.product1/icons/enterprise.png
+/plugins/eu.jucy.product1/icons/languages.png
+/plugins/eu.jucy.product1/icons/rcp.png
+/features/*/compile.eu.jucy.feature.*.xml
