@@ -11,9 +11,11 @@ import org.apache.log4j.Logger;
 
 import uc.crypto.HashValue;
 import uc.files.transfer.FileTransferInformation;
+import uc.protocols.ADCStatusMessage;
 import uc.protocols.AbstractADCCommand;
 import uc.protocols.Compression;
 import uc.protocols.TransferType;
+import uc.protocols.hub.Flag;
 
 public class GET extends AbstractADCClientProtocolCommand  {
 
@@ -109,7 +111,11 @@ Note that GET can also be used by extensions for binary transfers between hub an
 				if (client.getOthersSupports().contains("TIGR")) {
 					client.addCommand(new SND(fti.getHashValue()));
 				} else {
-					client.disconnect(DisconnectReason.CLIENTTOOOLD); //TODO should be replaced by sending STA
+					STA.sendSTA(client, 
+							new ADCStatusMessage("Client too old"
+									, ADCStatusMessage.FATAL
+									, ADCStatusMessage.ProtocolRequiredFeatureMissing
+									,Flag.FC,"TIGR"));
 					return;
 				}
 				break;
@@ -120,7 +126,7 @@ Note that GET can also be used by extensions for binary transfers between hub an
 		//	client.setSimpleConnection();
 		//	SimpleConnection simple = (SimpleConnection)client.getConnection();
 			logger.debug("sending ADCGET channelIsOpen? ");//+simple.retrieveChannel().isOpen());
-			String adcget="CGET "
+			String adcget = "CGET "
 				+ fti.getType().getAdcString() + " "
 				+ (fti.getType() == TransferType.FILELIST ? "/" : "TTH/" + fti.getHashValue())+ " "
 				+ fti.getStartposition() + " "

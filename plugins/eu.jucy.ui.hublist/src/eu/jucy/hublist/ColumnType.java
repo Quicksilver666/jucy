@@ -19,10 +19,10 @@ enum ColumnType implements Comparator<String> {
 		try {
 			switch(this) {
 			case BYTES:
-				long val = GH.isEmpty(value) ? 0L : (long)Double.parseDouble(value);
+				long val = (long)GH.parseDoubleSecure(value);
 				return SizeEnum.getReadableSize(val);
 			case PERCENT:
-				return (GH.isEmpty(value) ? "" :value+" %");
+				return GH.isEmpty(value) ? "" : (value+" %");
 			}
 		} catch (NumberFormatException nfe) { }
 		

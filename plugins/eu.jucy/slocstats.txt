@@ -1,0 +1,13 @@
+
+Jucy stats by SLOCCount
+Totals grouped by language (dominant language first):
+java:         61004 (84.04%)
+xml:          11581 (15.96%)
+Total Physical Source Lines of Code (SLOC)                = 72,585
+Development Effort Estimate, Person-Years (Person-Months) = 17.99 (215.82)
+ (Basic COCOMO model, Person-Months = 2.4 * (KSLOC**1.05))
+Schedule Estimate, Years (Months)                         = 1.61 (19.27)
+ (Basic COCOMO model, Months = 2.5 * (person-months**0.38))
+Estimated Average Number of Developers (Effort/Schedule)  = 11.20
+Total Estimated Cost to Develop                           = $ 2,429,578
+ (average salary = $56,286/year, overhead = 2.40).

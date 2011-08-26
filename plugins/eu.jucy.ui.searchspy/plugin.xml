@@ -12,7 +12,7 @@
       </editor>
    </extension>
    <extension
-         point="eu.jucy.helpers.splashExtension">
+         point="eu.jucy.helpers.ui.splashExtension">
       <splashExtension
             icon="icons/Searchspy.64.png"
             id="eu.jucy.ui.searchspy.se1"

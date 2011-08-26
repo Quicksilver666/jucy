@@ -14,13 +14,14 @@ import java.nio.channels.ReadableByteChannel;
 
 
 
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+
+import java.util.concurrent.PriorityBlockingQueue;
+
 
 
 
@@ -54,9 +55,9 @@ public class HashEngine implements IHashEngine {
 
 	private static final Logger logger = LoggerFactory.make();
 
-
-	private final BlockingQueue<HashJob> highPriorityQueue = new LinkedBlockingQueue<HashJob>();
-	private final BlockingQueue<HashJob> lowPriorityQueue = new LinkedBlockingQueue<HashJob>();
+	private final PriorityBlockingQueue<HashJob> jobQueue = new PriorityBlockingQueue<HashJob>();
+//	private final BlockingQueue<HashJob> highPriorityQueue = new LinkedBlockingQueue<HashJob>();
+//	private final BlockingQueue<HashJob> lowPriorityQueue = new LinkedBlockingQueue<HashJob>();
 	
 	/**
 	 * set to check if the HashJob is not already present in the 
@@ -83,13 +84,15 @@ public class HashEngine implements IHashEngine {
 			public void run() {
 				try {
 					while(true) {
-						HashJob h = highPriorityQueue.poll(); //by first trying blocks and then files.. but after all waiting on blocks.. its waitfree for blocks and fair for files
-						if (h == null) {
-							h = lowPriorityQueue.poll();
-						}
-						if (h == null) {
-							h = highPriorityQueue.poll(10, TimeUnit.SECONDS);
-						}
+						HashJob h = jobQueue.take();
+						
+//							highPriorityQueue.poll(); //by first trying blocks and then files.. but after all waiting on blocks.. its waitfree for blocks and fair for files
+//						if (h == null) {
+//							h = lowPriorityQueue.poll();
+//						}
+//						if (h == null) {
+//							h = highPriorityQueue.poll(10, TimeUnit.SECONDS);
+//						}
 						currentlyHashed = h;
 						if (h != null) {
 							h.run();
@@ -116,8 +119,10 @@ public class HashEngine implements IHashEngine {
 	}
 
 	public void stop() {
-		highPriorityQueue.clear();
 		clearFileJobs();
+		jobQueue.clear();
+		//highPriorityQueue.clear();
+		
 	}
 	
 
@@ -136,10 +141,11 @@ public class HashEngine implements IHashEngine {
 
 	public void hashFile(File f,boolean highPriority, IHashedFileListener listener) {
 
-		HashFileJob hfj = new HashFileJob(f,listener);
+		HashFileJob hfj = new HashFileJob(f,listener,highPriority);
 		synchronized(filesToBeHashed) {
 			if (!filesToBeHashed.contains(hfj) && !hfj.equals(currentlyHashed)) {
-				(highPriority? highPriorityQueue: lowPriorityQueue).offer(hfj);
+				jobQueue.offer(hfj);
+				//(highPriority? highPriorityQueue: lowPriorityQueue).offer(hfj);
 				filesToBeHashed.add(hfj);
 				sizeLeftForHashing += f.length();
 			}
@@ -157,7 +163,10 @@ public class HashEngine implements IHashEngine {
 //			while (filesTohash.peekLast() instanceof HashFileJob) {
 //				filesTohash.pollLast();
 //			}
-			lowPriorityQueue.clear();
+			
+			jobQueue.removeAll(filesToBeHashed);
+			
+		//	lowPriorityQueue.clear();
 			filesToBeHashed.clear();
 			sizeLeftForHashing = 0;
 			if (currentlyHashed instanceof HashFileJob) {
@@ -185,7 +194,8 @@ public class HashEngine implements IHashEngine {
 
 
 	public void checkBlock(IBlock block, VerifyListener checkListener) {
-		highPriorityQueue.offer( new VerifyBlock(block,checkListener) ); //hash with high priority..
+	//	highPriorityQueue.offer( new VerifyBlock(block,checkListener) ); //hash with high priority..
+		jobQueue.offer(new VerifyBlock(block,checkListener));
 	}
 
 	
@@ -216,6 +226,7 @@ public class HashEngine implements IHashEngine {
 		private VerifyListener listener;
 		
 		VerifyBlock(IBlock block,VerifyListener listener) {
+			super(2);
 			this.block = block;
 			this.listener = listener;
 		}
@@ -243,8 +254,18 @@ public class HashEngine implements IHashEngine {
 			} finally {
 				GH.close(rbc);
 			}
-			
 		}
+
+
+		@Override
+		public int compareTo(HashJob o) {
+			if (o instanceof VerifyBlock) {
+				VerifyBlock vb = (VerifyBlock)o;
+				return block.compareTo(vb.block);
+			}
+			return super.compareTo(o);
+		}
+		
 		
 	}
 
@@ -259,7 +280,8 @@ public class HashEngine implements IHashEngine {
 		private final File file;
 		private final IHashedFileListener listener;
 		
-		HashFileJob(File f, IHashedFileListener listener){
+		HashFileJob(File f, IHashedFileListener listener, boolean highPriority) {
+			super(highPriority? 1:10);			
 			file	=	f;
 			this.listener = listener;
 		}
@@ -363,16 +385,34 @@ public class HashEngine implements IHashEngine {
 		}
 				
 	}
-	abstract class HashJob implements Runnable {
+	abstract class HashJob implements Runnable ,Comparable<HashJob> {
 
+		private final int priority;
 		private IHasher tiger;
 		
+		
+		
+		public HashJob(int priority) {
+			super();
+			this.priority = priority;
+		}
+
+
+
 		protected IHasher getHasher() {
 			if (tiger == null) {
 				tiger =  new TigerTreeHasher2();
 			}
 			return tiger;
 		}
+
+
+		@Override
+		public int compareTo(HashJob o) {
+			return GH.compareTo(priority, o.priority);
+		}
+		
+		
 
 	}
 }

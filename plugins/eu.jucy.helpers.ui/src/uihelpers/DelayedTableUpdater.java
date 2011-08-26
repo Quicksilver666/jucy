@@ -2,6 +2,10 @@ package uihelpers;
 
 
 
+
+import helpers.IObservable;
+import helpers.Observable.IObserver;
+import helpers.StatusObject;
 import helpers.StatusObject.ChangeType;
 
 import java.util.ArrayList;
@@ -10,11 +14,13 @@ import java.util.List;
 import java.util.Set;
 
 
+
 import org.eclipse.jface.viewers.TableViewer;
 
 
 
-public class DelayedTableUpdater<V> {
+
+public class DelayedTableUpdater<V> implements IObserver<StatusObject>{
 	
 	private final TableViewer viewer;
 	
@@ -37,6 +43,10 @@ public class DelayedTableUpdater<V> {
 		this.delay = millisecDelay;
 	}
 	
+
+	
+	
+	
 	
 	private boolean isPresent(V v) {
 		return add.contains(v)|| update.contains(v)|| remove.contains(v);
@@ -50,6 +60,12 @@ public class DelayedTableUpdater<V> {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void update(IObservable<StatusObject> o, StatusObject arg) {
+		put(arg.getType(),(V)arg.getValue());
+	}
+
 	public void add(V v) {
 		synchronized(synchUser) {
 			if (isPresent(v)) {
@@ -94,7 +110,10 @@ public class DelayedTableUpdater<V> {
 							add.clear();
 						}
 						if (!update.isEmpty()) {
-							viewer.update(update.toArray(), null);
+							Object[] updateArray = update.toArray();
+						//	viewer.update(update.toArray(), null);
+							viewer.remove(updateArray);
+							viewer.add(updateArray);
 							update.clear();
 						}
 						if (!remove.isEmpty()) {

@@ -1,6 +1,8 @@
 package uc.files.downloadqueue;
 
 
+import helpers.GH;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -379,5 +381,54 @@ public class Block implements IBlock {
 	public String toString() {
 		return "BlockNr: "+ blocknumber ;
 	}
+
+
+	@Override
+	public int compareTo(IBlock o) {
+		if (o instanceof Block) {
+			Block b = (Block)o;
+			int i = dqe.getTargetPath().compareTo(b.dqe.getTargetPath());
+			if (i == 0) {
+				i = GH.compareTo(blocknumber, b.blocknumber);
+			}
+			return i;
+		}
+		return 0;
+	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + blocknumber;
+		result = prime * result + ((dqe == null) ? 0 : dqe.hashCode());
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Block other = (Block) obj;
+		if (blocknumber != other.blocknumber)
+			return false;
+		if (dqe == null) {
+			if (other.dqe != null)
+				return false;
+		} else if (!dqe.equals(other.dqe))
+			return false;
+		return true;
+	}
+
+
+
+	
+	
 
 }

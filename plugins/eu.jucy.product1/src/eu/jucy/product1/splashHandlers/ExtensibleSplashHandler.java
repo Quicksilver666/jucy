@@ -44,7 +44,7 @@ public class ExtensibleSplashHandler extends AbstractSplashHandler {
 	
 	private ArrayList<String> fTooltipList;
 
-	private final static String F_SPLASH_EXTENSION_ID = "eu.jucy.helpers.splashExtension"; //NON-NLS-1
+	private final static String F_SPLASH_EXTENSION_ID = "eu.jucy.helpers.ui.splashExtension"; //NON-NLS-1
 	
 	private final static String F_ELEMENT_ICON = "icon"; //NON-NLS-1
 	

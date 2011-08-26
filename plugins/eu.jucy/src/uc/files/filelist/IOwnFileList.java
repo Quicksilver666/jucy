@@ -55,7 +55,11 @@ public interface IOwnFileList extends IStartable {
 	
 	void refresh(boolean wait);
 	
-
+	/**
+	 * 
+	 * @return true if the filelist can be used.
+	 */
+	boolean isInitialized();
 	
 	FileList getFileList();
 	
@@ -72,6 +76,8 @@ public interface IOwnFileList extends IStartable {
 	void immediatelyAddFile(File file,boolean force,IUser restrictForUser,AddedFile callback);
 	
 	void immediatelyAddFile(File file);
+	
+	
 	
 	public static class AddedFile {
 		public void addedFile(FileListFile file,boolean addedOutsideOfShare){}

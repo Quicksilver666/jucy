@@ -685,7 +685,15 @@ public final class GH {
 		return s.toLowerCase().contains(contains.toLowerCase());
 	}
 	
-	
+	public static double parseDoubleSecure(String s) {
+		if (isNullOrEmpty(s)) {
+			return 0;
+		} else if (s.contains("2.2250738585072012e-308")) { // bug circumvention in java
+			return 0;
+		} else {
+			return Double.parseDouble(s);
+		}
+	}
 
 	
 }

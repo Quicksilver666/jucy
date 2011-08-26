@@ -43,7 +43,6 @@ public class INF extends AbstractADCHubCommand {
 		String sids = getOtherSID(); // matcher.group(1);
 		Map<INFField,String> attribs = INFMap(matcher.group(HeaderCapt+1)) ;
 		if (!GH.isEmpty(sids)) {
-			logger.debug("Received inf2 " );
 			int sid = SIDToInt(sids);
 			boolean self = hub.getSelf().getSid() == sid ;
 			if ( self &&  ConnectionState.CONNECTED.equals(hub.getState()) ) {

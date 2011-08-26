@@ -8,7 +8,9 @@ Require-Bundle: org.eclipse.core.runtime,
  eu.jucy,
  eu.jucy.helpers,
  eu.jucy.logging,
- eu.jucy.gui
+ eu.jucy.gui,
+ eu.jucy.helpers.ui,
+ eu.jucy.helpers.rcp
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Quicksilver
 

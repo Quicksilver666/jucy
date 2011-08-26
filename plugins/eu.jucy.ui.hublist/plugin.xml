@@ -26,7 +26,7 @@
       </initializer>
    </extension>
    <extension
-         point="eu.jucy.helpers.splashExtension">
+         point="eu.jucy.helpers.ui.splashExtension">
       <splashExtension
             icon="icons/PublicHubsSplash.png"
             id="eu.jucy.ui.hublist.splashExtension1"

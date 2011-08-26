@@ -52,7 +52,6 @@ public class ADCSND extends AbstractNMDCClientProtocolCommand {
 
 		client.removeCommand(this);
 		client.transfer();
-
 	}
 	
 	

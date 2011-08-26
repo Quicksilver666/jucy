@@ -137,7 +137,7 @@
       </key>
    </extension>
    <extension
-         point="eu.jucy.helpers.splashExtension">
+         point="eu.jucy.helpers.ui.splashExtension">
       <splashExtension
             icon="icons/notepad.64.png"
             id="eu.jucy.notepad.splashExtension1"

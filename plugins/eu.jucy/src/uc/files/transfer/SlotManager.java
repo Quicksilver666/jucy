@@ -4,6 +4,8 @@ package uc.files.transfer;
 
 
 
+import helpers.GH;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -93,7 +95,8 @@ public class SlotManager implements ISlotManager {
 			WaitingUser wu = getWU(usr);
 			if (s == null) {
 				waitingQueue.addIfAbsent(wu);
-				logger.debug("User in Queu: "+usr+"  Position: "+getPositionInQueue(usr));
+				//logger.debug("User in Queu: "+usr.getNick()+"  Position: "+getPositionInQueue(usr));
+
 			} else {
 				waitingQueue.remove(wu);
 				usersThatReceivedSlot.put(usr, wu);
@@ -113,7 +116,7 @@ public class SlotManager implements ISlotManager {
 			int slotsAvailable =   getTotalSlots() - currentSlots.size();
 			boolean eligibleForSlotByQueue = isOneofThFirstXUsers(slotsAvailable,usr);
 			if (slotsAvailable > 0 && eligibleForSlotByQueue) {
-				logger.debug("User got Slot over Queue: "+usr);
+			//	logger.info("User "+usr.getNick()+" got Slot over Queue: "+usr);
 				Slot normal = new Slot(true);
 				currentSlots.add(normal);
 				dcc.notifyChangedInfo(InfoChange.CurrentSlots);
@@ -125,6 +128,7 @@ public class SlotManager implements ISlotManager {
 				dcc.notifyChangedInfo(InfoChange.CurrentSlots);
 				return autogrant;
 			} else {
+			//	logger.info("No Slot for: "+usr.getNick());
 				return null;
 			}
 		}
@@ -139,6 +143,7 @@ public class SlotManager implements ISlotManager {
 		if (usr == null && Platform.inDevelopmentMode()) {
 			logger.error("user was null");
 		}
+		
 		synchronized(slotsSynch) {
 			currentSlots.remove(slot);
 			currentExtraSlots.remove(slot);
@@ -147,20 +152,19 @@ public class SlotManager implements ISlotManager {
 			
 			WaitingUser wu = usersThatReceivedSlot.remove(usr);
 			if (wu != null) {
-				if (waitingQueue.contains(wu) && Platform.inDevelopmentMode()) {
-					logger.warn("user already in Queue "+usr.getNick());
-				}
 				waitingQueue.add(wu);
+			//	logger.info("Readding user: "+wu.usr.getNick());
 			}
-			
-			if (waitingQueue.contains(null) && Platform.inDevelopmentMode()) {
-				logger.error("Waiting Qeueu contains null!");
-			} 
 			
 			ArrayList<WaitingUser> wus = new ArrayList<WaitingUser>(waitingQueue);
 			Collections.sort(wus,WaitingUserComp);
 			waitingQueue.clear();
 			waitingQueue.addAll(wus);
+			
+//			if (slot != null) {
+//				logger.info("Return slot: "+usr.getNick()+" pos: "+waitingQueue.indexOf(wu));
+//			}
+			
 		}
 	}
 
@@ -236,6 +240,7 @@ public class SlotManager implements ISlotManager {
 				}
 			}
 		}
+	//	logger.info("Creating waiting user: "+usr);
 		return new WaitingUser(usr);
 	}
 	
@@ -283,7 +288,7 @@ public class SlotManager implements ISlotManager {
 		}
 		
 		private boolean isOnlineAndInterested() {
-			return usr.isOnline() && System.currentTimeMillis() -lastInterestedReceived < OnlineAndInterestedTime;
+			return usr.isOnline() && System.currentTimeMillis() - lastInterestedReceived < OnlineAndInterestedTime;
 		}
 		
 		private boolean checkLastTimeInterestedAndOnline() {
@@ -309,7 +314,12 @@ public class SlotManager implements ISlotManager {
 			if (o == null) {
 				return Long.valueOf(waitingSince).compareTo(Long.MAX_VALUE);
 			}
-			return Long.valueOf(waitingSince).compareTo(o.waitingSince);
+			int comp = Long.valueOf(waitingSince).compareTo(o.waitingSince); 
+			if (comp == 0) { 
+				//if several users wait for the same duration this preserves from problems! 
+				return GH.compareTo(hashCode(), o.hashCode());
+			}
+			return comp;
 		}
 		
 		public String toString() {
@@ -327,6 +337,25 @@ public class SlotManager implements ISlotManager {
 		}
 		
 	};
-
+/*
+ * [
+ * Hedayat Wait: 27656 LIR: 25028, 
+ * nick-try-16-16 Wait: 27656 LIR: 9432, 
+ * Ara Wait: 27656 LIR: 183, 
+ * GrillBill2 Wait: 27656 LIR: 48, 
+ * YODA-41 Wait: 27656 LIR: 47, 
+ * Powolniak Wait: 27656 LIR: 39, 
+ * Kaptain_Komfy Wait: 27656 LIR: 28, 
+ * °^Kumba^° Wait: 27656 LIR: 18, 
+ * GrillBill Wait: 27656 LIR: 5, 
+ * buffy Wait: 27342 LIR: 0, 
+ * °^hAliGalLiE@works^° Wait: 26678 LIR: 13829, 
+ * stroncium12800 Wait: 23384 LIR: 17, 
+ * [RO][BUC][ISP]eruho Wait: 20820 LIR: 20820, 
+ * kolina Wait: 11502 LIR: 2, 
+ * tempestuous Wait: 11426 LIR: 11
+ * ]
+ * 
+ */
 	
 }

@@ -2,6 +2,7 @@ package uc;
 
 
 import helpers.GH;
+import helpers.IPrefSerializer;
 import helpers.PrefConverter;
 
 import java.util.regex.Pattern;
@@ -9,7 +10,6 @@ import java.util.regex.Pattern;
 
 
 
-import uihelpers.ComplexListEditor.IPrefSerializer;
 
 
 

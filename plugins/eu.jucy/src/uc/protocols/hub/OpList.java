@@ -10,8 +10,7 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 
-import uc.IUserChangedListener.UserChange;
-import uc.IUserChangedListener.UserChangeEvent;
+
 import uc.crypto.HashValue;
 import uc.protocols.DCProtocol;
 import uc.user.User;
@@ -38,19 +37,14 @@ public class OpList extends AbstractNMDCHubProtocolCommand {
 		for (String nick : b) {
 			nick = nick.trim();
 			if (!GH.isEmpty(nick)) {
-				boolean connected = false;
 				HashValue userid = DCProtocol.nickToUserID(nick, hub);
 				User usr = hub.getUser(userid);
 				if (usr == null) {
-					connected = true;
 					usr = hub.getDcc().getPopulation().get(nick, userid);
-				}
-				
-				usr.setOp(true);
-				if (connected) {
+					usr.setProperty(INFField.CT, Byte.toString(User.CT_OPERATOR));
 					hub.insertUser(usr);
 				} else {
-					usr.notifyUserChanged(UserChange.CHANGED,UserChangeEvent.INF);
+					usr.setOp(true);
 				}
 			}
 

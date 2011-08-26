@@ -149,7 +149,7 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 		pruneButton.setText(Lang.PruneAllOlderThan);
 
 
-		calendar = new DateTime(composite, SWT.DATE);
+		calendar = new DateTime(composite, SWT.DATE|SWT.DROP_DOWN);
 
 		pruneButton.addSelectionListener (new SelectionAdapter () {
 			public void widgetSelected (SelectionEvent e) {

@@ -395,7 +395,7 @@ public abstract class UserColumns  extends ColumnDescriptor<IUser> {
 		public String getText(IUser usr) {
 			if (usr.hasCurrentlyAutogrant()) {
 				if (usr.getAutograntSlot() == IUser.UNTILFOREVER) {
-					return SizeEnum.infinity;
+					return SizeEnum.INF;
 				} else {
 					SimpleDateFormat format;
 					if (usr.getAutograntSlot() < System.currentTimeMillis() + 12L*3600L*1000L) {

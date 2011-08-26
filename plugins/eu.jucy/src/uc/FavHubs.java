@@ -1,6 +1,7 @@
 package uc;
 
 import helpers.Observable;
+import helpers.PrefConverter;
 
 
 
@@ -21,7 +22,6 @@ import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
 import uc.FavHub.FavHubTranslater;
-import uihelpers.ComplexListEditor;
 
 
 /**
@@ -70,7 +70,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 	//	if (!legacymode) {
 		logger.debug("Storeing FavHubs modern way");
 		synchronized(favHubs) {
-			String p = ComplexListEditor.createList(
+			String p = PrefConverter.createList(
 					new ArrayList<FavHub>(favHubs.values()),
 					new FavHubTranslater());
 			
@@ -102,7 +102,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 			favHubs.putAll(ret);
 		} else {
 			logger.debug("Loading FavHubs modern way");
-			List<FavHub> fhList = ComplexListEditor.parseString(fav, new FavHubTranslater());
+			List<FavHub> fhList = PrefConverter.parseString(fav, new FavHubTranslater());
 			
 			//String[] all = PrefConverter.asArray(fav);
 			for (FavHub fh:fhList) {

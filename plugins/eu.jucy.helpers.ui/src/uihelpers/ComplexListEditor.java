@@ -1,6 +1,6 @@
 package uihelpers;
 
-import helpers.GH;
+import helpers.IPrefSerializer;
 import helpers.PrefConverter;
 
 import java.util.ArrayList;
@@ -317,7 +317,7 @@ public abstract class ComplexListEditor<V> extends FieldEditor {
 	@Override
 	protected void doLoad() {
 	    String s = getPreferenceStore().getString(getPreferenceName());
-	    items = parseString(s,translater);
+	    items = PrefConverter.parseString(s,translater);
         tableViewer.setInput(items);
     }
 		
@@ -329,7 +329,7 @@ public abstract class ComplexListEditor<V> extends FieldEditor {
 
 			String s = getPreferenceStore().getDefaultString(
 					getPreferenceName());
-			items = parseString(s,translater);
+			items = PrefConverter.parseString(s,translater);
 			tableViewer.setInput(items);
 		}
 	}
@@ -358,52 +358,6 @@ public abstract class ComplexListEditor<V> extends FieldEditor {
         if (changeAllowed) {
         	changeButton.setEnabled(index >= 0);
         }
-    }
-
-    /**
-     * Splits the given string into a list of strings.
-     * This method is the converse of <code>createList</code>. 
-     * <p>
-     * Subclasses must implement this method.
-     * </p>
-     *
-     * @param stringList the string
-     * @return an array of <code>String</code>
-     * @see #createList
-     */
-    public static <V> List<V> parseString(String stringList,IPrefSerializer<V> translater) {
-    	List<V> list = new ArrayList<V>();
-    	for (String s :  loadList(stringList)) {
-    		list.add(translater.unSerialize(PrefConverter.asArray(s)));
-    	}
-    	return list;
-    }
-    
-    
-   // protected abstract V createItemFromString(String item);
-    
-    /**
-     * just loads a List of item strings from the given string..
-     * allows decoding 
-     * 
-     * @param stringList - the preference value that was stored before via complex List editor
-     * @return
-     */
-    private static List<String> loadList(String stringList) {
-    	if (stringList == null) {
-    		stringList = "";
-    	}
-    	if (!stringList.endsWith("\n")&& !GH.isEmpty(stringList)) { //workaround for old ComplexListEditor so data can still be loaded..
-    		stringList+= "\n";
-    	}
-    	
-    	List<String> list = new ArrayList<String>();
-    	int i = 0;
-    	while ((i = stringList.indexOf('\n')) != -1) {
-    		list.add(GH.revReplace(stringList.substring(0, i)));
-    		stringList = stringList.substring(i+1);
-    	}
-    	return list;
     }
 
     /**
@@ -471,24 +425,11 @@ public abstract class ComplexListEditor<V> extends FieldEditor {
      * Method declared on FieldEditor.
      */
     protected void doStore() {
-        String s = createList(items, translater);
+        String s = PrefConverter.createList(items, translater);
         if (s != null) {
 			getPreferenceStore().setValue(getPreferenceName(), s);
 		}
     }
-    
-    public static <V> String createList(List<V> items,IPrefSerializer<V> translater) {
-    	StringBuilder s = new StringBuilder();
-    	for (V v: items) {
-    		String item = PrefConverter.asString(translater.serialize(v));
-    		s.append( GH.replaces(item)).append('\n');
-    	}
-    	return s.toString();
-    }
-    
-    
-    //protected abstract String createStringFromItem(V v);
-    
     
     /**
      * Helper method to create a push button.
@@ -561,22 +502,6 @@ public abstract class ComplexListEditor<V> extends FieldEditor {
 		public Object[] getElements(Object inputElement) {
 			return ((List<?>)inputElement).toArray();
 		}
-    	
-    }
-
-    
-    /**
-     * mediates between  preferences and Objects they presenting 
-     * 
-     * @author Quicksilver
-     *
-     * @param <T> the object needing serialisation
-     */
-    public static interface IPrefSerializer<T> {
-    	
-    	T unSerialize(String[] all);
-    	
-    	String[] serialize(T t);
     	
     }
     

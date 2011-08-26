@@ -718,6 +718,16 @@ public class OwnFileList implements IOwnFileList  {
 		}
 	}
 	
+	
+	
+	@Override
+	public boolean isInitialized() {
+		return initialized;
+	}
+
+
+
+
 	/* (non-Javadoc)
 	 * @see uc.files.filelist.IOwnFileList#getFile(uc.files.filelist.FileListFile)
 	 */

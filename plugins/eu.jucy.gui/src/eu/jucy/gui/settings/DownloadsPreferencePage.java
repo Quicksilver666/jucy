@@ -3,6 +3,7 @@ package eu.jucy.gui.settings;
 import java.io.File;
 
 
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 
@@ -23,13 +24,13 @@ public class DownloadsPreferencePage extends UCPrefpage {
 		
 		
 		//Directories
-		checkExistance(new File(PI.get(PI.downloadDirectory)));
+		checkExistance(PI.downloadDirectory);
 		DirectoryFieldEditor defdownloaddir = new DirectoryFieldEditor(PI.downloadDirectory,
 				Lang.DefaultDownloadDirectory,
 				getFieldEditorParent());
 		addField(defdownloaddir);
 		
-		checkExistance(new File(PI.get(PI.tempDownloadDirectory)));
+		checkExistance(PI.tempDownloadDirectory);
 		DirectoryFieldEditor tempdownloaddir = new DirectoryFieldEditor(PI.tempDownloadDirectory,
 				Lang.UnfinishedDownloadsDirectory,
 				getFieldEditorParent());
@@ -50,10 +51,16 @@ public class DownloadsPreferencePage extends UCPrefpage {
 		addField( downlimit );	
 	}
 	
-	private static void checkExistance(File dir) {
+	private static File checkExistance(String pref) {
+		File dir = new File(PI.get(pref));
 		if (!dir.isDirectory() && !dir.mkdirs()) {
-			throw new IllegalStateException("unable to create dir: "+dir);
+			logger.error("Unable to use directory: "+dir);
+			dir = new File(new DefaultScope().getNode(PI.PLUGIN_ID).get(pref, dir.toString()));
+			if (!dir.isDirectory() && !dir.mkdirs()) {
+				logger.fatal("Unable to set fallback directory.  "+pref);
+			} 
 		}
+		return dir;
 	}
 
 

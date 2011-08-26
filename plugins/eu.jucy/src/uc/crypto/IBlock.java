@@ -9,7 +9,7 @@ import java.nio.channels.ReadableByteChannel;
  * @author Quicksilver
  *
  */
-public interface IBlock {
+public interface IBlock extends Comparable<IBlock> {
 
 	/**
 	 * 

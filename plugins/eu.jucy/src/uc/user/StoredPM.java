@@ -1,5 +1,8 @@
 package uc.user;
 
+import helpers.IPrefSerializer;
+import helpers.PrefConverter;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,8 +19,6 @@ import uc.IUserChangedListener;
 import uc.PI;
 import uc.IStoppable.IStartable;
 import uc.crypto.HashValue;
-import uihelpers.ComplexListEditor;
-import uihelpers.ComplexListEditor.IPrefSerializer;
 
 public class StoredPM implements IUserChangedListener ,IStartable {
 	
@@ -98,7 +99,7 @@ public class StoredPM implements IUserChangedListener ,IStartable {
 	}
 	
 	private void load() {
-		List<Message> messages = ComplexListEditor.parseString(PI.get(PI.storedPMs), new MessageTranslater());
+		List<Message> messages = PrefConverter.parseString(PI.get(PI.storedPMs), new MessageTranslater());
 		for (Message mes:messages) {
 			addPM(mes);
 		}
@@ -109,7 +110,7 @@ public class StoredPM implements IUserChangedListener ,IStartable {
 		for (List<Message> list:userToMessages.values()) {
 			mesList.addAll(list);
 		}
-		String s = ComplexListEditor.createList(mesList, new MessageTranslater());
+		String s = PrefConverter.createList(mesList, new MessageTranslater());
 		PI.put(PI.storedPMs, s);
 	}
 	

@@ -34,7 +34,7 @@ import uc.PI;
 
 public abstract class UCPrefpage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-	private static final Logger logger =  LoggerFactory.make();
+	protected static final Logger logger =  LoggerFactory.make();
 	
 	
 	private final ScopedPreferenceStore preferences;

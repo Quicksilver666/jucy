@@ -222,7 +222,7 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 				in = new PushbackInputStream(in);
 				int b = in.read();
 				if (b == 'B') {
-					in.read(); // //Z
+					in.read();		//Z
 					in = new CBZip2InputStream(in);
 				} else {
 					((PushbackInputStream)in).unread(b);

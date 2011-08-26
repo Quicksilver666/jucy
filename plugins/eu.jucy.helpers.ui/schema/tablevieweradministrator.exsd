@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="eu.jucy.helpers" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="eu.jucy.helpers.ui" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="eu.jucy.helpers" id="tablevieweradministrator" name="TableViewer"/>
+         <meta.schema plugin="eu.jucy.helpers.ui" id="tablevieweradministrator" name="TableViewer"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]

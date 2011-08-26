@@ -78,6 +78,7 @@ public class Download extends AbstractFileTransfer {
 
 
 	public void cancel() {
+		logger.info("Cancelling download");
 		GH.close(socketChannel,source);
 	}
 
@@ -127,12 +128,13 @@ public class Download extends AbstractFileTransfer {
 			
 				bb.compact();
 				//break if no more bytes are left..
-				if (wfc.getCurrentPosition() == wfc.length()) {
+				if (wfc.getRelativeCurrentPos() == wfc.length()) {
 					break;
 				} 
 			}
 		
 		} finally {
+		//	logger.info("end download: "+wfc.getCurrentPosition() + "  "+wfc.length());
 			GH.close(target); //source is not closed..
 			
 			notifyObservers(TransferChange.FINISHED);

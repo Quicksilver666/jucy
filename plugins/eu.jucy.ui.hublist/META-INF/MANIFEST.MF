@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.ui,
  lib.org.apache.tools.bzip2,
  eu.jucy,
  eu.jucy.logging,
- eu.jucy.gui
+ eu.jucy.gui,
+ eu.jucy.helpers.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: Quicksilver

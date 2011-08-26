@@ -177,12 +177,6 @@ public class MultiStandardConnection implements Runnable {
 
 
 	public void run() {
-		//long timeRunBegin;
-		//long timeRunEnd;
-	//	long timeSelEnd;
-	//	long diff1 = 0,diff2= 0;
-		
-	//	long lastPrinted = System.currentTimeMillis();
 		try {
 	        // Create the selector
 			synchronized(this) {
@@ -200,11 +194,8 @@ public class MultiStandardConnection implements Runnable {
 	            } catch (IOException e) {
 	            	logger.error("selector error",e);
 	            }
-	 //           timeRunBegin = System.nanoTime();
 	            runSubmitted();
-	  //          timeRunEnd = System.nanoTime();
 	            
-	        //    logger.debug("selection found "+selector.selectedKeys().size());
 	            // Get list of selection keys with pending events
 	            Iterator<SelectionKey> it = selector.selectedKeys().iterator();
 	        
@@ -215,7 +206,7 @@ public class MultiStandardConnection implements Runnable {
 	                
 	                // Remove it from the list to indicate that it is being processed
 	                it.remove();
-	        
+
 	                try {
 	                    processSelectionKey(selKey);
 	                } catch (IOException e) {
@@ -241,20 +232,7 @@ public class MultiStandardConnection implements Runnable {
 	                	//this should not be caught... shows error on beginning connection..
 	                }
 	            }
-//	            timeSelEnd =System.nanoTime();
-//	            
-//	            diff1 += timeRunEnd-timeRunBegin; ;
-//	            diff2 += timeSelEnd-timeRunEnd;
-//	            
-//	            if (lastPrinted + 60000 < System.currentTimeMillis()) {
-//	            	double dist = ((double)diff1 / Math.max(1, diff2));
-//	            	if ((dist < 0.05d || 0.8d < dist) && Platform.inDevelopmentMode() ) {
-//	            		logger.info("current dist: "+ dist );
-//	            	}
-//	            	lastPrinted = System.currentTimeMillis();
-//	            	diff1 = 0;
-//	            	diff2 = 0;
-//	            }
+
 	        } 
 	        
 

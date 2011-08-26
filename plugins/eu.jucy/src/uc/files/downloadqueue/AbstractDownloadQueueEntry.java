@@ -518,15 +518,24 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 	 * TODO may be also discriminate DQEs that can not be written to currently
 	 */
 	public int compareTo(AbstractDownloadQueueEntry arg0) {
-		int i = type.compareTo(arg0.type);
+		int i = -type.compareTo(arg0.type);
 		if (i != 0) {
 			return i;
 		} 
-		i =  GH.compareTo(priority, arg0.priority);
+		i =  -GH.compareTo(priority, arg0.priority);
 	
 		if (i != 0) {
 			return i;
 		}
+		i = GH.compareTo(getNrOfOnlineUsers(), arg0.getNrOfOnlineUsers());
+		if (i != 0) {
+			return i;
+		}
+		i = getFileName().compareTo(arg0.getFileName());
+		if (i != 0) {
+			return i;
+		}
+		
 		return GH.compareTo(getDownloadedBytes(), arg0.getDownloadedBytes());
 	}
 
@@ -629,16 +638,14 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		return currentCommon;
 	}
 	
-	private static boolean isParent(File folder, File possiblechild) {
-		if (folder.equals(possiblechild)) {
+	private static boolean isParent(File folder, File possibleChild) {
+		File parentFolder = possibleChild.getParentFile();
+		if (folder.equals(parentFolder)) {
 			return true;
+		} else if (parentFolder == null) {
+			return false;
 		} else {
-			File between = possiblechild.getParentFile();
-			if (between == null) {
-				return false;
-			} else {
-				return isParent(folder,between);
-			}
+			return isParent(folder, parentFolder);
 		}
 	}
 	
@@ -650,7 +657,7 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		} else if (isParent(f2,f1)) {
 			return f2;
 		} else {
-			File parf1 =f1.getParentFile();
+			File parf1 = f1.getParentFile();
 			File parf2 = f2.getParentFile();
 			if (parf1 != null && parf2 != null) {
 				return commonParent(parf1, parf2);

@@ -26,7 +26,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.http.jetty,
  lib.org.apache.lucene,
  lib.org.apache.pdfbox,
- lib.com.jcraft.jzlib;bundle-version="1.0.7"
+ lib.com.jcraft.jzlib,
+ eu.jucy.helpers.rcp,
+ eu.jucy.helpers.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Quicksilver

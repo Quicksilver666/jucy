@@ -2259,7 +2259,7 @@
          </impl>
       </extension>
       <extension
-            point="eu.jucy.helpers.tablevieweradministrator">
+            point="eu.jucy.helpers.ui.tablevieweradministrator">
          <table_description
                id="transfersViewTable"
                name="%TransfersTable">

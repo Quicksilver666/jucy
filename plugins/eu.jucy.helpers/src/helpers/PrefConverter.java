@@ -65,6 +65,58 @@ public final class PrefConverter {
     	}
     	return map;
     }
+
+	public static <V> String createList(List<V> items,IPrefSerializer<V> translater) {
+		StringBuilder s = new StringBuilder();
+		for (V v: items) {
+			String item = asString(translater.serialize(v));
+			s.append( GH.replaces(item)).append('\n');
+		}
+		return s.toString();
+	}
+
+	/**
+	 * Splits the given string into a list of strings.
+	 * This method is the converse of <code>createList</code>. 
+	 * <p>
+	 * Subclasses must implement this method.
+	 * </p>
+	 *
+	 * @param stringList the string
+	 * @return an array of <code>String</code>
+	 * @see createList
+	 */
+	public static <V> List<V> parseString(String stringList,IPrefSerializer<V> translater) {
+		List<V> list = new ArrayList<V>();
+		for (String s :  loadList(stringList)) {
+			list.add(translater.unSerialize(asArray(s)));
+		}
+		return list;
+	}
+
+	/**
+	 * just loads a List of item strings from the given string..
+	 * allows decoding 
+	 * 
+	 * @param stringList - the preference value that was stored before via complex List editor
+	 * @return
+	 */
+	public static List<String> loadList(String stringList) {
+		if (stringList == null) {
+			stringList = "";
+		}
+		if (!stringList.endsWith("\n")&& !GH.isEmpty(stringList)) { //workaround for old ComplexListEditor so data can still be loaded..
+			stringList+= "\n";
+		}
+		
+		List<String> list = new ArrayList<String>();
+		int i = 0;
+		while ((i = stringList.indexOf('\n')) != -1) {
+			list.add(GH.revReplace(stringList.substring(0, i)));
+			stringList = stringList.substring(i+1);
+		}
+		return list;
+	}
     
 	
 	

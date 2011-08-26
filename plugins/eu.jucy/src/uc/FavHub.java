@@ -3,6 +3,7 @@ package uc;
 
 
 import helpers.GH;
+import helpers.IPrefSerializer;
 import helpers.PrefConverter;
 
 import java.util.HashMap;
@@ -18,7 +19,6 @@ import uc.crypto.SHA256HashValue;
 import uc.crypto.Tiger;
 import uc.protocols.IProtocolCommand;
 import uc.protocols.hub.Hub.ProtocolPrefix;
-import uihelpers.ComplexListEditor.IPrefSerializer;
 
 /**
  * FavHub stores persistent information about a hub.

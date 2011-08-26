@@ -63,7 +63,7 @@
       </page>
    </extension>
    <extension
-         point="eu.jucy.helpers.splashExtension">
+         point="eu.jucy.helpers.ui.splashExtension">
       <splashExtension
             icon="icons/translation.64.png"
             id="eu.jucy.ui.translation.splashExtension1">

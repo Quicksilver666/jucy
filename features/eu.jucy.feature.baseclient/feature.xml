@@ -135,4 +135,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          version="1.85.0.qualifier"
          unpack="false"/>
 
+   <plugin
+         id="eu.jucy.helpers.ui"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="eu.jucy.helpers.rcp"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.qualifier"/>
+
 </feature>

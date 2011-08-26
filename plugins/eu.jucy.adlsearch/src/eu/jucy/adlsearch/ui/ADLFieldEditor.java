@@ -4,6 +4,8 @@ package eu.jucy.adlsearch.ui;
 import java.util.Arrays;
 import java.util.List;
 
+import helpers.IPrefSerializer;
+import helpers.PrefConverter;
 import helpers.SizeEnum;
 
 import org.eclipse.jface.dialogs.Dialog;
@@ -52,7 +54,7 @@ public class ADLFieldEditor extends ComplexListEditor<ADLSearchEntry> {
 	} */
 	
 	public static List<ADLSearchEntry> loadFromString(String s) {
-		return ComplexListEditor.parseString(s, new ADLTranslator());
+		return PrefConverter.parseString(s, new ADLTranslator());
 		/*
 		List<ADLSearchEntry> ret = new ArrayList<ADLSearchEntry>();
 		for (String item:loadList(s)) {

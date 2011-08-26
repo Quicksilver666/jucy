@@ -1,10 +1,17 @@
 package helpers;
 
+import java.text.DecimalFormat;
+
+
+
 public enum SizeEnum {
 	B(0), KiB(1), MiB(2), GiB(3), TiB(4), PiB(5);
 
-	public static final String infinity;
+	public static final String INF;
 	
+
+	private static final DecimalFormat TWO_DECIMALS;
+	private static final DecimalFormat EXACT_SIZE;
 	static {
 		String os = System.getProperty("os.name");
 		boolean oldOS = false;
@@ -12,7 +19,11 @@ public enum SizeEnum {
 		if (os.contains("2000") || os.contains("XP") || os.contains("2003")) {
 			oldOS = true;
 		}
-		infinity = oldOS? "inf": "\u221E"; 
+		INF = oldOS? "inf": "\u221E"; 
+		TWO_DECIMALS  =  new DecimalFormat("##0.00");
+		EXACT_SIZE = new DecimalFormat("######,###");
+
+		
 	}
 	
 	SizeEnum( int powerof1024){
@@ -25,53 +36,52 @@ public enum SizeEnum {
 		return mult * nr;
 	}
 	
-	private static final SizeEnum[] endings = new SizeEnum[]{KiB,MiB,GiB,TiB,PiB}; 
+	private static final SizeEnum[] endings = new SizeEnum[]{B,KiB,MiB,GiB,TiB,PiB}; 
 	
 	public static String getReadableSize(long value){
-		if(value < 1024)
+		if (value < 1024) {
 			return value +" "+B;
-		
-		long a = value*100/1024;
-	
+		}
+		double size = value;
+
 		for (int i=0;i < endings.length; i++) {
-			if (a < 100000) {
-				int x =(int) (a % 100);
-				return a/100 +","+ (x<10?"0":"") + x + " "+ endings[i];
+			if (size < 1000) {
+				return TWO_DECIMALS.format(size)+" "+endings[i];
 			}
-			a /= 1024;
+			size /= 1024d;
 		}
 		
-		return "Too much";
+		return INF;
 	}
 	
 	public static String getShortSize(long value){
-		if(value < 1024)
-			return value +""+B;
-		
-		long a = value*100/1024;
+//		if (value < 1024) {
+//			return value +""+B;
+//		}
+//		long a = value*100/1024;
 	
 		for (int i=0;i < endings.length; i++) {
-			if (a < 100000) {
-				return a/100 +""+ endings[i].name().charAt(0);
+			if (value < 1024) {
+				return value +""+ endings[i].name().charAt(0);
 			}
-			a/=1024;
+			value/=1024;
 		}
-		return "Too much";
+		return INF;
 	}
 	
-	public static String getRoundedSize(long value){
-		if(value < 1024)
-			return value +""+B;
-		
-		long a = value*100/1024;
+	public static String getRoundedSize(long value) {
+//		if (value < 1024) {
+//			return value +""+B;
+//		}
+//		long a = value*100/1024;
 	
 		for (int i=0;i < endings.length; i++) {
-			if (a < 100000) {
-				return a/100 +" "+ endings[i].name();
+			if (value < 1024) {
+				return value +" "+ endings[i].name();
 			}
-			a/=1024;
+			value/=1024;
 		}
-		return "Too much";
+		return INF;
 	}
 	
 	/**
@@ -99,20 +109,22 @@ public enum SizeEnum {
 	}
 	
 	public static String getExactSharesize(long value) {
-		if (value == 0) {
-			return "0 "+B;
-		}
-		String erg=" "+B;
-		long next = value;
-		int i;
-		while (next >= 1000){
-			i = (int)(next % 1000);
-			erg = "."+(i < 100 ? (i<10?"00":"0"):"")   +i+erg; 
-			next /= 1000;
-		}
-		erg = next+erg;
-
-		return erg;
+//		if (value == 0) {
+//			return "0 "+B;
+//		}
+		return EXACT_SIZE.format(value)+" "+B;
+		
+//		String erg=" "+B;
+//		long next = value;
+//		int i;
+//		while (next >= 1000){
+//			i = (int)(next % 1000);
+//			erg = "."+(i < 100 ? (i<10?"00":"0"):"")   +i+erg; 
+//			next /= 1000;
+//		}
+//		erg = next+erg;
+//
+//		return erg;
 	}
 	
 	
@@ -156,12 +168,13 @@ public enum SizeEnum {
 	 */
 	public static String toDurationString(long seconds){
 		if (seconds == Long.MAX_VALUE) {
-			return infinity;//"∞";
+			return INF;//"∞";
 		}
 
-		int minutes= (int)((seconds %3600)/60);
-		int secs = (int)(seconds %60);
-		return (seconds /3600) + ":"+ (minutes < 10?"0"+minutes : minutes) +":"+ (secs < 10?"0"+secs : secs); 
+		return String.format("%d:%02d:%02d", seconds/3600,(seconds %3600)/60,seconds%60);
+//		int minutes= (int)((seconds %3600)/60);
+//		int secs = (int)(seconds %60);
+//		return (seconds /3600) + ":"+ (minutes < 10?"0"+minutes : minutes) +":"+ (secs < 10?"0"+secs : secs); 
 		
 	}
 	
@@ -175,7 +188,7 @@ public enum SizeEnum {
 	
 	public static String timeEstimation(long seconds) {
 		if (seconds == Long.MAX_VALUE) {
-			return  infinity;
+			return INF;
 		}
 		
 		if (seconds < 60) {

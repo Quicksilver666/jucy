@@ -174,6 +174,7 @@ public class PI extends AbstractPreferenceInitializer {
 	public static final String LegacyMode = "LEGACY";
 
 
+
 	
 	@Override
 	public void initializeDefaultPreferences() {

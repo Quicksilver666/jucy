@@ -101,6 +101,18 @@ import uc.user.User;
 
 
 /** 
+ * TODO FavHubs  listener change on hub connection..
+ * TODO maybe WINAMP/itunes SPAM
+ * itunes: http://www.workingwith.me.uk/articles/java/itunes-com-with-java-and-swing
+ * winamp: http://sourceforge.net/projects/javawinampapi/
+ * Rhytmbox for linux possibly?   
+ * 
+
+ * TODO translation plugin needs to be changed because google translation api got deprecated!!!http://basharkokash.com/post/2010/04/19/Bing-Translator-for-developers.aspx
+ * http://blog.gts-translation.com/2011/05/30/why-larry-page-killed-google-translate-api-and-other-assorted-thoughts/
+ * TODO PFSR
+ * TODO better upload bookkeeping (Size to full file .. Status  -> store past uploads of file) ..
+ * TODO cooler looking transfers view with 3D instead of table.. -> OpenGL
  * 
  * TODO extensions  SEGA + Grouping of file extensions in SCH
  * PFSR - Partial file sharing
@@ -118,6 +130,7 @@ The idea is that a client connects to the private hub supplies a pass for the ch
  *  http://adc.sourceforge.net/versions/ADC-EXT-1.0.6.html#_version_1_0_6  todo SEGA extension
 
  * TODO translater could be used for translating messages for sending too..
+
  * 
  * JXTA possibly ... as cooperation tool for ops..? or better via pm..
  * JXTA for cooperation of ops between different hubs viable.. not for normal work
@@ -299,6 +312,7 @@ public final class DCClient {
 	{
 		ScheduledThreadPoolExecutor ste = new ScheduledThreadPoolExecutor(5);
 		ste.setRejectedExecutionHandler(new DiscardPolicy());
+		
 		scheduler = Executors.unconfigurableScheduledExecutorService(ste);
 	}
 	
@@ -306,8 +320,8 @@ public final class DCClient {
 	 * cached Thread pool executor with  CallerRunsPolicy to better find problems..
 	 * at least better than discard policy..
 	 */
-	private static final ExecutorService exec = new ThreadPoolExecutor(0, 150,
-            60L, TimeUnit.SECONDS,
+	private static final ExecutorService exec = new ThreadPoolExecutor(1, 150,
+            10L, TimeUnit.SECONDS,
             new SynchronousQueue<Runnable>(),
             new DiscardPolicy() 
             );
@@ -696,7 +710,6 @@ public final class DCClient {
     	//can take some time.. we usually won't need this from start..-> done in separate thread..
     	filelist.loadSharedDirsForIconManager(favFolders); 
     	
-
     	altSearch.start();
     	slotManager.init();
 
@@ -706,8 +719,7 @@ public final class DCClient {
     		break;
     	}
     	
-    	Security.setProperty("networkaddress.cache.ttl", ""+60); //cache positive results only for 1 minute... because of dyndns..
-    	
+    	Security.setProperty("networkaddress.cache.ttl", "60"); //cache positive results only for 1 minute... because of dyndns..
     	
     }
     

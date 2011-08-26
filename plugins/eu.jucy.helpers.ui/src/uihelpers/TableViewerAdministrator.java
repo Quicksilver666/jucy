@@ -57,7 +57,7 @@ import org.eclipse.ui.swt.IFocusService;
  */
 public class TableViewerAdministrator<T> {
 
-	public static final String ExtensionpointID = "eu.jucy.helpers.tablevieweradministrator";
+	public static final String ExtensionpointID = "eu.jucy.helpers.ui.tablevieweradministrator";
 	
 	
 	public static final int NoSorting = Integer.MIN_VALUE;
@@ -242,6 +242,8 @@ public class TableViewerAdministrator<T> {
 			ifc.addFocusTracker(viewer.getControl(), tableID);
 		}
 	}
+	
+	
 	
 	
 	private int[] extractColWidths() {

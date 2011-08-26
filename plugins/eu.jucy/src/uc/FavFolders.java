@@ -1,5 +1,8 @@
 package uc;
 
+import helpers.IPrefSerializer;
+import helpers.PrefConverter;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,8 +16,6 @@ import org.apache.log4j.Logger;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
-import uihelpers.ComplexListEditor;
-import uihelpers.ComplexListEditor.IPrefSerializer;
 
 
 
@@ -47,7 +48,7 @@ public class FavFolders {
 	public void storeSharedDirs(List<SharedDir> shared) {
 		sharedDirs.clear();
 		sharedDirs.addAll(shared);
-		String val = ComplexListEditor.createList(shared, new SharedDirTranslater());
+		String val = PrefConverter.createList(shared, new SharedDirTranslater());
 		PI.put(PI.sharedDirs2, val);
 		
 		/*
@@ -74,12 +75,12 @@ public class FavFolders {
 	}
 	
 	public static void storeFavDirs(List<FavDir> favdirs) {
-		String val = ComplexListEditor.createList(favdirs, new FavDirTranslater());
+		String val = PrefConverter.createList(favdirs, new FavDirTranslater());
 		PI.put(PI.favDirs, val);
 	}
 	
 	public static List<FavDir> getFavDirs() {
-		return ComplexListEditor.parseString(PI.get(PI.favDirs), new FavDirTranslater());
+		return PrefConverter.parseString(PI.get(PI.favDirs), new FavDirTranslater());
 	}
 	
 	
@@ -231,7 +232,7 @@ public class FavFolders {
 			String sd2 = PI.get(PI.sharedDirs2);
 			if (!sd2.equals(PI.LegacyMode)) {
 				logger.debug("Loading shared dirs in Modern mode.");
-				List<SharedDir> ret = ComplexListEditor.parseString(sd2, new SharedDirTranslater());
+				List<SharedDir> ret = PrefConverter.parseString(sd2, new SharedDirTranslater());
 				return ret;
 			} else {
 				logger.debug("Loading shared dirs in Legacy mode.");

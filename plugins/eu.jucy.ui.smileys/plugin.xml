@@ -10,7 +10,7 @@
       </impl>
    </extension>
    <extension
-         point="eu.jucy.helpers.splashExtension">
+         point="eu.jucy.helpers.ui.splashExtension">
       <splashExtension
             icon="smileys/BigSmiley.64.png"
             id="eu.jucy.ui.smileys"

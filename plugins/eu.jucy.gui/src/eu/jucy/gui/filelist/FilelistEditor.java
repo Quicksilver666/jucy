@@ -297,8 +297,6 @@ public class FilelistEditor extends UCEditor implements ISearchableEditor , IObs
 		IDownloadable input = list.getRoot();
 		if ( in != null) { //TODO might not work correctly with multiple users..
 			FileListFolder parentFolder = list.getRoot().getByPath(in.getOnlyPath());
-			
-			
 			if (in.isFile()) {
 				if (parentFolder != null) {
 					item = parentFolder.getFilePerName(in.getName());

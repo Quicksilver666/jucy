@@ -10,5 +10,7 @@ Require-Bundle: eu.jucy.gui,
  org.eclipse.ui,
  org.eclipse.core.runtime,
  eu.jucy,
- eu.jucy.logging
+ eu.jucy.logging,
+ eu.jucy.helpers.ui,
+ eu.jucy.helpers.rcp
 Bundle-Vendor: Quicksilver

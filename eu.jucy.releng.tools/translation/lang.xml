@@ -2335,7 +2335,7 @@ Hub is also no longer counted in description</en>
 <ru>Да</ru>
 </Trl>
 </Plugin>
-<Plugin id="eu.jucy.helpers" name="helpers" langclass="DISABLED">
+<Plugin id="eu.jucy.helpers.ui" name="helpers" langclass="DISABLED">
 <Trl id="Tables">
 <de>Tabellen</de>
 <en>Tables</en>

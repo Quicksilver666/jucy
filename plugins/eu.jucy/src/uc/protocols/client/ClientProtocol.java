@@ -377,6 +377,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 				l.lock();
 				try {
 					if (fti.isDownload()) {
+						logger.debug("Relogin Download: "+fti.getOther().getNick());
 						AbstractDownloadQueueEntry dqe = fti.getOther()
 								.resolveDQEToUser();
 						if (dqe != null) {
@@ -740,9 +741,18 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 						System.currentTimeMillis()-fileTransfer.getStartTime().getTime(),
 						getOtherip());
 				
+				if (slot != null) { //upload
+					ch.getSlotManager().returnSlot(slot,fti.getOther());
+					slot = null;
+					transferCreateTimeOut.reschedule(10, TimeUnit.SECONDS);
+				} else {
+				//	logger.info("Finished Download: "+fti.getOther().getNick());
+				}
+				
 				ch.notifyOfChange(ConnectionHandler.TRANSFER_FINISHED,this,fileTransfer);
 				if (getState().isOpen()) {
 					setState(ConnectionState.TRANSFERFINISHED);
+					
 				} else	if (Platform.inDevelopmentMode()) {
 					logger.warn("Problem after transfering: "+getUser()+ "  "+getState());
 				}
@@ -760,15 +770,14 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 					logger.warn("Debug Messages count too large "+debugMessages.size());
 				}
 				connection.close();
-			} else if (slot != null) { //upload
-				ch.getSlotManager().returnSlot(slot,fti.getOther());
-				slot = null;
-				transferCreateTimeOut.reschedule(10, TimeUnit.SECONDS);
 			} else if (wasDownload && returnSuccessful && getState().isOpen()) { 
 				logger.debug("relogin");
 				transferCreateTimeOut.reschedule(20, TimeUnit.SECONDS);
 				relogin();
 			}
+//			if (wasDownload) {
+//				logger.info("return: "+returnSuccessful + " state: "+getState());
+//			}
 			
 			logger.debug("transfer() finished was download"+wasDownload+"  return succ:"+returnSuccessful);
 		}

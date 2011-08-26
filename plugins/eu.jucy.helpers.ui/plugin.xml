@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.2"?>
+<?eclipse version="3.4"?>
 <plugin>
-
    <extension-point id="splashExtension" name="Splash Extensions" schema="schema/splashExtension.exsd"/>
    <extension-point id="tablevieweradministrator" name="TableViewer" schema="schema/tablevieweradministrator.exsd"/>
    <extension
@@ -9,7 +8,7 @@
       <page
             category="eu.jucy.gui.Appearance"
             class="uihelpers.TablesPreferencePage"
-            id="eu.jucy.helpers.page1"
+            id="eu.jucy.helpers.ui.page1"
             name="%Tables">
       </page>
    </extension>
@@ -19,6 +18,4 @@
             class="uihelpers.TVAPI">
       </initializer>
    </extension>
-
-
 </plugin>

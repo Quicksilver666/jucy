@@ -186,8 +186,6 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 	private ISelectionListener transfersListener;
 
 	
-
-	
 	private MyStyledText hubText;
 	private TableViewer tableViewer;
 	private CLabel feedLabel;
@@ -415,7 +413,6 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 				IUser u = (IUser)element;
 				return !u.isHidden();
 			}
-			
 		});
 		
 		
@@ -551,6 +548,8 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 			break;
 		case CHANGED:
 			updater.change(uce.getChanged());
+//			updater.remove(uce.getChanged());
+//			updater.add(uce.getChanged());
 			break;
 		case DISCONNECTED:
 		case QUIT:
@@ -707,7 +706,7 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 			text += " - " + hub.getTopic();
 		}
 		FavHub fh = hub.getFavHub();
-		return (text+( " ("+fh.getSimpleHubaddy()+")"  )).trim();
+		return (text + " ("+fh.getSimpleHubaddy()+")" ).trim();
 	}
 	
 	private String getShortText() {	

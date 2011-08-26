@@ -12,4 +12,5 @@ Require-Bundle: lib.com.google.api.translate,
  eu.jucy,
  eu.jucy.logging,
  org.eclipse.core.runtime,
- eu.jucy.helpers
+ eu.jucy.helpers,
+ eu.jucy.helpers.ui

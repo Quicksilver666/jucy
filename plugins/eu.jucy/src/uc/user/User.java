@@ -504,7 +504,7 @@ public class User implements IUser , IHasUser {
 			}
 
 			//dqe must be downloadable and better than best entry.. 
-			if (isDownloadable && (ret == null ||  ret.compareTo(dqe) < 0 )) { 
+			if (isDownloadable && (ret == null ||  dqe.compareTo(ret) < 0 )) { 
 				ret = dqe;
 			}
 		}

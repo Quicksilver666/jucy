@@ -248,6 +248,9 @@ public abstract class SendingWriteline  {
 					hub.sendMM(s, false);
 				}
 			});
+			if (dcc.isAway()) {
+				dcc.setAway(false);
+			}
 		}
 		
 	}
@@ -284,7 +287,9 @@ public abstract class SendingWriteline  {
 								null, MessageType.CHAT);
 					}
 				}.schedule(GH.nextInt(2000)+1000);
-				
+			}
+			if (dcc.isAway()) {
+				dcc.setAway(false);
 			}
 		}
 	}

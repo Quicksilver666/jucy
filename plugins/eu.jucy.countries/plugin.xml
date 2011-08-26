@@ -10,7 +10,7 @@
       </impl>
    </extension>
    <extension
-         point="eu.jucy.helpers.tablevieweradministrator">
+         point="eu.jucy.helpers.ui.tablevieweradministrator">
       <table
             id="transfersViewTable">
          <table_column_decorator
@@ -30,7 +30,7 @@
       </table>
    </extension>
    <extension
-         point="eu.jucy.helpers.splashExtension">
+         point="eu.jucy.helpers.ui.splashExtension">
       <splashExtension
             icon="png/Flags.64.png"
             id="eu.jucy.countries.spl1">

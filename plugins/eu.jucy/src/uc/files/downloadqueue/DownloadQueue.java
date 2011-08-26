@@ -69,7 +69,6 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 				if (!tthRoots.isEmpty()) { //restart if the DownloadQueue is not empty..
 					logger.debug("restarting workbench");
 					PlatformUI.getWorkbench().restart();
-					
 				}
 			}
 		};

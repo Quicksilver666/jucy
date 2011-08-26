@@ -459,10 +459,11 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				boolean contained = problematic.contains(inetAddress.getAddress());
 				problematic.add(inetAddress.getAddress());
 				if (Platform.inDevelopmentMode()) {
-					if (e.toString().contains("unknown_ca")) {
+					if (e.toString().contains("unknown_ca") || e.toString().contains("Invalid encoding: zero length Int value")) {
 						logger.info(e+" "+inetAddress.getAddress()+" probcontains: "+contained);
 					} else {
 						logger.warn(e+" "+inetAddress.getAddress()+" probcontains: "+contained,e);
+						
 					}
 				}
 			}

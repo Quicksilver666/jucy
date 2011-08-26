@@ -11,5 +11,7 @@ Require-Bundle: eu.jucy.geoipmaxmind,
  eu.jucy.helpers,
  eu.jucy.logging,
  org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ eu.jucy.helpers.ui
 Bundle-Vendor: Quicksilver
+Bundle-ClassPath: .

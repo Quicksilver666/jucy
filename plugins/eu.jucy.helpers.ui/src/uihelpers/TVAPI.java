@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 public class TVAPI extends
 		AbstractPreferenceInitializer {
 	
-	public static final String PLUGIN_ID = "eu.jucy.helpers";
+	public static final String PLUGIN_ID = "eu.jucy.helpers.ui";
 
 	public TVAPI() {}
 

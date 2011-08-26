@@ -8,7 +8,8 @@ Require-Bundle: eu.jucy.gui,
  org.eclipse.core.runtime,
  eu.jucy.helpers,
  eu.jucy.logging,
- eu.jucy
+ eu.jucy,
+ eu.jucy.helpers.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Localization: nl/notepad
 Bundle-ActivationPolicy: lazy

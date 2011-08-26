@@ -9,7 +9,9 @@ Require-Bundle: eu.jucy.helpers,
  eu.jucy.gui,
  org.eclipse.ui,
  org.eclipse.core.runtime,
- eu.jucy.logging
+ eu.jucy.logging,
+ eu.jucy.helpers.ui,
+ eu.jucy.helpers.rcp
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: eu.jucy.adlsearch,
  eu.jucy.adlsearch.ui

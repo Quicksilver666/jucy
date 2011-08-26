@@ -5,8 +5,9 @@ Bundle-SymbolicName: eu.jucy.product1;singleton:=true
 Bundle-Version: 1.85.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Localization: nl/product
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0",
- org.eclipse.ui;bundle-version="3.5.0",
- eu.jucy.helpers
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ eu.jucy.helpers.ui,
+ eu.jucy.helpers.rcp
 Bundle-ClassPath: .
 Bundle-Vendor: Quicksilver

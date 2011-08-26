@@ -13,7 +13,7 @@ import org.osgi.framework.Bundle;
 
 public class Version {
 	
-	private static final String VERSION ;
+	private static final String VERSION;
 	
 	static {
 		Properties p = new Properties();

@@ -1,6 +1,7 @@
 package eu.jucy.gui.settings;
 
 import helpers.GH;
+import helpers.PrefConverter;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,7 +41,7 @@ public class UserCommands extends UCPrefpage {
 	}
 	
 	public static List<Command> loadCommands() {
-		return ComplexListEditor.parseString(
+		return PrefConverter.parseString(
 				GUIPI.get(GUIPI.userCommands), 
 				new CommandTranslater());
 	}
@@ -90,7 +91,7 @@ public class UserCommands extends UCPrefpage {
 	}
 	
 	public static void storeCommands(List<Command> coms) {
-		String s = ComplexListEditor.createList(coms, new CommandTranslater());
+		String s = PrefConverter.createList(coms, new CommandTranslater());
 		GUIPI.put(GUIPI.userCommands, s);
 	}
 	

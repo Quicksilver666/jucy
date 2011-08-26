@@ -128,7 +128,6 @@ public class TableTreePersister {
 			}
 		} else {
 			for (TableColumn ti : table.getColumns()) {
-				
 				ti.addControlListener(ca);
 			}
 		}

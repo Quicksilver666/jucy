@@ -83,6 +83,14 @@ public abstract class AbstractFileInterval {
 	public long getTotalLength() {
 		return totalLength;
 	}
+
+
+	@Override
+	public String toString() {
+		return "AbstractFileInterval [startpos=" + startpos + ", currentpos="
+				+ currentpos + ", length=" + length + ", totalLength="
+				+ totalLength + "]";
+	}
 	
 	
 	

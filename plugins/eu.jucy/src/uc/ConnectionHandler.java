@@ -340,10 +340,11 @@ public class ConnectionHandler extends Observable<StatusObject>
 	 * and opens a Socket to the appropriate address
 	 */
 	public void ctmReceived(IUser self , InetSocketAddress isa,IUser other,CPType protocol,String token) {
+		if (dcc.getFilelist().isInitialized()) {
 			ClientProtocol ctcp = new ClientProtocol( isa ,this , self,other,
 					protocol,token , protocol.isEncrypted());
 			ctcp.start();
-		
+		}
 	}
 	
 	
