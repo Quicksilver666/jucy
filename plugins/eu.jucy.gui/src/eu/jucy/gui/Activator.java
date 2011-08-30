@@ -33,7 +33,7 @@ public class Activator extends AbstractUIPlugin {
 	private static Logger logger = LoggerFactory.make();
 	
 
-	private ServiceRegistration policyRegistration;
+	private ServiceRegistration<?> policyRegistration;
 	
 	//  Shared instance of bundle context
 	public static BundleContext bundleContext;
@@ -67,8 +67,9 @@ public class Activator extends AbstractUIPlugin {
 		policyRegistration = context.registerService(Policy.class.getName(), cp , null);
 
 		if (GUIPI.getBoolean(GUIPI.allowTestRepos)) {
-			ServiceReference sref = context.getServiceReference(IProvisioningAgent.SERVICE_NAME);
-			IProvisioningAgent agent  = (IProvisioningAgent)context.getService(sref);
+			@SuppressWarnings("unchecked")
+			ServiceReference<IProvisioningAgent> sref = (ServiceReference<IProvisioningAgent>)context.getServiceReference(IProvisioningAgent.SERVICE_NAME);
+			IProvisioningAgent agent  = context.getService(sref);
 			
 			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 			IArtifactRepositoryManager artManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);

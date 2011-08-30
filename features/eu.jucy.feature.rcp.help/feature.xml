@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.rcp.help"
       label="Help Feature"
-      version="3.6.1"
+      version="3.7.0"
       provider-name="Quicksilver">
 
    <description>
@@ -27,105 +27,105 @@ Creative Commons Attribution-No Derivative Works 3.0.
          id="javax.servlet"
          download-size="0"
          install-size="0"
-         version="2.5.0.v200910301333"
+         version="2.5.0.v201103041518"
          unpack="false"/>
 
    <plugin
          id="javax.servlet.jsp"
          download-size="0"
          install-size="0"
-         version="2.0.0.v200806031607"
+         version="2.0.0.v201101211617"
          unpack="false"/>
 
    <plugin
          id="org.apache.commons.el"
          download-size="0"
          install-size="0"
-         version="1.0.0.v201004212143"
+         version="1.0.0.v201101211617"
          unpack="false"/>
 
    <plugin
          id="org.apache.commons.logging"
          download-size="0"
          install-size="0"
-         version="1.0.4.v201005080501"
+         version="1.0.4.v201101211617"
          unpack="false"/>
 
    <plugin
          id="org.apache.jasper"
          download-size="0"
          install-size="0"
-         version="5.5.17.v201004212143"
+         version="5.5.17.v201101211617"
          unpack="false"/>
 
    <plugin
          id="org.apache.lucene"
          download-size="0"
          install-size="0"
-         version="1.9.1.v20100518-1140"
+         version="2.9.1.v201101211721"
          unpack="false"/>
 
    <plugin
          id="org.apache.lucene.analysis"
          download-size="0"
          install-size="0"
-         version="1.9.1.v20100518-1140"
+         version="2.9.1.v201101211721"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help.appserver"
          download-size="0"
          install-size="0"
-         version="3.1.400.v20100427"
+         version="3.1.400.v20110425"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help.base"
          download-size="0"
          install-size="0"
-         version="3.5.2.v201009090800"
+         version="3.6.0.v201106131736"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help.ui"
          download-size="0"
          install-size="0"
-         version="3.5.2.r36_v20100702"
+         version="3.5.100.v20110425"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help.webapp"
          download-size="0"
          install-size="0"
-         version="3.5.2.r36_r20100816"
+         version="3.6.0.v20110518"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.variables"
          download-size="0"
          install-size="0"
-         version="3.2.400.v20100505"
+         version="3.2.500.v20110511"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.http.jetty"
          download-size="0"
          install-size="0"
-         version="2.0.0.v20100503"
+         version="2.0.100.v20110502"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.http.registry"
          download-size="0"
          install-size="0"
-         version="1.1.0.v20100503"
+         version="1.1.100.v20110502"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.http.servlet"
          download-size="0"
          install-size="0"
-         version="1.1.0.v20100503"
+         version="1.1.200.v20110502"
          unpack="false"/>
 
    <plugin
@@ -139,28 +139,28 @@ Creative Commons Attribution-No Derivative Works 3.0.
          id="org.eclipse.equinox.jsp.jasper"
          download-size="0"
          install-size="0"
-         version="1.0.200.v20100421"
+         version="1.0.300.v20110502"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.osgi.services"
          download-size="0"
          install-size="0"
-         version="3.2.100.v20100503"
+         version="3.3.0.v20110513"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.ui.forms"
          download-size="0"
          install-size="0"
-         version="3.5.2.r36_v20100702"
+         version="3.5.100.v20110425"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help"
          download-size="0"
          install-size="0"
-         version="3.5.0.v20100524"
+         version="3.5.100.v20110426"
          unpack="false"/>
 
 </feature>

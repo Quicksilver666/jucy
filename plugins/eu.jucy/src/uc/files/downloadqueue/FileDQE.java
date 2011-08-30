@@ -141,7 +141,7 @@ public class FileDQE extends AbstractFileDQE {
 		int startofMaxBlocks = 0;
 		int maxBlocks = -1;
 		int currentblocks;
-		int totalBlocksToBeDownloaded = 0;
+	//	int totalBlocksToBeDownloaded = 0;
 		synchronized (synch) {
 			for (int i = 0 ; i < bi.blocks.size(); i++) {
 				Block b = bi.blocks.get(i);
@@ -154,7 +154,7 @@ public class FileDQE extends AbstractFileDQE {
 					} else {
 						currentblocks = interval;
 					}
-					totalBlocksToBeDownloaded += interval;
+	//				totalBlocksToBeDownloaded += interval;
 					
 					i += interval; //advance the for loop
 					
@@ -226,7 +226,7 @@ public class FileDQE extends AbstractFileDQE {
 		//		int startofMaxBlocks;
 			int maxBlocks = -1;
 			int currentblocks;
-			int totalBlocksToBeDownloaded = 0;
+		//	int totalBlocksToBeDownloaded = 0;
 			synchronized (synch) {
 				for (int i = 0 ;i < bi.blocks.size(); i++) {
 					Block b = bi.blocks.get(i);
@@ -239,7 +239,7 @@ public class FileDQE extends AbstractFileDQE {
 						} else {
 							currentblocks = interval;
 						}
-						totalBlocksToBeDownloaded+= interval;
+			//			totalBlocksToBeDownloaded+= interval;
 							
 						i += interval; //advance the for loop
 							

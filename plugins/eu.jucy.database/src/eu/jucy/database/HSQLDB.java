@@ -1073,7 +1073,7 @@ public class HSQLDB implements IDatabase {
 					}
 				}
 			}
-			// logger.warn("Totally changed files: "+count);
+			logger.info("Totally changed files: "+count);
 			return files;
 
 		} catch (SQLException e) {

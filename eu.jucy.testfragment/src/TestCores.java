@@ -14,9 +14,9 @@ public class TestCores extends Thread {
 	}
 	
 	public void run() {
-		int x= 0;
-		while (true) {
-			x++;
-		}
+//		int x= 0;
+//		while (true) {
+//			x++;
+//		}
 	}
 }

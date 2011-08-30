@@ -59,11 +59,11 @@ public abstract class AbstractFileTransfer extends Observable<TransferChange> im
 	 */
 	public static long getTotalSpeed(boolean upload) {
 		long totalSpeed = 0;
-		int counted = 0;
+	//	int counted = 0;
 		for (AbstractFileTransfer c: active) {
 			if (c.isUpload() == upload) {
 				totalSpeed += c.getSpeed();
-				counted++;
+	//			counted++;
 			}
 		}
 
