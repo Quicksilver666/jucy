@@ -55,7 +55,7 @@ public class DownloadsPreferencePage extends UCPrefpage {
 		File dir = new File(PI.get(pref));
 		if (!dir.isDirectory() && !dir.mkdirs()) {
 			logger.error("Unable to use directory: "+dir);
-			dir = new File(new DefaultScope().getNode(PI.PLUGIN_ID).get(pref, dir.toString()));
+			dir = new File(DefaultScope.INSTANCE .getNode(PI.PLUGIN_ID).get(pref, dir.toString()));
 			if (!dir.isDirectory() && !dir.mkdirs()) {
 				logger.fatal("Unable to set fallback directory.  "+pref);
 			} 

@@ -119,7 +119,7 @@ public class Notepad extends UCMessageEditor {
 	}
 	
 	private  boolean put(String value) {
-		IEclipsePreferences is = new InstanceScope().getNode(NPI.PLUGIN_ID);
+		IEclipsePreferences is = InstanceScope.INSTANCE .getNode(NPI.PLUGIN_ID);
 		is.put(getNPID(), value);
 		try {
 			is.flush();

@@ -29,7 +29,7 @@ public class TablesPreferencePage extends FieldEditorPreferencePage implements I
 	
 	public TablesPreferencePage() {
 		super(GRID);
-		preferences = new ScopedPreferenceStore(new InstanceScope(),TVAPI.PLUGIN_ID);
+		preferences = new ScopedPreferenceStore(InstanceScope.INSTANCE ,TVAPI.PLUGIN_ID);
 		setPreferenceStore(preferences);
 	}
 

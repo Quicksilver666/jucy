@@ -24,21 +24,21 @@ public class HublistPI extends AbstractPreferenceInitializer {
 		//		"http://www.dc-resources.com/downloads/hublist.config.bz2;"+
 		//		"http://www.hublist.org/PublicHubList.xml.bz2;"+
 			//	"http://hublist.openhublist.org/hublist.xml.bz2;"+
-				"http://myhublist.com/hublist.xml.bz2",
+//				"http://myhublist.com/hublist.xml.bz2",
 			//	"http://hublist.hubtracker.com/hublist.xml.bz2;" + //former: http://hublist.hubtracker.com/hublist.xml.bz2 
-				"http://dchublist.com/hublist.xml.bz2",
-				"http://adc.dchublist.com/hublist.xml.bz2",
+				"http://dchublist.com/hublist.xml.bz2" //,
+		//		"http://adc.dchublist.com/hublist.xml.bz2" //,
 		//		"http://adchublist.com/hublist.xml.bz2;" +
 				//"http://www.hublist.org/PublicHubList.xml.bz2;" + --> offline forever?
 			
 				
 			//	"http://download.hublist.cz/hublist.xml.bz2;" +  offline
 				
-				"http://hublist.hubtracker.com.nyud.net/hublist.xml.bz2",
-				"http://dchublist.com.nyud.net/hublist.xml.bz2",
+//				"http://hublist.hubtracker.com.nyud.net/hublist.xml.bz2",
+//				"http://dchublist.com.nyud.net/hublist.xml.bz2",
 	//			"http://adchublist.com.nyud.net/hublist.xml.bz2;" +
 			//	"http://www.hublist.org.nyud.net/PublicHubList.xml.bz2;" +
-				"http://dclist.eu.nyud.net/hublist.xml.bz2" 
+//				"http://dclist.eu.nyud.net/hublist.xml.bz2" 
 			//	"http://download.hublist.cz.nyud.net/hublist.xml.bz2;" +
 			//	"http://hublist.awenet.info.nyud.net/PublicHubList.xml.bz2;" +
 		//		"http://hublist.hubtracker.com/hublist.xml.bz2;"+  -> openhublist
@@ -52,7 +52,7 @@ public class HublistPI extends AbstractPreferenceInitializer {
 
 	@Override
 	public void initializeDefaultPreferences() {
-		IEclipsePreferences defaults = new DefaultScope().getNode(PLUGIN_ID);
+		IEclipsePreferences defaults = DefaultScope.INSTANCE .getNode(PLUGIN_ID);
 
 		defaults.put(hublistServers, GH.concat(defaultHublists,";",""));
 	}
@@ -62,9 +62,9 @@ public class HublistPI extends AbstractPreferenceInitializer {
 	}
 	
 	private static String get(String what ){
-    	return  new InstanceScope().getNode(PLUGIN_ID).get(what,
-    			new ConfigurationScope().getNode(PLUGIN_ID).get(what,
-    			new DefaultScope().getNode(PLUGIN_ID).get(what, null)));
+    	return  InstanceScope.INSTANCE .getNode(PLUGIN_ID).get(what,
+    			ConfigurationScope.INSTANCE .getNode(PLUGIN_ID).get(what,
+    			DefaultScope.INSTANCE .getNode(PLUGIN_ID).get(what, null)));
     }
 	
 }

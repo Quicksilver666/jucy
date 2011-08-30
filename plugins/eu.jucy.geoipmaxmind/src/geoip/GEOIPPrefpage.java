@@ -16,7 +16,7 @@ public class GEOIPPrefpage extends UCPrefpage  {
 	@Override
 	protected void createFieldEditors() {
 		BooleanFieldEditor useCityInformation = new BooleanFieldEditor(
-				GEOPref.countryOnly,
+				GEOPref.COUNTRY_ONLY,
 				Lang.GEOIPCountryLevel,
 				getFieldEditorParent());
 		

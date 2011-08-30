@@ -142,7 +142,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 
 	@Override
 	public void initializeDefaultPreferences() {
-		IEclipsePreferences defaults = new DefaultScope().getNode(Application.PLUGIN_ID);
+		IEclipsePreferences defaults = DefaultScope.INSTANCE .getNode(Application.PLUGIN_ID);
 		
 		defaults.putBoolean(timeStamps, true);
 		defaults.put(timeStampFormat, "[HH:mm]");
@@ -256,7 +256,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 	}
 	
 	public static IEclipsePreferences get() {
-		return new InstanceScope().getNode(Application.PLUGIN_ID);
+		return InstanceScope.INSTANCE .getNode(Application.PLUGIN_ID);
 	}
 
 	/**
@@ -299,16 +299,16 @@ public class GUIPI extends AbstractPreferenceInitializer {
 	}
 
 	public static String get(String what) {
-		String s = new InstanceScope().getNode(Application.PLUGIN_ID).get(what, null);
+		String s = InstanceScope.INSTANCE .getNode(Application.PLUGIN_ID).get(what, null);
 		if (s != null) {
 			return s;
 		}
-		s = new ConfigurationScope().getNode(Application.PLUGIN_ID).get(what,null);
+		s = ConfigurationScope.INSTANCE .getNode(Application.PLUGIN_ID).get(what,null);
 		if (s != null) {
 			return s;
 		}
 		
-		return new DefaultScope().getNode(Application.PLUGIN_ID).get(what, null);
+		return DefaultScope.INSTANCE .getNode(Application.PLUGIN_ID).get(what, null);
 	}
 
 	public static boolean put(String key,int value) {
@@ -330,7 +330,7 @@ public class GUIPI extends AbstractPreferenceInitializer {
 	}
 	
 	public static boolean put(String key, String value,String pluginID) {
-		IEclipsePreferences is = new InstanceScope().getNode(pluginID);
+		IEclipsePreferences is = InstanceScope.INSTANCE .getNode(pluginID);
 		is.put(key, value);
 		try {
 			is.flush();

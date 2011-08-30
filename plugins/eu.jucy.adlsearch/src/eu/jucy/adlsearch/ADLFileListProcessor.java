@@ -26,7 +26,7 @@ public class ADLFileListProcessor implements IFilelistProcessor {
 	
 	
 	public ADLFileListProcessor() {
-		new PreferenceChangedAdapter(new InstanceScope().getNode(PLUGIN_ID),adlID) {
+		new PreferenceChangedAdapter(InstanceScope.INSTANCE .getNode(PLUGIN_ID),adlID) {
 			@Override
 			public void preferenceChanged(String preference,String oldValue,String newValue) {
 				update();
@@ -37,7 +37,7 @@ public class ADLFileListProcessor implements IFilelistProcessor {
 	
 	private void update() {
 		entrys.clear();
-		List<ADLSearchEntry> allEntrys = ADLFieldEditor.loadFromString(new InstanceScope().getNode(PLUGIN_ID).get(adlID, null));
+		List<ADLSearchEntry> allEntrys = ADLFieldEditor.loadFromString(InstanceScope.INSTANCE .getNode(PLUGIN_ID).get(adlID, null));
 		synchronized(entrys) {
 			for (ADLSearchEntry entry: allEntrys) {
 				if (entry.canBeUsed()) {

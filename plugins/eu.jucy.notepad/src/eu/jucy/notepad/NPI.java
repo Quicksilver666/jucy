@@ -18,7 +18,7 @@ public class NPI extends AbstractPreferenceInitializer {
 
 	@Override
 	public void initializeDefaultPreferences() {
-		IEclipsePreferences defaults = new DefaultScope().getNode(PLUGIN_ID);
+		IEclipsePreferences defaults = DefaultScope.INSTANCE .getNode(PLUGIN_ID);
 		defaults.putInt(NR_OF_NOTEPADS, 1);
 
 	}
@@ -31,16 +31,16 @@ public class NPI extends AbstractPreferenceInitializer {
 
 
 	public static String get(String what ) {
-		String s = new InstanceScope().getNode(PLUGIN_ID).get(what, null);
+		String s = InstanceScope.INSTANCE .getNode(PLUGIN_ID).get(what, null);
 		if (s != null) {
 			return s;
 		}
-		s = new ConfigurationScope().getNode(PLUGIN_ID).get(what,null);
+		s = ConfigurationScope.INSTANCE .getNode(PLUGIN_ID).get(what,null);
 		if (s != null) {
 			return s;
 		}
 		
-		return new DefaultScope().getNode(PLUGIN_ID).get(what, "");
+		return DefaultScope.INSTANCE .getNode(PLUGIN_ID).get(what, "");
 	}
 
 }

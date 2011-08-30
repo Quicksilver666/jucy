@@ -19,7 +19,7 @@ public class TransPI extends AbstractPreferenceInitializer {
 
 	@Override
 	public void initializeDefaultPreferences() {
-		IEclipsePreferences defaults = new DefaultScope().getNode(PLUGIN_ID);
+		IEclipsePreferences defaults = DefaultScope.INSTANCE .getNode(PLUGIN_ID);
 		
 		defaults.put(sourceLanguage, Language.AUTO_DETECT.name());
 		defaults.put(targetLanguage, Language.ENGLISH.name());
@@ -31,15 +31,15 @@ public class TransPI extends AbstractPreferenceInitializer {
 	}
 
 	public static String get(String what) {
-		String s = new InstanceScope().getNode(PLUGIN_ID).get(what, null);
+		String s = InstanceScope.INSTANCE .getNode(PLUGIN_ID).get(what, null);
 		if (s != null) {
 			return s;
 		}
-		s = new ConfigurationScope().getNode(PLUGIN_ID).get(what,null);
+		s = ConfigurationScope.INSTANCE .getNode(PLUGIN_ID).get(what,null);
 		if (s != null) {
 			return s;
 		}
 		
-		return new DefaultScope().getNode(PLUGIN_ID).get(what, null);
+		return DefaultScope.INSTANCE .getNode(PLUGIN_ID).get(what, null);
 	}
 }

@@ -57,7 +57,7 @@ public class TableTreePersister {
 		columnOrderID = persistenceID+".columnorder";
 		
 		//listener that will update the table if some changes occurred
-		pca = new PreferenceChangedAdapter(new InstanceScope().getNode(PLUGIN_ID),columnSizeID,columnOrderID){
+		pca = new PreferenceChangedAdapter(InstanceScope.INSTANCE .getNode(PLUGIN_ID),columnSizeID,columnOrderID){
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
 				new SUIJob(tableOrTree) {
@@ -173,7 +173,7 @@ public class TableTreePersister {
 	 * @return the persistent values (if they are correct)
 	 */
 	private int[] load(String key, int[] def) {
-		IEclipsePreferences stored = new InstanceScope().getNode(PLUGIN_ID);
+		IEclipsePreferences stored = InstanceScope.INSTANCE .getNode(PLUGIN_ID);
 		
 		int[] ret = fromString( stored.get(key, toString(def)) );
 		if (ret.length != def.length) { 
@@ -184,7 +184,7 @@ public class TableTreePersister {
 	}
 	
 	private void store(String key, int[] what) {
-		IEclipsePreferences stored = new InstanceScope().getNode(PLUGIN_ID);
+		IEclipsePreferences stored = InstanceScope.INSTANCE .getNode(PLUGIN_ID);
 		
 		stored.put(key, toString(what));
 		try {

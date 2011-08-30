@@ -114,8 +114,10 @@ import uc.user.User;
  * TODO better upload bookkeeping (Size to full file .. Status  -> store past uploads of file) ..
  * TODO cooler looking transfers view with 3D instead of table.. -> OpenGL
  * 
- * TODO extensions  SEGA + Grouping of file extensions in SCH
- * PFSR - Partial file sharing
+ * TODO extensions  SEGA + Grouping of file extensions in SCH 
+ * PFSR - Partial file sharing http://www.adcportal.com/wiki/PFSR_-_Partial_file_sharing
+ * http://www.adcportal.com/forums/viewtopic.php?f=55&t=696 -> change SF flag on first downloaded blog to allow hub send new BLOM request
+ * 
  * 
  BLOW - Encrypting chat messages with blowfish
 

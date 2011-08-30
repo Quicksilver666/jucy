@@ -44,7 +44,7 @@ public abstract class UCPrefpage extends FieldEditorPreferencePage implements IW
 	
 	public UCPrefpage(String pluginID,String helpID) {
 		super(GRID);
-		preferences = new ScopedPreferenceStore(new InstanceScope(),pluginID);
+		preferences = new ScopedPreferenceStore(InstanceScope.INSTANCE ,pluginID);
 		setPreferenceStore(preferences);
 		this.showHelpID = helpID;
 	}

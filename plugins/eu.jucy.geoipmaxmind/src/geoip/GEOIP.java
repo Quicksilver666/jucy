@@ -34,7 +34,7 @@ public final class GEOIP {
 	
 	
 	
-	private final boolean country =  GEOPref.getBoolean(GEOPref.countryOnly);
+	private final boolean country =  GEOPref.getBoolean(GEOPref.COUNTRY_ONLY);
 	private final String gzPath = country ? "db/GeoIP.dat.gz" : "db/GeoLiteCity.dat.gz" ; 
 	private final String filePath = country ? "db/GeoIP.dat":"db/GeoLiteCity.dat";
 	

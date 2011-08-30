@@ -19,7 +19,7 @@ public class TVAPI extends
 
 	@Override
 	public void initializeDefaultPreferences() {
-		IEclipsePreferences defaults = new DefaultScope().getNode(PLUGIN_ID);
+		IEclipsePreferences defaults = DefaultScope.INSTANCE .getNode(PLUGIN_ID);
 		
 		IExtensionRegistry reg = Platform.getExtensionRegistry();
     	
@@ -54,16 +54,16 @@ public class TVAPI extends
 	
 	public static boolean get(String fullID) {
 	//	String fullID =IDForTableColumn(tableID,columnID,decorator);
-		String s = new InstanceScope().getNode(PLUGIN_ID).get(fullID, null);
+		String s = InstanceScope.INSTANCE .getNode(PLUGIN_ID).get(fullID, null);
 		if (s != null) {
 			return Boolean.valueOf(s);
 		}
-		s = new ConfigurationScope().getNode(PLUGIN_ID).get(fullID,null);
+		s = ConfigurationScope.INSTANCE .getNode(PLUGIN_ID).get(fullID,null);
 		if (s != null) {
 			return Boolean.valueOf(s);
 		}
 		
-    	return Boolean.valueOf(new DefaultScope().getNode(PLUGIN_ID).get(fullID, "true"));
+    	return Boolean.valueOf(DefaultScope.INSTANCE .getNode(PLUGIN_ID).get(fullID, "true"));
 	}
 
 }

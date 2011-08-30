@@ -185,7 +185,7 @@ public class TableViewerAdministrator<T> {
 				e.printStackTrace();
 			}
 		}
-		changedColsWatcher = new PreferenceChangedAdapter(new InstanceScope().getNode(TVAPI.PLUGIN_ID),allIDs.toArray(new String[0])) {
+		changedColsWatcher = new PreferenceChangedAdapter(InstanceScope.INSTANCE .getNode(TVAPI.PLUGIN_ID),allIDs.toArray(new String[0])) {
 			@Override
 			public void preferenceChanged(String preference, String oldValue,String newValue) {
 				new SUIJob() {

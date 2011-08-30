@@ -15,7 +15,7 @@ public abstract class PreferenceChangedAdapter implements
 	private final IEclipsePreferences source;
 	
 	public PreferenceChangedAdapter(String pluginId,String... preferences) {
-		this(new InstanceScope().getNode(pluginId),preferences);
+		this(InstanceScope.INSTANCE .getNode(pluginId),preferences);
 	}
 	
 	public PreferenceChangedAdapter(IEclipsePreferences source ,String... preference ) {

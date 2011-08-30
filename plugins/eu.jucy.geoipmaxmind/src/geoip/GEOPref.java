@@ -21,13 +21,13 @@ public class GEOPref extends AbstractPreferenceInitializer {
 	
 	private static final Logger logger = LoggerFactory.make();
 	
-	public static final String countryOnly 	=	"countryOnly";
+	public static final String COUNTRY_ONLY 	=	"countryOnly";
 	public static final String LAST_VERSION = 	"LastVersion";
 	
 	@Override
 	public void initializeDefaultPreferences() {
-		IEclipsePreferences defaults = new DefaultScope().getNode(PLUGIN_ID);
-		defaults.putBoolean(countryOnly, true);
+		IEclipsePreferences defaults = DefaultScope.INSTANCE .getNode(PLUGIN_ID);
+		defaults.putBoolean(COUNTRY_ONLY, true);
 		defaults.put(LAST_VERSION, "");
 	}
 	
@@ -36,20 +36,20 @@ public class GEOPref extends AbstractPreferenceInitializer {
 	}
 	
 	public static String get(String what ) {
-		String s = new InstanceScope().getNode(PLUGIN_ID).get(what, null);
+		String s = InstanceScope.INSTANCE .getNode(PLUGIN_ID).get(what, null);
 		if (s != null) {
 			return s;
 		}
-		s = new ConfigurationScope().getNode(PLUGIN_ID).get(what,null);
+		s = ConfigurationScope.INSTANCE .getNode(PLUGIN_ID).get(what,null);
 		if (s != null) {
 			return s;
 		}
 		
-		return new DefaultScope().getNode(PLUGIN_ID).get(what, null);
+		return DefaultScope.INSTANCE .getNode(PLUGIN_ID).get(what, null);
 	}
 	
 	public static void put(String what,String value) {
-		IEclipsePreferences prefs = new InstanceScope().getNode(PLUGIN_ID);
+		IEclipsePreferences prefs = InstanceScope.INSTANCE .getNode(PLUGIN_ID);
 		prefs.put(what, value);
 		try {
 			prefs.flush();

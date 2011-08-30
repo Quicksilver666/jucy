@@ -178,7 +178,7 @@ public class PI extends AbstractPreferenceInitializer {
 	
 	@Override
 	public void initializeDefaultPreferences() {
-		IEclipsePreferences defaults = new DefaultScope().getNode(PI.PLUGIN_ID);
+		IEclipsePreferences defaults = DefaultScope.INSTANCE .getNode(PI.PLUGIN_ID);
 		
 		defaults.put(description, "");
 	//	defaults.put(connection, "0.02");
@@ -345,7 +345,7 @@ public class PI extends AbstractPreferenceInitializer {
 	 * @return true if successful set - false otherwise
 	 */
 	public static boolean put(String key,String value) {
-		IEclipsePreferences is = new InstanceScope().getNode(PI.PLUGIN_ID);
+		IEclipsePreferences is = InstanceScope.INSTANCE .getNode(PI.PLUGIN_ID);
 		is.put(key, value);
 		try {
 			is.flush();
@@ -398,7 +398,7 @@ public class PI extends AbstractPreferenceInitializer {
 
 
 	public static IEclipsePreferences get() {
-		return new InstanceScope().getNode(PI.PLUGIN_ID);
+		return InstanceScope.INSTANCE .getNode(PI.PLUGIN_ID);
 	}
 
 
@@ -430,16 +430,16 @@ public class PI extends AbstractPreferenceInitializer {
 
 
 	public static String get(String what ) {
-		String s = new InstanceScope().getNode(PI.PLUGIN_ID).get(what, null);
+		String s = InstanceScope.INSTANCE .getNode(PI.PLUGIN_ID).get(what, null);
 		if (s != null) {
 			return s;
 		}
-		s = new ConfigurationScope().getNode(PI.PLUGIN_ID).get(what,null);
+		s = ConfigurationScope.INSTANCE .getNode(PI.PLUGIN_ID).get(what,null);
 		if (s != null) {
 			return s;
 		}
 		
-		return new DefaultScope().getNode(PI.PLUGIN_ID).get(what, null);
+		return DefaultScope.INSTANCE .getNode(PI.PLUGIN_ID).get(what, null);
 	}
 
 
