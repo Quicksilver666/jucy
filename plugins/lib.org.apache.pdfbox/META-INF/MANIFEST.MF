@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pdfbox
 Bundle-SymbolicName: lib.org.apache.pdfbox
-Bundle-Version: 1.1.0
+Bundle-Version: 1.6.0
 Bundle-ClassPath: .,
- fontbox-1.1.0.jar,
- pdfbox-1.1.0.jar
+ fontbox-1.6.0.jar,
+ pdfbox-1.6.0.jar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: eu.jucy.logging,
  lib.org.apache.lucene,
@@ -20,7 +20,6 @@ Export-Package: org.apache.fontbox.afm,
  org.apache.fontbox.ttf,
  org.apache.fontbox.util,
  org.apache.pdfbox,
- org.apache.pdfbox.ant,
  org.apache.pdfbox.cos,
  org.apache.pdfbox.encoding,
  org.apache.pdfbox.encoding.conversion,
@@ -44,12 +43,14 @@ Export-Package: org.apache.fontbox.afm,
  org.apache.pdfbox.pdmodel.documentinterchange.logicalstructure,
  org.apache.pdfbox.pdmodel.documentinterchange.markedcontent,
  org.apache.pdfbox.pdmodel.documentinterchange.prepress,
+ org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf,
  org.apache.pdfbox.pdmodel.edit,
  org.apache.pdfbox.pdmodel.encryption,
  org.apache.pdfbox.pdmodel.fdf,
  org.apache.pdfbox.pdmodel.font,
  org.apache.pdfbox.pdmodel.graphics,
  org.apache.pdfbox.pdmodel.graphics.color,
+ org.apache.pdfbox.pdmodel.graphics.optionalcontent,
  org.apache.pdfbox.pdmodel.graphics.predictor,
  org.apache.pdfbox.pdmodel.graphics.xobject,
  org.apache.pdfbox.pdmodel.interactive.action,
@@ -62,9 +63,9 @@ Export-Package: org.apache.fontbox.afm,
  org.apache.pdfbox.pdmodel.interactive.measurement,
  org.apache.pdfbox.pdmodel.interactive.pagenavigation,
  org.apache.pdfbox.pdmodel.interactive.viewerpreferences,
+ org.apache.pdfbox.pdmodel.markedcontent,
  org.apache.pdfbox.pdmodel.text,
  org.apache.pdfbox.persistence.util,
- org.apache.pdfbox.searchengine.lucene,
  org.apache.pdfbox.util,
  org.apache.pdfbox.util.operator,
  org.apache.pdfbox.util.operator.pagedrawer

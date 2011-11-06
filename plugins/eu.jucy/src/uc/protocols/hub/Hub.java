@@ -491,9 +491,9 @@ public class Hub extends DCProtocol implements IHub {
 				
 				if (identity.currentlyTLSSupport()) {
 					sup.add(User.ADCS_SUPPORT);
-					if (getKeyPrint() != null) {
-						sup.add(User.KEYP);
-					}
+//					if (getKeyPrint() != null) {
+//						sup.add(User.KEYP);
+//					}
 				}
 				if (UDPEncryption.isUDPEncryptionSupported() && connection.usesEncryption()) {
 					sup.add(User.ADCS_UDP);

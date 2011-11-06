@@ -2,12 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Lucene Plug-in
 Bundle-SymbolicName: lib.org.apache.lucene
-Bundle-Version: 3.0.0
-Bundle-ClassPath: lucene-core-3.0.0.jar
+Bundle-Version: 3.4.0
+Bundle-ClassPath: lucene-core-3.4.0.jar
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.apache.lucene,
  org.apache.lucene.analysis,
  org.apache.lucene.analysis.standard,
+ org.apache.lucene.analysis.standard.std31,
  org.apache.lucene.analysis.tokenattributes,
+ org.apache.lucene.collation,
  org.apache.lucene.document,
  org.apache.lucene.index,
  org.apache.lucene.messages,
@@ -17,6 +20,4 @@ Export-Package: org.apache.lucene,
  org.apache.lucene.search.payloads,
  org.apache.lucene.search.spans,
  org.apache.lucene.store,
- org.apache.lucene.util,
- org.apache.lucene.util.cache
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+ org.apache.lucene.util

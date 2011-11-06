@@ -79,13 +79,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="lib.org.apache.lucene"
          download-size="0"
          install-size="0"
-         version="3.0.0"/>
+         version="3.4.0"/>
 
    <plugin
          id="lib.org.apache.pdfbox"
          download-size="0"
          install-size="0"
-         version="1.1.0"
+         version="1.6.0"
          unpack="false"/>
 
    <plugin

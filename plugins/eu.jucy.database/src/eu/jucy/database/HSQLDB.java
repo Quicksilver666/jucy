@@ -1073,7 +1073,7 @@ public class HSQLDB implements IDatabase {
 					}
 				}
 			}
-			logger.info("Totally changed files: "+count);
+			logger.info("Obsolete hashes/interleaves deleted in total: "+count);
 			return files;
 
 		} catch (SQLException e) {

@@ -20,6 +20,7 @@ import org.apache.lucene.document.Field;
 
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -43,7 +44,7 @@ public class InvertedIndex<V> implements ISearchMap<V> {
 	
 	private final List<V> itemByIndex = new ArrayList<V>();
 	
-	private final SimpleAnalyzer analyzer = new SimpleAnalyzer();
+	private final SimpleAnalyzer analyzer = new SimpleAnalyzer(	Version.LUCENE_34);
 	private final Directory index = new RAMDirectory();
 	
 
@@ -60,8 +61,11 @@ public class InvertedIndex<V> implements ISearchMap<V> {
 	public synchronized void put(V toMap) {
 		if (w == null) {
 		    try {
-				w = new IndexWriter(index, analyzer, true,
-				        IndexWriter.MaxFieldLength.UNLIMITED);
+		    	IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_34, analyzer);
+		    	
+				w = new IndexWriter(index, iwc);
+						//new IndexWriter(index, analyzer, true,
+				        //IndexWriter.MaxFieldLength.UNLIMITED);
 			} catch (Exception e) {
 				logger.error(e, e);
 			}
@@ -152,7 +156,7 @@ public class InvertedIndex<V> implements ISearchMap<V> {
 	private Set<V> getMatching(String querystr) {
 		Set<V> res = new HashSet<V>();
 		try {
-			Query q = new QueryParser(Version.LUCENE_CURRENT,"title", analyzer).parse(querystr);
+			Query q = new QueryParser(Version.LUCENE_34,"title", analyzer).parse(querystr);
 			IndexSearcher searcher = new IndexSearcher(index,true);
 			TopScoreDocCollector collector = TopScoreDocCollector.create(itemByIndex.size(),false);
 		//	TopDocCollector collector = new TopDocCollector(itemByIndex.size());
