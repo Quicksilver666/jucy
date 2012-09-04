@@ -16,19 +16,18 @@ Export-Package: uc,
  uc.protocols.client,
  uc.protocols.hub,
  uc.user
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui,
- eu.jucy.logging,
- lib.org.apache.tools.bzip2,
+Require-Bundle: eu.jucy.logging,
  eu.jucy.helpers,
- lib.net.sbbi.upnp,
- lib.fr.cryptohash,
+ eu.jucy.helpers.rcp,
+ org.eclipse.core.runtime,
  org.eclipse.equinox.http.jetty,
+ lib.net.sbbi.upnp,
+ lib.org.apache.tools.bzip2,
+ lib.fr.cryptohash,
  lib.org.apache.lucene,
  lib.org.apache.pdfbox,
  lib.com.jcraft.jzlib,
- eu.jucy.helpers.rcp,
- eu.jucy.helpers.ui
+ lib.org.jboss.netty
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Quicksilver

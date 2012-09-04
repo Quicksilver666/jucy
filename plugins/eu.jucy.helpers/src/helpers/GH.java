@@ -43,8 +43,14 @@ import javax.swing.filechooser.FileSystemView;
  */
 public final class GH {
 
-	private static final Random rand = new Random();
-	
+//	private static final Random rand = new Random();
+	private static final ThreadLocal<Random> trand = new ThreadLocal<Random>() {
+		@Override
+		protected Random initialValue() {
+			return new Random();
+		}
+		
+	};
 	
 	private static final FileSystemView chooser = FileSystemView.getFileSystemView();
 	
@@ -59,14 +65,14 @@ public final class GH {
     * @see java.util.Random#nextInt(int)
     */
 	public static int nextInt(int n) {
-		synchronized(rand) {
-			return rand.nextInt(n);
-		}
+	//	synchronized(rand) {
+			return trand.get().nextInt(n);
+	//	}
 	}
 	public static int nextInt() {
-		synchronized(rand) {
-			return rand.nextInt();
-		}
+		//synchronized(rand) {
+			return trand.get().nextInt();
+		//}
 	}
 	
 	
@@ -170,10 +176,12 @@ public final class GH {
 		FileInputStream in = null;
 		FileChannel sourcec = null; 
 		FileChannel destc  = null;
+		FileOutputStream out = null;
 		try {
 			in = new FileInputStream(source);
 			sourcec = in.getChannel();
-			destc = new FileOutputStream(dest).getChannel();
+			out = new FileOutputStream(dest);
+			destc = out.getChannel();
 			
 			long left = source.length();
 			long position= 0;
@@ -191,7 +199,7 @@ public final class GH {
 		} catch (IOException ioe) {
 			throw ioe;
 		} finally {
-			GH.close(destc,sourcec,in);
+			GH.close(destc,out,sourcec,in);
 		}	
 		
 	}

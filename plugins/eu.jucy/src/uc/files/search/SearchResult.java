@@ -163,6 +163,8 @@ public class SearchResult extends AbstractDownloadableFile implements ISearchRes
 		return usr;
 	}
 	
+
+	
 	public static class FolderSearchResult extends AbstractDownloadableFolder implements ISearchResult, IDownloadableFolder {
 
 		private final SearchResult sr;

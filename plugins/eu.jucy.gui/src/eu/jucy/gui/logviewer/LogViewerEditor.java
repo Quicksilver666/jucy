@@ -9,11 +9,16 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import logger.LoggerFactory;
 
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -41,11 +46,13 @@ import org.eclipse.swt.widgets.Table;
 
 
 
+import uc.DCClient;
 import uc.PI;
 import uc.database.DBLogger;
 import uc.database.IDatabase;
 import uc.database.ILogEntry;
 import uihelpers.CommandButton;
+import uihelpers.SUIJob;
 import uihelpers.TableViewerAdministrator;
 import uihelpers.TableViewerAdministrator.ColumnDescriptor;
 
@@ -62,7 +69,7 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 	public static final String ID =  "eu.jucy.gui.logviewer";
 	private static Logger logger = LoggerFactory.make();
 	
-	private static final int hitsPerPage = 500;
+//	private static final int hitsPerPage = 500;
 	
 	private TableViewer tableViewer;
 	private Table table;
@@ -79,7 +86,9 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 	
 	private Composite linkComp;
 	
-	private int page = 0;
+//	private int page = 0;
+	
+	private volatile long currentTime = System.currentTimeMillis();
 	
 	private int totalcount;
 	
@@ -153,11 +162,25 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 
 		pruneButton.addSelectionListener (new SelectionAdapter () {
 			public void widgetSelected (SelectionEvent e) {
-				Calendar cal = Calendar.getInstance();
+				final Calendar cal = Calendar.getInstance();
 				cal.set(calendar.getYear(), calendar.getMonth(), calendar.getDay());
-				ApplicationWorkbenchWindowAdvisor.get().getDatabase().pruneLogentrys(null, cal.getTime());
-				page = 0;
-				update(true);
+				final DCClient dcc = ApplicationWorkbenchWindowAdvisor.get();
+				new Job(Lang.DeleteLog) {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						dcc.getDatabase()
+							.pruneLogentrys(null, cal.getTime(),monitor);
+						new SUIJob(calendar) {
+							@Override
+							public void run() {
+								setCalendarToday();
+								update(true,false);
+							}
+						};
+						return Status.OK_STATUS;
+					}
+				}.schedule();
+
 			}
 		});
 		Calendar cal = Calendar.getInstance();
@@ -183,10 +206,11 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 				ISelection selection = event.getSelection();
 				if (selection instanceof IStructuredSelection) {
 					IStructuredSelection iss = (IStructuredSelection)selection;
-					if (!iss.isEmpty()) {
-						dbLogger = (DBLogger)iss.getFirstElement();
-						page = 0; //update page..
-						update(false);
+					DBLogger newl= (DBLogger)iss.getFirstElement();
+					if (newl != null && (newl != dbLogger)) {
+						dbLogger = newl;
+						setCalendarToday();
+						update(false,false);
 					}
 				}
 			}
@@ -271,6 +295,24 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 		super.dispose();
 	}
 
+	private void setCalendarToday() {
+		currentTime = getTodayMillis();
+		
+	}
+	
+	private long getTodayMillis() {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+//		long round = TimeUnit.DAYS.toMillis(1);
+//		long todayMillis = (System.currentTimeMillis()/round) * round;
+//		TimeZone tz = cal.getTimeZone();
+		return cal.getTimeInMillis();
+	}
+	
+	
 	@Override
 	public void setFocus() {
 		tableViewer.getTable().setFocus();
@@ -280,8 +322,14 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 		for (Control c : linkComp.getChildren()) {
 			c.dispose();
 		}
-		List<String> s = new ArrayList<String>(Arrays.asList("˂˂","-5","˂","</A>  "+(page+1)+"/"+getNrOFPages()+"  <A>","˃","+5","˃˃")); //these are no normal < > chars !!
-		List<Integer> pageInt = new ArrayList<Integer>(Arrays.asList(0,page-5,page-1,page,page+1,page+5,getNrOFPages()-1));
+		String date = new SimpleDateFormat("dd.MM.yy").format(currentTime);
+		List<String> s = new ArrayList<String>(Arrays.asList("-5","˂","</A>  "+date+"  <A>","˃","+5","˃˃")); //these are no normal < > chars !!
+		
+		long base = currentTime;
+		long day = TimeUnit.DAYS.toMillis(1);
+		
+		List<Long> pageInt = new ArrayList<Long>(
+				Arrays.asList( base - 5*day,base-day,base,base+day,base+5*day,getTodayMillis()));
 		
 		for (int i=0; i < s.size(); i++) {
 			final Link link = new Link(linkComp, SWT.NONE);
@@ -290,15 +338,16 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 		    
 			link.addListener(SWT.Selection, new Listener() {
 				public void handleEvent(Event event) {
-					int page = (Integer)link.getData();
-					if (page < 0) {
-						page = 0;
-					}
-					if (page >= getNrOFPages()) {
-						page = getNrOFPages()-1;
-					}
-					changeToPage(page);
+					long dayInMillis = (Long)link.getData();
 					
+					if (dayInMillis > getTodayMillis()) {
+						dayInMillis = getTodayMillis();
+					}
+//					if (page >= getNrOFPages()) {
+//						page = getNrOFPages()-1;
+//					}
+					changeToDay(dayInMillis);
+
 				}
 			});
 		}
@@ -310,20 +359,31 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 	   // link.setSize(140, 40);
 	}
 	
-	private void changeToPage(int page) {
-		if (this.page != page) {
-			this.page = page;
-			update(false);
+	private void changeToDay(long dayInMillis) {
+		if (currentTime != dayInMillis) {
+			boolean forward = currentTime < dayInMillis;
+			currentTime = dayInMillis;
+			update(false,forward);
 		}
 	}
 	
-	
-	private int getNrOFPages() {
-		return totalcount/hitsPerPage  +  (totalcount % hitsPerPage == 0 ? 0:1) ;
+	private void changeToSameDayAs(long timestamp) {
+		Calendar stamp = Calendar.getInstance();
+		stamp.setTimeInMillis(timestamp);
+		stamp.set(Calendar.HOUR_OF_DAY, 0);
+		stamp.set(Calendar.MINUTE, 0);
+		stamp.set(Calendar.SECOND, 0);
+		stamp.set(Calendar.MILLISECOND, 0);
+		changeToDay(stamp.getTimeInMillis());
 	}
 	
+	
+//	private int getNrOFPages() {
+//		return totalcount/hitsPerPage  +  (totalcount % hitsPerPage == 0 ? 0:1) ;
+//	}
+	
 
-	public void update(boolean both) {
+	public void update(boolean both,final boolean forwardDirection) {
 		if (tableViewer.getTable().isDisposed()) {
 			return;
 		}
@@ -333,25 +393,64 @@ public class LogViewerEditor extends UCEditor implements ISearchableEditor {
 		
 		styledText.setText("");
 		if (dbLogger != null) {
-			List<ILogEntry> logs = dbLogger.loadLogEntrys(hitsPerPage,hitsPerPage * page);
-			StringBuilder text = new StringBuilder();
-			SimpleDateFormat sdf = new SimpleDateFormat(PI.get(PI.logTimeStamps));
-			for (ILogEntry log:logs) {
-				text.append(sdf.format(new Date(log.getDate())))
-						.append(log.getMessage())
-						.append('\n');
+			Job job = new Job("Loading logs "+dbLogger.getName()) {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				monitor.beginTask("Loading", IProgressMonitor.UNKNOWN);
+				long today = currentTime, endOfDay= currentTime+TimeUnit.DAYS.toMillis(1);
+				final List<ILogEntry> logs = dbLogger.loadLogEntrys(today, endOfDay); //hitsPerPage,hitsPerPage * page);
+				if (logs.isEmpty()) {
+					final long stamp = dbLogger.getFirstLogNextTo(forwardDirection?endOfDay:today, forwardDirection);
+					
+					new SUIJob(styledText) {
+						@Override
+						public void run() {
+							if (stamp != -1) {
+								changeToSameDayAs(stamp);
+							} else {
+								styledText.setText("No logs to display for this date");
+							}
+						}
+					}.schedule();
+				} else {
+				
+					Collections.reverse(logs);
+					monitor.done();
+					new SUIJob(styledText) {
+						@Override
+						public void run() {
+							setLogs(logs);
+						}
+					}.schedule();
+				}
+					return Status.OK_STATUS;
 				
 			}
-			styledText.setText(text.toString());
-			
-			totalcount = dbLogger.countLogEntrys();
-			countLabel.setText(String.format(Lang.TotalMessages, totalcount));
-			countLabel.pack();
-			//offsetLabel.setText("Page: "+(page+1)+"/"+getNrOFPages());
-			//offsetLabel.pack();
-			
-			createLinks();
+			};
+		
+			job.schedule();
 		}
+	}
+	
+	private void setLogs(List<ILogEntry> logs) {
+		StringBuilder text = new StringBuilder();
+		SimpleDateFormat sdf = new SimpleDateFormat(PI.get(PI.logTimeStamps));
+		for (ILogEntry log:logs) {
+			text.append(sdf.format(new Date(log.getDate())))
+					.append(log.getMessage())
+					.append('\n');
+			
+		}
+		styledText.setText(text.toString());
+		
+		totalcount = dbLogger.countLogEntrys();
+		countLabel.setText(String.format(Lang.TotalMessages, totalcount));
+		countLabel.pack();
+		//offsetLabel.setText("Page: "+(page+1)+"/"+getNrOFPages());
+		//offsetLabel.pack();
+		
+		createLinks();
 	}
 	
 	

@@ -3,6 +3,7 @@ package uc.files.filelist;
 import helpers.GH;
 import helpers.SizeEnum;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,6 +34,7 @@ import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 
 import org.apache.lucene.search.BooleanClause;
@@ -44,8 +46,10 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
+import org.apache.lucene.util.Version;
 
 
+import org.apache.pdfbox.io.RandomAccessFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import org.apache.pdfbox.util.PDFTextStripper;
@@ -63,7 +67,7 @@ public class TextIndexer {
 	private static final Logger logger = LoggerFactory.make();
 	
 	
-	private static final int MAX_TOTALSIZE = 100*1024*1024; //max size to be indexed..
+//	private static final int MAX_TOTALSIZE = 100*1024*1024; //max size to be indexed..
 	private static final int MAX_RAMSIZE_FOR_PDF = 15 * 1024 * 1024; // max size to be held in ram..
 	private static final String FIELD_HASH = "hash",FIELD_CONTENT = "contents",FIELD_ENDING = "ending"; //contens field -> from PDFReader
 	
@@ -80,9 +84,11 @@ public class TextIndexer {
 		return false;
 	}
 	
-	private final SimpleAnalyzer analyzer = new SimpleAnalyzer();
+	private final SimpleAnalyzer analyzer = new SimpleAnalyzer(Version.LUCENE_34);
 	private final Directory index;
 	private IndexWriter w;
+	private final File scratch;
+	private RandomAccessFile scratchRaf;
 	
 	private final Set<HashValue> presentHashes = new HashSet<HashValue>();
 	private volatile boolean created = false;
@@ -97,9 +103,14 @@ public class TextIndexer {
 		//have to do that -> sadly because of indexer uses it and in 0.79 was set to nioFS which does not exist in old lucene..
 		
 		dir = new File(new File(PI.getStoragePath(),"db"),"textindex");
+		
 		File lockfile = new File(dir,"write.lock");
 		if (lockfile.exists() && !lockfile.delete()) {
 			lockfile.deleteOnExit();
+		}
+		scratch = new File(dir,"scratch");
+		if (scratch.isFile()) {
+			scratch.deleteOnExit();
 		}
 	
 		index = new NIOFSDirectory(dir); 
@@ -112,9 +123,9 @@ public class TextIndexer {
 			boolean createNew = !dir.isDirectory()
 					|| dir.listFiles().length == 0;
 			
-			w = new IndexWriter(index, analyzer, createNew,
-					IndexWriter.MaxFieldLength.UNLIMITED);
-			w.setRAMBufferSizeMB(10);
+			IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_34, analyzer);
+		//	iwc.setRAMBufferSizeMB(10);
+			w = new IndexWriter(index, iwc);
 			w.commit();
 
 			if (!createNew) {
@@ -146,7 +157,7 @@ public class TextIndexer {
 	
 	public static boolean matches(String filename,long filesize) {
 		String ending = GH.getFileEnding(filename).toLowerCase();
-		return SUPPORTED_ENDINGS.contains(ending) && 0 < filesize && filesize <= MAX_TOTALSIZE  ;
+		return SUPPORTED_ENDINGS.contains(ending) && 0 < filesize ; // && filesize <= MAX_TOTALSIZE  ;
 
 	}
 	
@@ -165,8 +176,6 @@ public class TextIndexer {
 		} catch (IOException e) {
 			logger.warn(e, e);
 		}
-
-	
 	}
 	
 	private boolean exists(HashValue hash) {
@@ -247,10 +256,10 @@ public class TextIndexer {
 	}
 	
 	private void blockingstop() {
-		if (job != null) {
+		while (job != null) {
 			job.cancel();
 			try {
-				job.join();
+				wait(100);
 			} catch (InterruptedException e) {
 				logger.warn(e,e);
 			}
@@ -285,11 +294,8 @@ public class TextIndexer {
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			String debugcurrent = ""; 
-			int priority = Thread.currentThread().getPriority();
-			Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 			try {
 				List<FileListFile> pdfFiles = new ArrayList<FileListFile>();
-				//FileList fl = list.getFileList();
 				for (FileListFile file: list.getFileList().getRoot()) {
 					if (matches(file.getName(),file.getSize())) {
 						pdfFiles.add(file);
@@ -300,15 +306,12 @@ public class TextIndexer {
 				for (FileListFile file: pdfFiles) {
 					File f = null;
 				
-					f = list.getFile(file.getTTHRoot());
-			
-
+					f = list.getFile(file.getTTHRoot()); //checks if its still there in current filelist
 					if (f != null) {
 						debugcurrent = file.getName() +"  "+file.getSize();
-					//	logger.debug(debugcurrent);
 						synchronized(TextIndexer.this) {
 							if (monitor.isCanceled()) {
-								break;
+								return Status.CANCEL_STATUS;
 							}
 							if (!exists(file.getTTHRoot())) {
 								monitor.subTask(String.format("%s (%s)",file.getName(),SizeEnum.getReadableSize(file.getSize())));
@@ -317,14 +320,18 @@ public class TextIndexer {
 						}
 					}
 					monitor.worked(1);
-
+					
+				}
+				if (scratchRaf != null) {
+					scratchRaf.close();
+					scratch.delete();
 				}
 
 			} catch (Throwable e) {
 				logger.warn(e + debugcurrent, e);
 			} finally {
-				Thread.currentThread().setPriority(priority);
 				monitor.done();
+				TextIndexer.this.job = null;
 				setCreated(true);
 			}
 			
@@ -344,7 +351,8 @@ public class TextIndexer {
 		}
 		try {
 			Document doc = new Document();
-			doc.add(new Field(FIELD_HASH, hash.getRaw(), Field.Store.YES));
+		
+			doc.add(new Field(FIELD_HASH,hash.getRaw(),0,hash.getRaw().length)); //, Field.Store.YES
 			doc.add(new Field(FIELD_ENDING,GH.getFileEnding(f.getName()),Field.Store.YES,Index.ANALYZED));
 			if (r != null) {
 				doc.add( new Field( FIELD_CONTENT, r ));
@@ -360,15 +368,16 @@ public class TextIndexer {
 	
 	private Reader getReader(File file) throws IOException {
 		FileInputStream input = new FileInputStream(file);
+		BufferedInputStream bin = new BufferedInputStream(input);
 		String fileending = GH.getFileEnding(file.getName());
 		if (fileending.equalsIgnoreCase("pdf")) {
 			PDDocument pdfDocument = null;
 			try {
-				if (file.length() > MAX_TOTALSIZE/2) {
-					System.gc();
-				}
-				pdfDocument = PDDocument.load(input,true);
-
+//				if (file.length() > MAX_TOTALSIZE/2) {
+//					System.gc();
+//				}
+				pdfDocument = PDDocument.load(bin, getScratchRaf(),true);
+			
 				if (pdfDocument.isEncrypted()) {
 					return null;
 				}
@@ -421,4 +430,14 @@ public class TextIndexer {
 	private void setCreated(boolean created) {
 		this.created = created;
 	}
+	
+	private RandomAccessFile getScratchRaf() throws IOException{
+		if (scratchRaf != null) {
+			scratchRaf.close();
+			scratch.delete();
+		}
+		scratchRaf = new RandomAccessFile(scratch,"rw");
+		return scratchRaf;
+	}
+	
 }

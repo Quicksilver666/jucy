@@ -60,6 +60,9 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	private static final Set<InetAddress> problematic = 
 		Collections.synchronizedSet(new HashSet<InetAddress>());
 	
+	private static final Set<InetAddress> invalidEncodedCerts =  //TODO this would be nice as workaround for those invalid certs
+			Collections.synchronizedSet(new HashSet<InetAddress>());
+	
 	private final boolean encryption;
 	private final boolean serverSide;
 	
@@ -90,8 +93,8 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	
 	private ByteBuffer encrypting, decrypting; //bytebuffers for encrypting and decrypting data..
 	
-	private final VarByteBuffer varOutBuffer = new VarByteBuffer(1024*4); //replaces the outgoing stringbuffer..
-	private final VarByteBuffer varInBuffer = new VarByteBuffer(1024*4);
+	private final VarByteBuffer varOutBuffer = new VarByteBuffer(1024*8); //replaces the outgoing stringbuffer..
+	private final VarByteBuffer varInBuffer = new VarByteBuffer(1024*8);
 
 	private final Semaphore semaphore = new Semaphore(0,false);
 
@@ -458,6 +461,10 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 			if (inetAddress != null) {
 				boolean contained = problematic.contains(inetAddress.getAddress());
 				problematic.add(inetAddress.getAddress());
+				if (e.toString().contains("Invalid encoding: zero length Int value")) {
+					invalidEncodedCerts.add(inetAddress.getAddress());
+				}
+				
 				if (Platform.inDevelopmentMode()) {
 					if (e.toString().contains("unknown_ca") || e.toString().contains("Invalid encoding: zero length Int value")) {
 						logger.info(e+" "+inetAddress.getAddress()+" probcontains: "+contained);
@@ -685,7 +692,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	@Override
 	public void reset(final InetSocketAddress addy ) {
 		
-		logger.debug("in reset("+addy.getHostName()+")");
+		logger.debug("in reset("+addy+")");
 		try {
 			final SocketChannel sochan = SocketChannel.open();
 			AbstractConnection.bindSocket( sochan);

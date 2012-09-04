@@ -27,7 +27,7 @@ public enum SizeEnum {
 	}
 	
 	SizeEnum( int powerof1024){
-		mult= (long)StrictMath.pow(1024, powerof1024);
+		mult= (long)Math.pow(1024, powerof1024);
 	}
 	
 	private final long mult;

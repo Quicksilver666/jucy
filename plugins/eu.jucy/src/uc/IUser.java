@@ -195,6 +195,7 @@ public interface IUser  {
 	int getUdpPort();
 	int getUDP6Port();
 	String getVersion();
+	String getAp();
 	HashValue getPD();
 	
 	
@@ -432,5 +433,7 @@ public interface IUser  {
 		}
 
 	}
+
+	
 
 }

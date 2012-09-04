@@ -1,6 +1,7 @@
 package uc.files;
 
 import java.io.File;
+import java.io.IOException;
 
 import uc.IUser;
 import uc.IHasUser.IMultiUser;

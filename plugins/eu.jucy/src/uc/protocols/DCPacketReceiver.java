@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import uc.DCClient;
 import uc.UDPhandler.PacketReceiver;
+import uc.protocols.hub.PSR;
 import uc.protocols.hub.RES;
 import uc.protocols.hub.SR;
 
@@ -52,7 +53,7 @@ public abstract class DCPacketReceiver implements PacketReceiver {
 	
 	
 	public boolean matches(byte one, byte two, byte three) {
-		return this.one == one && this.two == two && this.three == three;
+		return this.one == one & this.two == two & this.three == three;
 	}
 
 
@@ -78,7 +79,15 @@ public abstract class DCPacketReceiver implements PacketReceiver {
 
 		@Override
 		protected void received(InetSocketAddress from, ByteBuffer packet,CharBuffer contents) { 
-    		RES.receivedADCRES(from, contents,dcc);
+			if (packet.get(1) == 'R') {
+				RES.receivedADCRES(from, contents,dcc);
+			} else {
+				PSR.receivedPSR(from, contents, dcc);
+			}
+		}
+		
+		public boolean matches(byte one, byte two, byte three) {
+			return super.matches(one, two, three) | ('P' == one & 'S' == two &  'R' == three) ;
 		}
 	}
 	

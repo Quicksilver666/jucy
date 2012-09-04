@@ -26,7 +26,7 @@ public class MyNick extends AbstractNMDCClientProtocolCommand {
 		client.setProtocolNMDC(true);
 		String othersnick = matcher.group(1);
 		IUser other = null;
-		if (client.isIncoming()) {
+		if (client.isServer()) {
 			
 			other = client.getCh().getUserExpectedToConnect(othersnick,client.getOtherip());
 			if (other != null) {
@@ -63,7 +63,7 @@ public class MyNick extends AbstractNMDCClientProtocolCommand {
 		+ "|$Lock EXTENDEDPROTOCOLABCABCABCABCABCABC Pk="
 		+ DCClient.LONGVERSION.replace(' ', '_');
 		
-		if (!client.isIncoming()) {
+		if (!client.isServer()) {
 			FavHub fh = client.getSelf().getHub().getFavHub();
 			String s = fh.getSimpleHubaddy();
 			myNickAndLock += "Ref=" + s.replace(' ', '_');

@@ -51,7 +51,6 @@ import org.xml.sax.helpers.AttributesImpl;
 
 
 import uc.DCClient;
-import uc.FavFolders;
 import uc.FavHub;
 import uc.IUser;
 import uc.InfoChange;
@@ -66,7 +65,7 @@ import uc.database.HashedFile;
 import uc.database.IDatabase;
 import uc.files.filelist.FileListMapping.FileFilter;
 import uc.user.User;
-import uihelpers.IconManager;
+
 
 
 /**
@@ -215,23 +214,7 @@ public class OwnFileList implements IOwnFileList  {
 		}
 	}
 
-	/**
-	 * used in conjunction with icon manager..
-	 * shared folders are used to get Icons for
-	 * File endings
-	 */
-	public void loadSharedDirsForIconManager(final FavFolders favs) {
-		dcc.executeDir(new Runnable() {
-			public void run() {
-				List<SharedDir> loadeddirs = favs.getSharedDirs();
-				for (SharedDir sd: loadeddirs) {
-					if (sd.getDirectory().isDirectory()) {
-						IconManager.loadImageSources(sd.getDirectory());
-					}
-				}
-			}
-		});
-	}
+
 	
 	/**
 	 * called on creating for faster 
@@ -273,7 +256,6 @@ public class OwnFileList implements IOwnFileList  {
 		PI.put(PI.lastFilelistSize, getSharesize());
 		PI.put(PI.lastNumberOfFiles, getNumberOfFiles());
 		
-
 		
 		if (pdfIndex != null) {
 			pdfIndex.stop();
@@ -283,9 +265,6 @@ public class OwnFileList implements IOwnFileList  {
 			refresher.cancel(false);
 		}
 		pca.dispose();
-		
-		
-		
 	}
 	
 	/**
@@ -316,23 +295,28 @@ public class OwnFileList implements IOwnFileList  {
 				newFilelist.setCID(filelistSelf.getCID());
 				
 				//if for example less files are shared this will help that no useless files are hashed
+				
 				hashEngine.clearFileJobs(); 
 				List<TopFolder> topLevelFolders = new ArrayList<TopFolder>();
 				loadSharedDirs(topLevelFolders,newFilelist);
+		
 				
 				
 				monitor.beginTask(LanguageKeys.StartedRefreshingTheFilelist,topLevelFolders.size() +1);
 				
 				ISearchMap<IFileListItem> filelistmap = new InvertedIndex<IFileListItem>(new FileListMapping());
 				buildFilelist(newFilelist,topLevelFolders,filelistmap,monitor);
-				
+				TmpSharedTopFolder newHiddenTop = hiddenTop.copyTo(newFilelist); 
 				if (monitor.isCanceled()) {
 					return;
 				}
-				replaceFilelist(newFilelist,topLevelFolders,filelistmap);
-		
+				if (!newFilelist.deepEquals(fileList)) {
+					replaceFilelist(newFilelist,topLevelFolders,filelistmap,newHiddenTop);
+					logger.info("actually replaced Filelist!");
+				}
 				monitor.worked(1);
 				
+				filelistNeedsRefresh = false; 
 				dcc.logEvent( LanguageKeys.FinishedFilelistRefresh );
 				
 			} finally {
@@ -347,10 +331,10 @@ public class OwnFileList implements IOwnFileList  {
 		}
 	}
 	
-	private void replaceFilelist(FileList currentFilelist,List<TopFolder> topLevelFolders,ISearchMap<IFileListItem> filelistmap) {	
+	private void replaceFilelist(FileList currentFilelist,List<TopFolder> topLevelFolders,ISearchMap<IFileListItem> filelistmap,TmpSharedTopFolder newHiddenTop) {	
 		this.filelistmap = filelistmap;
 		User self = (User)fileList.getUsr();
-		hiddenTop = hiddenTop.copyTo(currentFilelist); //the files added by hand won't be in the list.. if they are not copied..
+		hiddenTop = newHiddenTop; //the files added by hand won't be in the list.. if they are not copied..
 		
 		self.setFilelistDescriptor(new FileListDescriptor(self,currentFilelist));
 		self.setShared(currentFilelist.getSharesize());
@@ -365,7 +349,7 @@ public class OwnFileList implements IOwnFileList  {
 		if (oldFilelist.getSharesize() != fileList.getSharesize()||oldFilelist.getNumberOfFiles() != fileList.getNumberOfFiles()) { //equals for hub..
 			dcc.notifyChangedInfo(InfoChange.Sharesize);
 		}
-		filelistNeedsRefresh = false; // now its the same again in ram as on disc..
+		
 	}
 	
 	

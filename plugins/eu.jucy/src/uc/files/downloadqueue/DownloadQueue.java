@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
 import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
-import org.eclipse.ui.PlatformUI;
+
 
 
 
@@ -68,7 +68,7 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 			public void preferenceChanged(String preference,String oldvalue,String newValue) {
 				if (!tthRoots.isEmpty()) { //restart if the DownloadQueue is not empty..
 					logger.debug("restarting workbench");
-					PlatformUI.getWorkbench().restart();
+					dcc.restart();
 				}
 			}
 		};

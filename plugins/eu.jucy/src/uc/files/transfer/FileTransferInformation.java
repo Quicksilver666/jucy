@@ -11,7 +11,10 @@ import uc.crypto.HashValue;
 import uc.crypto.InterleaveHashes;
 
 import uc.files.downloadqueue.AbstractDownloadQueueEntry;
+import uc.files.downloadqueue.FileDQE;
 import uc.files.filelist.FileListFile;
+import uc.files.transfer.AbstractReadableFileInterval.FileReadInterval;
+import uc.files.transfer.AbstractReadableFileInterval.MemoryReadInterval;
 import uc.protocols.Compression;
 import uc.protocols.TransferType;
 import uc.protocols.client.ClientProtocol;
@@ -330,33 +333,46 @@ public class FileTransferInformation  {
 			switch(getType()) {
 			case FILE:
 				FileListFile flfile = dcc.getFilelist().get(getHashValue());
+				long startpos = getStartposition();
 				if (flfile != null && flfile.mayDownload(getOther())) {
 					f  = dcc.getFilelist().getFile(flfile);
 					if (f != null && f.canRead()) {
-						long startpos = getStartposition();
+						
 						if (getLength() == -1) {
 							setLength( f.length() - startpos);
 						}
 						//check if the requested length is not too long..
-						if (getLength() + getStartposition() > f.length()) {
-							setLength(f.length()- getStartposition() );
+						if (getLength() + startpos > f.length()) {
+							setLength(f.length()- startpos );
 						}
 						
-						fileInterval = new ReadableFileInterval(f,getStartposition(),getLength()); 
+						fileInterval = new FileReadInterval(f,getStartposition(),getLength()); 
 						setNameOfTransferred(f.getName());
+					}
+				} else {
+					AbstractDownloadQueueEntry adqe = dcc.getDownloadQueue().get(getHashValue());
+					if (adqe instanceof FileDQE) {
+						FileDQE fdqe = (FileDQE)adqe;
+						
+						if (getLength() == -1 | getLength() > fdqe.getBytesReadable(startpos)) {
+							setLength(fdqe.getBytesReadable(startpos));
+						}
+						
+						fileInterval = fdqe.getReadInterval(this);
+						setNameOfTransferred(fdqe.getFileName());
 					}
 				}
 				break;
 			case FILELIST:
 				byte[] filelist = dcc.getOwnFileList().writeFileList(fileListSubPath, recursive,bz2Compressed);
 
-				fileInterval = new ReadableFileInterval(filelist);
+				fileInterval = new MemoryReadInterval(filelist);
 				setLength(filelist.length);
 				break;
 			case TTHL:
 				InterleaveHashes interleaves = dcc.getDatabase().getInterleaves(getHashValue());
 				if (interleaves != null) {
-					fileInterval = ReadableFileInterval.create(interleaves);
+					fileInterval = AbstractReadableFileInterval.create(interleaves);
 					setLength(fileInterval.length());
 				} 
 				break;
@@ -377,7 +393,7 @@ public class FileTransferInformation  {
 		if (isDownload()) {
 			return new Download(this,cp,(AbstractWritableFileInterval)fileInterval);
 		} else if (isUpload()){
-			return new Upload(this,cp,(ReadableFileInterval)fileInterval);
+			return new Upload(this,cp,(AbstractReadableFileInterval)fileInterval);
 		}
 		
 		throw new IllegalStateException();

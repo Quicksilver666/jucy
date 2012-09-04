@@ -4,11 +4,6 @@ import helpers.GH;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 import logger.LoggerFactory;
 
@@ -31,14 +26,15 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
+import eu.jucy.gui.Lang;
 import eu.jucy.gui.itemhandler.DownloadableHandlers.RemoveDownloadableFromQueueHandler;
 
 
 
-import uc.PI;
+
 import uc.database.DBLogger;
 import uc.database.IDatabase;
-import uc.database.ILogEntry;
+
 import uihelpers.SUIJob;
 
 public abstract class LogViewerHandlers extends AbstractHandler {
@@ -53,7 +49,7 @@ public abstract class LogViewerHandlers extends AbstractHandler {
 			IEditorPart part = HandlerUtil.getActiveEditor(event);
 			if (part instanceof LogViewerEditor && update) {
 				logger.debug("Running update");
-				((LogViewerEditor)part).update(true);
+				((LogViewerEditor)part).update(true,false);
 				logger.debug("Running update done");
 			}
 			
@@ -72,22 +68,25 @@ public abstract class LogViewerHandlers extends AbstractHandler {
 			final LogViewerEditor part =(LogViewerEditor)HandlerUtil.getActiveEditor(event);
 			part.setFilter(entity);
 			
-			ApplicationWorkbenchWindowAdvisor.get().executeDir(new Runnable() {
-				public void run() {
+			new Job(Lang.DeleteLog) {
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
 					logger.debug("running delete");
-					entity.deleteEntity();
+					entity.deleteEntity(monitor);
 					logger.debug("deleted");
 					new SUIJob() {
 						@Override
 						public void run() {
 							logger.debug("update start");
 							part.removeFilter(entity);
-							part.update(true);
+							part.update(true,true);
 							logger.debug("update done");
 						}
 					}.schedule();
+					return Status.OK_STATUS;
 				}
-			});
+				
+			}.schedule();
 			return false;
 		}
 	}
@@ -203,29 +202,49 @@ public abstract class LogViewerHandlers extends AbstractHandler {
 
 	
 	private static void writeTo(File f, DBLogger entity,IProgressMonitor monitor) throws IOException {
-		int count = entity.countLogEntrys();
-		SimpleDateFormat sdf = new SimpleDateFormat(PI.get(PI.logTimeStamps));
-		monitor.subTask(f.getName());
-		PrintStream ps = new PrintStream(f);
-		try {
-			int current = count;
-			do {
-				int toLoad = Math.min(current, 1000);
-				current -= toLoad;
-				
-				List<ILogEntry> logs = entity.loadLogEntrys(toLoad, current);
-				Collections.reverse(logs);
-				for (ILogEntry log:logs) {
-					ps.println(sdf.format(new Date(log.getDate())) +log.getMessage());
-				}
-				if (monitor.isCanceled()) {
-					break;
-				}
-				monitor.worked(toLoad);
-			} while (current > 0);
-		} finally {
-			ps.close();
-		}
+		entity.writeToFile(f, monitor);
+	
+//	//	int count = entity.countLogEntrys();
+//		SimpleDateFormat sdf = new SimpleDateFormat(PI.get(PI.logTimeStamps));
+//		monitor.subTask(f.getName());
+//		PrintStream ps = null;
+////		long readingFromDB= 0,writingToFile= 0;
+//		List<Long> days = entity.getDays();
+//		try {
+//			ps = new PrintStream(f);
+//			for (Long day:days) {
+//				List<ILogEntry> logs = entity.loadLogEntrys(day, day+TimeUnit.DAYS.toMillis(1));
+//				for (ILogEntry log:logs) {
+//					ps.println(sdf.format(new Date(log.getDate())) +log.getMessage());
+//				}
+//				if (monitor.isCanceled()) {
+//					break;
+//				}
+//				monitor.worked(logs.size());
+//			}
+////			int current = count;
+////			do {
+////				int toLoad = Math.min(current, 1000);
+////				current -= toLoad;
+////		//		long countA = System.currentTimeMillis();
+////				List<ILogEntry> logs = entity.loadLogEntrys(toLoad, current);
+////		//		long countB = System.currentTimeMillis();
+////				Collections.reverse(logs);
+////				for (ILogEntry log:logs) {
+////					ps.println(sdf.format(new Date(log.getDate())) +log.getMessage());
+////				}
+////	//			long countC = System.currentTimeMillis();
+////				if (monitor.isCanceled()) {
+////					break;
+////				}
+////		//		readingFromDB+= countB-countA;
+////		//		writingToFile += countC-countB;
+////				monitor.worked(toLoad);
+////			} while (current > 0);
+//		} finally {
+//			GH.close(ps);
+//		}
+//	//	logger.info("reading: "+readingFromDB +"  writing: "+writingToFile);
 	}
 
 }

@@ -261,13 +261,15 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 		
 		Assert.isNotNull(otherip);
 		
-		if (!incoming) {
+		if (!isServer()) {
 			if (nmdc) { //outgoing therefore the protocol is already set..
 				MyNick.sendMyNickAndLock(this);
 			} else {
 				SUP.sendSUP(this);
+				INF.sendINFClientToServer(this);
 			}
-		}
+		} 
+		//if not server nmdc variable is not set! 
 		
 	}
 
@@ -825,7 +827,7 @@ public class ClientProtocol extends DCProtocol implements IHasUser, IHasDownload
 	 * 
 	 * @return true if on our side was the serversocket
 	 */
-	boolean isIncoming() {
+	boolean isServer() {
 		return incoming;
 	}
 

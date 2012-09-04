@@ -1,7 +1,13 @@
 package uc.database;
 
+import helpers.GH;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import uc.DCClient;
 import uc.FavHub;
@@ -24,7 +30,8 @@ public class DBLogger {
 	
 	private final IDatabase database;
 	
-
+	//private long[] stats; //3 entrys first, last , total;
+	
 	/**
 	 * 
 	 * @param usr
@@ -77,6 +84,12 @@ public class DBLogger {
 			public String getName() {
 				return name;
 			}
+
+			@Override
+			public int compareTo(ILogEntry o) {
+				return GH.compareTo(getDate(), o.getDate());
+			}
+			
 		};
 	}
 	
@@ -87,22 +100,45 @@ public class DBLogger {
 		}
 	}
 	
+	/**
+	 * 
+	 * @deprecated
+	 */
 	public List<ILogEntry> loadLogEntrys(int maxAmmount,int offset) {
 		return database.getLogentrys(entityID, maxAmmount, offset);
+	}
+	
+	public List<ILogEntry> loadLogEntrys(long fromTimeStamp,long toTimestamp) {
+		return database.getLogentrys(entityID, fromTimeStamp,toTimestamp );
+	}
+	
+	public List<Long> getDays() {
+		return database.getDaysWithLogs(entityID);
 	}
 	
 	public int countLogEntrys() {
 		return database.countLogentrys(entityID);
 	}
 	
-	public void deleteEntity() {
-		database.pruneLogentrys(entityID, new Date(Long.MAX_VALUE));
+
+	public void writeToFile(File f,IProgressMonitor monitor) throws IOException {
+		database.writeLogToFile(entityID, f, monitor);
+	}
+	
+	
+	public void deleteEntity(IProgressMonitor monitor) {
+		database.pruneLogentrys(entityID, new Date(Long.MAX_VALUE),monitor);
 	}
 
 	public String getName() {
 		return name;
 	}
 
+	
+	public long getFirstLogNextTo(long timestamp,boolean forward) {
+		return database.getFirstLogNextTo(entityID,  new Date(timestamp), forward);
+
+	}
 
 
 	@Override

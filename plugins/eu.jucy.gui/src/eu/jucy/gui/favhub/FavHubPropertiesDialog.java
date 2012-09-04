@@ -8,6 +8,7 @@ import org.eclipse.swt.layout.GridLayout;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -214,14 +215,29 @@ public class FavHubPropertiesDialog extends Dialog {
 	
 	private boolean setResultIfValidForFHGeneration() {
 		String hubAddress = hubAddressText.getText();
-		if (!GH.isNullOrEmpty(hubAddress) && !alreadyExists(hubAddress) && checkValidStrings()) {
-			if (working == null) {
-				working = new FavHub(hubAddress);
-			}
-			result = working;
-			return true;
+		if (GH.isNullOrEmpty(hubAddress)) {
+			//no hubaddress
+			MessageDialog.openError(getShell(), "Error", "Hub address empty!"); //TODO translate
+			return false;
 		}
-		return false;
+		if (alreadyExists(hubAddress)) {
+			//already exists
+			MessageDialog.openError(getShell(), "Error", "Hub address already in use!"); //TODO translate
+			return false;
+		}
+		if (!checkValidStrings()) {
+			//check nick / userdescription and email
+			MessageDialog.openError(getShell(), "Error", "Check nick/user description/email field!"); //TODO translate
+			return false;
+		}
+			
+		if (working == null) {
+			working = new FavHub(hubAddress);
+		}
+		result = working;
+		return true;
+		
+		
 	}
 	
 

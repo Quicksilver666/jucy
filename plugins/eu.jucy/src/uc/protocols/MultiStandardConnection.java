@@ -70,9 +70,9 @@ public class MultiStandardConnection implements Runnable {
 			msc.start();
 			try {
 				//wait for selector getting set
-				while (msc.selector == null) {
-					synchronized(msc) {
-						msc.wait(30);
+				synchronized(msc) {
+					while (msc.selector == null) {
+						msc.wait(100);
 					}
 				}
 				
@@ -183,7 +183,7 @@ public class MultiStandardConnection implements Runnable {
 				if (selector == null) {
 					selector = Selector.open();
 				}
-				this.notifyAll();
+				notifyAll();
 			}
 			logger.debug("selector created");
 	        // Wait for events

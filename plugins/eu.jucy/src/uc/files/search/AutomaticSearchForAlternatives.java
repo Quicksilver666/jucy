@@ -1,7 +1,6 @@
 package uc.files.search;
 
 import helpers.PreferenceChangedAdapter;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -131,7 +130,6 @@ public class AutomaticSearchForAlternatives implements Runnable, ISearchResultLi
 	    		dcc.getDownloadQueue().containsDQE(sr.getTTHRoot())) {
 	    	logger.debug("found alt: "+sr.getName());
 	    	sr.download();
-	    	
 	    }
 		
 	}

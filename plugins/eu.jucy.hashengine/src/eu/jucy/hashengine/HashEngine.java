@@ -4,6 +4,7 @@ package eu.jucy.hashengine;
 
 
 import helpers.GH;
+import helpers.SizeEnum;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import java.util.concurrent.PriorityBlockingQueue;
+
 
 
 
@@ -56,8 +58,7 @@ public class HashEngine implements IHashEngine {
 	private static final Logger logger = LoggerFactory.make();
 
 	private final PriorityBlockingQueue<HashJob> jobQueue = new PriorityBlockingQueue<HashJob>();
-//	private final BlockingQueue<HashJob> highPriorityQueue = new LinkedBlockingQueue<HashJob>();
-//	private final BlockingQueue<HashJob> lowPriorityQueue = new LinkedBlockingQueue<HashJob>();
+
 	
 	/**
 	 * set to check if the HashJob is not already present in the 
@@ -69,68 +70,107 @@ public class HashEngine implements IHashEngine {
 	private volatile HashJob currentlyHashed = null;
 	
 	private volatile long sizeLeftForHashing = 0;
+	private volatile long hashedConsecutively = 0;
+	private static final long WCF = 1000000; // correction factor...
 	
 	private Set<IHashedListener> listeners = 
 		Collections.synchronizedSet(new HashSet<IHashedListener>());
 	
 
+	//private final Object hashersynch = new Object();
+	private volatile Job hasher;
+	private volatile boolean shutdown = false;
 
 	public HashEngine() {
 	}
 	
 
+	
+	
 	public void init() {
-		Runnable r = new Runnable() {
-			public void run() {
-				try {
-					while(true) {
-						HashJob h = jobQueue.take();
-						
-//							highPriorityQueue.poll(); //by first trying blocks and then files.. but after all waiting on blocks.. its waitfree for blocks and fair for files
-//						if (h == null) {
-//							h = lowPriorityQueue.poll();
-//						}
-//						if (h == null) {
-//							h = highPriorityQueue.poll(10, TimeUnit.SECONDS);
-//						}
-						currentlyHashed = h;
-						if (h != null) {
-							h.run();
-						}
-						synchronized(filesToBeHashed) {
-							if (h instanceof HashFileJob) {
-								HashFileJob hfj = (HashFileJob)h;
-								
-								filesToBeHashed.remove(h); //remove if its a file
-								sizeLeftForHashing -= hfj.file.length();
-							}
-							currentlyHashed = null;
-						}
-						
-					}
-				} catch(Exception e) {
-					logger.error("Error in hashthread: "+e,e);
-				}
-
-				execThread(this); //if some error occurs -> reschedule..
-			}
-		};
-		execThread(r);	
+		shutdown = false;
 	}
 
 	public void stop() {
+		shutdown = true;
+		synchronized(filesToBeHashed) {
+			while (hasher != null) {
+				hasher.cancel();
+				try {
+					filesToBeHashed.wait(50);
+				} catch (InterruptedException e) {
+					logger.warn(e,e);
+				}
+			}
+		}
 		clearFileJobs();
 		jobQueue.clear();
-		//highPriorityQueue.clear();
-		
 	}
 	
 
 
 
-	private void execThread(Runnable r) {
-		Thread t = new Thread(r,"Main-HashThread");
-		t.start();
+	private void scheduleIfNeeded() {
+		synchronized(filesToBeHashed) {
+			if (hasher == null & !shutdown) {
+				hasher = new Job("Hashing "+SizeEnum.getReadableSize(hashedConsecutively+sizeLeftForHashing)) {
+					private long total;
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						synchronized(filesToBeHashed) {
+							total = hashedConsecutively+sizeLeftForHashing;
+						}
+						monitor.beginTask("Hashing", (int)(total/WCF));
+						monitor.worked((int)(hashedConsecutively/WCF));		
+						try {
+							while(!monitor.isCanceled()) {
+								HashJob h = jobQueue.poll();
+								
+								if (h != null) {
+									currentlyHashed = h;
+									if (h instanceof HashFileJob) {
+										monitor.subTask(((HashFileJob) h).file.getName());
+									} else {
+										monitor.subTask("Chunk");
+									}
+									h.run();
+								} else {
+									hashedConsecutively = 0;
+									break;
+								}
+								synchronized(filesToBeHashed) {
+									filesToBeHashed.remove(h); 
+									sizeLeftForHashing -= h.getSize();
+									hashedConsecutively+= h.getSize();
+									monitor.worked((int)(h.getSize() / WCF));
+									currentlyHashed = null;
+									if (total != hashedConsecutively+sizeLeftForHashing) {
+										break;
+									}
+								}	
+							}
+						} catch(Exception e) {
+							logger.error("Error in hashthread: "+e,e);
+						} finally {
+							monitor.done();
+							synchronized(filesToBeHashed) {
+								hasher = null;
+							}
+							if (!jobQueue.isEmpty() && !monitor.isCanceled()) {
+								scheduleIfNeeded();
+							} 
+							
+						}
+						return Status.OK_STATUS;
+					}
+				};
+				hasher.setUser(false);
+				
+				hasher.setSystem(sizeLeftForHashing < 1L*1000L*1000L*1000L | filesToBeHashed.size() <= 2); // not visible for small amount of hashing..
+				
+				hasher.schedule();
+			}
+		}
 	}
 
 
@@ -140,7 +180,6 @@ public class HashEngine implements IHashEngine {
 	 */
 
 	public void hashFile(File f,boolean highPriority, IHashedFileListener listener) {
-
 		HashFileJob hfj = new HashFileJob(f,listener,highPriority);
 		synchronized(filesToBeHashed) {
 			if (!filesToBeHashed.contains(hfj) && !hfj.equals(currentlyHashed)) {
@@ -148,11 +187,19 @@ public class HashEngine implements IHashEngine {
 				//(highPriority? highPriorityQueue: lowPriorityQueue).offer(hfj);
 				filesToBeHashed.add(hfj);
 				sizeLeftForHashing += f.length();
+				scheduleIfNeeded();
 			}
 		}
 	}
 	
-
+	public void checkBlock(IBlock block, VerifyListener checkListener) {
+		VerifyBlock vb = new VerifyBlock(block,checkListener);
+		synchronized(filesToBeHashed) {
+			jobQueue.offer(vb);
+			sizeLeftForHashing += vb.getSize();
+			scheduleIfNeeded();
+		}
+	}
 	
 	
 
@@ -160,19 +207,16 @@ public class HashEngine implements IHashEngine {
 	 */
 	public void clearFileJobs() {
 		synchronized(filesToBeHashed) {
-//			while (filesTohash.peekLast() instanceof HashFileJob) {
-//				filesTohash.pollLast();
-//			}
-			
 			jobQueue.removeAll(filesToBeHashed);
-			
-		//	lowPriorityQueue.clear();
 			filesToBeHashed.clear();
 			sizeLeftForHashing = 0;
 			if (currentlyHashed instanceof HashFileJob) {
 				HashFileJob hfj = (HashFileJob)currentlyHashed ;
 				filesToBeHashed.add(hfj);
 				sizeLeftForHashing+= hfj.file.length();
+			}
+			for (HashJob job:jobQueue) {
+				sizeLeftForHashing+= job.getSize();
 			}
 		}
 	}
@@ -193,10 +237,7 @@ public class HashEngine implements IHashEngine {
 	}
 
 
-	public void checkBlock(IBlock block, VerifyListener checkListener) {
-	//	highPriorityQueue.offer( new VerifyBlock(block,checkListener) ); //hash with high priority..
-		jobQueue.offer(new VerifyBlock(block,checkListener));
-	}
+
 
 	
 	public void registerHashedListener(IHashedListener listener) {
@@ -259,14 +300,18 @@ public class HashEngine implements IHashEngine {
 
 		@Override
 		public int compareTo(HashJob o) {
-			if (o instanceof VerifyBlock) {
+			int x = super.compareTo(o);
+			if (x == 0 & o instanceof VerifyBlock) {
 				VerifyBlock vb = (VerifyBlock)o;
 				return block.compareTo(vb.block);
 			}
-			return super.compareTo(o);
+			return x;
 		}
 		
-		
+		@Override
+		public long getSize() {
+			return block.getLength();
+		}
 	}
 
 	/**
@@ -290,14 +335,15 @@ public class HashEngine implements IHashEngine {
 			Job hashJob = new Job("Hashing "+file.getName()) {
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
+					IStatus s = null;
 					try {
 						monitor.beginTask("Hashing "+file.getName(), (int)(file.length()/65536)+1 );
-						HashFileJob.this.run(monitor);
+						s = HashFileJob.this.run(monitor);
 						
 					} finally {
 						monitor.done();
 					}
-					return Status.OK_STATUS;
+					return s;
 				}
 
 				@Override
@@ -315,7 +361,7 @@ public class HashEngine implements IHashEngine {
 		
 		
 		
-		public void run(IProgressMonitor monitor) {
+		public IStatus run(IProgressMonitor monitor) {
 			Date datechanged = new Date(file.lastModified());
 			FileChannel fc = null;
 			try {
@@ -325,6 +371,9 @@ public class HashEngine implements IHashEngine {
 				
 				
 				InterleaveHashes inter = getHasher().hash( fc , file.length(), monitor);
+				if (inter == null || monitor.isCanceled()) {
+					return Status.CANCEL_STATUS;
+				}
 				while (inter.byteSize() > 1024*256) { //128 KiB max size -> DB does not allow more...
 					inter = inter.getParentInterleaves();
 				}
@@ -335,6 +384,7 @@ public class HashEngine implements IHashEngine {
 				Date after = new Date();
 				
 				synchronized(listeners) {
+					logger.info("size left: "+sizeLeftForHashing + "  "+file.length());
 					for (IHashedListener listener: listeners) {
 						listener.hashed(file, after.getTime()- before.getTime(),sizeLeftForHashing-file.length());
 					}
@@ -355,9 +405,15 @@ public class HashEngine implements IHashEngine {
 				logger.info("File changed during hashing "+file.getPath());
 				//run(monitor);
 			} 
+			return Status.OK_STATUS;
 		}
 
+		
 
+		@Override
+		public long getSize() {
+			return file.length();
+		}
 
 		@Override
 		public int hashCode() {
@@ -382,6 +438,16 @@ public class HashEngine implements IHashEngine {
 			} else if (!file.equals(other.file))
 				return false;
 			return true;
+		}
+		
+		@Override
+		public int compareTo(HashJob o) {
+			int x = super.compareTo(o);
+			if (x == 0 & o instanceof HashFileJob) {
+				HashFileJob hfj = (HashFileJob)o;
+				return file.compareTo(hfj.file);
+			}
+			return x;
 		}
 				
 	}
@@ -412,7 +478,7 @@ public class HashEngine implements IHashEngine {
 			return GH.compareTo(priority, o.priority);
 		}
 		
-		
+		public abstract long getSize();
 
 	}
 }

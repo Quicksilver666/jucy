@@ -49,8 +49,7 @@ public class QUI extends AbstractADCHubCommand {
 	}
 	
 	public QUI() {
-
-		setPattern(prefix+" ("+SID+") ?(.*)",true);
+		setPattern("IQUI ("+SID+")(.*)",true);
 	}
 
 

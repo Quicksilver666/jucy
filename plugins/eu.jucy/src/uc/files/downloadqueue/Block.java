@@ -357,7 +357,18 @@ public class Block implements IBlock {
 				return total;
 			}
 		}
-		
+	}
+	
+	public boolean isIntervalBeingWritten() {
+		for (int i = blocknumber; i >=0; i--) {
+			switch(dqe.getBlock(i).state) {
+			case EMPTY: continue;
+			case FINISHED: return false;
+			case WRITEINPROGRESS: return true;
+			case UNVERIFIED: return false;
+			}
+		}
+		return false;
 	}
 	
 	public int getIntervalLengthInBlocks() {
@@ -387,7 +398,7 @@ public class Block implements IBlock {
 	public int compareTo(IBlock o) {
 		if (o instanceof Block) {
 			Block b = (Block)o;
-			int i = dqe.getTargetPath().compareTo(b.dqe.getTargetPath());
+			int i = dqe.getID().compareTo(b.dqe.getID());
 			if (i == 0) {
 				i = GH.compareTo(blocknumber, b.blocknumber);
 			}

@@ -128,6 +128,8 @@ public class SearchSpyEditor extends UCEditor implements ISearchReceivedListener
 		tableViewer.setInput(this);
 		ApplicationWorkbenchWindowAdvisor.get().registerSRL(this);
 		setControlsForFontAndColour(tableViewer.getTable());
+		getSite().setSelectionProvider(tableViewer);
+
 	}
 
 
@@ -245,6 +247,10 @@ public class SearchSpyEditor extends UCEditor implements ISearchReceivedListener
 
 		public long getDate() {
 			return date;
+		}
+		
+		public String toString() {
+			return searchString;
 		}
 		
 	}

@@ -5,6 +5,7 @@ import helpers.LockedRunnable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
@@ -28,10 +30,14 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import logger.LoggerFactory;
+
+
 import org.apache.log4j.Logger;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import uc.DCClient;
 import uc.IUser;
+import uc.PI;
 import uc.crypto.BASE32Encoder;
 import uc.crypto.HashValue;
 import uc.crypto.InterleaveHashes;
@@ -266,7 +272,7 @@ public class HSQLDB implements IDatabase {
 			// creating table tths
 			s.execute("CREATE CACHED TABLE hashes ("
 					+ "tthroot CHARACTER("+ TigerHashValue.serializedDigestLength+ ") " 
-					+ " ,date BIGINT " 
+					+ ", date BIGINT " 
 					+ ", path VARCHAR(32767) PRIMARY KEY "
 					+ ", FOREIGN KEY ( tthroot ) "
 					+ "REFERENCES interleaves (tthroot) ON DELETE CASCADE ) ");
@@ -439,7 +445,18 @@ public class HSQLDB implements IDatabase {
 
 				updateFile.close();
 
-				
+				if (logger.isDebugEnabled()) {
+					PreparedStatement updateFile2 = c
+							.prepareStatement("SELECT * FROM hashes WHERE tthroot = ? ");
+
+					updateFile2.setString(1, hf.getTTHRoot().toString());
+					ResultSet rs = updateFile2.executeQuery();
+					while (rs.next()) {
+						File f = new File( rs.getString("path"));
+						logger.debug("1found item: " + f
+								+ "  : " + rs.getLong("date")+ "  "+f.equals(hf.getPath()));
+					}
+				}
 
 				if (count == 0) {
 					PreparedStatement addFile = c
@@ -461,7 +478,7 @@ public class HSQLDB implements IDatabase {
 					ResultSet rs = updateFile2.executeQuery();
 					while (rs.next()) {
 						File f = new File( rs.getString("path"));
-						logger.debug("found item: " + f
+						logger.debug("2found item: " + f
 								+ "  : " + rs.getLong("date")+ "  "+f.equals(hf.getPath()));
 					}
 				}
@@ -986,12 +1003,13 @@ public class HSQLDB implements IDatabase {
 				HashedFile h = new HashedFile(new Date(date), HashValue
 						.createHash(tthRoot), new File(path));
 
-				if (null != files.put(h.getPath(), h)) {
+				HashedFile present;
+				if (null != (present=files.put(h.getPath(), h))) {
 					// little hack ... will remove files already present..
 					// (fixes problems with changed case on case insensitive
 					// file-system)
 					removeFiles.put(h.getPath(), h);
-					
+					logger.debug(h.getPath() + " present: "+present+ " "+present.getPath().hashCode());
 				}
 			}
 			prepst.close();
@@ -1006,8 +1024,9 @@ public class HSQLDB implements IDatabase {
 			try {
 				for (HashedFile h:removeFiles.values()) {
 					PreparedStatement remove = c
-					.prepareStatement("DELETE FROM hashes WHERE tthroot = ?");
+					.prepareStatement("DELETE FROM hashes WHERE tthroot = ? OR path = ?");
 					remove.setString(1, h.getTTHRoot().toString());
+					remove.setString(2,h.getPath().getAbsolutePath());
 	
 					logger.debug("removing File: " + remove.executeUpdate());
 					remove.close();
@@ -1118,6 +1137,134 @@ public class HSQLDB implements IDatabase {
 		
 	
 	}
+	
+	@Override
+	public List<ILogEntry> getLogentrys(HashValue entityID,long fromTimeStamp, long toTimeStamp) {
+		
+		readLock.lock();
+		try {
+
+			PreparedStatement prepst = c
+					.prepareStatement("SELECT timestamp , message FROM logs "
+										+ " WHERE  timestamp >= ? AND timestamp < ? AND entityid = ? " 
+										+ " ORDER BY timestamp DESC");
+
+			
+			prepst.setLong(1, fromTimeStamp);
+			prepst.setLong(2, toTimeStamp);
+			prepst.setString(3, entityID.toString());
+			
+			
+		//	long before = System.currentTimeMillis();
+			ResultSet rs = prepst.executeQuery();
+		//	long after = System.currentTimeMillis();
+		//	logger.info("time for loading: "+(after-before));
+			
+			String name = knownLogEntities.get(entityID);
+
+			List<ILogEntry> logs = new ArrayList<ILogEntry>();
+
+			while (rs.next() /* && --max >= 0 */) {
+				String message = rs.getString("message");
+				long date = rs.getLong("timestamp");
+				logs.add(new LogEntry(date, entityID, message, name));
+			}
+		
+			prepst.close();
+
+			return logs;
+
+		} catch (SQLException e) {
+			logger.warn(e, e);
+		} finally {
+			readLock.unlock();
+		}
+		return Collections.emptyList();
+	}
+	
+	/**
+	 * 
+	 * @param entityID
+	 * @return
+	 */
+	public List<Long> getDaysWithLogs(HashValue entityID) {
+		readLock.lock();
+		try {
+
+			long start = System.currentTimeMillis();
+			PreparedStatement prepst = c
+					.prepareStatement("SELECT DISTINCT timestamp / 86400000 as day   FROM logs "
+										+ " WHERE entityid = ? " 
+										+ " ORDER BY day ASC");
+
+			prepst.setString(1, entityID.toString());
+			
+		
+			ResultSet rs = prepst.executeQuery();
+	
+
+			List<Long> logs = new ArrayList<Long>();
+
+			while (rs.next() /* && --max >= 0 */) {
+				long day = rs.getLong("day") * 86400000;
+				logs.add(day);
+			}
+			
+			long end = System.currentTimeMillis();
+			logger.info("Time for query: "+ (end-start) +"  size: "+logs.size()+" / total: "+countLogentrys(entityID));
+			logger.info(new SimpleDateFormat().format(new Date(logs.get(0))));
+			logger.info(new SimpleDateFormat().format(new Date(logs.get(logs.size()-1))));
+			
+			prepst.close();
+
+			return logs;
+
+		} catch (SQLException e) {
+			logger.warn(e, e);
+		} finally {
+			readLock.unlock();
+		}
+		return Collections.emptyList();
+	}
+	
+	
+	public void writeLogToFile(HashValue entityID,File target,IProgressMonitor monitor) throws IOException {
+		readLock.lock();
+		PrintStream ps = null;
+		try {
+			monitor.subTask(target.getName());
+			PreparedStatement prepst = c
+					.prepareStatement("SELECT timestamp , message FROM logs "
+										+ " WHERE entityid = ? " 
+										+ " ORDER BY timestamp ASC ");
+
+			prepst.setString(1, entityID.toString());
+
+			ResultSet rs = prepst.executeQuery();
+	
+			
+
+			SimpleDateFormat sdf = new SimpleDateFormat(PI.get(PI.logTimeStamps));
+			
+			ps = new PrintStream(target);
+			while (rs.next() /* && --max >= 0 */) {
+				String message = rs.getString("message");
+				long date = rs.getLong("timestamp");
+				ps.println(sdf.format(new Date(date)) +message);
+				monitor.worked(1);
+			}
+		
+			prepst.close();
+
+	
+
+		} catch (SQLException e) {
+			logger.warn(e, e);
+		} finally {
+			readLock.unlock();
+			GH.close(ps);
+		}
+	}
 
 	public List<ILogEntry> getLogentrys(HashValue entityID,int max, int offset) {
 		if (max <= 0) {
@@ -1137,9 +1284,11 @@ public class HSQLDB implements IDatabase {
 			prepst.setString(1, entityID.toString());
 			prepst.setInt(2, max);
 			prepst.setInt(3, offset);
-
+			
+		
 			ResultSet rs = prepst.executeQuery();
-
+	
+			
 			String name = knownLogEntities.get(entityID);
 
 			List<ILogEntry> logs = new ArrayList<ILogEntry>();
@@ -1149,6 +1298,7 @@ public class HSQLDB implements IDatabase {
 				long date = rs.getLong("timestamp");
 				logs.add(new LogEntry(date, entityID, message, name));
 			}
+		
 			prepst.close();
 
 			return logs;
@@ -1191,6 +1341,34 @@ public class HSQLDB implements IDatabase {
 		return 0;
 	}
 	
+	private int countLogentrys(HashValue entityID,long dateBefore) {
+		readLock.lock();
+		try {
+			PreparedStatement prepst = c
+						.prepareStatement("SELECT COUNT(*) FROM logs WHERE timestamp < ?  AND entityid = ? ");
+				prepst.setLong(1, dateBefore);
+				prepst.setString(2, entityID.toString());
+
+			ResultSet rs = prepst.executeQuery();
+
+			int count = 0;
+
+			if (rs.next()) {
+				count = rs.getInt(1);
+			}
+			prepst.close();
+
+			return count;
+
+		} catch (SQLException e) {
+			logger.warn(e, e);
+		} finally {
+			readLock.unlock();
+		}
+		return 0;
+	}
+	
+	
 	@Override
 	public List<DBLogger> getLogentitys() {
 		List<DBLogger> loggers = new ArrayList<DBLogger>();
@@ -1203,43 +1381,162 @@ public class HSQLDB implements IDatabase {
 		return loggers;
 	}
 
-	@Override
-	public  void pruneLogentrys(HashValue entityID, Date before) {
+	private void pruneLogentrys(HashValue entityID, Date before,boolean rekursive,IProgressMonitor monitor) {
 		if (before == null) {
 			throw new IllegalArgumentException("no date provided");
 		}
+//		if (entityID == null) {
+//			//bugfix  deleting to many logentrys cause oome 
+//			
+//			
+//			while (countLogentrys(before.getTime()) > 30000) {
+//				pruneLogentrys(entityID, new Date(before.getTime()-(TimeUnit.DAYS.toMillis(30))/x));
+//				x*=2;
+//			}
+//		}
+		
 
-		writeLock.lock();
+		for (HashValue id : entityID != null? Collections.singleton(entityID):new ArrayList<HashValue>(knownLogEntities.keySet())) {
+			monitor.setTaskName(knownLogEntities.get(id));
+//			if (countLogentrys(id,before.getTime()-TimeUnit.DAYS.toMillis(30)) > 20000) {
+//				pruneLogentrys(id, new Date(before.getTime()-TimeUnit.DAYS.toMillis(30)),true,new NullProgressMonitor());
+//			}
+			
+			writeLock.lock();
+			try {
+				Statement s = c.createStatement();
+				s.execute("SET FILES LOG FALSE");
+				Statement s2 = c.createStatement();
+				s2.execute("CHECKPOINT");
+				monitor.worked(1);
+				int total = 0;
+				int count= 0 ;
+				do {
+					PreparedStatement stm = c
+							.prepareStatement("DELETE FROM logs WHERE timestamp < ? AND entityid = ? AND ROWNUM() <= 30000"); //ROWNUM() < 10000 would be nicer 
+					stm.setLong(1, before.getTime());
+					stm.setString(2, id.toString());
+					count  = stm.executeUpdate();
+					stm.close();
+					total+=count;
+					logger.info("count deleted in run: "+count);
+				} while(count >= 30000);
+				monitor.worked(1);
+				Statement s3 = c.createStatement();
+				s3.execute("SET FILES LOG TRUE");
+				Statement s4 = c.createStatement();
+				s4.execute("CHECKPOINT");
+				monitor.worked(1);
+				logger.info("Deleted "+total+" logs for "+knownLogEntities.get(id));
+				
+				if (monitor.isCanceled()) {
+					break;
+				}
+				
+			} catch (SQLException e) {
+				logger.warn(e, e);
+			} finally {
+				writeLock.unlock();
+			}
+		}
+		if (!rekursive) {
+			writeLock.lock();
+			try {
+				monitor.subTask("Defrag");
+				PreparedStatement stm2 = c
+						.prepareStatement("DELETE FROM logEntitys WHERE NOT EXISTS"
+								+ "( SELECT * FROM logs WHERE logs.entityid = logEntitys.entityid ) ");
+	
+				if (stm2.executeUpdate() > 0) {
+					loadLogEntitys();
+				}
+				stm2.close();
+				monitor.worked(1);
+				Statement s5 = c.createStatement();
+				s5.execute("CHECKPOINT DEFRAG");
+				monitor.worked(1);
+			} catch (SQLException e) {
+				logger.warn(e, e);
+			} finally {
+				writeLock.unlock();
+			}
+		}
+//		writeLock.lock();
+//		try {
+//			
+//			if (entityID == null) {
+//			
+//				Statement s = c.createStatement();
+//				s.execute("SET FILES LOG FALSE");
+//				Statement s2 = c.createStatement();
+//				s2.execute("CHECKPOINT");
+//		
+//				PreparedStatement stm = c
+//						.prepareStatement("DELETE FROM logs WHERE timestamp < ? ");
+//				stm.setLong(1, before.getTime());
+//				int count = stm.executeUpdate();
+//				stm.close();
+//				Statement s3 = c.createStatement();
+//				s3.execute("SET FILES LOG TRUE");
+//				Statement s4 = c.createStatement();
+//				s4.execute("CHECKPOINT DEFRAG");
+//				logger.info("Deleted "+count+" logs");
+//		
+//			} else {
+//				PreparedStatement stm = c
+//						.prepareStatement("DELETE FROM logs WHERE entityid = ? AND timestamp < ? ");
+//				stm.setString(1, entityID.toString());
+//				stm.setLong(2, before.getTime());
+//				stm.executeUpdate();
+//				stm.close();
+//			}
+//			PreparedStatement stm2 = c
+//					.prepareStatement("DELETE FROM logEntitys WHERE NOT EXISTS"
+//							+ "( SELECT * FROM logs WHERE logs.entityid = logEntitys.entityid ) ");
+//
+//			if (stm2.executeUpdate() > 0) {
+//				loadLogEntitys();
+//			}
+//			stm2.close();
+//
+//		} catch (SQLException e) {
+//			logger.warn(e, e);
+//		} finally {
+//			writeLock.unlock();
+//		}
+	}
+	@Override
+	public void pruneLogentrys(HashValue entityID, Date before,IProgressMonitor monitor) {
+		monitor.beginTask("Delete", (entityID != null? 1: knownLogEntities.size())*3 +2);
+		pruneLogentrys(entityID, before,false,monitor);
+		monitor.done();
+	}
+
+	@Override
+	public long getFirstLogNextTo(HashValue entityID, Date date,boolean forward) {
+		long ts = -1;
+		readLock.lock();
 		try {
+			PreparedStatement prepst = c
+						.prepareStatement("SELECT "+(forward?"MIN":"MAX")+
+								"(timestamp) FROM logs WHERE timestamp " 
+								+(forward?">":"<")+ " ?  AND entityid = ? ");
+			prepst.setLong(1, date.getTime());
+			prepst.setString(2, entityID.toString());
+			ResultSet rs = prepst.executeQuery();
 
-			if (entityID == null) {
-				PreparedStatement stm = c
-						.prepareStatement("DELETE FROM logs WHERE timestamp < ? ");
-				stm.setLong(1, before.getTime());
-				stm.executeUpdate();
-				stm.close();
-			} else {
-				PreparedStatement stm = c
-						.prepareStatement("DELETE FROM logs WHERE entityid = ? AND timestamp < ? ");
-				stm.setString(1, entityID.toString());
-				stm.setLong(2, before.getTime());
-				stm.executeUpdate();
-				stm.close();
+			if (rs.next()) {
+				ts = rs.getLong(1);
 			}
-			PreparedStatement stm2 = c
-					.prepareStatement("DELETE FROM logEntitys WHERE NOT EXISTS"
-							+ "( SELECT * FROM logs WHERE logs.entityid = logEntitys.entityid ) ");
-
-			if (stm2.executeUpdate() > 0) {
-				loadLogEntitys();
-			}
-			stm2.close();
+			prepst.close();
 
 		} catch (SQLException e) {
 			logger.warn(e, e);
 		} finally {
-			writeLock.unlock();
+			readLock.unlock();
 		}
+		return ts;
+
 	}
 
 	 

@@ -138,11 +138,16 @@ public class TransfersView extends UCView  implements IObserver<StatusObject> {
 				IUser other = null;
 				String s= null;
 				if (o instanceof ClientProtocol) {
+					
 					ClientProtocol cp = (ClientProtocol)o;
-					other = cp.getUser();
-					File f = cp.getFti().getFile();
-					if (f != null) {
-						s = String.format(Lang.FileTFTooltip, f.getPath());
+					if (cp.getCh().getDCC().getFilelist().isInitialized()) {// the gui thread can't wait for initialisation
+						other = cp.getUser();
+						File f = cp.getFti().getFile();
+						if (f != null) {
+							s = String.format(Lang.FileTFTooltip, f.getPath());
+						}
+					} else {
+						return Lang.RefreshFilelist;
 					}
 				} 
 				if (o instanceof ClientProtocolStateMachine ) {

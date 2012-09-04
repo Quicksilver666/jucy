@@ -41,9 +41,9 @@ public interface IConnection extends Closeable {
 	 * @param soChan
 	 * @param connectionProt
 	 */
-	void reset(SocketChannel soChan);
-
-	void reset(InetSocketAddress addy);
+//	void reset(SocketChannel soChan);
+//
+//	void reset(InetSocketAddress addy);
 
 	void reset(String addy);
 

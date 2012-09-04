@@ -1,16 +1,15 @@
 package eu.jucy.gui.texteditor.pmeditor;
 
-import java.util.List;
+
 
 import org.eclipse.core.runtime.Assert;
 
-import eu.jucy.gui.ApplicationWorkbenchWindowAdvisor;
+
 import eu.jucy.gui.UCEditorInput;
-import eu.jucy.gui.texteditor.StyledTextViewer;
+
 
 import uc.IUser;
-import uc.database.DBLogger;
-import uc.database.ILogEntry;
+
 
 public class PMEditorInput extends UCEditorInput {
 
@@ -18,7 +17,7 @@ public class PMEditorInput extends UCEditorInput {
 
 	private final long time;
 	
-	private List<ILogEntry> logs;
+	//private List<ILogEntry> logs;
 
 	
 	public PMEditorInput(IUser other){
@@ -32,24 +31,24 @@ public class PMEditorInput extends UCEditorInput {
 		this.time = time;
 	}
 	
-	public void loadLogs() {
-		synchronized(this) {
-			if (logs == null) {
-				DBLogger entity = new DBLogger(other,ApplicationWorkbenchWindowAdvisor.get());
-				logs = entity.loadLogEntrys(StyledTextViewer.HISTORY, 0);
-			}
-		}
-	}
-	
-	public List<ILogEntry> getLogs() {
-		synchronized(this) {
-			if (logs == null) {
-				loadLogs();
-			}
-			return logs;
-		}
-	}
-	
+//	public void loadLogs() {
+//		synchronized(this) {
+//			if (logs == null) {
+//				DBLogger entity = new DBLogger(other,ApplicationWorkbenchWindowAdvisor.get());
+//				logs = entity.loadLogEntrys(StyledTextViewer.HISTORY, 0);
+//			}
+//		}
+//	}
+//	
+//	public List<ILogEntry> getLogs() {
+//		synchronized(this) {
+//			if (logs == null) {
+//				loadLogs();
+//			}
+//			return logs;
+//		}
+//	}
+//	
 
 
 

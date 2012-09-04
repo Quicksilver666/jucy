@@ -17,10 +17,10 @@ public class Lock extends AbstractNMDCClientProtocolCommand {
 
 	@Override
 	public void handle(ClientProtocol client,String command) throws IOException {
-		logger.debug(command + "  "+ client.isIncoming());
+		logger.debug(command + "  "+ client.isServer());
 		
 		int i;
-		if (client.isIncoming() && (i = command.lastIndexOf("Ref=")) > 0 ) {
+		if (client.isServer() && (i = command.lastIndexOf("Ref=")) > 0 ) {
 			String addy = command.substring(i+4).trim();
 			client.setHubaddy(addy); //--> TODO verify user via hubaddress..i.e. have we choosen the correct one 
 			logger.debug(addy);

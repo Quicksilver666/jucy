@@ -273,7 +273,7 @@ public class PI extends AbstractPreferenceInitializer {
 		defaults.putBoolean(logMainChat, false);
 		defaults.putBoolean(logPM, true);
 		defaults.putBoolean(logFeed, true);
-		defaults.put(logTimeStamps, "[dd.MM. HH:mm]");
+		defaults.put(logTimeStamps, "[dd.MM.yy HH:mm]");
 		
 		defaults.put(PI.storedPMs, "");
 		

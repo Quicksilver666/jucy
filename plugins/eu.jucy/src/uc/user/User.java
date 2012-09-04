@@ -97,6 +97,7 @@ public class User implements IUser , IHasUser {
 	 * 8  = super user, 
 	 * 16 = hub owner, 
 	 * 32 = hub (used when the hub sends an INF about itself). 
+	 * 64 = hidden
 	 * Multiple types are specified by adding the numbers together.
 	 */
 	private byte ct;  
@@ -173,6 +174,8 @@ public class User implements IUser , IHasUser {
 	 */
 	private String version;
 	
+	private String ap; //just the application part of version
+	
 	
 	private short udpPort;
 	private short udp6Port;
@@ -211,7 +214,7 @@ public class User implements IUser , IHasUser {
 	 * @throws NumberFormatException
 	 * @throws IllegalArgumentException
 	 */
-	public void setProperty(INFField inf,String val) throws  NumberFormatException, IllegalArgumentException {
+	public synchronized void setProperty(INFField inf,String val) throws  NumberFormatException, IllegalArgumentException {
 		if (!GH.isEmpty(val)) {
 			switch(inf) {
 			case ID: 
@@ -272,6 +275,7 @@ public class User implements IUser , IHasUser {
 				break;
 			case CT:
 				ct = Byte.parseByte(val);
+	
 				break;
 			case HI:
 				if ("1".equals(val)) {
@@ -313,6 +317,9 @@ public class User implements IUser , IHasUser {
 				break;
 			case VE:
 				version = val.intern();
+				break;
+			case AP: 
+				ap = val.intern();
 				break;
 			case KP:
 				try {
@@ -395,7 +402,7 @@ public class User implements IUser , IHasUser {
 			us =  0;
 			break;
 		case U4:
-			udpPort = 0;;
+			udpPort = 0;
 			break;
 		case U6:
 			udp6Port = 0;
@@ -407,7 +414,10 @@ public class User implements IUser , IHasUser {
 		case TO: //INFfield for ctm token
 			break;
 		case VE:
-			version = "";
+			version = null;
+			break;
+		case AP:
+			ap = null;
 			break;
 		case KP:
 			keyPrint = null;
@@ -788,14 +798,14 @@ public class User implements IUser , IHasUser {
 	/**
 	 * @return the op
 	 */
-	public boolean isOp() {
+	public synchronized boolean isOp() {
 		return ct % 64  >= 4; 
 	}
 	
 	
 
 	@Override
-	public boolean isBot() {
+	public synchronized boolean isBot() {
 		if (isADCUser()) {
 			return testCT(CT_BOT);
 		} else {
@@ -805,7 +815,7 @@ public class User implements IUser , IHasUser {
 
 	
 	@Override
-	public boolean testCT(byte test) {
+	public synchronized boolean testCT(byte test) {
 		return (ct & test) != 0 ;
 	}
 
@@ -883,11 +893,13 @@ public class User implements IUser , IHasUser {
 		if (tag != null) {
 			return tag;
 		} else {
+			String ap = getAp();
 			String v = getVersion();
-			return "<"+( v == null? "   " : v) +
-					",M:"+ (isADCUser()? (isTCPActive()?"A":"P") : getModechar())+
-					",H:"+getNormHubs()+"/"+getRegHubs()+"/"+getOpHubs()+
-					",S:"+getSlots()+ ">"; 
+			return "<" +(ap != null? ap+" " :"")
+					   +( v != null? v : "   ") 
+					+",M:"+ (isADCUser()? (isTCPActive()?"A":"P") : getModechar())
+					+",H:"+getNormHubs()+"/"+getRegHubs()+"/"+getOpHubs()
+					+",S:"+getSlots()+ ">"; 
 		}
 	}
 
@@ -1289,12 +1301,12 @@ public class User implements IUser , IHasUser {
 		this.flag = flag;
 	}
 
-	public boolean testFlag(int testFor) {
+	public synchronized boolean testFlag(int testFor) {
 		return (testFor & flag) != 0;
 	}
 	
 	public boolean isHidden() {
-		return testFlag(CT_HIDDEN);
+		return testCT(CT_HIDDEN);
 	}
 	
 	public String getSupports() {
@@ -1365,11 +1377,19 @@ public class User implements IUser , IHasUser {
 	public String getVersion() {
 		return version;
 	}
+	
+	
 
 	/*public void setVersion(String version) {
 		this.version = version;
 	} */
 	
+	@Override
+	public String getAp() {
+		return ap;
+	}
+
+
 	public int getSid() {
 		return sid;
 	}

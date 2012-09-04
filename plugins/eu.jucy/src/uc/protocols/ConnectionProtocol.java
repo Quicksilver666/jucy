@@ -358,7 +358,8 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 		int port = defaultport;
 		String onlyaddy = addy;
 		if (i != -1) {
-			port = new Integer(addy.substring(i+1));
+			String subs = addy.substring(i+1);
+			port = subs.isEmpty()? defaultport: Integer.parseInt(subs);
 			onlyaddy= addy.substring(0, i);
 		}
 		return new InetSocketAddress(onlyaddy,port);
@@ -472,8 +473,10 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 		}
 	}
 	
-	protected void setCharset(Charset cs) {
-		this.charset = cs;
+	public void setCharset(Charset cs) {
+		synchronized (charsetSynch) {
+			this.charset = cs;
+		}
 	}
 
 	public int getSocketTimeout() {

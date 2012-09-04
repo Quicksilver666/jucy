@@ -6,7 +6,8 @@ Bundle-Version: 1.85.0.qualifier
 Require-Bundle: eu.jucy,
  eu.jucy.logging,
  lib.org.hsqldb,
- eu.jucy.helpers
+ eu.jucy.helpers,
+ org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

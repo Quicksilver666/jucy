@@ -48,7 +48,7 @@ public class ADCSND extends AbstractNMDCClientProtocolCommand {
 	@Override
 	public void handle(ClientProtocol client,String command) throws IOException {
 		client.getFti().setLength(Long.parseLong(matcher.group(1)));
-		client.getFti().setCompression(Compression.parseNMDCString(matcher.group(2)));
+		client.getFti().setCompression(Compression.parseProtocolString(matcher.group(2)));
 
 		client.removeCommand(this);
 		client.transfer();

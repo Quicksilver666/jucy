@@ -25,7 +25,7 @@ import uc.FavHub.FavHubTranslater;
 
 
 /**
- * holds all favourite hubs
+ * holds all favorite hubs
  * @author Quicksilver
  *
  */
@@ -80,7 +80,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 			}
 		}
 
-		notifyObservers(null);
+		notifyObservers();
 	}
 	
 	private void load() {
@@ -131,7 +131,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 		}
 		favHubs.put(hub.getOrder(), hub);
 		store();
-		notifyObservers(null);
+		notifyObservers();
 		checkOrder();
 	}
 	
@@ -146,7 +146,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 		/*for (int i = hub.getOrder()+1 ; i < favHubs.size() ; i++ ) {
 			favHubs.put(i-1,  favHubs.get(i));
 		} */
-		notifyObservers(null);
+		notifyObservers();
 		checkOrder();
 	}
 	
@@ -163,7 +163,7 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 			FavHub other = favHubs.get(newOrder);
 			favHubs.put(newOrder, favHub);
 			favHubs.put(curOrder, other);
-			notifyObservers(null);
+			notifyObservers();
 		}
 		checkOrder();
 	}
@@ -228,6 +228,10 @@ public class FavHubs extends Observable<FavHub> implements IFavHubs,Serializable
 	 */
 	public boolean contains(FavHub hub) {
 		return hub.equals(favHubs.get(hub.getOrder()));	
+	}
+	
+	public void favHubChanged(FavHub hub) {
+		
 	}
 	
 	/**

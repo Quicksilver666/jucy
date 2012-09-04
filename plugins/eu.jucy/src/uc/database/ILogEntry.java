@@ -8,7 +8,7 @@ import uc.crypto.HashValue;
  * @author Quicksilver
  *
  */
-public interface ILogEntry {
+public interface ILogEntry extends Comparable<ILogEntry> {
 
 	public static final int MAX_MESSAGELENGTH = 131072;
 	

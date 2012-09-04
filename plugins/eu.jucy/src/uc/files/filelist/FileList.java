@@ -86,6 +86,9 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 	protected final FileListFolder root = new FileListFolder(this);
 
 	private final Map<HashValue,FileListFile> contents = new HashMap<HashValue,FileListFile>();
+	
+
+	private volatile byte[] filelistCashed;
 
 	
 	/**
@@ -173,6 +176,7 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 							parent.getParent()));
 			parent = parent.getParent();
 		}
+		filelistCashed = null;
 	}
 
 	/**
@@ -288,9 +292,7 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 	 * @throws IllegalArgumentException - if the path does no exist
 	 */
 	private void writeFilelist(OutputStream out,String path,boolean recursive) throws UnsupportedEncodingException , IOException , IllegalArgumentException {
-		if (path == null) {
-			path = "/";
-		}
+
 		try {
 			StreamResult streamResult = new StreamResult(out);
 			SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory
@@ -316,12 +318,12 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 			hd.startElement("", "", "FileListing", atts);
 			
 			
-			FileListFolder parentFolder = root.getByPath(path.replace('/', File.separatorChar));
+			FileListFolder parentFolder = root.getByPath(path.replace('/', File.separatorChar),true);
 			
 			if (parentFolder != null) {
 				parentFolder.writeToXML(hd, atts,recursive,true,true);	
 			} else {
-				logger.debug("Path requested. Though not found: "+path);
+				logger.info("Path requested, but not found: "+path);
 			}
 
 			hd.endElement("", "", "FileListing");
@@ -340,11 +342,23 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 	
 	/**
 	 * writes filelist to a byte[] array
+	 * @param path subpath within the filelist / or null for whole filelist
 	 * @return
 	 */
 	public byte[] writeFileList(String path, boolean recursive,boolean bz2Compressed)  {
+		if (path == null) {
+			path = "/";
+		}
 		logger.debug("("+(path == null? "null":path)+")" );
-		
+	//	long start = System.currentTimeMillis();
+		boolean cacheable = path.equals("/") & bz2Compressed & recursive ;
+	
+		byte[] fileList = null;
+
+		if (cacheable && filelistCashed != null) {
+			return filelistCashed;
+		}
+
 		ByteArrayOutputStream baos = null;
 		OutputStream out = null;
 		try {
@@ -356,15 +370,20 @@ public class FileList extends Observable<StatusObject> implements Iterable<IFile
 				out 	= new CBZip2OutputStream(baos);
 			}
 			writeFilelist(out,path,recursive);
-			
+
 		} catch(IOException ioe) {
 			logger.warn(ioe,ioe); //this should never happen... everything is done in memory..
 		} finally {
 			GH.close(out);
 		}
-		byte[] fileList = baos.toByteArray();
+		fileList = baos.toByteArray();
+	//	long end = System.currentTimeMillis();
+	//	logger.info("Time Filelist: " + (end-start)+" size: "+fileList.length+" recursive:"+recursive+" bz2: "+bz2Compressed+" path: "+path);
+		if (cacheable) {
+			filelistCashed = fileList;
+		}
 
-		
+
 		return fileList;
 	}
 //	/**

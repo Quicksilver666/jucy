@@ -33,8 +33,6 @@ public class VarByteBuffer {
 	private InputStream decompression;
 	
 	
-	
-
 
 
 	/**
@@ -54,9 +52,10 @@ public class VarByteBuffer {
 		wrapper.limit(writepos);
 		int written = wchan.write(wrapper);
 		readpos = wrapper.position();
-		
-		if (current.length > maxSize && writepos-readpos < current.length/4) {
+
+		if (current.length > maxSize*2 && writepos-readpos < current.length/4) {
 			shrinkBuffer();
+			
 		}
 	
 		return written;
@@ -153,6 +152,7 @@ public class VarByteBuffer {
 			if (readpos + current.length - writepos > size) { //just move if total size allows it
 				System.arraycopy(current, readpos, current, 0, writepos - readpos);
 			} else { //create new
+		
 				byte[] newArray = new byte[Math.max(current.length*2,current.length+size+1)];
 				System.arraycopy(current, readpos, newArray, 0, writepos - readpos);
 				current = newArray;

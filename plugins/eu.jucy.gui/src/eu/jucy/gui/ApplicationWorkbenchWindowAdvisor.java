@@ -6,6 +6,7 @@ package eu.jucy.gui;
 
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import logger.LoggerFactory;
@@ -64,8 +65,10 @@ import eu.jucy.gui.texteditor.hub.RedirectReceivedProvider;
 
 import uc.DCClient;
 import uc.FavHub;
-import uc.IHubCreationListener;
+import uc.IDCCControlListener;
 import uc.LanguageKeys;
+import uc.FavFolders.SharedDir;
+import uihelpers.IconManager;
 import uihelpers.SUIJob;
 
 
@@ -104,7 +107,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 	/**
 	 * -> opens new HubEditors when ever a hub is created..
 	 */
-	private IHubCreationListener hubCreationListener;
+	private IDCCControlListener dCCControlListener;
 	
 	/**
 	 * may only be called from ui thread
@@ -183,6 +186,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					dcc.start(monitor); 
+					loadFileIcons();
 				} catch(Exception e) {
 					logger.error(e, e);
 				}
@@ -219,11 +223,18 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 //    	logger.info(Display.getAppName());
     }
     
-    
+    private void loadFileIcons() {
+		List<SharedDir> loadeddirs = dcc.getFavFolders().getSharedDirs();
+		for (SharedDir sd: loadeddirs) {
+			if (sd.getDirectory().isDirectory()) {
+				IconManager.loadImageSources(sd.getDirectory());
+			}
+		}
+    }
     
     @Override
 	public void postWindowClose() {
-		dcc.unregister(hubCreationListener);
+		dcc.unregister(dCCControlListener);
 		dcc.getHashEngine().unregisterHashedListener(GuiAppender.get());
 		shutdownJob = new Job("Shutdown") {
 			@Override
@@ -241,7 +252,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 	private void registerListeners(final IWorkbenchWindow window) {
     	dcc.getHashEngine().registerHashedListener(GuiAppender.get());
     	
-    	hubCreationListener = new IHubCreationListener() {
+    	dCCControlListener = new IDCCControlListener() {
 			public void hubCreated(final FavHub fh, boolean showInUI,final Semaphore sem) {
 				if (showInUI) {
 					new SUIJob() {
@@ -262,9 +273,15 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor  {
 				}
 			}
 
+			@Override
+			public void requireRestart() {
+				window.getWorkbench().restart();
+			}
+			
+
     	};
     	
-    	dcc.register(hubCreationListener);
+    	dcc.register(dCCControlListener);
     	
     	//listener for setting topic string on the top of the window
     	final ITopicChangedListener listener = new ITopicChangedListener() {

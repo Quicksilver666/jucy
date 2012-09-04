@@ -2,6 +2,7 @@ package eu.jucy.adlsearch;
 
 import helpers.PreferenceChangedAdapter;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

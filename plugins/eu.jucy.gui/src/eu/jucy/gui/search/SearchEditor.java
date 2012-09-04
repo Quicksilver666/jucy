@@ -511,6 +511,7 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 		
 		setControlsForFontAndColour(treeViewer.getControl(),searchForText,
 				sizeText,unitCombo,minmaxsizeCombo,hubsToSearch);
+		
 	}
 	
 	

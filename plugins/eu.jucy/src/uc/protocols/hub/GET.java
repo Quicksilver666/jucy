@@ -29,7 +29,7 @@ public class GET extends AbstractADCHubCommand {
 	public void handle(Hub hub,String command) throws ProtocolException, IOException {
 		//"BK" and h in the flag "BH".
 		int m = Integer.parseInt(matcher.group(1)) *8;
-		Compression comp = Compression.parseNMDCString(matcher.group(2));
+		Compression comp = Compression.parseProtocolString(matcher.group(2));
 		
 		Map<Flag,String> flags = getFlagMap(matcher.group(3));
 		if (flags.containsKey(Flag.BH) && flags.containsKey(Flag.BK)) {

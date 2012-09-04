@@ -73,12 +73,12 @@ public class Upload extends AbstractFileTransfer {
 	
 	private volatile long bytesTransferred;
 	
-	private ReadableFileInterval fileInterval;
+	private AbstractReadableFileInterval fileInterval;
 	
 	private volatile WritableByteChannel target;
 	private volatile ByteChannel sink; //channel representing the internet connection 
 	
-	public Upload(FileTransferInformation fti,ClientProtocol cp, ReadableFileInterval rfi) throws IOException {
+	public Upload(FileTransferInformation fti,ClientProtocol cp, AbstractReadableFileInterval rfi) throws IOException {
 		super(fti,cp);
 		fileInterval = rfi;
 	}
@@ -110,15 +110,11 @@ public class Upload extends AbstractFileTransfer {
 	
 		ReadableByteChannel source = fileInterval.getReadableChannel();
 		
-	
 		ByteBuffer bb = ByteBuffer.allocate(BUFFER_SIZE);
 		bb.clear();
 		
-		
-	//	fireListeners(TransferChange.STARTED);
 		int written;
 		int toAcquire = 0;
-//		runningUploads.add(this);
 		try {
 			notifyObservers( TransferChange.STARTED);
 			while ( source.read(bb) >= 0 || bb.position() != 0) { 
@@ -128,25 +124,17 @@ public class Upload extends AbstractFileTransfer {
 				}
 				
 				bytesTransferred += written;
-					
-				
 				toAcquire += written;
-				
-			//	if (!localUpload.tryAcquire(toAcquire/1024)) {
 				globalUploads.acquireUninterruptibly(toAcquire/1024);
-			//	}
-				
 				toAcquire %= 1024 ;
 				
 				bb.compact();
 			}
 
 		} finally {
-			GH.close(source); //target is no longer closed.. but must be flushed somehow..
+			GH.close(source); 
 			notifyObservers(TransferChange.FINISHED);
-			fw.finnish();			//flush ..
-			
-			
+			fw.finnish();
 		}
 		logger.debug("finished upload");
 	}

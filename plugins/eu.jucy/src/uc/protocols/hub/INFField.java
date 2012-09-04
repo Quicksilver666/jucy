@@ -45,7 +45,8 @@ public enum INFField {
 	AW, //1=Away, 2=Extended away, not interested in hub chat (hubs may skip sending broadcast type MSG commands to clients with this flag) 
 	SU, //Supports  	 Comma-separated list of feature FOURCC's. This notifies other clients of extended capabilities of the connecting client. 
 	RF,  // URL of referrer (hub in case of redirect, web page) 
-	KP	//Keyprint
+	KP,	//Keyprint
+	AP	//Application ... first part of VE
 	;
 	
 	private static final Set<String> Fields;
@@ -136,6 +137,8 @@ public enum INFField {
 			break;
 		case VE:
 			return usr.getVersion();
+		case AP:
+			return usr.getAp();
 		case KP: 
 			HashValue kp = usr.getKeyPrint();
 			if (kp != null) {

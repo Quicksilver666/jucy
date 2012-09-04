@@ -527,10 +527,12 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		if (i != 0) {
 			return i;
 		}
+		
 		i = GH.compareTo(getNrOfOnlineUsers(), arg0.getNrOfOnlineUsers());
 		if (i != 0) {
 			return i;
 		}
+		
 		i = getFileName().compareTo(arg0.getFileName());
 		if (i != 0) {
 			return i;

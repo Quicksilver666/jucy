@@ -29,7 +29,7 @@ public class INF extends AbstractADCClientProtocolCommand {
 		}
 		
 		
-		if (client.isIncoming()) {
+		if (client.isServer()) {
 			String token = fields.get(INFField.TO);
 			if (token != null) {
 				ExpectedInfo ei = client.getCh().getUserExpectedToConnect(cid, token);
@@ -58,20 +58,20 @@ public class INF extends AbstractADCClientProtocolCommand {
 		} 
 		client.otherIdentified(other);
 		
-		if (!client.isIncoming()) {
-			sendINFOutgoing(client);	
-		} 
+//		if (!client.isServer()) {
+//			sendINFClientToServer(client);	
+//		} 
 		
 		client.setDownload(false);
 		client.onLogIn();
 	}
 	
-	private void sendINFOutgoing(ClientProtocol client) {
+	public static void sendINFClientToServer(ClientProtocol client) {
 		String inf = "CINF ID"+client.getSelf().getCID()+" TO"+doReplaces(client.getToken()) ;
 		client.sendUnmodifiedRaw(inf+"\n");
 	}
 	
-	public static void sendINFIncoming(ClientProtocol cp) {
+	public static void sendINFServerToClient(ClientProtocol cp) {
 		//CINF IDAFVC6C65R4ZLTP7UYDDK6QJPQHUZLAJPSZSG3DQ  no TOKEN info in incoming
 		cp.sendUnmodifiedRaw("CINF ID"+ cp.getCh().getIdentity().getCID()+"\n");
 	}

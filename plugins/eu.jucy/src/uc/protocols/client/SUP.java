@@ -49,9 +49,9 @@ public class SUP extends AbstractADCClientProtocolCommand {
 		}
 		client.setOthersSupports(supports);	
 		
-		if (first && client.isIncoming()) {
-			sendSUP(client);
-			INF.sendINFIncoming(client);
+		if (first && client.isServer()) {
+			SUP.sendSUP(client);
+			INF.sendINFServerToClient(client);
 		}
 		
 		first = false;
@@ -63,7 +63,7 @@ public class SUP extends AbstractADCClientProtocolCommand {
 		client.sendUnmodifiedRaw(SUPPORTS);
 		
 		IUser usr = client.getSelf();
-		if (usr != null && !client.isIncoming()) { //send a STA about the referrer 
+		if (usr != null && !client.isServer()) { //send a STA about the referrer 
 			String hubaddress = usr.getHub().getFavHub().getSimpleHubaddy();
 			ADCStatusMessage adcm = new ADCStatusMessage("",0,0,Flag.RF,hubaddress);
 			STA.sendSTA(client, adcm);

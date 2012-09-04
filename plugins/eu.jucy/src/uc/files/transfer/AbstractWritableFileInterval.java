@@ -160,9 +160,10 @@ public abstract class AbstractWritableFileInterval extends AbstractFileInterval 
 			super(startpos,length,dqe.getSize());
 			this.dqe = dqe;
 			long blocksize = dqe.getBlock(0).getLength();
-			this.startBlock = blocksize==0? 0: (int) (startpos / blocksize);
+			this.startBlock = blocksize == 0 ? 0: (int) (startpos / blocksize);
 			if (blocksize != 0 && startpos % blocksize != 0 ) {
-				throw new IllegalArgumentException("can't start download in the middle of a block sp:"+startpos+" blocksize: "+blocksize+"  "+dqe.getBlock(startBlock).getState());
+				throw new IllegalArgumentException("can't start download in the middle of a block sp:"
+			+startpos+" blocksize: "+blocksize+"  "+dqe.getBlock(startBlock).getState());
 			}
 			
 			this.currentBlock = startBlock;
@@ -204,16 +205,6 @@ public abstract class AbstractWritableFileInterval extends AbstractFileInterval 
 						
 						currentBlock++;
 						current = dqe.getBlock(currentBlock);
-						
-//						if (current != null && current.isWritable()) { //current != null &&  removed null check... would be dereferenced before
-//							currentBlockChannel = current.getWriteChannel();
-//						} else {
-//							currentBlockChannel = null;
-//						}
-						
-						
-						
-					//	bytesWrittenInCurrentBlock = 0;
 						
 						
 						updateLength();

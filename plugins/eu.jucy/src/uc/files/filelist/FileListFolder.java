@@ -1,8 +1,10 @@
 package uc.files.filelist;
 
 import helpers.GH;
+import helpers.LevensteinDistance;
 
 import java.io.File;
+import java.io.IOException;
 
 
 import java.util.ArrayList;
@@ -73,7 +75,7 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 	}
 
 
-	public FileListFolder getChildPerName(String foldernameOfTheChild){
+	public FileListFolder getChildPerName(String foldernameOfTheChild) {
 		for (FileListFolder f:subfolders) {
 			if (f.foldername.equals(foldernameOfTheChild)) {
 				return f;
@@ -81,6 +83,21 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 		}
 		return null;
 	}
+	
+	public FileListFolder getClosestChildPerName(String foldernameOfTheChild) {
+		FileListFolder ff = getChildPerName(foldernameOfTheChild);
+		if (ff == null) {
+			ArrayList<String> foldernames = new ArrayList<String>();
+			for (FileListFolder f:subfolders) {
+				foldernames.add(f.foldername);
+			}
+			String closestName = LevensteinDistance.getClosest(foldernames, foldernameOfTheChild);
+			return getChildPerName(closestName);
+		}
+		return ff;
+	}
+	
+	
 
 	public FileListFile getFilePerName(String filenameOfTheChild){
 		for (FileListFile f:files) {
@@ -361,14 +378,19 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 			return null;
 		}
 		
+		public FileListFolder getByPath(String path) {
+			return getByPath(path, false);
+		}
+		
 		/**
 		 * FileList folder by path ..
 		 * File.separator char is used to separate paths..
 		 * 
 		 * @param path 
+		 * @param allowApproximation / take smallest  levensteinsdistance if not found
 		 * @return
 		 */
-		public FileListFolder getByPath(String path) {
+		public FileListFolder getByPath(String path,boolean allowApproximation) {
 			int i 	= path.indexOf(File.separatorChar);
 			if (i == 0) {
 				path= path.substring(1);
@@ -383,10 +405,10 @@ public class FileListFolder extends AbstractDownloadableFolder implements  Itera
 			} else {
 				name = path.substring(0, i);
 			}
-			FileListFolder next = getChildPerName(name);
+			FileListFolder next =  allowApproximation ? getClosestChildPerName(name) :getChildPerName(name);
 			
 			if (next != null) {
-				return next.getByPath(path.substring(name.length()));
+				return next.getByPath(path.substring(name.length()),allowApproximation);
 			} else {
 				return null;
 			}

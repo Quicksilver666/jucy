@@ -3,6 +3,7 @@ package uc.files;
 import helpers.GH;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -120,7 +121,9 @@ public abstract class AbstractDownloadable implements IDownloadable , Comparable
 	public abstract HashValue getTTHRoot() throws UnsupportedOperationException;
 
 
-	
+	public String toString() {
+		return getPath() +"  "+ getUser().toString();
+	}
 
 
 
@@ -155,10 +158,10 @@ public abstract class AbstractDownloadable implements IDownloadable , Comparable
 		/**
 		 * does the same as the implementation for file.. though will always return 
 		 * null
+		 * @throws IOException 
 		 */
-		public AbstractDownloadQueueEntry download(final File target) {
+		public AbstractDownloadQueueEntry download(final File target){
 			for (IUser usr: getIterable()) {
-			//User usr = getUser();
 				if (usr.hasDownloadedFilelist()) {
 					FileListFolder folder = usr.getFilelistDescriptor().getFilelist().getRoot().getByPath(getPath());
 					if (folder != null) {

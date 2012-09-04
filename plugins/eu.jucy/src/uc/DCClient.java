@@ -101,7 +101,10 @@ import uc.user.User;
 
 
 /** 
- * TODO FavHubs  listener change on hub connection..
+ * 
+ * TODO when there is a download during upload idle statemachine shown in transfers view
+ * 
+ * TODO FavHubs  listener change on hub connection.. / not just listener needs more
  * TODO maybe WINAMP/itunes SPAM
  * itunes: http://www.workingwith.me.uk/articles/java/itunes-com-with-java-and-swing
  * winamp: http://sourceforge.net/projects/javawinampapi/
@@ -375,8 +378,8 @@ public final class DCClient {
 	private final CopyOnWriteArrayList<ISearchResultListener> searchListeners = 
 			new CopyOnWriteArrayList<ISearchResultListener>();
 	
-	private final CopyOnWriteArrayList<IHubCreationListener> hublisteners = 
-			new CopyOnWriteArrayList<IHubCreationListener>();
+	private final CopyOnWriteArrayList<IDCCControlListener> hublisteners = 
+			new CopyOnWriteArrayList<IDCCControlListener>();
 	
 	private final CopyOnWriteArrayList<ISearchReceivedListener> srl =
 			new CopyOnWriteArrayList<ISearchReceivedListener>();
@@ -709,8 +712,6 @@ public final class DCClient {
     	//downloads can be started..
     	favHubs.openAutoStartHubs();
     	monitor.worked(3);
-    	//can take some time.. we usually won't need this from start..-> done in separate thread..
-    	filelist.loadSharedDirsForIconManager(favFolders); 
     	
     	altSearch.start();
     	slotManager.init();
@@ -763,6 +764,11 @@ public final class DCClient {
     	
     }
     
+    public void restart() {
+    	for (IDCCControlListener c:hublisteners) {
+    		c.requireRestart();
+    	}
+    }
 
     
   
@@ -877,7 +883,7 @@ public final class DCClient {
     				public void run() {
     					Semaphore sem = new Semaphore(0,false);
 
-    					for (IHubCreationListener hubl:hublisteners) {
+    					for (IDCCControlListener hubl:hublisteners) {
     						hubl.hubCreated(ifavHub,showInUI,sem);
     					}
     					creation.release();
@@ -1084,11 +1090,11 @@ public final class DCClient {
     }
     
  
-    public void register(IHubCreationListener hubl) {
+    public void register(IDCCControlListener hubl) {
     	hublisteners.addIfAbsent(hubl);
     }
     
-    public void unregister(IHubCreationListener hubl) {
+    public void unregister(IDCCControlListener hubl) {
     	hublisteners.remove(hubl);
     }
     

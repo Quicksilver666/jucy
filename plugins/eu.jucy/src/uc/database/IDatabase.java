@@ -3,11 +3,14 @@ package uc.database;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import uc.DCClient;
 import uc.IUser;
@@ -173,8 +176,13 @@ public interface IDatabase {
 	 * @param max - only the latest max entrys..
 	 * @param offset - start from element? 
 	 * @return the entrys matching the given id..
+	 * @deprecated to slow
 	 */
 	List<ILogEntry> getLogentrys(HashValue entityID, int max, int offset);
+	
+	List<ILogEntry> getLogentrys(HashValue entityID,long fromTimeStamp, long toTimeStamp);
+	
+	List<Long> getDaysWithLogs(HashValue entityID);
 	
 	/**
 	 * @param entityID - logentrys of which entity should be counted.. if null all are counted..
@@ -194,6 +202,11 @@ public interface IDatabase {
 	 * @param entityID - log entrys of whom to prune.. null for everyone
 	 * @param before -  log entrys before this date should be deleted
 	 */
-	void pruneLogentrys(HashValue entityID,Date before);
+	void pruneLogentrys(HashValue entityID, Date before,IProgressMonitor monitor);
+	
+	void writeLogToFile(HashValue entityID,File target,IProgressMonitor monitor) throws IOException;
+	
+	
+	long getFirstLogNextTo(HashValue entityID, Date date,boolean forward);
 	
 }

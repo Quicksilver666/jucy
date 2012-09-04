@@ -145,7 +145,7 @@ public enum Compression {
 	 * @param nmdc - a string either empty or  "ZL1"  or  "ZL2"
 	 * @return the matching compression... will return NONE as defaultvalue
 	 */
-	public static Compression parseNMDCString(String nmdc) {
+	public static Compression parseProtocolString(String nmdc) {
 		nmdc = nmdc.trim();
 		if ( "ZL1".equals(nmdc)) {
 			return ZLIB_FAST;

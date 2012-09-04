@@ -68,6 +68,7 @@ public class TigerTreeHasher2  implements IHasher {
 		}
 		int processors = Runtime.getRuntime().availableProcessors();
 		hashThreads = size <= BufferSize*10? 1 : Math.min(processors,MAX_PROCESSORS);  
+		hashThreads = Math.max(1, hashThreads);
 		
 		initialiseLevels(getLevel(size));
 	
@@ -101,6 +102,10 @@ public class TigerTreeHasher2  implements IHasher {
 	
 			if (counter % 100 == 0) {
 				monitor.worked(100);
+				if (monitor.isCanceled()) {
+					hashRunning = false;
+					return null;
+				}
 			}
 		}
 		hashRunning = false;
@@ -268,10 +273,8 @@ public class TigerTreeHasher2  implements IHasher {
 							finishedHashSegment(hash, part.order,0,md);
 							hashes[hashes.length-1] = null;
 						}
-					} else {
-						if (!hashRunning) {
-							break;
-						}
+					} else if (!hashRunning) {
+						break;
 					}
 				}
 				

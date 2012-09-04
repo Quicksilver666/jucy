@@ -280,15 +280,20 @@ public class StyledTextViewer {
 	private void loadOldMessages(long loadBefore) {
 		if (pm) {
 			DBLogger entity = new DBLogger(usr,ApplicationWorkbenchWindowAdvisor.get());
-			List<ILogEntry> logentry =  entity.loadLogEntrys(HISTORY, 0);
+			List<ILogEntry> logentry =  entity.loadLogEntrys(System.currentTimeMillis()-7L*24L*3600L*1000L ,System.currentTimeMillis());
 			//we have a problem here... if this was just opened by a message.. the message is already logged..
 			//so we will receive that  message as old message.. -> remove last old message if it is way to new..
 			if (!logentry.isEmpty() && System.currentTimeMillis()-logentry.get(0).getDate() < 1000 ) {
 				logentry.remove(0);
 			}
+			if (logentry.isEmpty())  { //if now nothing was found... search older logs
+				logentry =  entity.loadLogEntrys(HISTORY,0);
+				if (!logentry.isEmpty() && System.currentTimeMillis()-logentry.get(0).getDate() < 1000 ) {
+					logentry.remove(0);
+				}
+			}
 			
 
-		//	Collections.reverse(logentry);
 			String s = "";
 			int totalLines = 0;
 			for (ILogEntry le: logentry) {

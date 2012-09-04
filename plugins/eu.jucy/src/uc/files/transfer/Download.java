@@ -78,7 +78,7 @@ public class Download extends AbstractFileTransfer {
 
 
 	public void cancel() {
-		logger.info("Cancelling download");
+		logger.debug("Cancelling download");
 		GH.close(socketChannel,source);
 	}
 

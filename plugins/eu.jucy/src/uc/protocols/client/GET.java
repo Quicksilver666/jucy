@@ -62,7 +62,7 @@ Note that GET can also be used by extensions for binary transfers between hub an
 			fti.setStartposition(startpos);
 			long length = Long.parseLong(m.group(3));
 			fti.setLength(length);
-			Compression comp = Compression.parseNMDCString(m.group(4));
+			Compression comp = Compression.parseProtocolString(m.group(4));
 			fti.setCompression(comp);
 			
 			client.transfer(); //FileRequested(what, startpos, length, comp);
@@ -71,13 +71,13 @@ Note that GET can also be used by extensions for binary transfers between hub an
 			HashValue what = HashValue.createHash(m.group(1)); 
 			fti.setType(TransferType.TTHL);
 			fti.setHashValue(what);
-			Compression comp = Compression.parseNMDCString(m.group(2));
+			Compression comp = Compression.parseProtocolString(m.group(2));
 			fti.setCompression(comp);
 			
 			client.transfer();
 		} else if ( (m = filelist.matcher(command)).matches()) {
 			fti.setType(TransferType.FILELIST);
-			Compression comp = Compression.parseNMDCString(m.group(2));
+			Compression comp = Compression.parseProtocolString(m.group(2));
 			fti.setCompression(comp);
 			boolean partialList = m.group(1).startsWith("list /");
 			fti.setPartialList(partialList);

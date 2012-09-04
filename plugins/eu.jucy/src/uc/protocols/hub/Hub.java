@@ -382,7 +382,7 @@ public class Hub extends DCProtocol implements IHub {
 	 */
 	private User createSelf() {
 		if (self != null && getUserBySID(self.getSid()) == self ) {
-			logger.info("User still found by sid ");
+			logger.info("User still found by sid "); //Happens on fast reconnects?
 		}
 		
 		String nickname = getNickSelf();
@@ -574,6 +574,7 @@ public class Hub extends DCProtocol implements IHub {
 					}
 					userIPReceived = true;
 					break;
+				default: break;
 				}
 			}
 
@@ -1635,19 +1636,11 @@ public class Hub extends DCProtocol implements IHub {
 	 * @return the totalshare
 	 */
 	public long getTotalshare() {
-//		long retShare =  totalshare - getSelf().getShared();
-//		if (Platform.inDevelopmentMode()) {
 		long totalShare = 0;
 		for (IUser usr:users.values()) {
 			totalShare+= usr.getShared();
 		}
 		return totalShare;
-//			if (measuredShare != retShare) {
-//				long dif = retShare - measuredShare; //TODO retshare fails when hashing is happening..
-//				logger.info("Difference measured: "+dif+" "+getName()+"  "+getSelf().getShared());
-//			}
-//		}
-//		return retShare;
 	}
 
 

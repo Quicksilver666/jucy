@@ -1,13 +1,17 @@
 package uc.files.downloadqueue;
 
+import helpers.GH;
+import helpers.SizeEnum;
 import helpers.StatusObject;
 import helpers.StatusObject.ChangeType;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import logger.LoggerFactory;
 import org.apache.log4j.Logger;
@@ -22,9 +26,12 @@ import uc.files.IDownloadable.IDownloadableFile;
 
 import uc.files.downloadqueue.Block.BlockState;
 import uc.files.downloadqueue.Block.FileChannelManager;
+import uc.files.filelist.FileListFile;
+import uc.files.transfer.AbstractReadableFileInterval.FileDQEReadInterval;
 import uc.files.transfer.AbstractWritableFileInterval;
 import uc.files.transfer.FileTransferInformation;
 import uc.files.transfer.AbstractWritableFileInterval.FileWriteInterval;
+import uc.files.transfer.AbstractReadableFileInterval;
 import uc.protocols.TransferType;
 
 public class FileDQE extends AbstractFileDQE {
@@ -36,7 +43,7 @@ public class FileDQE extends AbstractFileDQE {
 	/**
 	 * the minimum size a file must have so multiple downloads are allowed..
 	 */
-	private static final long MULTIDOWNLOADTHRESHOLD = PI.getInt(PI.minimumSegmentSize) * 1024L*1024L;
+	private static final long MULTIDOWNLOADTHRESHOLD = SizeEnum.MiB.getInBytes(PI.getInt(PI.minimumSegmentSize));
 	
 	
 	/**
@@ -82,10 +89,97 @@ public class FileDQE extends AbstractFileDQE {
 		public BlockINFO(InterleaveHashes ih) {
 			this.ih = ih;
 		}
+		
+		
 
 	}
 	
+	public static class ChunkedIntervalList {
+		private final BitSet bs; 
+		private final int totalChunks;
+		
+		private ChunkedIntervalList(int totalChunks) {
+			this.totalChunks = totalChunks;
+			bs = new BitSet(totalChunks);
+		}
+		
+		public ChunkedIntervalList(FileDQE fdqe,BlockState state) {
+			this(fdqe.getNrOfBlocks());
+			synchronized (fdqe.synch) {
+				if (fdqe.bi == null) {
+					return;
+				} 
+				for (int i=0; i < totalChunks; i++) {
+					bs.set(i, fdqe.bi.blocks.get(i).getState().equals(state));
+				}
+			}
+		}
+		
+		public ChunkedIntervalList(String intervalList,int totalChunks) {
+			this(totalChunks);
+			String[] splits = intervalList.split(Pattern.quote(","));
+			if (splits.length % 2 == 1) {
+				throw new IllegalArgumentException();	
+			}
+			for (int pos=0; pos < splits.length; pos+=2) {
+				int start = Integer.parseInt(splits[pos]);
+				int end = Integer.parseInt(splits[pos+1]);
+				if (start > end) {
+					throw new IllegalArgumentException("Bad List");
+				}
+				bs.set(start, end);
+			}
+		}
+		
+		public boolean isComplete() {
+			return bs.nextClearBit(0) == totalChunks;
+		}
+
+				
+		public List<Integer> getIntervalList() {
+			List<Integer> intervals = new ArrayList<Integer>();
+			int current = 0;
+			while (-1 != (current = bs.nextSetBit(current))) {
+				intervals.add(current);
+				current = bs.nextClearBit(current);
+				intervals.add(current);
+			}
+			return intervals;
+		}
+		
+		public List<Integer> getIntervalStarts() {
+			List<Integer> intervals = new ArrayList<Integer>();
+			int current = 0;
+			while (-1 != (current = bs.nextSetBit(current))) {
+				intervals.add(current);
+				current = bs.nextClearBit(current);
+			}
+			return intervals;
+		}
+		
+		/**
+		 * @return length of set bits from given position
+		 * 
+		 */
+		public int getIntervalLength(int fromPos) {
+			if (bs.get(fromPos)) {
+				return bs.nextClearBit(fromPos)-fromPos;
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
+		
+		public int getTotalChunks() {
+			return totalChunks;
+		}
+
+
+		public String toString() {
+			return GH.concat(getIntervalList(), ",", "");
+		}
+	}
 	
+
 	
 	/**
 	 * 
@@ -141,29 +235,41 @@ public class FileDQE extends AbstractFileDQE {
 		int startofMaxBlocks = 0;
 		int maxBlocks = -1;
 		int currentblocks;
-	//	int totalBlocksToBeDownloaded = 0;
 		synchronized (synch) {
-			for (int i = 0 ; i < bi.blocks.size(); i++) {
-				Block b = bi.blocks.get(i);
-				if (b.isWritable()) {
-					int interval = b.getIntervalLengthInBlocks();
-					
-					
-					if (i > 0 && bi.blocks.get(i-1).getState() == BlockState.WRITEINPROGRESS) {
-						currentblocks = interval/ 2;  //intervals in progress count only for half size
-					} else {
-						currentblocks = interval;
-					}
-	//				totalBlocksToBeDownloaded += interval;
-					
-					i += interval; //advance the for loop
-					
-					if (currentblocks > maxBlocks) {
-						maxBlocks = currentblocks;
-						startofMaxBlocks = i - currentblocks;
-					}
+			ChunkedIntervalList cil = new ChunkedIntervalList(this, BlockState.EMPTY);
+			for (Integer start:cil.getIntervalStarts()) {
+				int interval = cil.getIntervalLength(start);
+				boolean beingWritten = bi.blocks.get(start).isIntervalBeingWritten();
+				currentblocks = beingWritten? interval/2: interval;//intervals in progress count only for half size
+				//actually golden cut ratio better than cutting by two ..
+				
+				if (currentblocks > maxBlocks) {
+					maxBlocks = currentblocks;
+					startofMaxBlocks = start + interval  - currentblocks;
 				}
 			}
+			
+			
+//			for (int i = 0 ; i < bi.blocks.size(); i++) {
+//				Block b = bi.blocks.get(i);
+//				if (b.isWritable()) {
+//					int interval = b.getIntervalLengthInBlocks();
+//					
+//					
+//					if (i > 0 && bi.blocks.get(i-1).getState() == BlockState.WRITEINPROGRESS) {
+//						currentblocks = interval/ 2;  //intervals in progress count only for half size
+//					} else {
+//						currentblocks = interval;
+//					}
+//					
+//					i += interval; //advance the for loop
+//					
+//					if (currentblocks > maxBlocks) {
+//						maxBlocks = currentblocks;
+//						startofMaxBlocks = i - currentblocks;
+//					}
+//				}
+//			}
 			
 		}
 		if (maxBlocks > 0) {
@@ -209,6 +315,10 @@ public class FileDQE extends AbstractFileDQE {
 	@Override
 	public AbstractWritableFileInterval getInterval(FileTransferInformation fti) {
 		return new FileWriteInterval(this,fti.getStartposition(),fti.getLength());
+	}
+	
+	public AbstractReadableFileInterval getReadInterval(FileTransferInformation fti) {
+		return new FileDQEReadInterval(this,fti.getStartposition(),fti.getLength());
 	}
 
 	@Override
@@ -274,7 +384,16 @@ public class FileDQE extends AbstractFileDQE {
 	public static AbstractDownloadQueueEntry get(IDownloadableFile idf,File target) {
 		DCClient dcc = DCClient.get();
 		DownloadQueue dq = dcc.getDownloadQueue();
-		if (dcc.getFilelist().get(idf.getTTHRoot()) != null || target.isFile()) {
+		if (target.isFile()) { //TODO here throw exception  and catch accordingly
+			return null;
+		}
+		FileListFile present = dcc.getFilelist().get(idf.getTTHRoot());
+		if (present != null) {
+			try {
+				GH.copy(dcc.getFilelist().getFile(present), target);
+			} catch (IOException e) {
+				logger.error(e, e);
+			}
 			return null;
 		}
 		
@@ -421,6 +540,35 @@ public class FileDQE extends AbstractFileDQE {
 		return false;
 	}
 	
+	/**
+	 * get the maximum of readable bytes from the given starting position
+	 * 
+	 */
+	public long getBytesReadable(long startpos) {
+		synchronized(synch) {
+			if (bi == null) {
+				return 0;
+			}
+			long blocksize= getBlocksize();
+			int startingBlock = (int) (startpos / blocksize);
+			long bytesReadable = 0;
+			for (int i = startingBlock; i < bi.blocks.size(); i++) {
+				Block b =  bi.blocks.get(i);
+				if (b.isFinished()) {
+					bytesReadable += b.getLength();
+				} else {
+					break;
+				}
+			}
+			if (bytesReadable > 0 & startpos % blocksize !=0) {
+				bytesReadable -= startpos % blocksize;
+			}
+			
+			return bytesReadable;
+		}
+		
+	}
+	
 
 	/**
 	 * retrieves one Block (a part of the file matching one 
@@ -453,6 +601,8 @@ public class FileDQE extends AbstractFileDQE {
 			return bi.blocks.size();
 		}
 	}
+	
+	
 
 	
 	public FileChannelManager getFileChannelManager() {

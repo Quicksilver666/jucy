@@ -137,13 +137,13 @@
          <command
                commandClass="uc.protocols.hub.GET">
          </command>
+         <command
+               commandClass="uc.protocols.hub.QUI">
+         </command>
       </protocol>
       <protocol
             active_from_start="false"
             target="uc.protocols.hub.Hub">
-         <command
-               commandClass="uc.protocols.hub.QUI">
-         </command>
          <command
                commandClass="uc.protocols.hub.RES">
          </command>
@@ -214,6 +214,18 @@
                 target="uc.protocols.hub.Hub">
              <command
                    commandClass="uc.protocols.hub.UserIP">
+             </command>
+          </protocol>
+       </protocol_extension>
+       <protocol_extension
+             hub_support="PFSR"
+             id="adc.pfsr"
+             nmdc="false">
+          <protocol
+                active_from_start="false"
+                target="uc.protocols.hub.Hub">
+             <command
+                   commandClass="uc.protocols.hub.PSR">
              </command>
           </protocol>
        </protocol_extension>

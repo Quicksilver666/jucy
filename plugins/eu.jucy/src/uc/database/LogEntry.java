@@ -1,5 +1,6 @@
 package uc.database;
 
+import helpers.GH;
 import uc.crypto.HashValue;
 
 /**
@@ -48,4 +49,11 @@ public class LogEntry implements ILogEntry {
 		return name;
 	}
 
+
+	@Override
+	public int compareTo(ILogEntry o) {
+		return GH.compareTo(date, o.getDate());
+	}
+
+	
 }
