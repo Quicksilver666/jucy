@@ -79,7 +79,9 @@ public class Activator extends AbstractUIPlugin {
 				URI[] repos = new URI [] {	new URI("http://jucy.eu/p2/test_update"),
 											new URI("http://jucy.eu/p2/test_extensions")};
 				for (URI repo: repos) {
-					
+					//import org.eclipse.equinox.internal.p2.console.ProvisioningHelper;
+					//ProvisioningHelper.addMetadataRepository(repoUri); 
+					//ProvisioningHelper.addArtifactRepository(repoUri); 
 					manager.addRepository(repo);
 					artManager.addRepository(repo);
 					

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Jucy" id="eu.jucy.product1.product" application="eu.jucy.gui.application" version="0.85.0" useFeatures="true" includeLaunchers="true">
+<product name="Jucy" id="eu.jucy.product1.product" application="eu.jucy.gui.application" version="0.86.0" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/eu.jucy.product1/icons/sidebar.png"/>
@@ -74,9 +74,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    <plugins>
       <plugin id="com.ibm.icu"/>
       <plugin id="eu.jucy"/>
-      <plugin id="eu.jucy.Log4J" fragment=""/>
+      <plugin id="eu.jucy.Log4J"/>
       <plugin id="eu.jucy.adlsearch"/>
-      <plugin id="eu.jucy.charts" fragment=""/>
+      <plugin id="eu.jucy.charts"/>
       <plugin id="eu.jucy.countries"/>
       <plugin id="eu.jucy.database"/>
       <plugin id="eu.jucy.geoipmaxmind"/>
@@ -85,15 +85,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <plugin id="eu.jucy.gui.macosx.cocoa" fragment="true"/>
       <plugin id="eu.jucy.hashengine"/>
       <plugin id="eu.jucy.helpers"/>
-      <plugin id="eu.jucy.language" fragment=""/>
+      <plugin id="eu.jucy.language"/>
       <plugin id="eu.jucy.notepad"/>
       <plugin id="eu.jucy.product1"/>
       <plugin id="eu.jucy.ui.hublist"/>
-      <plugin id="fr.cryptohash" fragment=""/>
+      <plugin id="fr.cryptohash"/>
       <plugin id="javax.servlet"/>
       <plugin id="lib.org.apache.lucene"/>
-      <plugin id="net.sbbi.upnp" fragment=""/>
-      <plugin id="org.apache.tools.bzip2" fragment=""/>
+      <plugin id="net.sbbi.upnp"/>
+      <plugin id="org.apache.tools.bzip2"/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.databinding"/>
@@ -118,7 +118,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <plugin id="org.eclipse.equinox.p2.core"/>
       <plugin id="org.eclipse.equinox.p2.director"/>
       <plugin id="org.eclipse.equinox.p2.engine"/>
-      <plugin id="org.eclipse.equinox.p2.exemplarysetup" fragment=""/>
+      <plugin id="org.eclipse.equinox.p2.exemplarysetup"/>
       <plugin id="org.eclipse.equinox.p2.garbagecollector"/>
       <plugin id="org.eclipse.equinox.p2.jarprocessor"/>
       <plugin id="org.eclipse.equinox.p2.metadata"/>
@@ -164,7 +164,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.eclipse.update.configurator"/>
       <plugin id="org.hamcrest.core"/>
-      <plugin id="org.hsqldb" fragment=""/>
+      <plugin id="org.hsqldb"/>
       <plugin id="org.junit4"/>
       <plugin id="org.mortbay.jetty.server"/>
       <plugin id="org.mortbay.jetty.util"/>
@@ -173,7 +173,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </plugins>
 
    <features>
-      <feature id="eu.jucy.feature.baseclient" version="1.85.0.qualifier"/>
+      <feature id="eu.jucy.feature.baseclient" version="1.86.0.qualifier"/>
    </features>
 
 

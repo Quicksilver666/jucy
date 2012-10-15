@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Smileys Plug-in
 Bundle-Localization: nl/translation
 Bundle-SymbolicName: eu.jucy.ui.smileys;singleton:=true
-Bundle-Version: 1.85.0.qualifier
+Bundle-Version: 1.86.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: eu.jucy.gui,
  eu.jucy.helpers,

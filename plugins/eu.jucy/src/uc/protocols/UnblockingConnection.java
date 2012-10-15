@@ -60,8 +60,9 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 	private static final Set<InetAddress> problematic = 
 		Collections.synchronizedSet(new HashSet<InetAddress>());
 	
-	private static final Set<InetAddress> invalidEncodedCerts =  //TODO this would be nice as workaround for those invalid certs
-			Collections.synchronizedSet(new HashSet<InetAddress>());
+//	private static final Set<InetAddress> invalidEncodedCerts =  //TODO this would be nice as workaround for those invalid certs
+//			Collections.synchronizedSet(new HashSet<InetAddress>());
+	
 	
 	private final boolean encryption;
 	private final boolean serverSide;
@@ -462,7 +463,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				boolean contained = problematic.contains(inetAddress.getAddress());
 				problematic.add(inetAddress.getAddress());
 				if (e.toString().contains("Invalid encoding: zero length Int value")) {
-					invalidEncodedCerts.add(inetAddress.getAddress());
+//					invalidEncodedCerts.add(inetAddress.getAddress());
 				}
 				
 				if (Platform.inDevelopmentMode()) {

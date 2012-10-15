@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.libraries"
       label="Libraries"
-      version="1.0.5.qualifier"
+      version="1.0.6.qualifier"
       provider-name="Various Third Parties">
 
    <description>
@@ -14,7 +14,7 @@
 Visit &lt;a href=&quot;http://jucy.eu&quot;&gt;http://jucy.eu&lt;/a&gt;
    </copyright>
 
-   <license url="http://www.jucy.eu/license.html">
+   <license url="http://jucy.eu/license.html">
       Copyright (c) 2009, Quicksilver   
 All rights reserved.
 
@@ -58,7 +58,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="lib.com.jcraft.jzlib"
          download-size="0"
          install-size="0"
-         version="1.0.7"
+         version="1.0.9"
          unpack="false"/>
 
    <plugin
@@ -98,6 +98,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="lib.org.hsqldb"
          download-size="0"
          install-size="0"
-         version="2.0.0"/>
+         version="2.2.6"/>
 
 </feature>

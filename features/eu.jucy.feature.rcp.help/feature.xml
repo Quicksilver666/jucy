@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.rcp.help"
       label="Help Feature"
-      version="3.7.0"
+      version="3.8.0"
       provider-name="Quicksilver">
 
    <description>
@@ -27,21 +27,14 @@ Creative Commons Attribution-No Derivative Works 3.0.
          id="javax.servlet"
          download-size="0"
          install-size="0"
-         version="2.5.0.v201103041518"
+         version="3.0.0.v201112011016"
          unpack="false"/>
 
    <plugin
          id="javax.servlet.jsp"
          download-size="0"
          install-size="0"
-         version="2.0.0.v201101211617"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.commons.el"
-         download-size="0"
-         install-size="0"
-         version="1.0.0.v201101211617"
+         version="2.2.0.v201112011158"
          unpack="false"/>
 
    <plugin
@@ -49,13 +42,6 @@ Creative Commons Attribution-No Derivative Works 3.0.
          download-size="0"
          install-size="0"
          version="1.0.4.v201101211617"
-         unpack="false"/>
-
-   <plugin
-         id="org.apache.jasper"
-         download-size="0"
-         install-size="0"
-         version="5.5.17.v201101211617"
          unpack="false"/>
 
    <plugin
@@ -76,91 +62,119 @@ Creative Commons Attribution-No Derivative Works 3.0.
          id="org.eclipse.help.appserver"
          download-size="0"
          install-size="0"
-         version="3.1.400.v20110425"
+         version="3.1.400.v20120521-2344"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help.base"
          download-size="0"
          install-size="0"
-         version="3.6.0.v201106131736"
+         version="3.6.100.v201206081200"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help.ui"
          download-size="0"
          install-size="0"
-         version="3.5.100.v20110425"
+         version="3.5.200.v20120521-2344"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help.webapp"
          download-size="0"
          install-size="0"
-         version="3.6.0.v20110518"
+         version="3.6.100.v20120521-2344"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.core.variables"
          download-size="0"
          install-size="0"
-         version="3.2.500.v20110511"
+         version="3.2.600.v20120521-2012"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.http.jetty"
          download-size="0"
          install-size="0"
-         version="2.0.100.v20110502"
+         version="3.0.0.v20120522-1841"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.http.registry"
          download-size="0"
          install-size="0"
-         version="1.1.100.v20110502"
+         version="1.1.200.v20120522-2049"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.http.servlet"
          download-size="0"
          install-size="0"
-         version="1.1.200.v20110502"
+         version="1.1.300.v20120522-1841"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.jsp.jasper.registry"
          download-size="0"
          install-size="0"
-         version="1.0.200.v20100503"
+         version="1.0.300.v20120522-2049"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.jsp.jasper"
          download-size="0"
          install-size="0"
-         version="1.0.300.v20110502"
+         version="1.0.400.v20120522-2049"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.osgi.services"
          download-size="0"
          install-size="0"
-         version="3.3.0.v20110513"
+         version="3.3.100.v20120522-1822"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.ui.forms"
          download-size="0"
          install-size="0"
-         version="3.5.100.v20110425"
+         version="3.5.200.v20120521-2332"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.help"
          download-size="0"
          install-size="0"
-         version="3.5.100.v20110426"
+         version="3.6.0.v20120521-2344"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.jasper.glassfish"
+         download-size="0"
+         install-size="0"
+         version="2.2.2.v201205150955"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.codec"
+         download-size="0"
+         install-size="0"
+         version="1.3.0.v201101211617"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.httpclient"
+         download-size="0"
+         install-size="0"
+         version="3.1.0.v201012070820"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.lucene.core"
+         download-size="0"
+         install-size="0"
+         version="2.9.1.v201101211721"
          unpack="false"/>
 
 </feature>

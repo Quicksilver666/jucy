@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eliza
 Bundle-SymbolicName: eu.jucy.eliza
-Bundle-Version: 1.85.0.qualifier
+Bundle-Version: 1.86.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: .
 Require-Bundle: eu.jucy.helpers;bundle-version="1.1.10",

@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.adlsearch"
       label="ADL search"
-      version="1.85.0.qualifier"
+      version="1.86.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.adlsearch">
 
@@ -20,7 +20,7 @@ checking file lists becomes easier.
 Visit &lt;a href=&quot;http://jucy.eu&quot;&gt;http://jucy.eu&lt;/a&gt;
    </copyright>
 
-   <license url="http://www.jucy.eu/license.html">
+   <license url="http://jucy.eu/license.html">
       Copyright (c) 2009, Quicksilver   
 All rights reserved.
 
@@ -60,7 +60,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.adlsearch"
          download-size="0"
          install-size="0"
-         version="1.85.0.qualifier"
+         version="1.86.0.qualifier"
          unpack="false"/>
 
 </feature>

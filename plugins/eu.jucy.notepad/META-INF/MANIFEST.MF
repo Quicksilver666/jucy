@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %NPBundle_Name
 Bundle-SymbolicName: eu.jucy.notepad;singleton:=true
-Bundle-Version: 1.85.0.qualifier
+Bundle-Version: 1.86.0.qualifier
 Require-Bundle: eu.jucy.gui,
  org.eclipse.ui,
  org.eclipse.core.runtime,

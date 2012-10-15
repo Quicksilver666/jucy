@@ -3,6 +3,7 @@ package uc.crypto;
 
 import helpers.GH;
 
+import java.math.BigInteger;
 import java.util.BitSet;
 
 
@@ -173,7 +174,7 @@ public class BloomFilter {
 		for (int i = 0; i < length; i++) {
 			boolean b = GH.getBit(source,startpos+i);
 			if (b) {
-				ret +=  1 << i;
+				ret +=  1L << i;
 			}
 		}
 		return ret;
