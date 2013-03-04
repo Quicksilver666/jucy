@@ -2654,6 +2654,10 @@ UPnP могло не сработать из-за программного бр�
 <de>IP Erkennung fehlgeschlagen: %s</de>
 <en>IP detection failed: %s</en>
 </Trl>
+<Trl id="KPMismatch">
+  <de>KeyPrint stimmt nicht überein</de>
+  <en>KeyPrint mismatch</en>
+</Trl>
 <!--<Trl id="IsFavoriteUser">
 <de>Ist ein Favorisierter User</de>
 <en>Is Favorite User</en>

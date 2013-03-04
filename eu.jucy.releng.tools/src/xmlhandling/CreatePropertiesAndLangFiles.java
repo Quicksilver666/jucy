@@ -18,7 +18,7 @@ public class CreatePropertiesAndLangFiles {
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		File basepath = new File(test?".":".."); 
+		File basepath = new File(test?".":"../plugins"); 
 		
 		Translation trans = new Translation(basepath);
 		

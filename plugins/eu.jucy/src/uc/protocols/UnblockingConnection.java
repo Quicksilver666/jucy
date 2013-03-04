@@ -439,7 +439,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				
 
 			} catch (Exception e) {  
-				if (e.toString().contains("Cipher buffering error") && Platform.inDevelopmentMode()) {
+				if ((e.toString().contains("Cipher buffering error")|| e.toString().contains("record too big") )&& Platform.inDevelopmentMode()) {
 					logger.warn(cp.toString());
 				}
 				addProblematic(e);
@@ -754,6 +754,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 					logger.info("Bad Fingerprint found from "+getInetSocketAddress() 
 							+"\nFound: "+hash
 							+"\nExpected: "+fingerPrint);
+					cp.keyPrintFailed();
 				}
 			}
 			

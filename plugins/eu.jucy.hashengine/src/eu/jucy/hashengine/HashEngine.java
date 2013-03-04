@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.PriorityBlockingQueue;
 
 
@@ -73,8 +74,8 @@ public class HashEngine implements IHashEngine {
 	private volatile long hashedConsecutively = 0;
 	private static final long WCF = 1000000; // correction factor...
 	
-	private Set<IHashedListener> listeners = 
-		Collections.synchronizedSet(new HashSet<IHashedListener>());
+	private  final Set<IHashedListener> listeners = new CopyOnWriteArraySet<IHashedListener>();
+
 	
 
 	//private final Object hashersynch = new Object();
@@ -364,9 +365,10 @@ public class HashEngine implements IHashEngine {
 		public IStatus run(IProgressMonitor monitor) {
 			Date datechanged = new Date(file.lastModified());
 			FileChannel fc = null;
+			FileInputStream fis = null;
 			try {
-				
-				fc = new FileInputStream(file).getChannel();
+				fis = new FileInputStream(file);
+				fc = fis.getChannel();
 				Date before = new Date();
 				
 				
@@ -383,12 +385,12 @@ public class HashEngine implements IHashEngine {
 				
 				Date after = new Date();
 				
-				synchronized(listeners) {
-					logger.info("size left: "+sizeLeftForHashing + "  "+file.length());
-					for (IHashedListener listener: listeners) {
-						listener.hashed(file, after.getTime()- before.getTime(),sizeLeftForHashing-file.length());
-					}
-				}	
+	
+				logger.info("size left: "+sizeLeftForHashing + "  "+file.length());
+				for (IHashedListener listener: listeners) {
+					listener.hashed(file, after.getTime()- before.getTime(),sizeLeftForHashing-file.length());
+				}
+				
 				HashedFile hf = new HashedFile(datechanged,root,file);
 				listener.hashedFile( hf, inter);
 				  
@@ -398,7 +400,7 @@ public class HashEngine implements IHashEngine {
 			} catch(IOException ioe){
 				logger.warn(ioe+" File: "+file,ioe);
 			} finally {
-				GH.close(fc);
+				GH.close(fc,fis);
 			}
 			logger.debug("datechanged: "+datechanged);
 			if (datechanged.getTime() != file.lastModified()) {

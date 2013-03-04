@@ -87,6 +87,9 @@ public class FileDQE extends AbstractFileDQE {
 		}
 
 		public BlockINFO(InterleaveHashes ih) {
+			if (ih == null) {
+				throw new IllegalArgumentException();
+			}
 			this.ih = ih;
 		}
 		
@@ -410,7 +413,8 @@ public class FileDQE extends AbstractFileDQE {
 				dqe = new TTHLDQE(dq,idf,255/2,target,new Date()); 
 			}
 			//persist  
-			dcc.getDatabase().addOrUpdateDQE(DQEDAO.get(dqe),true); //add the DQE item to the persistent storage..
+			
+			dq.getDatabase().modifyDQEDAO(DQEDAO.get(dqe),ChangeType.ADDED); //add the DQE item to the persistent storage..
 			
 			dq.addDownloadQueueEntry(dqe);
 			
@@ -461,7 +465,7 @@ public class FileDQE extends AbstractFileDQE {
 	public InterleaveHashes getIh() {
 		synchronized(synch) {
 			if (bi == null) {
-				return dq.getDatabase().getInterleaves(getTTHRoot());
+				return dq.getDatabase().getInterleaves(getTTHRoot(),true);
 			} else {
 				return bi.ih;
 			}

@@ -67,8 +67,8 @@ public abstract class HublistHubActions extends Action implements
 	public void run() {
 		logger.debug("starting hubaction "+ selection.size());
 		for (Object o: selection.toList()) {
-			logger.debug("found hublist hub:"+o);
 			if (o instanceof HublistHub) {
+				logger.debug("found hublist hub:"+o);
 				doWith((HublistHub)o);
 			}
 		}

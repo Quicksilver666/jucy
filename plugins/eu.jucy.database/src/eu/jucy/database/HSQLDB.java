@@ -2,6 +2,8 @@ package eu.jucy.database;
 
 import helpers.GH;
 import helpers.LockedRunnable;
+import helpers.StatusObject;
+import helpers.StatusObject.ChangeType;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -34,6 +38,9 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 import uc.DCClient;
 import uc.IUser;
@@ -73,8 +80,14 @@ public class HSQLDB implements IDatabase {
 	/**
 	 * entity to name .. cached here.. for speed and simplicity reasons..
 	 */
-	private Map<HashValue, String> knownLogEntities = Collections.synchronizedMap(new HashMap<HashValue, String>());
+	private final Map<HashValue, String> knownLogEntities = 
+			Collections.synchronizedMap(new HashMap<HashValue, String>());
+	
+	private final ConcurrentLinkedQueue<StatusObject> queue = new ConcurrentLinkedQueue<StatusObject>();
+	private final AtomicBoolean updateInProgress = new AtomicBoolean(false);
 
+	
+	
 	private DCClient dcc;
 
 	public HSQLDB() {
@@ -115,6 +128,10 @@ public class HSQLDB implements IDatabase {
 			if (!restoreTableExists()) {
 				createRestoreTable();
 			}
+			
+			if (!dqInterleavesExists()) {
+				createDQInterlaveTable();
+			}
 		} finally {
 			writeLock.unlock();
 		}
@@ -134,6 +151,9 @@ public class HSQLDB implements IDatabase {
 	// }
 
 	public void shutdown() {
+		while (updateInProgress.get()) {
+			GH.sleep(100);
+		}
 		disconnect();
 	}
 
@@ -379,6 +399,8 @@ public class HSQLDB implements IDatabase {
 		return true;
 	}
 	
+
+	
 	private void createRestoreTable() {
 		try {
 			Statement restoreInfo = c.createStatement();
@@ -395,6 +417,31 @@ public class HSQLDB implements IDatabase {
 		}
 	}
 	
+	private boolean dqInterleavesExists() {
+		try {
+			Statement s = c.createStatement();
+			s.execute("SELECT 1 FROM dqinterleaves");
+		} catch (SQLException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	private void createDQInterlaveTable() {
+		try {
+			Statement createTTHtoIH = c.createStatement();
+			createTTHtoIH.execute("CREATE CACHED TABLE dqinterleaves ("
+					+ "tthroot CHARACTER("+TigerHashValue.serializedDigestLength + ") ,"
+					+ "interleaves LONGVARCHAR ,"
+					+ "PRIMARY KEY ( tthroot ),"
+					+ "FOREIGN KEY ( tthroot ) "
+					+ "REFERENCES downloadqueue (tthroot) ON DELETE CASCADE )");
+			createTTHtoIH.close();
+			
+		} catch (SQLException e) {
+			logger.warn("Couldn't create SQL table " + e.toString(), e);
+		}
+	}
 	
 
 	public void disconnect() {
@@ -430,7 +477,7 @@ public class HSQLDB implements IDatabase {
 			try {
 				ensureConnectionIsOpen();
 
-				addOrUpdateInterleave(hf.getTTHRoot(), inter); // first add
+				addOrUpdateInterleave(hf.getTTHRoot(), inter,false); // first add
 																// interleaves..
 
 				PreparedStatement updateFile = c
@@ -494,16 +541,16 @@ public class HSQLDB implements IDatabase {
 		}
 	}
 
-	private void addOrUpdateInterleave(HashValue tth, InterleaveHashes inter)
+	private void addOrUpdateInterleave(HashValue tth, InterleaveHashes inter,boolean dqInterleave)
 			throws SQLException {
 
 		PreparedStatement checkExist = c
-				.prepareStatement("SELECT 1 FROM interleaves WHERE tthroot = ? ");
+				.prepareStatement("SELECT 1 FROM "+(dqInterleave?"dq":"")+"interleaves WHERE tthroot = ? ");
 		checkExist.setString(1, tth.toString());
 		ResultSet rs = checkExist.executeQuery();
 		if (!rs.next()) {
 			PreparedStatement insertInterleaves = c
-					.prepareStatement("INSERT INTO interleaves (tthroot, interleaves ) VALUES ( ?, ?) ");
+					.prepareStatement("INSERT INTO "+(dqInterleave?"dq":"")+"interleaves (tthroot, interleaves ) VALUES ( ?, ?) ");
 			insertInterleaves.setString(1, tth.toString());
 
 			String s;
@@ -576,7 +623,8 @@ public class HSQLDB implements IDatabase {
 		}
 	}
 
-	public void addUserToDQE(IUser usr, HashValue hash) {
+	
+	private void addUserToDQE(IUser usr, HashValue hash) {
 		HashValue tth = hash;
 		if (tth == null) {
 			throw new IllegalArgumentException("DQE has no TTH");
@@ -711,8 +759,9 @@ public class HSQLDB implements IDatabase {
 			}
 		}
 	}
-
-	public void deleteUserFromDQE(IUser usr, DQEDAO dqe) {
+ 
+	
+	private void deleteUserFromDQE(IUser usr, HashValue hash) {
 		logger.debug("deleting user from dqe: " + usr.getNick());
 		getNrOfEntrysInUserToDQETable();
 		writeLock.lock();
@@ -720,7 +769,7 @@ public class HSQLDB implements IDatabase {
 			ensureConnectionIsOpen();
 			PreparedStatement deleteUserFromDQE = c
 					.prepareStatement("DELETE FROM dqeToUser WHERE tthroot = ? AND userid = ? ");
-			deleteUserFromDQE.setString(1, dqe.getTTHRoot().toString());
+			deleteUserFromDQE.setString(1, hash.toString());
 			deleteUserFromDQE.setString(2, usr.getUserid().toString());
 
 			if (!deleteUserFromDQE.execute()) {
@@ -783,7 +832,7 @@ public class HSQLDB implements IDatabase {
 					dqe.getPriority(), dqe.getSize(), add);
 
 			if (dqe.getIh() != null) {
-				addOrUpdateInterleave(dqe.getTTHRoot(), dqe.getIh());
+				addOrUpdateInterleave(dqe.getTTHRoot(), dqe.getIh(),true);
 			}
 			
 
@@ -795,7 +844,6 @@ public class HSQLDB implements IDatabase {
 	}
 	
 	
-
 	public void deleteDQE(DQEDAO dqe) {
 		logger.debug("deleting dqe: " + dqe.getName());
 		writeLock.lock();
@@ -814,6 +862,68 @@ public class HSQLDB implements IDatabase {
 			writeLock.unlock();
 		}
 	}
+	
+	
+	
+
+	@Override
+	public void modifyDQEDAO(DQEDAO dqe, ChangeType ct) {
+		addStatusObject(new StatusObject(dqe,ct));
+	}
+	
+	@Override
+	public void changeUserOfDQE(IUser usr, HashValue hash, boolean add) {
+		addStatusObject(new StatusObject(usr,add?ChangeType.ADDED:ChangeType.REMOVED,0,hash));
+	}
+	
+	private void addStatusObject(StatusObject so) {
+		queue.add(so);
+		if (updateInProgress.compareAndSet(false, true)) {
+			Job job = new Job("Change DownloadQueue") {
+				
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					int total = queue.size();
+					monitor.beginTask("Change Download Queue", total);
+					
+					StatusObject so = null;
+					while (total-- > 0  && null != (so = queue.poll())) {
+						monitor.worked(1);
+						switch(so.getType()) {
+						case ADDED:
+							if (so.getValue() instanceof DQEDAO) {
+								addOrUpdateDQE((DQEDAO)so.getValue(), true);
+							} else {
+								addUserToDQE((IUser)so.getValue(), (HashValue)so.getDetailObject());
+							}
+							break;
+						case CHANGED: 
+							addOrUpdateDQE((DQEDAO)so.getValue(), false);
+							break;
+						case REMOVED:
+							if (so.getValue() instanceof DQEDAO) {
+								deleteDQE((DQEDAO)so.getValue());
+							} else {
+								deleteUserFromDQE((IUser)so.getValue(), (HashValue)so.getDetailObject());
+							}
+							break;
+						}
+					}
+					updateInProgress.set(false);
+					monitor.done();
+					if (!queue.isEmpty()) {
+						schedule();
+					}
+					
+					return Status.OK_STATUS;
+				}
+			};
+			job.setUser(false);
+			job.setSystem(true);
+			job.schedule();
+			
+		}
+	}
 
 	/**
 	 * loads the DownloadqueueEntrys persistent data.. as a side effects all
@@ -825,7 +935,7 @@ public class HSQLDB implements IDatabase {
 		Map<HashValue, User> users = new HashMap<HashValue, User>();
 
 		Map<HashValue, DQEDAO> dqes = new HashMap<HashValue, DQEDAO>();
-		writeLock.lock();
+		readLock.lock();
 		try {
 			// load users ..
 			PreparedStatement prepst = c
@@ -869,14 +979,15 @@ public class HSQLDB implements IDatabase {
 			}
 			dqeRestoreInfo.close();
 			
-			
+		//	long start = System.currentTimeMillis();
 			PreparedStatement dqesstm = c
-					.prepareStatement("SELECT downloadqueue.* , interleaves.interleaves  "
-							+ " FROM downloadqueue LEFT OUTER JOIN interleaves ON  downloadqueue.tthroot = interleaves.tthroot "
+					.prepareStatement("SELECT downloadqueue.* , dqinterleaves.interleaves  "
+							+ " FROM downloadqueue LEFT OUTER JOIN dqinterleaves ON  downloadqueue.tthroot = dqinterleaves.tthroot "
 								);
 
 			ResultSet rs2 = dqesstm.executeQuery();
-
+		//	long end = System.currentTimeMillis();
+		//	logger.info("Query duration: "+(end-start));
 			while (rs2.next()) {
 				HashValue tthRoot = HashValue.createHash(rs2
 						.getString("tthroot"));
@@ -929,6 +1040,17 @@ public class HSQLDB implements IDatabase {
 		} catch (SQLException e) {
 			logger.warn(e, e);
 		} finally {
+			readLock.unlock();
+		}
+		
+		writeLock.lock();
+		try {
+			Statement deleteRestoreInfo = c.createStatement();
+			deleteRestoreInfo.execute("DELETE FROM dqrestoreinfo");
+			deleteRestoreInfo.close();
+		} catch (SQLException e) {
+			logger.warn(e, e);
+		} finally {
 			writeLock.unlock();
 		}
 
@@ -943,7 +1065,7 @@ public class HSQLDB implements IDatabase {
 	
 
 
-	public InterleaveHashes getInterleaves(HashValue tthroot) {
+	public InterleaveHashes getInterleaves(HashValue tthroot,boolean dq) {
 		if (tthroot == null) {
 			throw new IllegalArgumentException(
 					"tthroot is null in HSQL.getInterleaves()");
@@ -954,7 +1076,7 @@ public class HSQLDB implements IDatabase {
 		try {
 
 			PreparedStatement prepst = c
-					.prepareStatement("SELECT interleaves FROM interleaves WHERE tthroot = ? ");
+					.prepareStatement("SELECT interleaves FROM "+(dq?"dq":"")+"interleaves WHERE tthroot = ? ");
 			prepst.setString(1, tthroot.toString());
 
 			ResultSet rs = prepst.executeQuery();

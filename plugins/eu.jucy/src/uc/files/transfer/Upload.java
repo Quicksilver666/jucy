@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -28,15 +29,53 @@ public class Upload extends AbstractFileTransfer {
 	private static final int UPDATES_PER_SECOND = 10;
 	private static final int DRAINTIME = UPDATES_PER_SECOND*5;
 	private static Semaphore globalUploads = new Semaphore(1);
-	private static volatile int maxSpeed;
+//	private static final CopyOnWriteArrayList<Semaphore> RUNNING_UPLOADS = new CopyOnWriteArrayList<Semaphore>();
 	
-	
+//	private final Semaphore localUploads = new Semaphore(1);
+	private volatile static ScheduledFuture<?> updateTask;
 	
 	private static void update() {
-		maxSpeed = PI.getInt(PI.uploadLimit);
-		if (maxSpeed <= 0) {
-			maxSpeed = Integer.MAX_VALUE / DRAINTIME; 
+		if (updateTask != null) {
+			updateTask.cancel(false);
 		}
+		updateTask = DCClient.getScheduler().scheduleAtFixedRate(new Runnable() {
+			private final int maxSpeed = PI.getInt(PI.uploadLimit) <= 0? 
+					Integer.MAX_VALUE / DRAINTIME
+					: PI.getInt(PI.uploadLimit);
+	
+			private int i = 0;
+			private int overDue = 0;
+		
+			public void run() {
+	//			int divFactor= RUNNING_UPLOADS.size() * UPDATES_PER_SECOND;
+				
+	//			if (++i % DRAINTIME == 0 ) {
+	//				int drained = 0;
+	//				for (Semaphore sem:RUNNING_UPLOADS) {
+	//					drained += sem.drainPermits();
+	//				}
+	//				overDue += drained % divFactor;
+	//			}
+				if (++i % DRAINTIME == 0 ) {
+					globalUploads.drainPermits();
+				}
+				int releaseGlobal = maxSpeed+overDue;
+			
+				globalUploads.release(releaseGlobal / UPDATES_PER_SECOND);
+
+				overDue = releaseGlobal % UPDATES_PER_SECOND; 
+				
+//				int releaseLocal  = (maxSpeed+overDue);
+//				if (releaseLocal > 0) {
+//					for (Semaphore sem:RUNNING_UPLOADS) {
+//						sem.release(releaseLocal);
+//					}
+//				}
+//				overDue = releaseLocal % divFactor;
+			
+			}
+				
+		},1000/UPDATES_PER_SECOND,1000/UPDATES_PER_SECOND,TimeUnit.MILLISECONDS);
 	}
 	
 	static {
@@ -49,22 +88,6 @@ public class Upload extends AbstractFileTransfer {
 		update();
 		
 		
-		DCClient.getScheduler().scheduleAtFixedRate(new Runnable() {		
-			private int i = 0;
-			private int overDue = 0;
-			public void run() {
-				if (++i % DRAINTIME == 0 ) {
-					globalUploads.drainPermits();
-				}
-				int releaseGlobal = maxSpeed+overDue;
-				int globalDiv = UPDATES_PER_SECOND;
-				globalUploads.release(releaseGlobal / globalDiv);
-
-				overDue = releaseGlobal % globalDiv; 
-				
-			}
-				
-		},1000/UPDATES_PER_SECOND,1000/UPDATES_PER_SECOND,TimeUnit.MILLISECONDS);
 		
 	}
 	
@@ -112,11 +135,12 @@ public class Upload extends AbstractFileTransfer {
 		
 		ByteBuffer bb = ByteBuffer.allocate(BUFFER_SIZE);
 		bb.clear();
-		
+	//	RUNNING_UPLOADS.add(localUploads);
 		int written;
 		int toAcquire = 0;
 		try {
 			notifyObservers( TransferChange.STARTED);
+		//	logger.info("Upload started: "+fileInterval.toString());
 			while ( source.read(bb) >= 0 || bb.position() != 0) { 
 				bb.flip();
 				if ((written = target.write(bb)) < 0) { 
@@ -126,15 +150,23 @@ public class Upload extends AbstractFileTransfer {
 				bytesTransferred += written;
 				toAcquire += written;
 				globalUploads.acquireUninterruptibly(toAcquire/1024);
+				//localUploads.acquireUninterruptibly(toAcquire/1024);
 				toAcquire %= 1024 ;
 				
 				bb.compact();
 			}
 
 		} finally {
+	//		RUNNING_UPLOADS.remove(localUploads);
+			
 			GH.close(source); 
 			notifyObservers(TransferChange.FINISHED);
-			fw.finnish();
+			if (bytesTransferred == fileInterval.length) { //only on success wrap up
+				fw.finnish();
+			}
+		//	logger.info("Upload "+(bytesTransferred==fileInterval.length?"succ":"fail") 
+		//			+": "   +fileInterval.toString()+"   bytes transferred: "+bytesTransferred);
+			
 		}
 		logger.debug("finished upload");
 	}

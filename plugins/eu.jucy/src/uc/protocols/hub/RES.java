@@ -129,8 +129,6 @@ public class RES extends AbstractADCHubCommand {
 				if (path.endsWith(File.separator)) { //folder
 					long size = flags.containsKey(Flag.SI) ? Long.valueOf(flags.get(Flag.SI)): -1 ;
 					int availableSlots = flags.containsKey(Flag.SL)?Integer.valueOf(flags.get(Flag.SL)): 0 ;
-					
-					
 					sr  = SearchResult.create(path, null, usr, size, availableSlots, usr.getSlots(), false,token);
 					
 				} else if (flags.containsKey(Flag.SI) && flags.containsKey(Flag.TR) ) {

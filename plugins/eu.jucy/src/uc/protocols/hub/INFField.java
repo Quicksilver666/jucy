@@ -145,7 +145,10 @@ public enum INFField {
 				return kp.magnetString().toUpperCase()+"/"+kp.toString();
 			}
 			break;
+		case TO:
+			return "";
 		}
+		
 		
 		return null;
 	}
@@ -153,6 +156,7 @@ public enum INFField {
 	public boolean verify(String value) {
 		switch(this) {
 		case I4: return value.matches(IProtocolCommand.IPv4);
+		case I6: return value.matches(IProtocolCommand.IPv6);
 		case ID:
 		case PD: return value.matches(IProtocolCommand.TTH);
 		case HN:   //All positive integer numbers
@@ -172,10 +176,17 @@ public enum INFField {
 		case US: return value.matches(IProtocolCommand.FILESIZE); 
 		case AW: return value.matches("[012]");
 		case KP: return value.matches(IProtocolCommand.HASH_WITH_TYPE);
-		
+		case AP:
+		case SU:
+		case DE:
+		case EM:
+		case NI:
+		case RF:
+		case TO:
+		case VE: return true; //Not checked cases
 		}
 		
-		return true; //all other are undefined.. and therefore correct..
+		return true; 
 	}
 	
 }

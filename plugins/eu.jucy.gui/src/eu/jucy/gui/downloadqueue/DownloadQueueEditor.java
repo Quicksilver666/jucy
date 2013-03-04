@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 import logger.LoggerFactory;
@@ -125,6 +126,7 @@ public class DownloadQueueEditor extends UCEditor implements IObserver<StatusObj
 	private TreeViewer treeViewer;
 	private TableViewer tableViewer;
 	
+	private final AtomicBoolean arInProgress = new AtomicBoolean();
 	private TableViewerAdministrator<AbstractDownloadQueueEntry> tva;
 	
 //	private List<Action> actions = new ArrayList<Action>();
@@ -555,30 +557,34 @@ public class DownloadQueueEditor extends UCEditor implements IObserver<StatusObj
 
 	
 	public void update(IObservable<StatusObject> o, final StatusObject status) {
-		new SUIJob(table) {
-			public void run() {
-				switch(status.getType()) {
-				case ADDED:
-				case REMOVED:
-					tableViewer.refresh();
-					treeViewer.refresh();
-					updateLabels();
-					break;
-				case CHANGED:
-					tableViewer.update(status.getValue(), null);
-					break;
-				}
+		switch(status.getType()) {
+		case ADDED:
+		case REMOVED:
+			if (arInProgress.compareAndSet(false, true)) {
+				new SUIJob(table) {
+					public void run() {
+						arInProgress.set(false);
+						tableViewer.refresh();
+						treeViewer.refresh();
+						updateLabels();
+					}
+				}.schedule();
 			}
-			
-		}.schedule();
-
+			break;
+		case CHANGED:
+			new SUIJob(table) {
+				public void run() {
+					tableViewer.update(status.getValue(), null);
+				}
+				
+			}.schedule();
+			break;
+		}
 		
+
 	}
 
 
-	
-
-	
 	public void next() {}
 	
 	public void search(String searchstring) {

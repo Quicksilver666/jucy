@@ -735,6 +735,9 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 				case CONNECTED:
 					statusMessage(LanguageKeys.Connected,0);
 					break;
+				case KPFAILED:
+					statusMessage(LanguageKeys.KPMismatch, 0);
+					break;
 				case CLOSED:
 					statusMessage(LanguageKeys.Disconnected,0);
 					break;
@@ -752,6 +755,8 @@ public class HubEditor extends UCTextEditor implements IHubListener,IUserChanged
 							
 						}
 					}.schedule(1000);
+					break;
+				default:
 					
 					break;
 				}

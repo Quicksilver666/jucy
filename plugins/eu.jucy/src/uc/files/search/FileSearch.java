@@ -83,10 +83,10 @@ public class FileSearch extends Observable<StatusObject> implements ISearchResul
 	 */
 	private final String searchString;
 	
-	private static int SEARCH_NONCE_COUNTER = GH.nextInt(100);
+	private static int SEARCH_NONCE_COUNTER = GH.nextInt(10000);
 	
 	private static synchronized int getNextNonce() {
-		SEARCH_NONCE_COUNTER+=GH.nextInt(100)+1;
+		SEARCH_NONCE_COUNTER+=GH.nextInt(10000)+1;
 		return SEARCH_NONCE_COUNTER;
 	}
 	

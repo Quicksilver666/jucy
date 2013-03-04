@@ -85,12 +85,14 @@ public class TigerTreeHasher2  implements IHasher {
 		while (-1 != chan.read(buf = ByteBuffer.allocate(BufferSize))) {
 			buf.flip();
 			HashPart part = new HashPart(buf,++counter);
-			synchronized(part) {
+			synchronized (part) {
 				try {
 					partsForHashing.put(part);
-				} catch(InterruptedException ie) {}
+				} catch(InterruptedException ie) {
+					Thread.interrupted();
+				}
 			}
-			
+
 			if (maxHashSpeedChunks > 0  &&  counter % maxHashSpeedChunks == 0) {
 				long timedif = 1000 - (System.currentTimeMillis() - last);
 				if (timedif >= 20) {
@@ -168,8 +170,7 @@ public class TigerTreeHasher2  implements IHasher {
 	 */
 	public HashValue hash(InterleaveHashes interleaves) {
 		if (interleaves.getInterleaves().isEmpty()) {
-			
-			throw new IllegalArgumentException("empty interleaves provided: "+levels.get(levels.size()-1).size()+"  "+levels.get(levels.size()-2).size());
+			throw new IllegalArgumentException("empty interleaves provided");
 		}
 		
 		List<HashValue> values = interleaves.getInterleaves();
@@ -267,9 +268,9 @@ public class TigerTreeHasher2  implements IHasher {
 								md.update(small, 0, current+1);
 								addHash(new TigerHashValue(md.digest()),0);
 							}
-						
+							
 							HashValue hash = finishTree();
-					
+						
 							finishedHashSegment(hash, part.order,0,md);
 							hashes[hashes.length-1] = null;
 						}

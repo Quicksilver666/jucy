@@ -64,7 +64,8 @@ public class HublistParser extends DefaultHandler {
 			HublistHub h = new HublistHub();
 			
 			for (Column c: columns) {	
-				h.setAttribute(c, attributes.getValue(c.getName()));
+				String attrib = attributes.getValue(c.getName());
+				h.setAttribute(c, GH.coalesce(attrib,""));
 			}
 			
 			hubs.add(h);

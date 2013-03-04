@@ -8,6 +8,7 @@ import uc.LanguageKeys;
 public enum ConnectionState {
 
 	CONNECTING(LanguageKeys.Connecting,false), // the socket is just about to open (before connect..)
+	KPFAILED(LanguageKeys.KPMismatch,false),
 	CONNECTED(LanguageKeys.Connected,true),  // Connection was established login process will begin
 	LOGGEDIN(LanguageKeys.LoggedIn,true),   // the login procedure is done
 	TRANSFERSTARTED(true),	// transfer is running  - only for client-client-protocol

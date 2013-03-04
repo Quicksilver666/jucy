@@ -1,6 +1,8 @@
 package uc.files.downloadqueue;
 
 
+import helpers.StatusObject.ChangeType;
+
 import java.io.File;
 import java.util.Date;
 
@@ -86,12 +88,12 @@ public abstract class AbstractFileDQE extends AbstractDownloadQueueEntry {
 	}
 	
 	protected void updateDB() {
-		dq.getDatabase().addOrUpdateDQE(DQEDAO.get(this),false);
+		 dq.getDatabase().modifyDQEDAO(DQEDAO.get(this), ChangeType.CHANGED);
 	}
 	
 	@Override
 	protected void addUserSuper(IUser usr) {
-		dq.getDatabase().addUserToDQE(usr,file.getTTHRoot());
+		dq.getDatabase().changeUserOfDQE(usr,file.getTTHRoot(),true);
 	}
 			
 	

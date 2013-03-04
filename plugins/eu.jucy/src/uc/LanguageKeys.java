@@ -41,6 +41,7 @@ public class LanguageKeys {
 		,IPv6PublicIPFound
 		,Idle
 		,IndexingTextfiles
+		,KPMismatch
 		,LoadedCertificate
 		,LoggedIn
 		,LoginTimeout

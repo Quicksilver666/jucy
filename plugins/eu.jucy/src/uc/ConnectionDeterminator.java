@@ -491,9 +491,8 @@ public class ConnectionDeterminator extends Observable<String> implements IConne
 			s.close();
 		} catch(UnknownHostException uhe) {
 			dcc.logEvent(LanguageKeys.IPv6DetectionFailed);
-			
 		} catch (IOException e) {
-			logger.warn(e,e);
+			dcc.logEvent(LanguageKeys.IPv6DetectionFailed);
 		} finally {
 			GH.close(s);
 		}

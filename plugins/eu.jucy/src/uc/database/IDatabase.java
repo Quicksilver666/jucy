@@ -2,6 +2,8 @@ package uc.database;
 
 
 
+import helpers.StatusObject.ChangeType;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.BitSet;
@@ -64,7 +66,7 @@ public interface IDatabase {
 	 * @param tthroot - the TTHRoot 
 	 * @return InterleaveHashes that match the provided TTHroothash
 	 */
-	InterleaveHashes getInterleaves(HashValue tthroot);
+	InterleaveHashes getInterleaves(HashValue tthroot,boolean dq);
 	
 	
 	/**
@@ -99,20 +101,25 @@ public interface IDatabase {
 	
 	//Start DQE and user part
 	
-	/**
-	 * stores or updates an already persistent DQE
-	 * in the database
-	 * 
-	 * @param dqe - the dqe to be updated
-	 * @param add true if added .. false for update..
-	 */
-	void addOrUpdateDQE(DQEDAO dqe,boolean add);
+//	/**
+//	 * stores or updates an already persistent DQE
+//	 * in the database
+//	 * 
+//	 * @param dqe - the dqe to be updated
+//	 * @param add true if added .. false for update..
+//	 * @deprecated modifyDQEDAO instead
+//	 */
+//	void addOrUpdateDQE(DQEDAO dqe,boolean add);
+//	
+//	/**
+//	 * removes a dqe from persistence..
+//	 * @param dqe - 
+//	 * @deprecate modifyDQEDAO instead
+//	 */
+//	void deleteDQE(DQEDAO dqe);
 	
-	/**
-	 * removes a dqe from persistence..
-	 * @param dqe - 
-	 */
-	void deleteDQE(DQEDAO dqe);
+	
+	void modifyDQEDAO(DQEDAO dqe,ChangeType ct);
 	
 	/**
 	 * requests the user to be persisted..
@@ -142,20 +149,29 @@ public interface IDatabase {
 	 */
 	void addRestoreInfo(HashValue hash,BitSet restoreInfo);
 	
-	/**
-	 * deletes a user from the provided DQE..
-	 * 
-	 * @param usr - the user ..
-	 * @param dqe - the DQE where to delete from
-	 */
-	void deleteUserFromDQE(IUser usr,DQEDAO dqe );
+//	/**
+//	 * deletes a user from the provided DQE..
+//	 * 
+//	 * @param usr - the user ..
+//	 * @param hash - the DQE where to delete from
+//	 */
+//	void deleteUserFromDQE(IUser usr,HashValue hash );
+//	
+//	/**
+//	 * same just with adding...
+//	 * @param usr
+//	 * @param dqe
+//	 */
+//	void addUserToDQE(IUser usr,HashValue hash);
 	
 	/**
-	 * same just with adding...
+	 * 
 	 * @param usr
-	 * @param dqe
+	 * @param hash
+	 * @param add - true for add / false for remove
 	 */
-	void addUserToDQE(IUser usr,HashValue hash);
+	void changeUserOfDQE(IUser usr,HashValue hash,boolean add);
+	
 	
 	
 	/**

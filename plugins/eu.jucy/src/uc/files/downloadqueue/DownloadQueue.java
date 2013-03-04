@@ -136,7 +136,7 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 								FileDQE.restore(dqedao,DownloadQueue.this);
 							} else {
 								logger.info("Redundant TargetPath "+dqedao.getPath()+" "+dqedao.getTTHRoot());
-								dcc.getDatabase().deleteDQE(dqedao);
+								dcc.getDatabase().modifyDQEDAO(dqedao,ChangeType.REMOVED);
 							}
 						}
 					} catch(Exception e) {
@@ -481,5 +481,7 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 			}
 		}
 	}
+	
+
 	
 }

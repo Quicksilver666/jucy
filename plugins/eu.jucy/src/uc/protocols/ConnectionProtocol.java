@@ -167,6 +167,9 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 		setState(ConnectionState.CONNECTING);	
 	}
 	
+	public void keyPrintFailed() {
+		setState(ConnectionState.KPFAILED);
+	}
 	
 	
 	
@@ -551,6 +554,9 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 	public boolean isIPv4() {
 		return connection.getInetSocketAddress().getAddress() instanceof Inet4Address;
 	}
+	
+	
+
 	
 }
 

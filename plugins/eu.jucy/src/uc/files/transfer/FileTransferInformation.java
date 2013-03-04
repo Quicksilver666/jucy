@@ -370,7 +370,7 @@ public class FileTransferInformation  {
 				setLength(filelist.length);
 				break;
 			case TTHL:
-				InterleaveHashes interleaves = dcc.getDatabase().getInterleaves(getHashValue());
+				InterleaveHashes interleaves = dcc.getDatabase().getInterleaves(getHashValue(),false);
 				if (interleaves != null) {
 					fileInterval = AbstractReadableFileInterval.create(interleaves);
 					setLength(fileInterval.length());

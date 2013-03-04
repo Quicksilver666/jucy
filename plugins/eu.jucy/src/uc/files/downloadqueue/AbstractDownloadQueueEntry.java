@@ -213,7 +213,7 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 				} 
 				DQEDAO dqedoa = DQEDAO.get(this);
 				if (dqedoa != null) {
-					dq.getDatabase().deleteUserFromDQE(usr,dqedoa);
+					dq.getDatabase().changeUserOfDQE(usr,dqedoa.getTTHRoot(),false);
 				}
 			}
 			
@@ -371,7 +371,7 @@ public abstract class AbstractDownloadQueueEntry implements Comparable<AbstractD
 		//remove from the persistence..
 		DQEDAO del = DQEDAO.get(this);
 		if (del != null) {
-			dq.getDatabase().deleteDQE(del);
+			dq.getDatabase().modifyDQEDAO(del, ChangeType.REMOVED);
 		}
 		
 		dq.removeFile(this);

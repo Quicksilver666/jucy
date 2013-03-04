@@ -30,7 +30,7 @@ public class HublistPI extends AbstractPreferenceInitializer {
 		//		"http://adc.dchublist.com/hublist.xml.bz2" //,
 		//		"http://adchublist.com/hublist.xml.bz2;" +
 				//"http://www.hublist.org/PublicHubList.xml.bz2;" + --> offline forever?
-			
+				,"http://hublist.eu/hublist.xml.bz2"
 				
 			//	"http://download.hublist.cz/hublist.xml.bz2;" +  offline
 				

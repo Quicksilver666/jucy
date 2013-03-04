@@ -468,6 +468,15 @@ public final class GH {
 		return concat(Arrays.asList(terms), between, emptyMap);
 	}
 	
+	public static String coalesce(String... s) {
+		for (String sp:s) {
+			if (sp != null) {
+				return sp;
+			}
+		}
+		return "";
+	}
+	
 	/**
 	 * 
 	 * @return a string representing all stacktraces..

@@ -1,5 +1,7 @@
 package uc.files.downloadqueue;
 
+import helpers.StatusObject.ChangeType;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -81,7 +83,7 @@ public class TTHLDQE extends AbstractFileDQE {
 			getDCC().executeDir(new Runnable() {
 				public void run() {
 					synchronized (TTHLDQE.this) {
-						FileDQE fdqe = new FileDQE(dq,target,ih,file, 255/2,getAdded(),null);
+						FileDQE fdqe = new FileDQE(dq,target,ih,file, getPriority(),getAdded(),null);
 	
 						//add all users and actions
 						for (AbstractDownloadFinished idf : downloadFinished) {
@@ -96,7 +98,7 @@ public class TTHLDQE extends AbstractFileDQE {
 						dq.addDownloadQueueEntry(fdqe); //add the FDQE now to the queue..
 					
 			
-						dq.getDatabase().addOrUpdateDQE(new DQEDAO(fdqe,ih),true);
+						dq.getDatabase().modifyDQEDAO(new DQEDAO(fdqe,ih),ChangeType.ADDED);
 						for (IUser user : users) { //add users afterwards so they are persisted again
 							logger.debug("adding user to FileDQE: " + users);
 							user.addDQE(fdqe);

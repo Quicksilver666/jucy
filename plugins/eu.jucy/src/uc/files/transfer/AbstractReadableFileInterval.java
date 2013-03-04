@@ -33,10 +33,12 @@ public abstract class AbstractReadableFileInterval extends AbstractFileInterval 
 	private static final Logger logger = LoggerFactory.make();
 
 	private static final class FCHolder {
-		public FCHolder(FileChannel fc) {
+		public FCHolder(FileInputStream input) {
 			super();
-			this.fc = fc;
+			inputStream = input;
+			this.fc = input.getChannel();
 		}
+		private final FileInputStream inputStream;
 		private final FileChannel fc;
 		private final Set<AbstractReadableFileInterval> readingFrom = new HashSet<AbstractReadableFileInterval>();
 		private Future<?> closer;
@@ -48,7 +50,7 @@ public abstract class AbstractReadableFileInterval extends AbstractFileInterval 
 		synchronized (cachedFiles) {
 			FCHolder fch = cachedFiles.get(source);
 			if (fch == null) {
-				fch = new FCHolder(new FileInputStream(source).getChannel());
+				fch = new FCHolder(new FileInputStream(source));
 				cachedFiles.put(source, fch);
 			}
 			if (fch.closer != null) {
@@ -85,6 +87,7 @@ public abstract class AbstractReadableFileInterval extends AbstractFileInterval 
 							synchronized(cachedFiles) {
 								if (fch.readingFrom.isEmpty()) {
 									GH.close(fch.fc);
+									GH.close(fch.inputStream);
 									cachedFiles.remove(source);
 								}
 							}
@@ -121,7 +124,7 @@ public abstract class AbstractReadableFileInterval extends AbstractFileInterval 
 			source = wholeFile;
 			currentpos = startpos;
 			
-			this.length = length+startpos; 
+			//this.length = length+startpos; 
 		
 		}
 		@Override
@@ -130,12 +133,12 @@ public abstract class AbstractReadableFileInterval extends AbstractFileInterval 
 				FileChannel fc = openFC(source,FileReadInterval.this); 
 				
 				public int read(ByteBuffer dst) throws IOException {
-					if (currentpos == length) {
+					if (currentpos == startpos+length) {
 						return -1;
 					}
 					
-					if (dst.remaining() > length - currentpos) {
-						dst.limit((int)(dst.position()+ length - currentpos));
+					if (dst.remaining() > startpos+length - currentpos) {
+						dst.limit((int)(dst.position()+ startpos+length - currentpos));
 					}
 					
 					int read = fc.read(dst, currentpos);
