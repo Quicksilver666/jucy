@@ -422,6 +422,9 @@ public class User implements IUser , IHasUser {
 		case KP:
 			keyPrint = null;
 			break;
+		case HI:
+			ct = (byte) (ct & ~CT_HIDDEN);
+			break;
 		}
 	}
 	
@@ -667,12 +670,13 @@ public class User implements IUser , IHasUser {
 	public void addDQE(AbstractDownloadQueueEntry dqe) {
 		makeSureExtendedExists();
 		
-		boolean present;
+		boolean present = false;
 		synchronized (this) {
 			if (extended.dqes == null ) {
 				extended.dqes =	new CopyOnWriteArraySet<AbstractDownloadQueueEntry>(); 
+			} else {
+				present = extended.dqes.contains(dqe);
 			}
-			present = extended.dqes.contains(dqe);
 		}
 		if (!present) {
 			int size;
@@ -681,6 +685,7 @@ public class User implements IUser , IHasUser {
 				size = extended.dqes.size();
 			}
 			if (size == 1) { //notify + locking on user -> deadlock
+		//		logger.info("First DQE added for user: "+getNick());
 				//if first entry .. allow adding user to the database as he might not yet be in there..
 				notifyUserChanged(UserChange.CHANGED, UserChangeEvent.DOWNLOADQUEUE_ENTRY_PRE_ADD_FIRST);
 			}

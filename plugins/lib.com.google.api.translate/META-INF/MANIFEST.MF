@@ -8,5 +8,5 @@ Export-Package: com.google.api,
  com.google.api.translate,
  com.tecnick.htmlutils.htmlentities,
  org.json
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: google-api-translate-java-0.92.jar

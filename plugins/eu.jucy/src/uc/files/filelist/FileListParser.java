@@ -33,7 +33,7 @@ public class FileListParser extends DefaultHandler {
 			String name = attributes.getValue("Name");
 			String size = attributes.getValue("Size");
 			
-			if (hashValue != null && name != null && size != null) {
+			if (hashValue != null && name != null && size != null &&  !".".equals(name) && !"..".equals(name)) {
 				try {
 					HashValue h =  HashValue.createHash(hashValue.toUpperCase());
 					new FileListFile(current,

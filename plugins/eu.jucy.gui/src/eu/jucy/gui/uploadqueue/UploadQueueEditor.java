@@ -58,7 +58,7 @@ public class UploadQueueEditor extends UCEditor implements IObserver<StatusObjec
 	private DelayedTableUpdater<UploadInfo> update;
 	
 
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public void createPartControl(Composite arg0) {
 		logger.debug("create upqueue");

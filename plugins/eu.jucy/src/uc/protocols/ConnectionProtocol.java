@@ -233,12 +233,17 @@ public abstract class ConnectionProtocol implements ReadWriteLock {
 		while ((m = getCommandRegexPattern().matcher(stringbuffer)).find()) {
 			String found = m.group(1);
 			//	logger.debug("command: "+found);
-			if (!GH.isNullOrEmpty(found)) {
-				stringbuffer.delete(0, m.end());
-				receivedCommand(found);
-			}  else {
-				stringbuffer.deleteCharAt(0);
-				break;
+			try {
+				if (!GH.isNullOrEmpty(found)) {
+					stringbuffer.delete(0, m.end());
+					receivedCommand(found);
+				}  else {
+					stringbuffer.deleteCharAt(0);
+					break;
+				}
+			} catch(RuntimeException re) {
+				logger.warn("Caused by: "+found+ " in "+toString());
+				throw re;
 			}
 		}
 	}

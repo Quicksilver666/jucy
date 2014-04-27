@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Database Plug-in
 Bundle-SymbolicName: eu.jucy.database;singleton:=true
-Bundle-Version: 1.86.0.qualifier
+Bundle-Version: 1.87.0.qualifier
 Require-Bundle: eu.jucy,
  eu.jucy.logging,
  lib.org.hsqldb,
@@ -10,5 +10,5 @@ Require-Bundle: eu.jucy,
  org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Quicksilver

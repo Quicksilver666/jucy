@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.libraries"
       label="Libraries"
-      version="1.0.6.qualifier"
+      version="1.0.7.qualifier"
       provider-name="Various Third Parties">
 
    <description>

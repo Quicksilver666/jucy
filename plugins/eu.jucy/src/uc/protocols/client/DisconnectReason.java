@@ -56,7 +56,9 @@ public enum DisconnectReason  {
 		switch(this) {
 		case NOSLOTS: return 53;
 		case FILENOTAVAILABLE: return 51;
+		default:
+			throw new IllegalStateException("wrong code found");
 		}
-		throw new IllegalStateException("wrong code found");
+		
 	}
 }

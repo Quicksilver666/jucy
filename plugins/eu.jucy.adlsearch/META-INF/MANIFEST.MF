@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ADL search
 Bundle-SymbolicName: eu.jucy.adlsearch;singleton:=true
-Bundle-Version: 1.86.0.qualifier
+Bundle-Version: 1.87.0.qualifier
 Bundle-Localization: nl/adl
 Require-Bundle: eu.jucy.helpers,
  eu.jucy,
@@ -12,7 +12,7 @@ Require-Bundle: eu.jucy.helpers,
  eu.jucy.logging,
  eu.jucy.helpers.ui,
  eu.jucy.helpers.rcp
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: eu.jucy.adlsearch,
  eu.jucy.adlsearch.ui
 Bundle-Vendor: Quicksilver

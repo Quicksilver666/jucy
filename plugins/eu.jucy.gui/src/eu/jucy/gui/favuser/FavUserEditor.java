@@ -67,7 +67,7 @@ public class FavUserEditor extends UCEditor implements IUserChangedListener {
 	private final SelectionProviderIntermediate spi = new SelectionProviderIntermediate();
 
 
-	@SuppressWarnings("unchecked")
+	
 	public void createPartControl(Composite parent) {
 		parent.setLayout(new FillLayout());
 		

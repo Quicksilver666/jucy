@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.Map;
 
 
 import org.apache.tools.bzip2.CBZip2InputStream;
@@ -150,6 +151,16 @@ public enum Compression {
 		if ( "ZL1".equals(nmdc)) {
 			return ZLIB_FAST;
 		} else if ("BZ2".equals(nmdc)) {
+			return BZ2;
+		} else {
+			return NONE;
+		}
+	}
+	
+	public static Compression parseAttributeMap(Map<String,String> attributes) {
+		if ("1".equals(attributes.get("ZL"))) {
+			return Compression.ZLIB_FAST;
+		} else if ("2".equals("BZ")) {
 			return BZ2;
 		} else {
 			return NONE;

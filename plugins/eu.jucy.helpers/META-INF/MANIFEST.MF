@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Helpers Plug-in
 Bundle-SymbolicName: eu.jucy.helpers
-Bundle-Version: 1.86.0.qualifier
+Bundle-Version: 1.87.0.qualifier
 Export-Package: annotations,
  helpers
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Quicksilver
 Bundle-ClassPath: .
 

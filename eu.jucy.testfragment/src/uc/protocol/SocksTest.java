@@ -70,6 +70,7 @@ public class SocksTest {
 	}
 
 	
+	@SuppressWarnings("resource")
 	@Test
 	public void testOpenUDPRelay() {
 		Socks s = new Socks("","",socksserver); //$NON-NLS-1$ //$NON-NLS-2$

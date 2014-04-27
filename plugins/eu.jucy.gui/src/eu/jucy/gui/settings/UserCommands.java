@@ -99,7 +99,7 @@ public class UserCommands extends UCPrefpage {
 	public static class UserCommandsFieldEditor extends ComplexListEditor<Command> {
 
 		
-		@SuppressWarnings("unchecked")
+		
 		public UserCommandsFieldEditor(String titleText, String prefID,Composite parent) {
 			super(titleText, prefID, Arrays.asList(new NameCol(),new SentCommandCol(),new HubColumn()), parent,true, new CommandTranslater(),false);
 		}

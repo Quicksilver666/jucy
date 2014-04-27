@@ -413,7 +413,7 @@ public class FileDQE extends AbstractFileDQE {
 				dqe = new TTHLDQE(dq,idf,255/2,target,new Date()); 
 			}
 			//persist  
-			
+			logger.info("Adding DQE: "+idf.getTTHRoot());
 			dq.getDatabase().modifyDQEDAO(DQEDAO.get(dqe),ChangeType.ADDED); //add the DQE item to the persistent storage..
 			
 			dq.addDownloadQueueEntry(dqe);

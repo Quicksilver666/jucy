@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: jucy Main Plug-in
 Bundle-SymbolicName: eu.jucy; singleton:=true
-Bundle-Version: 1.86.0.qualifier
+Bundle-Version: 1.87.0.qualifier
 Bundle-ClassPath: .
 Export-Package: uc,
  uc.crypto,
@@ -27,6 +27,6 @@ Require-Bundle: eu.jucy.logging,
  lib.org.apache.lucene,
  lib.org.apache.pdfbox,
  lib.com.jcraft.jzlib
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Quicksilver

@@ -11,6 +11,8 @@ import java.security.NoSuchAlgorithmException;
 
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -77,7 +79,7 @@ public class CryptoManager implements ICryptoManager {
 			};
 			
 			
-			tlsinit = SSLContext.getInstance("TLSv1");
+			tlsinit = SSLContext.getInstance("TLSv1.2");
 			KeyManager[] managers =  identity.getBoolean(PI.allowTLS)? loadManager(fingerPrintPointer,true):null;
 			tlsinit.init(managers,trustAllCerts , null);
 			
@@ -137,7 +139,17 @@ public class CryptoManager implements ICryptoManager {
 				dcc.logEvent(LanguageKeys.LoadedCertificate);
 				KeyManager[] managers = kmf.getKeyManagers();
 				Certificate cert = store.getCertificate(aliasForAlg("RSA"));
+				
 				if (cert != null) {
+					Date oneWeek = new Date(System.currentTimeMillis()+TimeUnit.DAYS.toMillis(7));
+					if (cert.getType().equals("X.509") && ((X509Certificate) cert).getNotAfter().before(oneWeek)) { // cert expiration
+		                logger.warn("Certificat expires soon/ already expired: " + ((X509Certificate) cert).getNotAfter() +": deleting certificate.");
+		                GH.close(fis);
+		                
+		                if (retry && (f.renameTo(new File(f.getParentFile(),"old_keystore"))||f.delete())) {
+							return loadManager(fingerPrintPointer, false);
+		                }
+		            } 
 					fingerPrintPointer[0] = SHA256HashValue.hashData(cert.getEncoded());
 					logger.debug("fingerPrint: "+fingerPrintPointer[0]);
 				} else {
@@ -186,7 +198,7 @@ public class CryptoManager implements ICryptoManager {
 				 "-dname",
 				 "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown",
 				 "-validity", 
-				 "999",
+				 "730",
 				 "-keystore",
 				 f.getCanonicalPath()});
 

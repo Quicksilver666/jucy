@@ -200,7 +200,7 @@ public class DebuggerView extends UCView implements IObserver<StatusObject> {
 	
 	
 	
-	@SuppressWarnings("unchecked")
+	
 	private void createStatsTab(CTabFolder parent) { 
 		statsViewer  = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL |SWT.FULL_SELECTION);
 		statsViewer.getTable().setHeaderVisible(true);

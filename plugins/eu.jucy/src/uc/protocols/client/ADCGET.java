@@ -1,6 +1,7 @@
 package uc.protocols.client;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,14 +29,14 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 	private Pattern filelist;
 	
 	public ADCGET() {
-		file = Pattern.compile(prefix + " file TTH/("+TTH+") ("+FILESIZE+") ("+FILESIZE+"|-1)("+COMPRESSION+")");
-		interleaves = Pattern.compile(prefix + " tthl TTH/("+TTH+") 0 -1("+COMPRESSION+")");
+		file = Pattern.compile(prefix + " file TTH/("+TTH+") ("+FILESIZE+") ("+FILESIZE+"|-1)(.*)"); 
+		interleaves = Pattern.compile(prefix + " tthl TTH/("+TTH+") 0 -1(.*)");
 		
 		String filelista = "file files\\.xml\\.bz2";
 		String filelistb = "list /"+TEXT_NOSPACE; 
 		String filelists = "(?:(?:"+filelista+")|(?:"+filelistb+"))";
 		
-		filelist = Pattern.compile(prefix + " ("+filelists+") 0 -1("+COMPRESSION+")");
+		filelist = Pattern.compile(prefix + " ("+filelists+") 0 -1(.*)");
 	}
 
 	@Override
@@ -54,7 +55,8 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 			fti.setStartposition(startpos);
 			long length = Long.parseLong(m.group(3));
 			fti.setLength(length);
-			Compression comp = Compression.parseProtocolString(m.group(4));
+			Map<String,String> flags= AbstractADCClientProtocolCommand.getCCFlagMap(m.group(4));
+			Compression comp = Compression.parseAttributeMap(flags);
 			fti.setCompression(comp);
 			
 			
@@ -65,24 +67,25 @@ public class ADCGET extends AbstractNMDCClientProtocolCommand {
 			HashValue what = HashValue.createHash(m.group(1)); 
 			fti.setType(TransferType.TTHL);
 			fti.setHashValue(what);
-			Compression comp = Compression.parseProtocolString(m.group(2));
+			
+			Map<String,String> flags= AbstractADCClientProtocolCommand.getCCFlagMap(m.group(2));
+			Compression comp = Compression.parseAttributeMap(flags);
 			fti.setCompression(comp);
 			
 			client.transfer();
 		} else if ( (m = filelist.matcher(command)).matches()) {
 			
 			fti.setType(TransferType.FILELIST);
-			Compression comp = Compression.parseProtocolString(m.group(2));
+			Map<String,String> flags= AbstractADCClientProtocolCommand.getCCFlagMap(m.group(2));
+			Compression comp = Compression.parseAttributeMap(flags);
+		
 			fti.setCompression(comp);
 			boolean partialList = m.group(1).startsWith("list /");
 			fti.setPartialList(partialList);
 			fti.setBz2Compressed(m.group(1).equals("file files.xml.bz2"));
 			if (partialList) {
 				String path =  AbstractADCCommand.revReplaces(m.group(1).substring(5));
-				if (path.length() > 1) {
-					logger.info(client.getUser()+" path filelist decoded: "+path);
-				}
-				fti.setPartialFileList(path,true);
+				fti.setPartialFileList(path, "1".equals(flags.get("RE")));
 			}
 			client.transfer();
 		}  else {

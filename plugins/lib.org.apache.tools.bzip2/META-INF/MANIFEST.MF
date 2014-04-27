@@ -5,4 +5,4 @@ Bundle-SymbolicName: lib.org.apache.tools.bzip2
 Bundle-Version: 1.0.2
 Bundle-ClassPath: bzip2.jar
 Export-Package: org.apache.tools.bzip2
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

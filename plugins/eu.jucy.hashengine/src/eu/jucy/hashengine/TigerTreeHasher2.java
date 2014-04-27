@@ -33,11 +33,12 @@ import uc.crypto.TigerHashValue;
 
 public class TigerTreeHasher2  implements IHasher {
 
-	private static final int PrivateLevels = 7;
-	private static final int BufferSize = 1024 * (int)Math.pow(2, PrivateLevels-1);
+	private static final int PrivateLevels = 7; 
+	private static final int BUFFER_SIZE = 1024 * (int)Math.pow(2, PrivateLevels-1);
 	
 	private static final int MAX_PROCESSORS = 16;
-	private final BlockingQueue<HashPart> partsForHashing = new LinkedBlockingQueue<HashPart>(100);
+	private static final int CACHE_SIZE_IN_PARTS = 256;
+	private final BlockingQueue<HashPart> partsForHashing = new LinkedBlockingQueue<HashPart>(CACHE_SIZE_IN_PARTS);
 	
 	private volatile boolean hashRunning;
 	
@@ -53,7 +54,7 @@ public class TigerTreeHasher2  implements IHasher {
 	
 	public TigerTreeHasher2() {
 		md = new Tiger();
-		maxHashSpeedChunks = (int)((PI.getInt(PI.maxHashSpeed)*1024L * 1024L) /BufferSize);
+		maxHashSpeedChunks = (int)((PI.getInt(PI.maxHashSpeed)*1024L * 1024L) /BUFFER_SIZE);
 	}
 	
 	/**
@@ -67,7 +68,7 @@ public class TigerTreeHasher2  implements IHasher {
 			return new InterleaveHashes(new HashValue[]{TigerHashValue.ZEROBYTEHASH});
 		}
 		int processors = Runtime.getRuntime().availableProcessors();
-		hashThreads = size <= BufferSize*10? 1 : Math.min(processors,MAX_PROCESSORS);  
+		hashThreads = size <= BUFFER_SIZE*10? 1 : Math.min(processors,MAX_PROCESSORS);  
 		hashThreads = Math.max(1, hashThreads);
 		
 		initialiseLevels(getLevel(size));
@@ -82,7 +83,7 @@ public class TigerTreeHasher2  implements IHasher {
 		
 		ByteBuffer buf;// ;
 		int counter = -1;
-		while (-1 != chan.read(buf = ByteBuffer.allocate(BufferSize))) {
+		while (-1 != chan.read(buf = ByteBuffer.allocate(BUFFER_SIZE))) {
 			buf.flip();
 			HashPart part = new HashPart(buf,++counter);
 			synchronized (part) {
@@ -218,7 +219,7 @@ public class TigerTreeHasher2  implements IHasher {
 	 * @return the partsize for specified filesize and level used
 	 */
 	private static long getPartSize(int level) {
-		long sizeLevelZero = BufferSize;
+		long sizeLevelZero = BUFFER_SIZE;
 		 
 		while (--level > 0) {
 			sizeLevelZero*=2;

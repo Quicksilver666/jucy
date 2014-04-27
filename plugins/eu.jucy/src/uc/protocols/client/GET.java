@@ -2,6 +2,7 @@ package uc.protocols.client;
 
 import java.io.IOException;
 import java.net.ProtocolException;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,14 +39,14 @@ Note that GET can also be used by extensions for binary transfers between hub an
 	 */
 	
 	public GET() {
-		file = Pattern.compile(prefix + " file TTH/("+TTH+") ("+FILESIZE+") ("+FILESIZE+"|-1)("+COMPRESSION+")");
-		interleaves = Pattern.compile(prefix + " tthl TTH/("+TTH+") 0 -1("+COMPRESSION+")");
+		file = Pattern.compile(prefix + " file TTH/("+TTH+") ("+FILESIZE+") ("+FILESIZE+"|-1)(.*)");
+		interleaves = Pattern.compile(prefix + " tthl TTH/("+TTH+") 0 -1(.*)");
 		
 		String filelista = "file files\\.xml\\.bz2";
 		String filelistb = "list /"+TEXT_NOSPACE;
 		String filelists = "(?:(?:"+filelista+")|(?:"+filelistb+"))";
 		
-		filelist = Pattern.compile(prefix + " ("+filelists+") 0 -1("+COMPRESSION+") ?(.*)");
+		filelist = Pattern.compile(prefix + " ("+filelists+") 0 -1(.*)");
 	}
 
 	public void handle(ClientProtocol client,String command) throws ProtocolException, IOException {
@@ -62,7 +63,9 @@ Note that GET can also be used by extensions for binary transfers between hub an
 			fti.setStartposition(startpos);
 			long length = Long.parseLong(m.group(3));
 			fti.setLength(length);
-			Compression comp = Compression.parseProtocolString(m.group(4));
+			Map<String,String> flags= AbstractADCClientProtocolCommand.getCCFlagMap(m.group(4));
+			Compression comp = Compression.parseAttributeMap(flags);
+		
 			fti.setCompression(comp);
 			
 			client.transfer(); //FileRequested(what, startpos, length, comp);
@@ -71,20 +74,23 @@ Note that GET can also be used by extensions for binary transfers between hub an
 			HashValue what = HashValue.createHash(m.group(1)); 
 			fti.setType(TransferType.TTHL);
 			fti.setHashValue(what);
-			Compression comp = Compression.parseProtocolString(m.group(2));
+			Map<String,String> flags= AbstractADCClientProtocolCommand.getCCFlagMap(m.group(2));
+			Compression comp = Compression.parseAttributeMap(flags);
+			
 			fti.setCompression(comp);
 			
 			client.transfer();
 		} else if ( (m = filelist.matcher(command)).matches()) {
 			fti.setType(TransferType.FILELIST);
-			Compression comp = Compression.parseProtocolString(m.group(2));
+			Map<String,String> flags= AbstractADCClientProtocolCommand.getCCFlagMap(m.group(2));
+			Compression comp = Compression.parseAttributeMap(flags);
 			fti.setCompression(comp);
 			boolean partialList = m.group(1).startsWith("list /");
 			fti.setPartialList(partialList);
 			fti.setBz2Compressed(m.group(1).equals("file files.xml.bz2"));
 			if (partialList) {
 				String path =  AbstractADCCommand.revReplaces(m.group(1).substring(5));
-				fti.setPartialFileList(path,"RE1".equals(m.group(3)));
+				fti.setPartialFileList(path, "1".equals(flags.get("RE")));
 			} 
 			
 			

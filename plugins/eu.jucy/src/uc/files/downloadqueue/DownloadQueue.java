@@ -173,6 +173,7 @@ public class DownloadQueue extends Observable<StatusObject> implements IStoppabl
 				FileDQE fdqe = (FileDQE)adqe;
 				fdqe.storeRestoreInfo();
 				break;
+			case TTHL: // do nothing
 			}
 		}
 		

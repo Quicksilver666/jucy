@@ -135,11 +135,14 @@ public class Application implements IApplication {
 			if (!f.isFile()) {
 				f.createNewFile();
 			}
-			FileChannel fc = new FileOutputStream(f).getChannel();
+			FileOutputStream fos = new FileOutputStream(f);
+			FileChannel fc = fos.getChannel();
 			lock = fc.tryLock();
 			if (lock != null) {
 				f.deleteOnExit();
 			}
+			fos.close();
+			fc.close();
 			return lock != null ;
 			
 		} catch (IOException ioe) {

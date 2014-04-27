@@ -101,14 +101,12 @@ import uc.user.User;
 
 
 /** 
+ * TODO when there is a TTHL downloading while the DQE for the tthl is deleted -> DQE without user will be left in DQ
+ * TODO do not readd removed users to a file by an autosearch!
  * 
  * TODO when there is a download during upload idle statemachine shown in transfers view
  * 
  * TODO FavHubs  listener change on hub connection.. / not just listener needs more
- * TODO maybe WINAMP/itunes SPAM
- * itunes: http://www.workingwith.me.uk/articles/java/itunes-com-with-java-and-swing
- * winamp: http://sourceforge.net/projects/javawinampapi/
- * Rhytmbox for linux possibly?   
  * 
 
  * TODO translation plugin needs to be changed because google translation api got deprecated!!!http://basharkokash.com/post/2010/04/19/Bing-Translator-for-developers.aspx

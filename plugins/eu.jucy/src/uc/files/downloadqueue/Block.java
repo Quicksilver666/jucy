@@ -46,6 +46,11 @@ public class Block implements IBlock {
 		private  Map<File,FileChannel> fcmap = new HashMap<File,FileChannel>();
 		
 		/**
+		 * holds Random Access Files for these channels  for reuse
+		 */
+		private  Map<File,RandomAccessFile> ramap = new HashMap<File,RandomAccessFile>();
+		
+		/**
 		 * counts how often a FileChannel is in use..
 		 */
 		private  Map<File,Integer> fcCounter = new HashMap<File,Integer>();
@@ -53,7 +58,9 @@ public class Block implements IBlock {
 		private synchronized  FileChannel getFC(File f) throws IOException {
 			FileChannel fc = fcmap.get(f);
 			if (fc == null || !fc.isOpen()) {
-				fc = new RandomAccessFile(f,"rw").getChannel();
+				RandomAccessFile raf = new RandomAccessFile(f,"rw");
+				ramap.put(f, raf);
+				fc = raf.getChannel();
 				fcmap.put(f, fc);
 			}
 			changeFCCounter(f,1);
@@ -81,6 +88,8 @@ public class Block implements IBlock {
 				FileChannel fc = fcmap.remove(f);
 				fc.force(true);
 				fc.close();
+				RandomAccessFile raf = ramap.remove(f);
+				raf.close();
 			}
 		}
 		

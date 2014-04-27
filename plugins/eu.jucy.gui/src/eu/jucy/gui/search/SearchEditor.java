@@ -147,7 +147,7 @@ public class SearchEditor extends UCEditor implements IObserver<StatusObject> , 
 	
 	private boolean proposalClosed = true;
 
-	@SuppressWarnings("unchecked")
+
 	@Override
 	public void createPartControl(Composite parent) {
 		final GridLayout gridLayout_1 = new GridLayout();

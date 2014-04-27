@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gui Plug-in
 Bundle-SymbolicName: eu.jucy.gui;singleton:=true
-Bundle-Version: 1.86.0.qualifier
+Bundle-Version: 1.87.0.qualifier
 Bundle-Localization: nl/gui
 Require-Bundle: eu.jucy.logging,
  org.eclipse.core.runtime,
@@ -31,7 +31,7 @@ Export-Package: eu.jucy.gui,
  eu.jucy.gui.texteditor.hub,
  eu.jucy.gui.transferview
 Bundle-ClassPath: .
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Activator: eu.jucy.gui.Activator
 Bundle-ActivationPolicy: lazy
 Plugin-Class: eu.jucy.gui.Activator

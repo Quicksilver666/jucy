@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.connectiondebugger"
       label="Connection debugger"
-      version="1.86.0.qualifier"
+      version="1.87.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.connectiondebugger">
 
@@ -51,7 +51,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.connectiondebugger"
          download-size="0"
          install-size="0"
-         version="1.86.0.qualifier"
+         version="1.87.0.qualifier"
          unpack="false"/>
 
 </feature>

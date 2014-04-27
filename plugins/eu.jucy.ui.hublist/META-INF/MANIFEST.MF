@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hublist
 Bundle-SymbolicName: eu.jucy.ui.hublist;singleton:=true
 Bundle-Localization: nl/publichubs
-Bundle-Version: 1.86.0.qualifier
+Bundle-Version: 1.87.0.qualifier
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  eu.jucy.helpers,
@@ -13,5 +13,5 @@ Require-Bundle: org.eclipse.ui,
  eu.jucy.gui,
  eu.jucy.helpers.ui
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Quicksilver

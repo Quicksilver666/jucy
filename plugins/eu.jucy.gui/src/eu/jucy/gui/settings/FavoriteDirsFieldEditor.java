@@ -25,7 +25,7 @@ public class FavoriteDirsFieldEditor extends ComplexListEditor<FavDir> {
 
 	
 	
-	@SuppressWarnings("unchecked")
+
 	public FavoriteDirsFieldEditor(String titleText, String prefID, Composite parent) {
 		super(titleText, prefID, Arrays.asList(new FavDirNameColumn(),new FavDirsPathColumn()),parent, new FavDirTranslater());
 	}

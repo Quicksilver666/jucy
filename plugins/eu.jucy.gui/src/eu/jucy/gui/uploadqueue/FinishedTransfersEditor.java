@@ -65,7 +65,7 @@ public class FinishedTransfersEditor extends UCEditor implements IObserver<Statu
 	private IUploadQueue transfers;
 	
 	
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public void createPartControl(Composite arg0) {
 		transfers = ((FinishedTransfersEditorInput)getEditorInput()).getInput();

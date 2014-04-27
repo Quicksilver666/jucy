@@ -2,7 +2,7 @@
 <feature
       id="eu.jucy.feature.countries"
       label="Country flags"
-      version="1.86.0.qualifier"
+      version="1.87.0.qualifier"
       provider-name="Quicksilver"
       plugin="eu.jucy.countries">
 
@@ -66,14 +66,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="eu.jucy.countries"
          download-size="0"
          install-size="0"
-         version="1.86.0.qualifier"
+         version="1.87.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="eu.jucy.geoipmaxmind"
          download-size="0"
          install-size="0"
-         version="1.86.0.qualifier"
+         version="1.87.0.qualifier"
          unpack="false"/>
 
 </feature>

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Logging Plug-in
 Bundle-SymbolicName: eu.jucy.logging
-Bundle-Version: 1.86.0.qualifier
+Bundle-Version: 1.87.0.qualifier
 Bundle-ClassPath: .,
  log4j-1.2.14.jar
 Export-Package: logger,
@@ -28,5 +28,5 @@ Export-Package: logger,
  org.apache.log4j.varia,
  org.apache.log4j.xml
 Require-Bundle: org.eclipse.core.runtime
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Quicksilver

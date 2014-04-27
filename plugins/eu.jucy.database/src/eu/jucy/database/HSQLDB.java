@@ -27,8 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import java.util.concurrent.TimeUnit;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -38,9 +42,6 @@ import logger.LoggerFactory;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
 import uc.DCClient;
 import uc.IUser;
@@ -83,10 +84,11 @@ public class HSQLDB implements IDatabase {
 	private final Map<HashValue, String> knownLogEntities = 
 			Collections.synchronizedMap(new HashMap<HashValue, String>());
 	
-	private final ConcurrentLinkedQueue<StatusObject> queue = new ConcurrentLinkedQueue<StatusObject>();
-	private final AtomicBoolean updateInProgress = new AtomicBoolean(false);
+//	private final BlockingQueue<StatusObject> queue = new LinkedBlockingQueue<StatusObject>();
+//	private final AtomicBoolean updateInProgress = new AtomicBoolean(false);
+//	private final Object onlyOneUpdateJob = new Object();
 
-	
+	private ExecutorService exec;
 	
 	private DCClient dcc;
 
@@ -132,6 +134,8 @@ public class HSQLDB implements IDatabase {
 			if (!dqInterleavesExists()) {
 				createDQInterlaveTable();
 			}
+			exec= Executors.newSingleThreadExecutor();
+			
 		} finally {
 			writeLock.unlock();
 		}
@@ -150,10 +154,17 @@ public class HSQLDB implements IDatabase {
 	// }
 	// }
 
-	public void shutdown() {
-		while (updateInProgress.get()) {
-			GH.sleep(100);
+	public void shutdown()  {
+		exec.shutdown();
+		try {
+			while(!exec.awaitTermination(100, TimeUnit.MILLISECONDS)) {}
+		} catch (InterruptedException ie) {
+			Thread.interrupted();
 		}
+		
+	//	while (updateInProgress.get()) {
+	//		GH.sleep(100);
+	//	}
 		disconnect();
 	}
 
@@ -453,6 +464,7 @@ public class HSQLDB implements IDatabase {
 			Statement sd = c.createStatement();
 			sd.execute("SHUTDOWN");
 			c.close();
+			
 		} catch (SQLException e) {
 			logger.warn("Disconnecting failed " + e.toString(), e);
 		} finally {
@@ -567,9 +579,13 @@ public class HSQLDB implements IDatabase {
 
 	}
 
-	public void addUpdateOrDeleteUser(IUser usr) {
+	public void addUpdateOrDeleteUser(final IUser usr) { 
 		if (!ignoreUserUpdates) {
+			exec.execute(new Runnable() {
+				public void run() {
+			
 			writeLock.lock();
+			
 			try {
 				ensureConnectionIsOpen();
 				if (usr.shouldBeStored()) {
@@ -585,7 +601,7 @@ public class HSQLDB implements IDatabase {
 					updateUsr.setLong(3, usr.getAutograntSlot());
 					updateUsr.setString(4, usr.getUserid().toString()); // Update
 																		// Where
-
+					
 					int count = updateUsr.executeUpdate();
 					updateUsr.close();
 
@@ -602,6 +618,9 @@ public class HSQLDB implements IDatabase {
 
 						addUser.execute();
 						addUser.close();
+						logger.debug("Added User: "+usr.getNick());
+					} else {
+						logger.debug("updated user " + usr.getNick());
 					}
 
 				} else {
@@ -620,6 +639,8 @@ public class HSQLDB implements IDatabase {
 			} finally {
 				writeLock.unlock();
 			}
+				}
+			});
 		}
 	}
 
@@ -657,7 +678,8 @@ public class HSQLDB implements IDatabase {
 			// getNrOfEntrysInUserToDQETable();
 
 		} catch (SQLException sqle) {
-			logger.warn(sqle, sqle);
+			logger.warn(sqle+ "  "+usr + "  "+hash, sqle);
+			
 		} finally {
 			writeLock.unlock();
 		}
@@ -711,6 +733,7 @@ public class HSQLDB implements IDatabase {
 			int priority, long size, boolean add) throws SQLException {
 		logger.debug("HSQL: adding dqe " + target);
 		if (add) {
+			logger.info("Adding DQE object: "+tth);
 			addDQE(tth, added, target, priority, size);
 		} else {
 			updateDQE(tth, added, target, priority, size);
@@ -876,19 +899,23 @@ public class HSQLDB implements IDatabase {
 		addStatusObject(new StatusObject(usr,add?ChangeType.ADDED:ChangeType.REMOVED,0,hash));
 	}
 	
-	private void addStatusObject(StatusObject so) {
-		queue.add(so);
-		if (updateInProgress.compareAndSet(false, true)) {
-			Job job = new Job("Change DownloadQueue") {
+	private void addStatusObject(final StatusObject so) {
+		exec.execute(new Runnable() {
+			public void run() {
 				
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					int total = queue.size();
-					monitor.beginTask("Change Download Queue", total);
-					
-					StatusObject so = null;
-					while (total-- > 0  && null != (so = queue.poll())) {
-						monitor.worked(1);
+
+//		queue.add(so);
+//		if (updateInProgress.compareAndSet(false, true)) {
+//			Job job = new Job("Change DownloadQueue") {
+//				
+//				@Override
+//				protected IStatus run(IProgressMonitor monitor) {
+//					int total = queue.size();
+//					monitor.beginTask("Change Download Queue", total);
+//					
+//					StatusObject so = null;
+//					while (total-- > 0  && null != (so = queue.poll())) {
+//						monitor.worked(1);
 						switch(so.getType()) {
 						case ADDED:
 							if (so.getValue() instanceof DQEDAO) {
@@ -908,21 +935,23 @@ public class HSQLDB implements IDatabase {
 							}
 							break;
 						}
-					}
-					updateInProgress.set(false);
-					monitor.done();
-					if (!queue.isEmpty()) {
-						schedule();
-					}
-					
-					return Status.OK_STATUS;
-				}
-			};
-			job.setUser(false);
-			job.setSystem(true);
-			job.schedule();
-			
-		}
+//					}
+//					updateInProgress.set(false);
+//					monitor.done();
+//					if (!queue.isEmpty()) {
+//						schedule();
+//					}
+//					
+//					return Status.OK_STATUS;
+//				}
+//			};
+//			job.setUser(false);
+//			job.setSystem(true);
+//			job.schedule();
+//			
+//		}
+			}
+		});			
 	}
 
 	/**
@@ -1463,6 +1492,7 @@ public class HSQLDB implements IDatabase {
 		return 0;
 	}
 	
+	@SuppressWarnings("unused")
 	private int countLogentrys(HashValue entityID,long dateBefore) {
 		readLock.lock();
 		try {

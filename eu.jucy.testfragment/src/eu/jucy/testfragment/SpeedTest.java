@@ -13,6 +13,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.Random;
 
+@SuppressWarnings("resource")
 public class SpeedTest {
 
 	/**
@@ -88,6 +89,7 @@ public class SpeedTest {
 			GH.close(destc,sourcec,in);
 		}	
 	}
+	
 	
 	private static void moveB(File source,File dest) throws IOException{
 		FileInputStream in = null;

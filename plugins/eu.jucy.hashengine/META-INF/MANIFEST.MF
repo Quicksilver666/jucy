@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Standard Hashengine
 Bundle-SymbolicName: eu.jucy.hashengine;singleton:=true
-Bundle-Version: 1.86.0.qualifier
+Bundle-Version: 1.87.0.qualifier
 Require-Bundle: eu.jucy,
  eu.jucy.logging,
  eu.jucy.helpers,
  org.eclipse.core.runtime,
  lib.fr.cryptohash
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Quicksilver

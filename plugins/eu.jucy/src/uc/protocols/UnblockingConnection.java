@@ -440,7 +440,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 
 			} catch (Exception e) {  
 				if ((e.toString().contains("Cipher buffering error")|| e.toString().contains("record too big") )&& Platform.inDevelopmentMode()) {
-					logger.warn(cp.toString());
+					logger.warn(cp.toString(),e);
 				}
 				addProblematic(e);
 				asynchClose();
@@ -454,7 +454,7 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 		}
 	}
 	/*
-	 * adds a user to a problematic set so no DH is used with that user
+	 * adds a user to a problematic set so no DH is used with that user 178.9.55.201
 	 * workaround for http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6521495
 	 */
 	private void addProblematic(Exception e) {
@@ -640,13 +640,14 @@ public class UnblockingConnection extends AbstractConnection implements IUnblock
 				List<String> enabledCS = Arrays.asList(engine
 						.getSupportedCipherSuites());
 				/*
-				 * disabled: MD5: Old hashfunction and broken. RC4: old
-				 * streamcipher and weak Kerberos: needs server.. probably
-				 * special settings.. nobody will use it SSL: Enforces use
-				 * of TLS
+				 * disabled: 
+				 * MD5: Old hashfunction and broken. 
+				 * RC4: Old streamcipher and no longer trustable 
+				 * Kerberos: needs server.. probably special settings.. nobody will use it 
+				 * SSL: Enforces use of TLS
 				 */
 				enabledCS = GH.filter(enabledCS, "MD5", "RC4", "KRB5",
-				"SSL");
+				"SSL","NULL");
 				if (!enabledCS.isEmpty()) {
 					engine.setEnabledCipherSuites(enabledCS
 							.toArray(new String[] {}));
